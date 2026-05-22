@@ -36,6 +36,7 @@ KEY_MAP = {
 PIECES = {"X", "O", "U", "B", ""}
 MOVABLE_PIECES = {"X", "O"}
 USEFUL_PIECES = {"O", "U"}
+SCREENSHOT_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 
 
 def normalize_board(board):
@@ -451,11 +452,21 @@ def play_solution(moves):
         pyautogui.press(KEY_MAP[move])
 
 
-def parse_board_from_screenshot(screenshot_path, debug_dir=None, no_fallback=False):
+def parse_board_from_screenshot(
+    screenshot_path,
+    debug_dir=None,
+    no_fallback=False,
+    gemini_only=False,
+):
     repo_root = Path(__file__).resolve().parents[1]
     parser_dir = repo_root / "boardParsers"
     if str(parser_dir) not in sys.path:
         sys.path.insert(0, str(parser_dir))
+
+    if gemini_only:
+        from fallbackBoardParser import parse_board_from_image
+
+        return normalize_board(parse_board_from_image(screenshot_path))
 
     from openCVBoardParser import parse_board_from_image
 
@@ -467,12 +478,47 @@ def parse_board_from_screenshot(screenshot_path, debug_dir=None, no_fallback=Fal
     return normalize_board(parsed_board)
 
 
+def newest_screenshot(screenshots_dir="screenshots"):
+    screenshots_path = Path(screenshots_dir)
+    if not screenshots_path.is_dir():
+        raise FileNotFoundError(
+            f"Screenshot folder does not exist: {screenshots_path}. "
+            "Create it and add a screenshot first."
+        )
+
+    image_paths = [
+        path
+        for path in screenshots_path.iterdir()
+        if path.is_file() and path.suffix.lower() in SCREENSHOT_EXTENSIONS
+    ]
+    if not image_paths:
+        allowed = ", ".join(sorted(SCREENSHOT_EXTENSIONS))
+        raise FileNotFoundError(
+            f"No screenshots found in {screenshots_path}. "
+            f"Supported extensions: {allowed}."
+        )
+
+    return max(image_paths, key=lambda path: path.stat().st_mtime)
+
+
+def apply_preset(args):
+    if args.preset != "reg-settings":
+        return args
+
+    args.screenshot = str(newest_screenshot())
+    args.gemini_only = True
+    args.quiet_progress = True
+    print(f"Using newest screenshot: {args.screenshot}")
+    return args
+
+
 def load_start_board(args):
     if args.screenshot:
         return parse_board_from_screenshot(
             args.screenshot,
             debug_dir=args.debug_dir,
             no_fallback=args.no_fallback,
+            gemini_only=args.gemini_only,
         )
 
     return normalize_board(DEFAULT_BOARD)
@@ -481,8 +527,17 @@ def load_start_board(args):
 def build_parser():
     parser = argparse.ArgumentParser(description="Solve a Google Tic Tac Go board.")
     parser.add_argument(
+        "preset",
+        nargs="?",
+        choices=("reg-settings",),
+        help=(
+            "Use regular screenshot settings: newest image in screenshots/, "
+            "Gemini parser, and quiet progress."
+        ),
+    )
+    parser.add_argument(
         "--screenshot",
-        help="Optional path to a saved board screenshot to parse with OpenCV.",
+        help="Optional path to a saved board screenshot.",
     )
     parser.add_argument(
         "--debug-dir",
@@ -492,6 +547,11 @@ def build_parser():
         "--no-fallback",
         action="store_true",
         help="Do not call the Gemini fallback parser if OpenCV parsing fails.",
+    )
+    parser.add_argument(
+        "--gemini-only",
+        action="store_true",
+        help="Parse screenshots with Gemini directly and skip OpenCV.",
     )
     parser.add_argument(
         "--autoplay",
@@ -512,7 +572,7 @@ def build_parser():
 
 
 def main():
-    args = build_parser().parse_args()
+    args = apply_preset(build_parser().parse_args())
     start_board = load_start_board(args)
 
     print("=== START BOARD ===")
