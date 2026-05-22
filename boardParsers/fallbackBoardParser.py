@@ -5,11 +5,13 @@ import os
 from pathlib import Path
 
 
-BOARD_SIZE = 6
+STANDARD_BOARD_SIZE = 8
+MIN_VISIBLE_BOARD_SIZE = 3
 ALLOWED_INPUT_CELLS = {"X", "O", "U", "B", ".", ""}
 PROMPT = """Find the standard Google Tic Tac Go board in this screenshot.
 
-Return only the current board state as a 6x6 matrix.
+Return only the visible playable board state as a rectangular matrix.
+The visible board can be smaller than 8x8, such as 3x3 or 6x6.
 Read the board top-to-bottom, left-to-right.
 Use exactly these symbols:
 - X for X pieces
@@ -24,8 +26,7 @@ Do not infer moves, solve the game, or change any pieces. Identify only what is 
 RETRY_PROMPT = """The previous response did not validate as a Tic Tac Go board.
 
 Return only corrected JSON for the visible board:
-- exactly 6 rows
-- exactly 6 cells per row
+- a rectangular board from 3x3 through 8x8
 - allowed cells only: X, O, U, B, .
 - exactly one U
 
@@ -38,12 +39,12 @@ BOARD_RESPONSE_SCHEMA = {
     "properties": {
         "board": {
             "type": "array",
-            "minItems": BOARD_SIZE,
-            "maxItems": BOARD_SIZE,
+            "minItems": MIN_VISIBLE_BOARD_SIZE,
+            "maxItems": STANDARD_BOARD_SIZE,
             "items": {
                 "type": "array",
-                "minItems": BOARD_SIZE,
-                "maxItems": BOARD_SIZE,
+                "minItems": MIN_VISIBLE_BOARD_SIZE,
+                "maxItems": STANDARD_BOARD_SIZE,
                 "items": {
                     "type": "string",
                     "enum": ["X", "O", "U", "B", "."],
@@ -59,21 +60,44 @@ class BoardParseError(ValueError):
     """Raised when a Gemini response cannot be converted into a valid board."""
 
 
+def pad_board_to_standard_size(board):
+    """Pad smaller boards with blocked cells so DQN observations stay 8x8."""
+    padded = []
+    for row in board:
+        padded.append(row + ["B"] * (STANDARD_BOARD_SIZE - len(row)))
+
+    while len(padded) < STANDARD_BOARD_SIZE:
+        padded.append(["B"] * STANDARD_BOARD_SIZE)
+
+    return padded
+
+
 def validate_board(board):
     if not isinstance(board, list):
         raise BoardParseError("Board must be a list of rows.")
-    if len(board) != BOARD_SIZE:
-        raise BoardParseError(f"Board must have {BOARD_SIZE} rows, got {len(board)}.")
+    if not MIN_VISIBLE_BOARD_SIZE <= len(board) <= STANDARD_BOARD_SIZE:
+        raise BoardParseError(
+            "Board must have between "
+            f"{MIN_VISIBLE_BOARD_SIZE} and {STANDARD_BOARD_SIZE} rows, "
+            f"got {len(board)}."
+        )
 
     user_count = 0
     normalized = []
+    visible_width = None
     for row_index, row in enumerate(board):
         if not isinstance(row, list):
             raise BoardParseError(f"Row {row_index} must be a list.")
-        if len(row) != BOARD_SIZE:
+        if not MIN_VISIBLE_BOARD_SIZE <= len(row) <= STANDARD_BOARD_SIZE:
             raise BoardParseError(
-                f"Row {row_index} must have {BOARD_SIZE} cells, got {len(row)}."
+                "Rows must have between "
+                f"{MIN_VISIBLE_BOARD_SIZE} and {STANDARD_BOARD_SIZE} cells, "
+                f"got {len(row)} in row {row_index}."
             )
+        if visible_width is None:
+            visible_width = len(row)
+        elif len(row) != visible_width:
+            raise BoardParseError("Board rows must all be the same length.")
 
         normalized_row = []
         for col_index, cell in enumerate(row):
@@ -99,7 +123,7 @@ def validate_board(board):
     if user_count != 1:
         raise BoardParseError(f"Board must contain exactly one U, got {user_count}.")
 
-    return normalized
+    return pad_board_to_standard_size(normalized)
 
 
 def board_from_response_text(response_text):
@@ -202,7 +226,7 @@ def print_board(board):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse a Google Tic Tac Go screenshot into a 6x6 board.")
+    parser = argparse.ArgumentParser(description="Parse a Google Tic Tac Go screenshot into a padded 8x8 board.")
     parser.add_argument("image_path", help="Path to a saved screenshot.")
     parser.add_argument(
         "--model",
