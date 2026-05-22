@@ -8,7 +8,7 @@ from typing import Optional
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, length=6, width=6, board = tuple(tuple()), render_mode=None):
+    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None):
         self.length = length
         self.width = width
         self.board = board
@@ -51,13 +51,13 @@ class TicTacWorldEnv(gym.Env):
             pass
 
 
-        self._agent_location = np.array([self.agentX, self.agentY], dtype=np.int32)
-        self._o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
-        self._o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
+        self.agent_location = np.array([self.agentX, self.agentY], dtype=np.int32)
+        self.o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
+        self.o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
         
         self.observation_space = gym.spaces.Box(low = 0, 
                                                 high = 1,
-                                                shape=(5, length, width), 
+                                                shape=(5, 8, 8), 
                                                 dtype=np.int32)
 
         self.action_space = gym.spaces.Discrete(4)
@@ -65,16 +65,16 @@ class TicTacWorldEnv(gym.Env):
     def moveUp(self, board=None):
         if board is None:
             board = self.board
-        userPos = self._agent_location.copy()
+        userPos = self.agent_location.copy()
         
         if userPos[0]-1 >= 0 :
             if board[userPos[0]-1][userPos[1]] == "B" :
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             elif((board[userPos[0]-1][userPos[1]] == "X" or 
                 board[userPos[0]-1][userPos[1]] == "O")
                 and (
                     userPos[0]-2 < 0 or board[userPos[0]-2][userPos[1]] != "")):
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             else:
 
                 newBoard = [list(row) for row in board]
@@ -82,33 +82,33 @@ class TicTacWorldEnv(gym.Env):
                     newBoard[userPos[0]-2][userPos[1]] = newBoard[userPos[0]-1][userPos[1]]
 
                 elif(userPos[0]-2 >= 0 and board[userPos[0]-1][userPos[1]] == "O"):
-                    if(userPos[0]-1 == self._o_one_location[0] and userPos[1] == self._o_one_location[1]):
-                        self._o_one_location[0] = self._o_one_location[0] - 1
-                    elif(userPos[0]-1 == self._o_two_location[0] and userPos[1] == self._o_two_location[1]):
-                        self._o_two_location[0] = self._o_two_location[0] - 1
+                    if(userPos[0]-1 == self.o_one_location[0] and userPos[1] == self.o_one_location[1]):
+                        self.o_one_location[0] = self.o_one_location[0] - 1
+                    elif(userPos[0]-1 == self.o_two_location[0] and userPos[1] == self.o_two_location[1]):
+                        self.o_two_location[0] = self.o_two_location[0] - 1
 
                     newBoard[userPos[0]-2][userPos[1]] = newBoard[userPos[0]-1][userPos[1]]
 
                 newBoard[userPos[0]-1][userPos[1]] = "U"
-                self._agent_location[0] = self._agent_location[0] - 1
+                self.agent_location[0] = self.agent_location[0] - 1
                 newBoard[userPos[0]][userPos[1]] = ""
                 self.board = newBoard
 
-                return tuple(tuple(row) for row in newBoard), self._agent_location, self._o_one_location, self._o_two_location
-        return board, self._agent_location, self._o_one_location, self._o_two_location
+                return tuple(tuple(row) for row in newBoard), self.agent_location, self.o_one_location, self.o_two_location
+        return board, self.agent_location, self.o_one_location, self.o_two_location
 
     def moveRight(self, board=None):
         if board is None:
             board = self.board
-        userPos = self._agent_location.copy()
+        userPos = self.agent_location.copy()
         
         if userPos[1]+1 < len(board[0]):
             if board[userPos[0]][userPos[1]+1] == "B":
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             elif ((board[userPos[0]][userPos[1]+1] == "X" or 
                 board[userPos[0]][userPos[1]+1] == "O")
                 and (userPos[1]+2 >= len(board[0]) or board[userPos[0]][userPos[1]+2] != "")):
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             else:
                 newBoard = [list(row) for row in board]
                 
@@ -116,34 +116,34 @@ class TicTacWorldEnv(gym.Env):
                     newBoard[userPos[0]][userPos[1]+2] = newBoard[userPos[0]][userPos[1]+1]
 
                 elif (userPos[1]+2 < len(board[0]) and board[userPos[0]][userPos[1]+1] == "O"):
-                    if (userPos[0] == self._o_one_location[0] and userPos[1]+1 == self._o_one_location[1]):
-                        self._o_one_location[1] = self._o_one_location[1] + 1
-                    elif (userPos[0] == self._o_two_location[0] and userPos[1]+1 == self._o_two_location[1]):
-                        self._o_two_location[1] = self._o_two_location[1] + 1
+                    if (userPos[0] == self.o_one_location[0] and userPos[1]+1 == self.o_one_location[1]):
+                        self.o_one_location[1] = self.o_one_location[1] + 1
+                    elif (userPos[0] == self.o_two_location[0] and userPos[1]+1 == self.o_two_location[1]):
+                        self.o_two_location[1] = self.o_two_location[1] + 1
 
                     newBoard[userPos[0]][userPos[1]+2] = newBoard[userPos[0]][userPos[1]+1]
 
                 newBoard[userPos[0]][userPos[1]+1] = "U"
-                self._agent_location[1] = self._agent_location[1] + 1
+                self.agent_location[1] = self.agent_location[1] + 1
                 newBoard[userPos[0]][userPos[1]] = ""
                 self.board = newBoard
 
-                return tuple(tuple(row) for row in newBoard), self._agent_location, self._o_one_location, self._o_two_location
+                return tuple(tuple(row) for row in newBoard), self.agent_location, self.o_one_location, self.o_two_location
                 
-        return board, self._agent_location, self._o_one_location, self._o_two_location
+        return board, self.agent_location, self.o_one_location, self.o_two_location
 
     def moveLeft(self, board=None):
         if board is None:
             board = self.board
-        userPos = self._agent_location.copy()
+        userPos = self.agent_location.copy()
         
         if userPos[1]-1 >= 0:
             if board[userPos[0]][userPos[1]-1] == "B":
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             elif ((board[userPos[0]][userPos[1]-1] == "X" or 
                 board[userPos[0]][userPos[1]-1] == "O")
                 and (userPos[1]-2 < 0 or board[userPos[0]][userPos[1]-2] != "")):
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             else:
                 newBoard = [list(row) for row in board]
                 
@@ -151,34 +151,34 @@ class TicTacWorldEnv(gym.Env):
                     newBoard[userPos[0]][userPos[1]-2] = newBoard[userPos[0]][userPos[1]-1]
 
                 elif (userPos[1]-2 >= 0 and board[userPos[0]][userPos[1]-1] == "O"):
-                    if (userPos[0] == self._o_one_location[0] and userPos[1]-1 == self._o_one_location[1]):
-                        self._o_one_location[1] = self._o_one_location[1] - 1
-                    elif (userPos[0] == self._o_two_location[0] and userPos[1]-1 == self._o_two_location[1]):
-                        self._o_two_location[1] = self._o_two_location[1] - 1
+                    if (userPos[0] == self.o_one_location[0] and userPos[1]-1 == self.o_one_location[1]):
+                        self.o_one_location[1] = self.o_one_location[1] - 1
+                    elif (userPos[0] == self.o_two_location[0] and userPos[1]-1 == self.o_two_location[1]):
+                        self.o_two_location[1] = self.o_two_location[1] - 1
 
                     newBoard[userPos[0]][userPos[1]-2] = newBoard[userPos[0]][userPos[1]-1]
 
                 newBoard[userPos[0]][userPos[1]-1] = "U"
-                self._agent_location[1] = self._agent_location[1] - 1
+                self.agent_location[1] = self.agent_location[1] - 1
                 newBoard[userPos[0]][userPos[1]] = ""
                 self.board = newBoard
 
-                return tuple(tuple(row) for row in newBoard), self._agent_location, self._o_one_location, self._o_two_location
+                return tuple(tuple(row) for row in newBoard), self.agent_location, self.o_one_location, self.o_two_location
                 
-        return board, self._agent_location, self._o_one_location, self._o_two_location
+        return board, self.agent_location, self.o_one_location, self.o_two_location
 
     def moveDown(self, board=None):
         if board is None:
             board = self.board
-        userPos = self._agent_location.copy()
+        userPos = self.agent_location.copy()
         
         if userPos[0]+1 < len(board):
             if board[userPos[0]+1][userPos[1]] == "B":
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             elif ((board[userPos[0]+1][userPos[1]] == "X" or 
                 board[userPos[0]+1][userPos[1]] == "O")
                 and (userPos[0]+2 >= len(board) or board[userPos[0]+2][userPos[1]] != "")):
-                return board, self._agent_location, self._o_one_location, self._o_two_location
+                return board, self.agent_location, self.o_one_location, self.o_two_location
             else:
                 newBoard = [list(row) for row in board]
                 
@@ -186,21 +186,21 @@ class TicTacWorldEnv(gym.Env):
                     newBoard[userPos[0]+2][userPos[1]] = newBoard[userPos[0]+1][userPos[1]]
 
                 elif (userPos[0]+2 < len(board) and board[userPos[0]+1][userPos[1]] == "O"):
-                    if (userPos[0]+1 == self._o_one_location[0] and userPos[1] == self._o_one_location[1]):
-                        self._o_one_location[0] = self._o_one_location[0] + 1
-                    elif (userPos[0]+1 == self._o_two_location[0] and userPos[1] == self._o_two_location[1]):
-                        self._o_two_location[0] = self._o_two_location[0] + 1
+                    if (userPos[0]+1 == self.o_one_location[0] and userPos[1] == self.o_one_location[1]):
+                        self.o_one_location[0] = self.o_one_location[0] + 1
+                    elif (userPos[0]+1 == self.o_two_location[0] and userPos[1] == self.o_two_location[1]):
+                        self.o_two_location[0] = self.o_two_location[0] + 1
 
                     newBoard[userPos[0]+2][userPos[1]] = newBoard[userPos[0]+1][userPos[1]]
 
                 newBoard[userPos[0]+1][userPos[1]] = "U"
-                self._agent_location[0] = self._agent_location[0] + 1
+                self.agent_location[0] = self.agent_location[0] + 1
                 newBoard[userPos[0]][userPos[1]] = ""
                 self.board = newBoard
 
-                return tuple(tuple(row) for row in newBoard), self._agent_location, self._o_one_location, self._o_two_location
+                return tuple(tuple(row) for row in newBoard), self.agent_location, self.o_one_location, self.o_two_location
                 
-        return board, self._agent_location, self._o_one_location, self._o_two_location
+        return board, self.agent_location, self.o_one_location, self.o_two_location
 
     def lostCheck(self, board=None):
         if board is None:
@@ -338,7 +338,7 @@ class TicTacWorldEnv(gym.Env):
 
         compatibleBoard = np.array(arr, dtype=np.int32)
 
-        threeDArr = np.zeros((5, self.length, self.width), dtype=np.int32)
+        threeDArr = np.zeros((5, 8, 8), dtype=np.int32)
 
         for i in range(0, len(compatibleBoard)):
                 for j in range(0, len(compatibleBoard[i])):
@@ -361,14 +361,57 @@ class TicTacWorldEnv(gym.Env):
             boardString += " ".join([cell if cell != "" else "." for cell in row])
         return dict(board=boardString)
     
-    def reset(self, seed: Optional[int] = None, options: Optional[int] = None):
+    def reset(self, seed: Optional[int] = None, options: Optional[int] = 8):
         super().reset(seed = seed)
 
-        self._agent_location = np.array([self.agentX, self.agentY], dtype=np.int32)
-        self._o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
-        self._o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
+        # self.board = 
+
+        length = 0
+        width = 0
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                if(self.board[i][j] != "B"):
+                    if(i>length-1):
+                        length = i+1
+                    if(j>width-1):
+                        width = j+1
+        
+        if(length == 0):
+            length = len(self.board)
+        if(width == 0):
+            width = len(self.board[0])
+
+        self.length = length
+        self.width = width
+        self.initial_board = tuple(tuple(row) for row in self.board)
+
+        try:
+            for i in range(0, len(self.board)):
+                for j in range(0, len(self.board[i])):
+                    if self.board[i][j] == "U":
+                        self.agentX = i
+                        self.agentY = j
+                        raise StopIteration
+        except StopIteration:
+            pass
+        
+        try:
+            for i in range(0, len(self.board)):
+                for j in range(0, len(self.board[i])):
+                    if self.board[i][j] == "O" and self.oTwoX == -1:
+                        self.oOneX = i
+                        self.oOneY = j
+                    if self.board[i][j] == "O" and self.oTwoX != -1:
+                        self.oTwoX = i
+                        self.oTwoY = j
+                        raise StopIteration
+        except StopIteration:
+            pass
+
+        self.agent_location = np.array([self.agentX, self.agentY], dtype=np.int32)
+        self.o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
+        self.o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
         self.board = tuple(tuple(row) for row in self.initial_board)
-        self.stepCount = 0
 
         observation = self._get_obs()
         info = self._get_info()
@@ -382,7 +425,7 @@ class TicTacWorldEnv(gym.Env):
 
         self.stepCount += 1
 
-        currentPos = self._agent_location.copy()
+        currentPos = self.agent_location.copy()
 
         if action == 0:
             self.moveUp()
@@ -394,7 +437,7 @@ class TicTacWorldEnv(gym.Env):
             self.moveRight()
 
         same = False
-        if currentPos[0] == self._agent_location[0] and currentPos[1] == self._agent_location[1]:
+        if currentPos[0] == self.agent_location[0] and currentPos[1] == self.agent_location[1]:
             same = True
 
         won = self.solved()
@@ -404,10 +447,8 @@ class TicTacWorldEnv(gym.Env):
         terminated = won or lost
         truncated = False
 
-        if(self.length <= 4 and self.width <=4 ):
-            reward = -0.25
-        else:
-            reward = -0.1
+        #Negative per step scales with size
+        reward = -0.1 * (16 / (self.length * self.width))
 
         if softLocked:
             terminated = True

@@ -50,15 +50,12 @@ board = (("", "", "", "B", "B", "B", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"))
 
-length = len(board)
-width = len(board[0])
-
 render_mode=None
-env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=length, width=width, board=board, render_mode=render_mode)
+env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=3, width=3, board=board, render_mode=render_mode)
 
 obs, info = env.reset()
 
-callbackEnv = gym.make("tic_tac_go_env/TicTacWorld-v0", length=length, width=width, board=board, render_mode=render_mode)
+callbackEnv = gym.make("tic_tac_go_env/TicTacWorld-v0", length=3, width=3, board=board, render_mode=render_mode)
 obs, info = callbackEnv.reset()
 
 policy_kwargs = dict(
@@ -97,7 +94,6 @@ board = (("", "", "", "", "", "", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"))
 
 #Graduation 3 Sparser Os(List of good positions for all 3 of them)
-
 board = (("", "", "", "", "", "", "B", "B"),
          ("", "", "", "", "O", "", "B", "B"),
          ("", "", "", "", "", "", "B", "B"),
@@ -137,10 +133,26 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-#Graduation 7, Real Board Blocks (Change Threshold, Come up with random strategy)
+#Graduation 7 Blocks (Come up with random strategy)
+board = (("", "", "", "", "X", "", "", ""),
+         ("", "X", "", "O", "", "", "", ""),
+         ("B", "B", "B", "", "", "X", "", ""),
+         ("", "", "", "", "", "", "", "X"),
+         ("", "", "X", "", "X", "", "", ""),
+         ("X", "O", "", "B", "B", "U", "", ""),
+         ("", "", "", "B", "B", "", "", ""),
+         ("X", "", "", "B", "B", "", "", "X"))
+
+#Graduation 8 Varying Board Sizes, Real Board (Change Threshold, Find boards)
+board = (("", "", "", "", "X", ""),
+          ("", "O", "X", "", "", ""),
+          ("X", "X", "", "X", "X", ""),
+          ("", "", "", "X", "O", ""),
+          ("", "X", "", "U", "", "X"),
+          ("", "", "X", "", "", ""))
 
 
-env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=length, width=width, board=board, render_mode="human")
+env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
 
 obs, info = env.reset()
 
