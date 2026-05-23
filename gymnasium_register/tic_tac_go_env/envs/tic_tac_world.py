@@ -6,15 +6,17 @@ from typing import Optional
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None):
+    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=8):
         self.length = length
         self.width = width
         self.board = board
+        self.base_board = tuple(tuple(row) for row in board)
         self.initial_board = tuple(tuple(row) for row in board)
         self.render_mode = render_mode
         self.window_size = 512
         self.window = None
         self.clock = None
+        self.reset_option = reset_option
 
         assert self.render_mode is None or self.render_mode in self.metadata["render_modes"]
 
@@ -24,6 +26,12 @@ class TicTacWorldEnv(gym.Env):
         self.oOneY = -1
         self.oTwoX = -1
         self.oTwoY = -1
+        self.initialAgentX = -1
+        self.initialAgentY = -1
+        self.initialOOneX = -1
+        self.initialOOneY = -1
+        self.initialOTwoX = -1
+        self.initialOTwoY = -1
 
         try:
             for i in range(0, len(board)):
@@ -31,6 +39,8 @@ class TicTacWorldEnv(gym.Env):
                     if board[i][j] == "U":
                         self.agentX = i
                         self.agentY = j
+                        self.initialAgentX = i
+                        self.initialAgentY = j
                         raise StopIteration
         except StopIteration:
             pass
@@ -41,9 +51,13 @@ class TicTacWorldEnv(gym.Env):
                     if board[i][j] == "O" and self.oTwoX == -1:
                         self.oOneX = i
                         self.oOneY = j
+                        self.initialOOneX = i
+                        self.initialOOneY = j
                     if board[i][j] == "O" and self.oTwoX != -1:
                         self.oTwoX = i
                         self.oTwoY = j
+                        self.initialOTwoX = i
+                        self.initialOTwoY = j
                         raise StopIteration
         except StopIteration:
             pass
@@ -359,10 +373,128 @@ class TicTacWorldEnv(gym.Env):
             boardString += " ".join([cell if cell != "" else "." for cell in row])
         return dict(board=boardString)
     
-    def reset(self, seed: Optional[int] = None, options: Optional[int] = 8):
+    def reset(self, seed: Optional[int] = None, options= None):
         super().reset(seed = seed)
 
-        # self.board = 
+        if(options is None):
+            options = self.reset_option
+
+        self.board = [list(row) for row in self.base_board]
+
+        onePositions = [{"agent":(0, 0)}, 
+                        {"agent":(1, 1)}, 
+                        {"agent":(2, 0)}]
+        
+        twoPositions = [{"agent":(2, 2)}, 
+                        {"agent":(4, 3)}, 
+                        {"agent":(1, 0)}]
+        
+        threePositions = [{"agent":(3, 3), "oOne":(1, 4), "oTwo":(4,1)}, 
+                        {"agent":(2, 1), "oOne":(3, 5), "oTwo":(4,3)}, 
+                        {"agent":(4, 0), "oOne":(1, 2), "oTwo":(4,4)}]
+        
+        fourPositions = [{"agent":(3, 3), "oOne":(1, 4), "oTwo":(4, 1),
+                          "xs":[(0, 4), (1, 1), (2, 5), (4, 2), (4, 4), (5, 0)]},
+                         {"agent":(2, 1), "oOne":(3, 5), "oTwo":(4, 3),
+                         "xs":[(0, 2), (1, 5), (2, 4), (4, 0), (5, 2)]},
+                         {"agent":(4, 0), "oOne":(1, 2), "oTwo":(4, 4),
+                          "xs":[(0, 5), (1, 0), (2, 3), (3, 5), (5, 1), (5, 4)]},
+                         {"agent":(3, 3), "oOne":(1, 4), "oTwo":(4, 1),
+                          "xs":[(0, 4), (1, 1), (2, 5), (4, 2), (4, 4), (5, 0)]}]
+        
+        fivePositions = [{"agent":(5, 5), "oOne":(1, 3), "oTwo":(5, 1),
+                          "xs":[(0, 4), (1, 1), (2, 5), (3, 7), (4, 2), (4, 4), (6, 3), (7, 0), (7, 4), (7, 7)]},
+                         {"agent":(4, 4), "oOne":(1, 5), "oTwo":(5, 2),
+                          "xs":[(0, 2), (1, 1), (2, 6), (3, 0), (4, 6), (5, 4), (6, 1), (7, 5)]},
+                         {"agent":(6, 5), "oOne":(2, 2), "oTwo":(5, 6),
+                          "xs":[(0, 5), (1, 0), (1, 7), (3, 3), (4, 1), (4, 5), (6, 2), (7, 6)]}]
+        
+        sixPositions = [{"agent":(5, 5), "oOne":(1, 3), "oTwo":(5, 1),
+                         "xs":[(0, 4), (1, 1), (2, 5), (3, 6), (3, 7), (4, 2), (4, 4), (5, 7), (6, 3), (6, 4), (7, 0), (7, 4), (7, 7)]},
+                        {"agent":(6, 6), "oOne":(1, 4), "oTwo":(5, 2),
+                         "xs":[(0, 1), (0, 6), (1, 1), (2, 0), (2, 5), (3, 5), (4, 0), (4, 3), (5, 5), (6, 2), (7, 2), (7, 6)]},
+                        {"agent":(3, 4), "oOne":(1, 6), "oTwo":(6, 1),
+                         "xs":[(0, 2), (1, 2), (1, 4), (2, 6), (3, 0), (3, 1), (4, 5), (5, 3), (5, 7), (6, 5), (7, 0), (7, 3)]}]
+        
+        sevenPositions = [{"agent":(5, 5), "oOne":(1, 3), "oTwo":(5, 1),
+                           "xs":[(0, 4), (1, 1), (2, 5), (3, 7), (4, 2), (4, 4), (5, 0), (7, 0), (7, 7)],
+                           "bs":[(2, 0), (2, 1), (2, 2), (5, 3), (5, 4), (6, 3), (6, 4), (7, 3), (7, 4)]},
+                          {"agent":(6, 6), "oOne":(1, 5), "oTwo":(5, 2),
+                           "xs":[(0, 1), (1, 1), (2, 6), (3, 0), (3, 7), (4, 3), (5, 5), (7, 1), (7, 6)],
+                           "bs":[(2, 2), (2, 3), (3, 2), (5, 0), (6, 0), (6, 1)]},
+                          {"agent":(4, 6), "oOne":(1, 2), "oTwo":(6, 4),
+                           "xs":[(0, 5), (1, 0), (2, 4), (3, 6), (4, 1), (5, 3), (6, 6), (7, 0), (7, 7)],
+                           "bs":[(2, 0), (2, 1), (3, 1), (4, 4), (4, 5), (5, 5)]}]
+        
+        eightPositions = [{"agent":(4, 3), "oOne":(1, 1), "oTwo":(3, 4),
+                           "xs":[(0, 4), (1, 2), (2, 0), (2, 1), (2, 3), (2, 4), (3, 3), (4, 1), (4, 5)]},
+                          {"agent":(2, 0), "oOne":(2, 4), "oTwo":(4, 4),
+                           "xs":[(0, 2), (1, 1), (1, 4), (2, 2), (2, 3), (3, 0), (3, 4), (3, 5), (4, 1), (4, 3), (4, 5), (5, 0)]},
+                          {"agent":(0, 0), "oOne":(3, 6), "oTwo":(6, 1),
+                           "xs":[(0, 6), (1, 4), (1, 5), (2, 4), (3, 5), (4, 0), (4, 2), (4, 6), (5, 1), (5, 2), (6, 3), (6, 4)],
+                           "bs":[(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3), (5, 5), (5, 6), (6, 5), (6, 6)]},
+                          {"agent":(7, 4), "oOne":(3, 1), "oTwo":(3, 6),
+                           "xs":[(0, 3), (1, 1), (1, 3), (1, 6), (3, 0), (3, 7), (5, 2), (5, 5), (6, 3), (6, 4), (6, 6), (7, 1), (7, 7)],
+                           "bs":[(2, 4), (3, 2), (3, 3), (3, 4), (3, 5), (4, 3), (4, 4), (5, 4)]},
+                          {"agent":(3, 0), "oOne":(1, 3), "oTwo":(2, 2),
+                           "xs":[(0, 2), (1, 1)],
+                           "bs":[(2, 1)]}]
+
+        def clear_board(clear_blocks=False, clear_os=True, clear_xs=True, clear_agent=True):
+            for i in range(0, len(self.board)):
+                for j in range(0, len(self.board[i])):
+                    if ((clear_agent and self.board[i][j] == "U")
+                        or (clear_os and self.board[i][j] == "O")
+                        or (clear_xs and self.board[i][j] == "X")
+                        or (clear_blocks and self.board[i][j] == "B")):
+                        self.board[i][j] = ""
+
+        def place_position(position):
+            self.board[position["agent"][0]][position["agent"][1]] = "U"
+
+            if "oOne" in position:
+                self.board[position["oOne"][0]][position["oOne"][1]] = "O"
+            if "oTwo" in position:
+                self.board[position["oTwo"][0]][position["oTwo"][1]] = "O"
+
+            for xPosition in position.get("xs", []):
+                self.board[xPosition[0]][xPosition[1]] = "X"
+
+            for bPosition in position.get("bs", []):
+                self.board[bPosition[0]][bPosition[1]] = "B"
+
+        if(options==1):
+            num = np.random.choice(onePositions)
+            clear_board(clear_os=False, clear_xs=False)
+            place_position(num)
+        elif(options==2):
+            num = np.random.choice(twoPositions)
+            clear_board(clear_os=False, clear_xs=False)
+            place_position(num)
+        elif(options==3):
+            num = np.random.choice(threePositions)
+            clear_board()
+            place_position(num)
+        elif(options==4):
+            num = np.random.choice(fourPositions)
+            clear_board()
+            place_position(num)
+        elif(options==5):
+            num = np.random.choice(fivePositions)
+            clear_board(clear_blocks=True)
+            place_position(num)
+        elif(options==6):
+            num = np.random.choice(sixPositions)
+            clear_board(clear_blocks=True)
+            place_position(num)
+        elif(options==7):
+            num = np.random.choice(sevenPositions)
+            clear_board(clear_blocks=True)
+            place_position(num)
+        else:
+            num = np.random.choice(eightPositions)
+            clear_board(clear_blocks=True)
+            place_position(num)
 
         length = 0
         width = 0
@@ -383,12 +515,27 @@ class TicTacWorldEnv(gym.Env):
         self.width = width
         self.initial_board = tuple(tuple(row) for row in self.board)
 
+        self.agentX = -1
+        self.agentY = -1
+        self.oOneX = -1
+        self.oOneY = -1
+        self.oTwoX = -1
+        self.oTwoY = -1
+        self.initialAgentX = -1
+        self.initialAgentY = -1
+        self.initialOOneX = -1
+        self.initialOOneY = -1
+        self.initialOTwoX = -1
+        self.initialOTwoY = -1
+
         try:
             for i in range(0, len(self.board)):
                 for j in range(0, len(self.board[i])):
                     if self.board[i][j] == "U":
                         self.agentX = i
                         self.agentY = j
+                        self.initialAgentX = i
+                        self.initialAgentY = j
                         raise StopIteration
         except StopIteration:
             pass
@@ -399,9 +546,13 @@ class TicTacWorldEnv(gym.Env):
                     if self.board[i][j] == "O" and self.oTwoX == -1:
                         self.oOneX = i
                         self.oOneY = j
+                        self.initialOOneX = i
+                        self.initialOOneY = j
                     if self.board[i][j] == "O" and self.oTwoX != -1:
                         self.oTwoX = i
                         self.oTwoY = j
+                        self.initialOTwoX = i
+                        self.initialOTwoY = j
                         raise StopIteration
         except StopIteration:
             pass
@@ -420,8 +571,6 @@ class TicTacWorldEnv(gym.Env):
         return observation, info
     
     def step(self, action):
-
-        self.stepCount += 1
 
         currentPos = self.agent_location.copy()
 
@@ -446,7 +595,7 @@ class TicTacWorldEnv(gym.Env):
         truncated = False
 
         #Negative per step scales with size
-        reward = -0.1 * (16 / (self.length * self.width))
+        reward = -0.5 * (16 / (self.length * self.width))
 
         if softLocked:
             terminated = True
