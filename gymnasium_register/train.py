@@ -1,11 +1,13 @@
 import gymnasium as gym
 from stable_baselines3 import DQN
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from stable_baselines3.common.callbacks import EvalCallback, StopTrainingOnRewardThreshold
+from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import torch as th
 import torch.nn as nn
+import numpy as np
 from pathlib import Path
 import tic_tac_go_env
+import BFStoTrainer
 
 #This class is AI code idk whats happening inside
 #it just creates a custom 3X3 window
@@ -45,6 +47,26 @@ class GraduationEvalCallback(EvalCallback):
             print(f"\nGraduation {self.graduation}")
 
         return super()._on_step()
+
+
+class StopTrainingOnMeanReward(BaseCallback):
+    def __init__(self, reward_threshold, verbose=0):
+        super().__init__(verbose=verbose)
+        self.reward_threshold = reward_threshold
+        self.threshold_reached = False
+
+    def _on_step(self) -> bool:
+        mean_reward = self.parent.last_mean_reward
+        if mean_reward >= self.reward_threshold:
+            self.threshold_reached = True
+            if self.verbose >= 1:
+                print(
+                    f"Stopping training because the mean reward {mean_reward:.2f} "
+                    f"is above the threshold {self.reward_threshold}"
+                )
+            return False
+
+        return True
     
 
 board = (("", "", "", "B", "B", "B", "B", "B"),
@@ -72,8 +94,36 @@ policy_kwargs = dict(
 
 model_path = Path("dqn_tic_tac_go.zip")
 
+def inject(model, boards):
+    BFSone = BFStoTrainer.BFStoTrainer()
+
+    model.replay_buffer.reset()
+
+    injectCounter = 0
+    injectSolve = ["RRULUUULUULDULULLDDLDDDUUUURRRRDRDRDDDLLULULLULUURDDLDRRDR", 
+                   "DDDLLLLDDRURULUL",
+                   "LDDRURURRDLLLDLDDRUULURRRUR",
+                   "RRULDLDDRUURU",
+                   "LLDDRDDUULLDRR",
+                   "LLDDRUDRDDLUULU"]
+
+    for board_to_solve in boards:
+        dataset = BFSone.solve(board_to_solve, injectSolve[injectCounter])
+        injectCounter += 1
+
+        for step in dataset:
+            model.replay_buffer.add(
+                obs=step["observation"],
+                next_obs=step["next_observation"],
+                action=np.array([step["action"]]),
+                reward=np.array([step["reward"]]),
+                done=np.array([step["done"]]),
+                infos=[{}]
+            )
+
 def learnProcess(num, threshold = 24):
     eval_episodes = 5 if num < 4 else 10
+    threshold_reached = False
 
     env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
     obs, info = env.reset()
@@ -86,40 +136,84 @@ def learnProcess(num, threshold = 24):
     else:
         model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
 
-    model.exploration_initial_eps = 0.50
-    model.exploration_final_eps = 0.05
+    if num == 8:
+        inject(model, injection_boards)
 
-    callback_on_thresh = StopTrainingOnRewardThreshold(threshold, verbose=1)
-    env_callback = GraduationEvalCallback(num,
-                                          callbackEnv, 
-                                          callback_after_eval=callback_on_thresh, 
-                                          eval_freq=1000,
-                                          n_eval_episodes=eval_episodes,
-                                          verbose=1)
+    while not threshold_reached:
+        model.exploration_initial_eps = 0.30 if num == 8 else 0.50
+        model.exploration_final_eps = 0.05
 
-    model.learn(total_timesteps=999999999999999, log_interval=4, reset_num_timesteps=True, callback=env_callback)
-    model.save(model_path)
+        callback_on_thresh = StopTrainingOnMeanReward(threshold, verbose=1)
+        env_callback = GraduationEvalCallback(num,
+                                              callbackEnv, 
+                                              callback_after_eval=callback_on_thresh, 
+                                              eval_freq=1000,
+                                              n_eval_episodes=eval_episodes,
+                                              verbose=1)
+
+        model.learn(total_timesteps=50000, log_interval=4, reset_num_timesteps=True, callback=env_callback)
+        model.save(model_path)
+
+        threshold_reached = callback_on_thresh.threshold_reached
+
+injection_boards = [
+    (("", "X", "", "", "X", "", "B", "B"),
+     ("", "O", "", "X", "", "X", "X", "B"),
+     ("", "", "B", "B", "X", "", "", ""),
+     ("", "", "B", "B", "", "", "X", "X"),
+     ("X", "X", "", "", "B", "X", "", ""),
+     ("", "B", "X", "", "", "B", "", ""),
+     ("", "B", "", "", "", "", "O", ""),
+     ("", "", "X", "", "", "U", "", "")),
+
+    (("", "", "X", "X", "", "U", "B", "B"),
+     ("", "O", "", "", "X", "", "B", "B"),
+     ("", "X", "X", "B", "X", "X", "B", "B"),
+     ("", "", "X", "", "", "", "B", "B"),
+     ("", "", "O", "X", "", "", "B", "B"),
+     ("", "", "", "", "", "", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B")),
+
+    (("", "U", "", "X", "", "", "B", "B"),
+     ("", "X", "X", "", "O", "", "B", "B"),
+     ("X", "", "X", "B", "", "X", "B", "B"),
+     ("", "O", "", "B", "X", "", "B", "B"),
+     ("", "X", "", "X", "", "X", "B", "B"),
+     ("", "", "", "X", "X", "", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B")),
+
+    (("", "X", "", "O", "B", "B", "B", "B"),
+     ("U", "", "", "X", "B", "B", "B", "B"),
+     ("", "O", "X", "", "B", "B", "B", "B"),
+     ("", "X", "", "X", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B")),
+
+    (("", "", "X", "U", "", "", "B", "B"),
+     ("X", "", "B", "", "X", "", "B", "B"),
+     ("", "O", "", "X", "B", "X", "B", "B"),
+     ("X", "", "", "", "O", "", "B", "B"),
+     ("", "X", "X", "B", "X", "X", "B", "B"),
+     ("X", "", "", "X", "", "", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B"),
+     ("B", "B", "B", "B", "B", "B", "B", "B")),
+
+    (("", "", "B", "B", "B", "B", "B", "B"),
+     ("X", "", "B", "B", "B", "B", "B", "B"),
+     ("", "", "X", "U", "B", "B", "B", "B"),
+     ("O", "", "X", "X", "B", "B", "B", "B"),
+     ("", "X", "", "", "B", "B", "B", "B"),
+     ("X", "", "O", "", "B", "B", "B", "B"),
+     ("B", "B", "", "X", "B", "B", "B", "B"),
+     ("B", "B", "", "", "B", "B", "B", "B")),
+]
 
 #Graduation 1(Agent randomness static O)
-if model_path.exists():
-    model = DQN.load(model_path, env=env)
-else:
-    model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
-
-model.exploration_initial_eps = 0.50
-model.exploration_final_eps = 0.05
-
-callback_on_thresh = StopTrainingOnRewardThreshold(24, verbose=1)
-eval_episodes = 5
-env_callback = GraduationEvalCallback(1,
-                                      callbackEnv, 
-                                      callback_after_eval=callback_on_thresh,
-                                      eval_freq=1000,
-                                      n_eval_episodes=eval_episodes, 
-                                      verbose=1)
-
-model.learn(total_timesteps=999999999999999, log_interval=4, reset_num_timesteps=True, callback=env_callback)
-model.save(model_path)
+learnProcess(1)
 
 
 #Graduation 2 6X6(Same thing but bigger)
@@ -205,7 +299,7 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(8, 38)
+learnProcess(8, 34)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")

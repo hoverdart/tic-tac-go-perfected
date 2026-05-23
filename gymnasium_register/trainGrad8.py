@@ -83,8 +83,17 @@ def inject(model, boards):
 
     model.replay_buffer.reset()
 
+    injectCounter = 0
+    injectSolve = ["RRULUUULUULDULULLDDLDDDUUUURRRRDRDRDDDLLULULLULUURDDLDRRDR", 
+                   "DDDLLLLDDRURULUL",
+                   "LDDRURURRDLLLDLDDRUULURRRUR",
+                   "RRULDLDDRUURU",
+                   "LLDDRDDUULLDRR",
+                   "LLDDRUDRDDLUULU"]
+
     for board_to_solve in boards:
-        dataset = BFSone.solve(board_to_solve)
+        dataset = BFSone.solve(board_to_solve, injectSolve[injectCounter])
+        injectCounter += 1
 
         for step in dataset:
             model.replay_buffer.add(
@@ -195,7 +204,7 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(8, 38)
+learnProcess(8, 34)
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
 

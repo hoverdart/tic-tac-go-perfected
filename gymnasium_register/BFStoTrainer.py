@@ -145,13 +145,16 @@ class BFStoTrainer:
 
         return data
 
-    def solve(self, board):
+    def solve(self, board, preMoves = None):
         start_board = tuple(tuple(row) for row in board)
         currentBoards = deque()
         visited = set()
         currentBoards.append((start_board, ""))
         visited.add(start_board)
         statesChecked = 0
+
+        if(preMoves != None):
+            return self.replayMoves(start_board, preMoves)
 
         while currentBoards:
             currentBoard, moves = currentBoards.popleft()
