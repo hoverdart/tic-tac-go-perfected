@@ -2,6 +2,7 @@ import gymnasium as gym
 from stable_baselines3 import DQN
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
+from stable_baselines3.common.utils import LinearSchedule
 import torch as th
 import torch.nn as nn
 import numpy as np
@@ -94,6 +95,25 @@ policy_kwargs = dict(
 
 model_path = Path("dqn_tic_tac_go.zip")
 
+def get_exploration_fraction(num):
+    if num <= 2:
+        return 0.60
+    if num <= 4:
+        return 0.40
+    if num <= 6:
+        return 0.30
+    return 0.20
+
+def set_exploration_schedule(model, num):
+    model.exploration_initial_eps = 0.30 if num == 9 else 0.50
+    model.exploration_final_eps = 0.05
+    model.exploration_fraction = get_exploration_fraction(num)
+    model.exploration_schedule = LinearSchedule(
+        model.exploration_initial_eps,
+        model.exploration_final_eps,
+        model.exploration_fraction,
+    )
+
 def inject(model, boards):
     BFSone = BFStoTrainer.BFStoTrainer()
 
@@ -136,12 +156,11 @@ def learnProcess(num, threshold = 24):
     else:
         model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
 
-    if num == 8:
+    if num == 9:
         inject(model, injection_boards)
 
     while not threshold_reached:
-        model.exploration_initial_eps = 0.30 if num == 8 else 0.50
-        model.exploration_final_eps = 0.05
+        set_exploration_schedule(model, num)
 
         callback_on_thresh = StopTrainingOnMeanReward(threshold, verbose=1)
         env_callback = GraduationEvalCallback(num,
@@ -289,7 +308,10 @@ board = (("", "", "", "", "X", "", "", ""),
 
 learnProcess(7)
 
-#Graduation 8 Varying Board Sizes, Real Board (Change Threshold, Find boards)
+#Graduation 8 Blocks (Come up with random strategy)
+learnProcess(8)
+
+#Graduation 9 Varying Board Sizes, Real Board (Change Threshold, Find boards)
 board = (("", "", "", "", "", "", "", ""),
          ("", "", "U", "X", "", "", "O", ""),
          ("", "B", "B", "", "X", "B", "B", "X"),
@@ -299,7 +321,7 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(8, 34)
+learnProcess(9, 34)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")

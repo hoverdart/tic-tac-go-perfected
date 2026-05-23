@@ -16,13 +16,12 @@ Usage:
 Graduation difficulty:
     1  3x3 active area, static Os, only agent randomized
     2  6x6 active area, static Os, only agent randomized
-    3  8x8, randomized Os (spread out), no Xs
-    4  8x8, randomized Os + sparse non-dangerous Xs
-    5  8x8, full Xs
-    6  8x8, dangerous near-line-threat Xs
-    7  8x8, Xs + B blocks
-    8  Varying sizes 4x4–6x6 (padded to 8x8 with B), dense Xs + Bs
-       (8x8 excluded here — use real tournament boards for true 8x8)
+    3  8x8, Os only slightly misaligned, no Xs
+    4  8x8, randomized Os (spread out), no Xs
+    5  8x8, randomized Os + sparse non-dangerous Xs
+    6  8x8, full Xs
+    7  8x8, dangerous near-line-threat Xs
+    8  8x8, Xs + B blocks
 
 Output: every board is an 8x8 tuple-of-tuples of strings.
         Cells outside the active area are filled with "B".
@@ -41,7 +40,7 @@ class BoardGenerator:
     # ------------------------------------------------------------------
     # Minimum required BFS solution length per graduation
     # ------------------------------------------------------------------
-    _MIN_SOLUTION = {1: 1, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 7, 8: 6}
+    _MIN_SOLUTION = {1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 7, 9: 6}
 
     # ------------------------------------------------------------------
     # Graduation parameters
@@ -54,21 +53,23 @@ class BoardGenerator:
         2: dict(active_rows=6, active_cols=6, num_xs=0,  x_danger=0,
                 num_bs=0, randomize_os=False, align_os_bias=1.0, min_o_dist=2),
         3: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
+                num_bs=0, randomize_os=True,  align_os_bias=1.0, min_o_dist=2,
+                slightly_misaligned_os=True),
+        4: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3),
-        4: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
+        5: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3),
-        5: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
+        6: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=4),
-        6: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
+        7: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
                 num_bs=0, randomize_os=True,  align_os_bias=0.2, min_o_dist=4),
-        7: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
-                num_bs=4, randomize_os=True,  align_os_bias=0.2, min_o_dist=4),
-        8: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        8: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
+                num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4),
+        9: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
     }
 
-    # Grad 8 capped at 6x6 — 8x8 real boards are handled separately
-    _GRAD8_SIZES = [
+    _GRAD9_SIZES = [
         (4, 4), (4, 5), (5, 4),
         (5, 5), (5, 6), (6, 5),
         (6, 6),
@@ -89,7 +90,7 @@ class BoardGenerator:
         Returns:
             List of 8x8 tuple-of-tuples boards ready to drop into your env.
         """
-        assert 1 <= grad <= 8, "grad must be 1-8"
+        assert 1 <= grad <= 9, "grad must be 1-9"
         if seed is not None:
             random.seed(seed)
 
@@ -171,16 +172,16 @@ class BoardGenerator:
         """
         p = self._GRAD_PARAMS[grad]
 
-        if grad == 8:
-            ar, ac = random.choice(self._GRAD8_SIZES)
-            area   = ar * ac
+        if grad == 9:
+            ar, ac = random.choice(self._GRAD9_SIZES)
+            area = ar * ac
             num_xs = max(2, area // 7)
             num_bs = max(1, area // 12)
             x_danger = p["x_danger"]
         else:
-            ar, ac   = p["active_rows"], p["active_cols"]
-            num_xs   = p["num_xs"]
-            num_bs   = p["num_bs"]
+            ar, ac = p["active_rows"], p["active_cols"]
+            num_xs = p["num_xs"]
+            num_bs = p["num_bs"]
             x_danger = p["x_danger"]
 
         # Full 8x8 board; cells outside active area are pre-set to "B"
@@ -189,7 +190,10 @@ class BoardGenerator:
 
         # --- Place Os ---
         if p["randomize_os"]:
-            o1, o2 = self._place_os(valid, p["align_os_bias"], p["min_o_dist"])
+            if p.get("slightly_misaligned_os"):
+                o1, o2 = self._place_slightly_misaligned_os(valid)
+            else:
+                o1, o2 = self._place_os(valid, p["align_os_bias"], p["min_o_dist"])
             if o1 is None:
                 return None
         else:
@@ -237,6 +241,23 @@ class BoardGenerator:
     # O placement
     # ------------------------------------------------------------------
 
+    def _place_slightly_misaligned_os(self, valid):
+        valid_set = set(valid)
+        offsets = [
+            (1, 2), (-1, 2), (1, -2), (-1, -2),
+            (2, 1), (-2, 1), (2, -1), (-2, -1),
+        ]
+
+        for _ in range(500):
+            o1 = random.choice(valid)
+            random.shuffle(offsets)
+            for row_change, col_change in offsets:
+                o2 = (o1[0] + row_change, o1[1] + col_change)
+                if o2 in valid_set:
+                    return o1, o2
+
+        return None, None
+
     def _place_os(self, valid, align_bias, min_dist):
         for _ in range(500):
             o1 = random.choice(valid)
@@ -270,7 +291,7 @@ class BoardGenerator:
         ]
         if not candidates:
             return None
-        if grad >= 5:
+        if grad >= 6:
             # Prefer cells farthest from both Os
             candidates.sort(key=lambda p: -(
                 abs(p[0]-o1[0]) + abs(p[1]-o1[1]) +
@@ -520,6 +541,14 @@ class BoardGenerator:
                 if spot_can_become_empty(ptr, ptc): return True
             return False
 
+        def o_can_move_direction(row, col, row_change, col_change):
+            pfr = row - row_change; pfc = col - col_change
+            ptr = row + row_change; ptc = col + col_change
+            if not in_bounds(pfr, pfc): return False
+            if not in_bounds(ptr, ptc): return False
+            if not spot_can_become_user(pfr, pfc): return False
+            return spot_can_become_empty(ptr, ptc)
+
         o_locations = [(i, j) for i in range(len(board))
                        for j in range(len(board[i])) if board[i][j] == "O"]
 
@@ -531,6 +560,18 @@ class BoardGenerator:
                 if (not o_is_movable(first_o[0], first_o[1])
                         and not o_is_movable(second_o[0], second_o[1])):
                     return True
+
+                left_o, right_o = sorted(o_locations, key=lambda location: location[1])
+                if right_o[1] - left_o[1] > 2:
+                    if (not o_can_move_direction(left_o[0], left_o[1], 0, 1)
+                            and not o_can_move_direction(right_o[0], right_o[1], 0, -1)):
+                        return True
+
+                top_o, bottom_o = sorted(o_locations, key=lambda location: location[0])
+                if bottom_o[0] - top_o[0] > 2:
+                    if (not o_can_move_direction(top_o[0], top_o[1], 1, 0)
+                            and not o_can_move_direction(bottom_o[0], bottom_o[1], -1, 0)):
+                        return True
 
         found_two_os_in_line = False
 
@@ -580,21 +621,16 @@ class BoardGenerator:
                 pr, pc = nr+dr, nc+dc
                 if not (0 <= pr < rows and 0 <= pc < len(key[pr])): continue
                 if key[pr][pc] != "": continue
-                new = list(key)
-                new[ar] = list(key[ar]); new[ar][ac] = ""
-                new[nr] = list(key[nr]); new[nr][nc] = "U"
-                new[pr] = list(key[pr]); new[pr][pc] = target
-                new[ar] = tuple(new[ar])
-                new[nr] = tuple(new[nr])
-                new[pr] = tuple(new[pr])
-                moves.append((action, tuple(new)))
+                new = [list(row) for row in key]
+                new[ar][ac] = ""
+                new[nr][nc] = "U"
+                new[pr][pc] = target
+                moves.append((action, self._to_key(new)))
             elif target == "":
-                new = list(key)
-                new[ar] = list(key[ar]); new[ar][ac] = ""
-                new[nr] = list(key[nr]); new[nr][nc] = "U"
-                new[ar] = tuple(new[ar])
-                new[nr] = tuple(new[nr])
-                moves.append((action, tuple(new)))
+                new = [list(row) for row in key]
+                new[ar][ac] = ""
+                new[nr][nc] = "U"
+                moves.append((action, self._to_key(new)))
         return moves
 
     def _bfs_solve(self, start_key, max_depth=55):

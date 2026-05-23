@@ -7,7 +7,7 @@ from typing import Optional
 
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
-    training_board_counts = {1: 15, 2: 30, 3: 50, 4: 75, 5: 75, 6: 75, 7: 75, 8: 50}
+    training_board_counts = {1: 15, 2: 30, 3: 50, 4: 75, 5: 75, 6: 75, 7: 75, 8: 75, 9: 50}
     training_boards_file = Path(__file__).resolve().parents[2] / "generated_training_boards.py"
     training_boards = None
 
@@ -360,6 +360,20 @@ class TicTacWorldEnv(gym.Env):
 
             return False
 
+        def o_can_move_direction(row, col, row_change, col_change):
+            push_from_row = row - row_change
+            push_from_col = col - col_change
+            push_to_row = row + row_change
+            push_to_col = col + col_change
+
+            if not in_bounds(push_from_row, push_from_col):
+                return False
+            if not in_bounds(push_to_row, push_to_col):
+                return False
+            if not spot_can_become_user(push_from_row, push_from_col):
+                return False
+            return spot_can_become_empty(push_to_row, push_to_col)
+
         o_locations = []
         for i in range(0, len(board)):
             for j in range(0, len(board[i])):
@@ -374,6 +388,20 @@ class TicTacWorldEnv(gym.Env):
                 second_o_movable = o_is_movable(second_o[0], second_o[1])
                 if not first_o_movable and not second_o_movable:
                     return True
+
+                left_o, right_o = sorted(o_locations, key=lambda location: location[1])
+                if right_o[1] - left_o[1] > 2:
+                    left_can_move_right = o_can_move_direction(left_o[0], left_o[1], 0, 1)
+                    right_can_move_left = o_can_move_direction(right_o[0], right_o[1], 0, -1)
+                    if not left_can_move_right and not right_can_move_left:
+                        return True
+
+                top_o, bottom_o = sorted(o_locations, key=lambda location: location[0])
+                if bottom_o[0] - top_o[0] > 2:
+                    top_can_move_down = o_can_move_direction(top_o[0], top_o[1], 1, 0)
+                    bottom_can_move_up = o_can_move_direction(bottom_o[0], bottom_o[1], -1, 0)
+                    if not top_can_move_down and not bottom_can_move_up:
+                        return True
 
         found_two_os_in_line = False
 
@@ -434,11 +462,17 @@ class TicTacWorldEnv(gym.Env):
         if(options is None):
             options = self.reset_option
 
-        grad = options if options in self.training_board_counts else 8
+        grad = options if options in self.training_board_counts else 9
         boards = self.get_training_boards()[grad]
 
-        selected_board = boards[np.random.randint(len(boards))]
-        self.board = [list(row) for row in selected_board]
+        for _ in range(len(boards)):
+            selected_board = boards[np.random.randint(len(boards))]
+            self.board = [list(row) for row in selected_board]
+            if not self.softLocked(self.board):
+                break
+        else:
+            selected_board = boards[np.random.randint(len(boards))]
+            self.board = [list(row) for row in selected_board]
 
         length = 0
         width = 0
