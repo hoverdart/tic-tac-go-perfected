@@ -7,7 +7,7 @@ from typing import Optional
 
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
-    training_board_counts = {1: 15, 2: 30, 3: 50, 4: 75, 5: 75, 6: 75, 7: 75, 8: 75, 9: 50}
+    training_board_counts = {1: 15, 2: 30, 3: 50, 4: 75, 5: 75, 6: 75, 7: 75, 8: 75, 9: 50, 10: 0}
     training_boards_file = Path(__file__).resolve().parents[2] / "generated_training_boards.py"
     training_boards = None
 
@@ -464,6 +464,8 @@ class TicTacWorldEnv(gym.Env):
 
         grad = options if options in self.training_board_counts else 9
         boards = self.get_training_boards()[grad]
+        if not boards:
+            raise ValueError(f"No training boards available for graduation {grad}")
 
         for _ in range(len(boards)):
             selected_board = boards[np.random.randint(len(boards))]

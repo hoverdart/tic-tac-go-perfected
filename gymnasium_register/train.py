@@ -96,6 +96,8 @@ policy_kwargs = dict(
 model_path = Path("dqn_tic_tac_go.zip")
 
 def get_exploration_fraction(num):
+    if num == 10:
+        return 0.15
     if num <= 2:
         return 0.60
     if num <= 4:
@@ -105,7 +107,12 @@ def get_exploration_fraction(num):
     return 0.20
 
 def set_exploration_schedule(model, num):
-    model.exploration_initial_eps = 0.30 if num == 9 else 0.50
+    if num == 10:
+        model.exploration_initial_eps = 0.20
+    elif num == 9:
+        model.exploration_initial_eps = 0.30
+    else:
+        model.exploration_initial_eps = 0.50
     model.exploration_final_eps = 0.05
     model.exploration_fraction = get_exploration_fraction(num)
     model.exploration_schedule = LinearSchedule(
@@ -231,11 +238,11 @@ injection_boards = [
      ("B", "B", "", "", "B", "B", "B", "B")),
 ]
 
-#Graduation 1(Agent randomness static O)
+#1  3x3 active area, static Os, only agent randomized
 learnProcess(1)
 
 
-#Graduation 2 6X6(Same thing but bigger)
+#2 6x6 active area, static Os, only agent randomized
 
 board = (("", "", "", "", "", "", "B", "B"),
          ("", "", "", "", "", "", "B", "B"),
@@ -248,7 +255,7 @@ board = (("", "", "", "", "", "", "B", "B"),
 
 learnProcess(2)
 
-#Graduation 3 Sparser Os(List of good positions for all 3 of them)
+#3 8x8, Os only slightly misaligned, no Xs
 board = (("", "", "", "", "", "", "B", "B"),
          ("", "", "", "", "O", "", "B", "B"),
          ("", "", "", "", "", "", "B", "B"),
@@ -260,7 +267,7 @@ board = (("", "", "", "", "", "", "B", "B"),
 
 learnProcess(3)
 
-#Graduation 4 Small Xs(Same thing but with few Xs)
+#4  8x8, randomized Os (spread out), no Xs
 board = (("", "", "", "", "X", "", "B", "B"),
          ("", "X", "", "", "O", "", "B", "B"),
          ("", "", "", "", "", "X", "B", "B"),
@@ -272,7 +279,7 @@ board = (("", "", "", "", "X", "", "B", "B"),
 
 learnProcess(4)
 
-#Graduation 5 8X8(Same thing but bigger)
+#5  8x8, randomized Os + sparse non-dangerous Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("", "", "", "", "", "X", "", ""),
@@ -282,9 +289,9 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-learnProcess(5)
+learnProcess(5, 28)
 
-#Graduation 6 Bigger Xs (Come up with random strategy)
+#6  8x8, full Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("", "", "", "", "", "X", "", ""),
@@ -294,9 +301,9 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-learnProcess(6)
+learnProcess(6, 28)
 
-#Graduation 7 Blocks (Come up with random strategy)
+#8x8, dangerous near-line-threat Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("B", "B", "B", "", "", "X", "", ""),
@@ -306,10 +313,10 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "B", "B", "", "", ""),
          ("X", "", "", "B", "B", "", "", "X"))
 
-learnProcess(7)
+learnProcess(7, 30)
 
-#Graduation 8 Blocks (Come up with random strategy)
-learnProcess(8)
+#8  8x8, Xs + B blocks
+learnProcess(8, 30)
 
 #Graduation 9 Varying Board Sizes, Real Board (Change Threshold, Find boards)
 board = (("", "", "", "", "", "", "", ""),
@@ -321,7 +328,10 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(9, 34)
+learnProcess(9, 29)
+
+#Graduation 10 Final Training
+learnProcess(10, 36)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")

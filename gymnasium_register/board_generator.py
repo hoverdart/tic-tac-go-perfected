@@ -22,6 +22,8 @@ Graduation difficulty:
     6  8x8, full Xs
     7  8x8, dangerous near-line-threat Xs
     8  8x8, Xs + B blocks
+    9 Varying Board Sizes, Real Board
+    10 Placeholder for future boards
 
 Output: every board is an 8x8 tuple-of-tuples of strings.
         Cells outside the active area are filled with "B".
@@ -40,7 +42,7 @@ class BoardGenerator:
     # ------------------------------------------------------------------
     # Minimum required BFS solution length per graduation
     # ------------------------------------------------------------------
-    _MIN_SOLUTION = {1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 7, 9: 6}
+    _MIN_SOLUTION = {1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 7, 9: 6, 10: 6}
 
     # ------------------------------------------------------------------
     # Graduation parameters
@@ -67,6 +69,8 @@ class BoardGenerator:
                 num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4),
         9: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
+        10: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
     }
 
     _GRAD9_SIZES = [
@@ -90,7 +94,7 @@ class BoardGenerator:
         Returns:
             List of 8x8 tuple-of-tuples boards ready to drop into your env.
         """
-        assert 1 <= grad <= 9, "grad must be 1-9"
+        assert 1 <= grad <= 10, "grad must be 1-10"
         if seed is not None:
             random.seed(seed)
 
@@ -172,7 +176,7 @@ class BoardGenerator:
         """
         p = self._GRAD_PARAMS[grad]
 
-        if grad == 9:
+        if grad in (9, 10):
             ar, ac = random.choice(self._GRAD9_SIZES)
             area = ar * ac
             num_xs = max(2, area // 7)
