@@ -61,7 +61,7 @@ class TicTacWorldEnv(gym.Env):
         lines.append("}\n")
         cls.training_boards_file.write_text("".join(lines))
 
-    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=8):
+    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=10):
         self.length = length
         self.width = width
         self.board = board
