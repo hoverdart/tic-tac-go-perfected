@@ -1,26 +1,690 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #082838;
+  --ink-soft: rgba(8, 40, 56, 0.72);
+  --paper: #fff1ee;
+  --paper-soft: rgba(255, 241, 238, 0.9);
+  --moss: #657061;
+  --moss-dark: #39423b;
+  --blossom: #e5b8b3;
+  --blossom-light: #fff3ef;
+  --lacquer: #a85d28;
+  --lacquer-dark: #4a2417;
+  --wood: #f0b857;
+  --wood-light: #ffd46f;
+  --mark: #7c3d08;
+  --shadow: rgba(24, 15, 10, 0.34);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--moss-dark);
+  --color-foreground: var(--ink);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--moss-dark);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  margin: 0;
+  background: var(--moss-dark);
+  color: var(--ink);
+  font-family: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+
+/* Petals sway and drift in place like caught in a breeze */
+@keyframes petalBob {
+  0%, 100% { transform: rotate(var(--r)) translate(0, 0); }
+  20%       { transform: rotate(calc(var(--r) + 9deg)) translate(11px, -13px); }
+  50%       { transform: rotate(calc(var(--r) - 4deg)) translate(7px, 6px); }
+  80%       { transform: rotate(calc(var(--r) + 5deg)) translate(-7px, -5px); }
+}
+
+/* Fireflies pulse their glow and float softly */
+@keyframes fireflyFloat {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.4;
+    box-shadow: 0 0 8px 2px rgba(255, 230, 133, 0.45);
+  }
+  38% {
+    transform: translate(14px, -19px);
+    opacity: 1;
+    box-shadow:
+      0 0 20px 6px rgba(255, 230, 133, 0.95),
+      0 0 52px 10px rgba(255, 230, 133, 0.22);
+  }
+  72% {
+    transform: translate(-10px, 9px);
+    opacity: 0.6;
+    box-shadow: 0 0 12px 3px rgba(255, 230, 133, 0.6);
+  }
+}
+
+/* Warm radial overlay breathes across the background */
+@keyframes bgBreath {
+  0%, 100% { transform: translate(0, 0) scale(1);       opacity: 0.65; }
+  50%       { transform: translate(-55px, 38px) scale(1.2); opacity: 1; }
+}
+
+/* The fine grid pattern crawls slowly — gives depth to the bg */
+@keyframes gridShift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 96px 96px, 96px 96px; }
+}
+
+/* Board gently floats above its shadow like it's made of polished wood */
+@keyframes boardFloat {
+  0%, 100% { transform: translateY(0px);  box-shadow: 0 30px 0 #2c1510, 0 52px 58px rgba(19, 10, 7, 0.46), inset 0 2px 18px rgba(255, 206, 130, 0.18), inset 0 -26px 45px rgba(62, 25, 11, 0.28); }
+  50%       { transform: translateY(-5px); box-shadow: 0 35px 0 #2c1510, 0 60px 68px rgba(19, 10, 7, 0.42), inset 0 2px 18px rgba(255, 206, 130, 0.18), inset 0 -26px 45px rgba(62, 25, 11, 0.28); }
+}
+
+/* Sections fade up on load */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Page shell ─────────────────────────────────────────────────────────── */
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(120deg, rgba(10, 24, 20, 0.48), rgba(83, 72, 54, 0.3)),
+    repeating-linear-gradient(
+      110deg,
+      transparent 0 128px,
+      rgba(255, 255, 255, 0.07) 129px 132px,
+      transparent 133px 260px
+    ),
+    linear-gradient(145deg, #485346 0%, #7b7a63 45%, #4f5f53 100%);
+}
+
+/* Warm blossom light that breathes across the canvas */
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse 65% 55% at 78% 22%, rgba(220, 155, 100, 0.08), transparent 68%);
+  animation: bgBreath 18s ease-in-out infinite;
+}
+
+/* Fine grid overlay that drifts, lending the scene subtle motion */
+.page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 232, 218, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 232, 218, 0.06) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mix-blend-mode: soft-light;
+  opacity: 0.35;
+  animation: gridShift 55s linear infinite;
+}
+
+.scene {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 26px 18px 32px;
+  animation: fadeIn 0.65s ease-out both;
+}
+
+/* ─── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 150px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  text-align: center;
+  color: white;
+  text-shadow: 0 3px 14px rgba(24, 15, 10, 0.4);
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(42px, 6vw, 70px);
+  line-height: 0.92;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.eyebrow {
+  margin: 10px 0 4px;
+  font-size: clamp(20px, 3vw, 36px);
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.date-pill {
+  min-width: min(380px, calc(100vw - 48px));
+  margin-top: 16px;
+  padding: 10px 28px 12px;
+  border-radius: 999px;
+  background: rgba(255, 243, 239, 0.94);
+  box-shadow:
+    0 14px 38px rgba(24, 15, 10, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.date-pill time {
+  display: block;
+  font-size: clamp(18px, 2.2vw, 26px);
+  line-height: 1;
+  font-weight: 850;
+}
+
+.date-pill span {
+  display: block;
+  margin-top: 5px;
+  font-size: clamp(13px, 1.5vw, 17px);
+  line-height: 1.1;
+  font-weight: 500;
+}
+
+/* ─── Focus area ─────────────────────────────────────────────────────────── */
+
+.focus-area {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(260px, 340px);
+  gap: 22px;
+  align-items: stretch;
+  margin-top: 22px;
+}
+
+/* ─── Board stage ────────────────────────────────────────────────────────── */
+
+.board-stage {
+  position: relative;
+  padding: clamp(18px, 3vw, 40px);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(216, 120, 42, 0.98), rgba(139, 68, 28, 0.96)),
+    var(--lacquer);
+  animation: boardFloat 9s ease-in-out infinite, fadeIn 0.65s 0.1s ease-out both;
+}
+
+.board-stage::after {
+  content: "";
+  position: absolute;
+  inset: auto 12px -30px;
+  height: 28px;
+  border-radius: 0 0 18px 18px;
+  background: linear-gradient(180deg, #321711, #1c0c09);
+  filter: blur(0.2px);
+}
+
+/* ─── Board grid ─────────────────────────────────────────────────────────── */
+
+.board-shell {
+  width: min(100%, 680px);
+  margin: 0 auto;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.board-shell-small {
+  width: 100%;
+}
+
+.board-empty {
+  border: 2px dashed rgba(255, 212, 111, 0.45);
+  border-radius: 12px;
+}
+
+.empty-board-copy {
+  color: rgba(255, 244, 224, 0.82);
+  font-weight: 650;
+}
+
+.board-grid {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  gap: clamp(5px, 1vw, 9px);
+}
+
+.board-grid-small {
+  gap: 3px;
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 229, 141, 0.9), transparent 42%),
+    linear-gradient(145deg, var(--wood-light), var(--wood));
+  box-shadow:
+    inset 0 0 0 2px rgba(176, 93, 32, 0.42),
+    inset 0 -7px 0 rgba(204, 130, 45, 0.2),
+    0 2px 3px rgba(77, 35, 12, 0.2);
+}
+
+.tile-B {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Tiles on the main board react to hover */
+.board-grid:not(.board-grid-small) .tile:not(.tile-B) {
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.board-grid:not(.board-grid-small) .tile:not(.tile-B):hover {
+  transform: scale(1.05);
+  filter: brightness(1.08);
+}
+
+/* ─── Pieces ─────────────────────────────────────────────────────────────── */
+
+.piece {
+  position: relative;
+  display: block;
+  width: 72%;
+  height: 72%;
+}
+
+.piece-x::before,
+.piece-x::after {
+  content: "";
+  position: absolute;
+  top: 45%;
+  left: 5%;
+  width: 90%;
+  height: 18%;
+  border-radius: 999px;
+  background: var(--mark);
+  box-shadow: 0 1px 0 rgba(255, 210, 140, 0.14);
+}
+
+.piece-x::before { transform: rotate(42deg); }
+.piece-x::after  { transform: rotate(-42deg); }
+
+.piece-o {
+  border: clamp(4px, 1vw, 11px) solid rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  filter: drop-shadow(0 1px 0 rgba(125, 68, 22, 0.25));
+}
+
+.piece-u {
+  width: 74%;
+  height: 74%;
+  border: clamp(4px, 1vw, 11px) solid rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  background: #d69d3f;
+}
+
+.piece-u::before,
+.piece-u::after {
+  content: "";
+  position: absolute;
+  top: 42%;
+  width: 10%;
+  height: 10%;
+  border-radius: 50%;
+  background: white;
+}
+
+.piece-u::before { left: 34%; }
+.piece-u::after  { right: 34%; }
+
+/* ─── Solution panel ─────────────────────────────────────────────────────── */
+
+.solution-panel,
+.steps-section {
+  border: 1px solid rgba(255, 242, 229, 0.42);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 246, 238, 0.9), rgba(231, 201, 183, 0.78)),
+    var(--paper);
+  box-shadow: 0 28px 58px rgba(24, 15, 10, 0.22);
+}
+
+.solution-panel {
+  padding: 20px;
+  align-self: stretch;
+  animation: fadeIn 0.65s 0.15s ease-out both;
+}
+
+.panel-heading p,
+.section-title p {
+  margin: 0 0 6px;
+  color: rgba(8, 40, 56, 0.56);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-heading h2,
+.section-title h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(22px, 3vw, 38px);
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ─── Metrics ────────────────────────────────────────────────────────────── */
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.metric {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(92, 52, 27, 0.12);
+}
+
+.metric dt {
+  margin: 0 0 6px;
+  color: rgba(8, 40, 56, 0.58);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.metric dd {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+/* ─── Status note ────────────────────────────────────────────────────────── */
+
+.status-note {
+  display: grid;
+  grid-template-columns: 11px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.status-note span {
+  width: 11px;
+  height: 11px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: #b9853f;
+  flex-shrink: 0;
+}
+
+.status-solved span  { background: #668453; }
+.status-failed span  { background: #c36651; }
+
+.status-note p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ─── Steps section ──────────────────────────────────────────────────────── */
+
+.steps-section {
+  margin-top: 24px;
+  padding: 20px;
+  animation: fadeIn 0.65s 0.2s ease-out both;
+}
+
+.section-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.step-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+  gap: 12px;
+}
+
+.step-card {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.38);
+  border: 1px solid rgba(92, 52, 27, 0.13);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.step-card:hover {
+  border-color: rgba(168, 93, 40, 0.35);
+  box-shadow: 0 4px 14px rgba(24, 15, 10, 0.1);
+}
+
+.step-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.step-card-header strong {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(8, 40, 56, 0.08);
+  color: var(--ink);
+  font-family: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.quiet-empty {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-radius: 14px;
+  border: 1px dashed rgba(92, 52, 27, 0.18);
+  background: rgba(255, 255, 255, 0.28);
+  padding: 22px;
+}
+
+.quiet-empty p {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 780;
+}
+
+.quiet-empty span {
+  max-width: 420px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 2px 8px rgba(24, 15, 10, 0.36);
+}
+
+.site-footer p,
+.site-footer span {
+  margin: 0;
+  font-size: 13px;
+}
+
+.footer-link {
+  color: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  transition: text-decoration-color 0.18s ease;
+}
+
+.footer-link:hover {
+  text-decoration-color: rgba(255, 255, 255, 0.85);
+}
+
+/* ─── Petals ─────────────────────────────────────────────────────────────── */
+
+.petal-field {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.petal {
+  position: absolute;
+  width: 46px;
+  height: 25px;
+  border-radius: 70% 30% 70% 30%;
+  background: rgba(245, 185, 172, 0.72);
+  filter: blur(0.2px);
+  /* Each petal overrides --r, --dur, --delay */
+  animation: petalBob var(--dur, 18s) ease-in-out var(--delay, 0s) infinite;
+  will-change: transform;
+}
+
+.petal::after {
+  content: "";
+  position: absolute;
+  inset: 35% 20%;
+  border-radius: 50%;
+  background: rgba(255, 236, 229, 0.35);
+}
+
+/* Position, rotation, size, color, and animation timing per petal */
+.p1  { --r: 22deg;   top:  7%;     left:  5%;    --dur: 19s; --delay:   0s; }
+.p2  { --r: -31deg;  top: 12%;     right: 12%;   --dur: 23s; --delay:  -5s; width: 62px; height: 30px; background: rgba(255, 232, 224, 0.78); }
+.p3  { --r: 64deg;   top: 24%;     left: 18%;    --dur: 16s; --delay:  -9s; background: rgba(238, 151, 139, 0.62); }
+.p4  { --r: -12deg;  top: 33%;     right:  6%;   --dur: 25s; --delay:  -3s; width: 56px; }
+.p5  { --r: 40deg;   top: 55%;     left:  4%;    --dur: 21s; --delay: -12s; width: 58px; background: rgba(255, 218, 208, 0.7); }
+.p6  { --r: -48deg;  top: 69%;     right:  8%;   --dur: 17s; --delay:  -7s; background: rgba(241, 143, 130, 0.72); }
+.p7  { --r: 17deg;   bottom:  9%;  left: 14%;    --dur: 28s; --delay: -15s; width: 64px; height: 31px; background: rgba(224, 147, 130, 0.58); }
+.p8  { --r: -24deg;  bottom: 12%;  right: 20%;   --dur: 22s; --delay:  -2s; background: rgba(255, 229, 223, 0.68); }
+.p9  { --r: 78deg;   top: 44%;     left: 84%;    --dur: 20s; --delay: -10s; width: 37px; height: 22px; }
+.p10 { --r: -5deg;   top: 18%;     left: 42%;    --dur: 24s; --delay: -17s; width: 54px; height: 24px; }
+
+/* ─── Fireflies ──────────────────────────────────────────────────────────── */
+
+.firefly {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 230, 133, 0.86);
+  box-shadow: 0 0 14px rgba(255, 230, 133, 0.9);
+  will-change: transform, opacity, box-shadow;
+}
+
+.f1 { top: 12%; left: 75%; animation: fireflyFloat 11s ease-in-out 0s infinite; }
+.f2 { top: 38%; left: 52%; animation: fireflyFloat 14s ease-in-out -4s infinite; }
+.f3 { bottom: 18%; right: 30%; animation: fireflyFloat  9s ease-in-out -7s infinite; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .scene {
+    padding-inline: 10px;
+  }
+
+  .hero {
+    min-height: 140px;
+  }
+
+  .focus-area {
+    grid-template-columns: 1fr;
+    margin-top: 18px;
+  }
+
+  .board-stage {
+    padding: 28px;
+  }
+
+  .solution-panel {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .scene {
+    padding-top: 18px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+  }
+
+  .eyebrow {
+    font-size: 20px;
+  }
+
+  .date-pill {
+    margin-top: 14px;
+    min-width: 0;
+    width: min(100%, 340px);
+    padding-inline: 20px;
+  }
+
+  .focus-area {
+    gap: 48px;
+  }
+
+  .board-stage {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .tile {
+    border-radius: 6px;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr;
+  }
 }

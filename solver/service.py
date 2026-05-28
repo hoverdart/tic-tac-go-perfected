@@ -8,6 +8,9 @@ from solver.randomPythonFiles.superTicTacGoSolver import (
 )
 
 
+SOLVER_NAME = "bfs"
+
+
 class SolverError(ValueError):
     """Raised when the API receives a board the solver cannot accept."""
 
