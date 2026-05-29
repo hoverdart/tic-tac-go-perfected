@@ -22,7 +22,7 @@ Graduation difficulty:
     6  8x8, full Xs
     7  8x8, dangerous near-line-threat Xs
     8  8x8, Xs + B blocks
-    9 Varying Board Sizes, Real Board
+    9 Varying Board Sizes, Real Boards
     10 Placeholder for future boards
 
 Output: every board is an 8x8 tuple-of-tuples of strings.
