@@ -51,7 +51,7 @@ body {
   80%       { transform: rotate(calc(var(--r) + 5deg)) translate(-7px, -5px); }
 }
 
-/* Fireflies pulse their glow and float softly */
+/* Fireflies pulse their glow and float softlyy */
 @keyframes fireflyFloat {
   0%, 100% {
     transform: translate(0, 0);
