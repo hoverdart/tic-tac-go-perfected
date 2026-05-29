@@ -1,0 +1,4 @@
+fastapi
+playwright
+psycopg[binary]
+uvicorn[standard]
