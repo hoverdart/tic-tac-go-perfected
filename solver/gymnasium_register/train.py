@@ -11,7 +11,7 @@ import tic_tac_go_env
 import BFStoTrainer
 
 #This class is AI code idk whats happening inside
-#it just creates a custom 3X3 window
+#it just creates a custom 3X3 window for the CNN
 class CustomTinyCNN(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
         super().__init__(observation_space, features_dim)
