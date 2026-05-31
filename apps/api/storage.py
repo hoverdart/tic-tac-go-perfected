@@ -1,10 +1,14 @@
 import os
+import logging
 from datetime import date
 from typing import Any
 
 
 class StorageError(RuntimeError):
     """Raised when solution storage is not configured or unavailable."""
+
+
+logger = logging.getLogger("tic_tac_go.daily_solve")
 
 
 def _database_url() -> str:
@@ -34,6 +38,7 @@ def _json(value: Any):
 
 
 def init_db() -> None:
+    logger.info("storage.init_db.start")
     with _connect() as conn:
         conn.execute(
             """
@@ -55,9 +60,17 @@ def init_db() -> None:
             )
             """
         )
+    logger.info("storage.init_db.done")
 
 
 def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
+    logger.info(
+        "storage.upsert.start puzzle_date=%s status=%s states_checked=%s elapsed_ms=%s",
+        record.get("puzzle_date"),
+        record.get("status"),
+        record.get("states_checked"),
+        record.get("elapsed_ms"),
+    )
     init_db()
     with _connect() as conn:
         row = conn.execute(
@@ -112,14 +125,23 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 "step_boards": _json(record.get("step_boards", [])),
             },
         ).fetchone()
-        return dict(row)
+        stored = dict(row)
+        logger.info(
+            "storage.upsert.done puzzle_date=%s status=%s updated_at=%s",
+            stored.get("puzzle_date"),
+            stored.get("status"),
+            stored.get("updated_at"),
+        )
+        return stored
 
 
 def get_solution(puzzle_date: date) -> dict[str, Any] | None:
+    logger.info("storage.get.start puzzle_date=%s", puzzle_date)
     init_db()
     with _connect() as conn:
         row = conn.execute(
             "SELECT * FROM daily_solutions WHERE puzzle_date = %s",
             (puzzle_date,),
         ).fetchone()
+        logger.info("storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None)
         return dict(row) if row else None

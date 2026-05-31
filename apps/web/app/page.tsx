@@ -1,4 +1,7 @@
-type Cell = "" | "X" | "O" | "U" | "B";
+import { ManualRefreshButton } from "./manual-refresh-button";
+import { SolveDashboard } from "./solve-dashboard";
+import type { SolveFrame } from "./solve-player";
+import type { Cell } from "./board";
 
 export const dynamic = "force-dynamic";
 
@@ -86,92 +89,13 @@ function statusText(status: SolutionRecord["status"]) {
   return "Waiting for the garden to settle";
 }
 
-function formatElapsed(ms: number | null) {
-  if (ms === null) return "Pending";
-  if (ms < 1000) return `${ms.toFixed(0)} ms`;
-  return `${(ms / 1000).toFixed(2)} s`;
-}
-
-function visibleBoard(board: Cell[][] | null) {
-  if (!board) return null;
-
-  let lastRow = board.length - 1;
-  let lastCol = board[0]?.length ? board[0].length - 1 : 0;
-
-  while (lastRow > 0 && board[lastRow]?.every((cell) => cell === "B")) {
-    lastRow -= 1;
-  }
-
-  while (
-    lastCol > 0 &&
-    board.slice(0, lastRow + 1).every((row) => row[lastCol] === "B")
-  ) {
-    lastCol -= 1;
-  }
-
-  return board.slice(0, lastRow + 1).map((row) => row.slice(0, lastCol + 1));
-}
-
-function Piece({ cell }: { cell: Cell }) {
-  if (cell === "" || cell === "B") return null;
-  return <span className={`piece piece-${cell.toLowerCase()}`} aria-label={cell} />;
-}
-
-function Board({
-  board,
-  compact = false,
-}: {
-  board: Cell[][] | null;
-  compact?: boolean;
-}) {
-  const displayBoard = visibleBoard(board);
-
-  if (!displayBoard) {
-    return (
-      <div className="board-shell board-empty">
-        <div className="empty-board-copy">Board pending</div>
-      </div>
-    );
-  }
-
-  const cols = displayBoard[0]?.length || 1;
-
-  return (
-    <div className={compact ? "board-shell board-shell-small" : "board-shell"}>
-      <div
-        className={compact ? "board-grid board-grid-small" : "board-grid"}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        aria-label="Tic Tac Go board"
-      >
-        {displayBoard.flatMap((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`tile tile-${cell || "empty"}`}
-              aria-label={cell || "empty"}
-            >
-              <Piece cell={cell} />
-            </div>
-          )),
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="metric">
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
-  );
-}
-
 export default async function Home() {
   const solution = await getTodaySolution();
-  const hasSteps = solution.step_boards.length > 0;
   const board = solution.board ?? sampleBoard;
+  const solveFrames: SolveFrame[] = [
+    { move: "Start", board },
+    ...solution.step_boards,
+  ];
 
   return (
     <main className="page">
@@ -182,10 +106,6 @@ export default async function Home() {
         <span className="petal p4" />
         <span className="petal p5" />
         <span className="petal p6" />
-        <span className="petal p7" />
-        <span className="petal p8" />
-        <span className="petal p9" />
-        <span className="petal p10" />
         <span className="firefly f1" />
         <span className="firefly f2" />
         <span className="firefly f3" />
@@ -198,66 +118,20 @@ export default async function Home() {
             <time dateTime={solution.puzzle_date}>{formatDate(solution.puzzle_date)}</time>
             <span>{statusText(solution.status)}</span>
           </div>
+          <ManualRefreshButton />
         </header>
 
-        <section className="focus-area">
-          <div className="board-stage">
-            <Board board={board} />
-          </div>
-
-          <aside className="solution-panel">
-            <div className="panel-heading">
-              <p>Today&apos;s path</p>
-              <h2>{solution.moves || "Pending"}</h2>
-            </div>
-
-            <dl className="metrics">
-              <Metric label="States" value={solution.states_checked?.toLocaleString() || "Pending"} />
-              <Metric label="Solve time" value={formatElapsed(solution.elapsed_ms)} />
-              <Metric label="Parser" value={solution.parser_name} />
-              <Metric label="Solver" value={solution.solver_name} />
-            </dl>
-
-            <div className={`status-note status-${solution.status}`}>
-              <span />
-              <p>
-                {hasSteps
-                  ? `${solution.step_boards.length} boards are ready for replay.`
-                  : solution.error_message ||
-                    "The daily job will publish the solve path after capture and parsing finish."}
-              </p>
-            </div>
-          </aside>
-        </section>
-
-        <section className="steps-section">
-          <div className="section-title">
-            <p>Replay</p>
-            <h2>Step by step</h2>
-          </div>
-
-          {hasSteps ? (
-            <div className="step-scroll">
-              {solution.step_boards.map((step, index) => (
-                <article className="step-card" key={`${index}-${step.move}`}>
-                  <div className="step-card-header">
-                    <span>Step {index + 1}</span>
-                    <strong>{step.move}</strong>
-                  </div>
-                  <Board board={step.board} compact />
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="quiet-empty">
-              <p>{statusText(solution.status)}</p>
-              <span>
-                {solution.error_message ||
-                  "Once the daily solve completes, the movement sequence will appear here."}
-              </span>
-            </div>
-          )}
-        </section>
+        <SolveDashboard
+          frames={solveFrames}
+          moves={solution.moves}
+          statesChecked={solution.states_checked}
+          elapsedMs={solution.elapsed_ms}
+          parserName={solution.parser_name}
+          solverName={solution.solver_name}
+          status={solution.status}
+          errorMessage={solution.error_message}
+          stepBoards={solution.step_boards}
+        />
 
         <footer className="site-footer">
           <p>

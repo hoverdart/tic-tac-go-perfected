@@ -1,7 +1,9 @@
 from pathlib import Path
+import logging
 
 
 PARSER_NAME = "gemini"
+logger = logging.getLogger("tic_tac_go.daily_solve")
 
 
 class DailyBoardParseError(RuntimeError):
@@ -15,6 +17,7 @@ def parse_board_from_screenshot(screenshot_path: Path) -> list[list[str]]:
         raise DailyBoardParseError("Could not load the Gemini board parser.") from exc
 
     try:
+        logger.info("parse.start parser=%s screenshot_path=%s", PARSER_NAME, screenshot_path)
         return parse_board_from_image(screenshot_path)
     except Exception as exc:
         raise DailyBoardParseError(f"Could not parse Tic Tac Go board: {exc}") from exc

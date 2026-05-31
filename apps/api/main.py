@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import date
 from typing import Literal
 
@@ -10,6 +11,11 @@ from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution
 from solver.service import SolverError, solve_board
 
+
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 
 Cell = Literal["", "X", "O", "U", "B"]
 
