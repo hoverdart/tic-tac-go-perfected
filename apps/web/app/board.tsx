@@ -1,66 +1,58 @@
-export type Cell = "" | "X" | "O" | "U" | "B";
+import type { CSSProperties } from "react";
+import type { ReplayFrame, ReplayPiece } from "./replay-model";
 
-function visibleBoard(board: Cell[][] | null): Cell[][] | null {
-  if (!board) return null;
+type BoardProps = {
+  frame: ReplayFrame | null;
+  emptyMessage?: string;
+};
 
-  let lastRow = board.length - 1;
-  let lastCol = board[0]?.length ? board[0].length - 1 : 0;
-
-  while (lastRow > 0 && board[lastRow]?.every((cell) => cell === "B")) {
-    lastRow -= 1;
-  }
-
-  while (
-    lastCol > 0 &&
-    board.slice(0, lastRow + 1).every((row) => row[lastCol] === "B")
-  ) {
-    lastCol -= 1;
-  }
-
-  return board.slice(0, lastRow + 1).map((row) => row.slice(0, lastCol + 1));
+function pieceStyle(piece: ReplayPiece): CSSProperties {
+  return {
+    ["--piece-row" as string]: piece.row,
+    ["--piece-col" as string]: piece.col,
+  };
 }
 
-export function Piece({ cell }: { cell: Cell }) {
-  if (cell === "" || cell === "B") return null;
-  return <span className={`piece piece-${cell.toLowerCase()}`} aria-label={cell} />;
-}
-
-export function Board({
-  board,
-  compact = false,
-}: {
-  board: Cell[][] | null;
-  compact?: boolean;
-}) {
-  const displayBoard = visibleBoard(board);
-
-  if (!displayBoard) {
-    return (
-      <div className="board-shell board-empty">
-        <div className="empty-board-copy">Board pending</div>
-      </div>
-    );
-  }
-
-  const cols = displayBoard[0]?.length || 1;
+export function Board({ frame, emptyMessage = "Board pending" }: BoardProps) {
+  const rows = frame?.board.length ?? 6;
+  const cols = frame?.board[0]?.length ?? 6;
+  const gridStyle = {
+    ["--board-rows" as string]: rows,
+    ["--board-cols" as string]: cols,
+  };
 
   return (
-    <div className={compact ? "board-shell board-shell-small" : "board-shell"}>
+    <div className="board-shell">
       <div
-        className={compact ? "board-grid board-grid-small" : "board-grid"}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        aria-label="Tic Tac Go board"
+        className={`board-grid${frame ? "" : " board-grid-empty"}`}
+        style={gridStyle}
+        aria-label={frame ? "Animated Tic-Tac-Go solution board" : emptyMessage}
       >
-        {displayBoard.flatMap((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={`tile tile-${cell || "empty"}`}
-              aria-label={cell || "empty"}
-            >
-              <Piece cell={cell} />
-            </div>
-          )),
+        {(frame?.board ?? Array.from({ length: rows }, () => Array(cols).fill(""))).flatMap(
+          (row, rowIndex) =>
+            row.map((cell, colIndex) => (
+              <span
+                key={`${rowIndex}-${colIndex}`}
+                className={`tile${cell === "B" ? " tile-barrier" : ""}`}
+                aria-hidden="true"
+              />
+            )),
+        )}
+
+        {frame ? (
+          <span className="piece-layer" aria-hidden="true">
+            {frame.pieces.map((piece) => (
+              <span
+                key={piece.id}
+                className={`replay-piece replay-piece-${piece.kind.toLowerCase()}`}
+                style={pieceStyle(piece)}
+              >
+                <span className="piece-mark" />
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span className="board-empty-copy">{emptyMessage}</span>
         )}
       </div>
     </div>

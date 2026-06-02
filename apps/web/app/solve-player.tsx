@@ -1,204 +1,149 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import type { Cell } from "./board";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from "lucide-react";
+import { Board } from "./board";
+import type { ReplayFrame } from "./replay-model";
 
-export type SolveFrame = {
-  move: string;
-  board: Cell[][];
-};
+const MOVE_ARROWS: Record<string, string> = { D: "↓", U: "↑", L: "←", R: "→" };
 
-function cropBoard(board: Cell[][], rows: number, cols: number) {
-  return board.slice(0, rows).map((row) => row.slice(0, cols));
+function subscribeToReducedMotion(onChange: () => void): () => void {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
 }
 
-function visibleSize(board: Cell[][]) {
-  let rows = board.length;
-  let cols = board[0]?.length || 1;
-
-  while (rows > 1 && board[rows - 1]?.every((cell) => cell === "B")) rows -= 1;
-  while (cols > 1 && board.slice(0, rows).every((row) => row[cols - 1] === "B")) {
-    cols -= 1;
-  }
-
-  return { rows, cols };
+function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function userPosition(board: Cell[][]) {
-  for (let row = 0; row < board.length; row += 1) {
-    for (let col = 0; col < (board[row]?.length || 0); col += 1) {
-      if (board[row][col] === "U") return { row, col };
-    }
-  }
-  return { row: 0, col: 0 };
-}
-
-function Piece({ cell }: { cell: Cell }) {
-  if (cell === "" || cell === "B" || cell === "U") return null;
-  return <span className={`piece piece-${cell.toLowerCase()}`} aria-label={cell} />;
+function serverReducedMotion(): boolean {
+  return false;
 }
 
 type SolvePlayerProps = {
-  frames: SolveFrame[];
-  index: number;
-  playing: boolean;
-  onSetIndex: (i: number) => void;
-  onSetPlaying: (p: boolean) => void;
-  showComplete: boolean;
+  frames: ReplayFrame[];
+  emptyMessage: string;
 };
 
-export function SolvePlayer({
-  frames,
-  index,
-  playing,
-  onSetIndex,
-  onSetPlaying,
-  showComplete,
-}: SolvePlayerProps) {
-  const size = useMemo(
-    () => visibleSize(frames[0]?.board || [[""]]),
-    [frames],
-  );
-  const frame = frames[index] || frames[0];
-  const board = frame ? cropBoard(frame.board, size.rows, size.cols) : [["" as Cell]];
-  const user = userPosition(board);
+export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
   const hasReplay = frames.length > 1;
+  const reducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    prefersReducedMotion,
+    serverReducedMotion,
+  );
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(hasReplay);
+  const activeFrame = frames[index] ?? frames[0] ?? null;
+  const effectivePlaying = playing && !reducedMotion;
+  const moveCount = Math.max(frames.length - 1, 0);
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === " ") {
-        e.preventDefault();
-        onSetPlaying(!playing);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        onSetPlaying(false);
-        onSetIndex(Math.max(index - 1, 0));
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        onSetPlaying(false);
-        onSetIndex(Math.min(index + 1, frames.length - 1));
-      } else if (e.key === "r" || e.key === "R") {
-        onSetIndex(0);
-        onSetPlaying(hasReplay);
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [playing, index, frames.length, hasReplay, onSetPlaying, onSetIndex]);
-
-  function replay() {
-    onSetIndex(0);
-    onSetPlaying(hasReplay);
-  }
+    if (!effectivePlaying || !hasReplay) return;
+    const timer = window.setInterval(() => {
+      setIndex((current) => {
+        if (current >= frames.length - 1) {
+          setPlaying(false);
+          return current;
+        }
+        return current + 1;
+      });
+    }, 560);
+    return () => window.clearInterval(timer);
+  }, [effectivePlaying, frames.length, hasReplay]);
 
   function step(delta: number) {
-    onSetPlaying(false);
-    onSetIndex(Math.min(Math.max(index + delta, 0), frames.length - 1));
+    setPlaying(false);
+    setIndex((current) => Math.min(Math.max(current + delta, 0), frames.length - 1));
+  }
+
+  function replay() {
+    setIndex(0);
+    setPlaying(hasReplay && !reducedMotion);
+  }
+
+  function togglePlayback() {
+    if (!hasReplay || reducedMotion) return;
+    if (index >= frames.length - 1) setIndex(0);
+    setPlaying((current) => !current);
+  }
+
+  function scrubTo(frameIndex: number) {
+    setPlaying(false);
+    setIndex(frameIndex);
   }
 
   return (
-    <div className="solve-player">
-      <div className="solve-player-topline">
-        <span>{index === 0 ? "Start" : `Move ${index}`}</span>
-        <strong>{frame?.move || "Ready"}</strong>
+    <section className="replay-player" aria-label="Daily solution replay">
+      <div className="board-statusline">
+        <span>{activeFrame?.status === "won" ? "Solved" : index === 0 ? "Start" : `Move ${index}`}</span>
+        <strong>{index} / {moveCount}</strong>
       </div>
 
-      <div className="board-shell solve-board-shell">
-        <div
-          className="board-grid solve-board-grid"
-          style={{
-            gridTemplateColumns: `repeat(${size.cols}, minmax(0, 1fr))`,
-            ["--rows" as string]: size.rows,
-            ["--cols" as string]: size.cols,
-            ["--user-row" as string]: user.row,
-            ["--user-col" as string]: user.col,
-          }}
-          aria-label="Animated Tic Tac Go solution board"
-        >
-          {board.flatMap((row, rowIndex) =>
-            row.map((cell, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`tile tile-${cell === "U" ? "empty" : cell || "empty"}`}
-                aria-label={cell || "empty"}
-              >
-                <Piece cell={cell} />
-              </div>
-            )),
-          )}
-          <span className="solve-user-piece piece piece-u" aria-label="U" />
-        </div>
-      </div>
+      <Board frame={activeFrame} emptyMessage={emptyMessage} />
 
-      {showComplete && (
-        <div className="solve-complete-badge" aria-live="polite">Solved ✓</div>
-      )}
-
-      <div className="solve-controls">
+      <div className="replay-controls" aria-label="Replay controls">
         <button
           type="button"
-          className="solve-icon-btn"
+          className="icon-button"
           onClick={() => step(-1)}
-          disabled={index === 0}
-          aria-label="Step back"
+          disabled={index === 0 || frames.length === 0}
+          aria-label="Previous move"
+          title="Previous move"
         >
-          <svg viewBox="0 0 16 16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="10,4 6,8 10,12" />
-          </svg>
+          <ChevronLeft aria-hidden="true" />
         </button>
-
         <button
           type="button"
-          className="solve-primary"
-          onClick={() => onSetPlaying(!playing)}
-          disabled={!hasReplay}
-          aria-label={playing ? "Pause" : "Play"}
+          className="icon-button replay-primary"
+          onClick={togglePlayback}
+          disabled={!hasReplay || reducedMotion}
+          aria-label={effectivePlaying ? "Pause replay" : "Play replay"}
+          title={reducedMotion ? "Playback disabled by reduced motion preference" : effectivePlaying ? "Pause replay" : "Play replay"}
         >
-          {playing ? (
-            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
-              <rect x="3" y="3" width="4" height="10" rx="1" />
-              <rect x="9" y="3" width="4" height="10" rx="1" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
-              <polygon points="4,2 14,8 4,14" />
-            </svg>
-          )}
+          {effectivePlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </button>
-
         <button
           type="button"
-          className="solve-icon-btn"
+          className="icon-button"
           onClick={() => step(1)}
-          disabled={index >= frames.length - 1}
-          aria-label="Step forward"
+          disabled={index >= frames.length - 1 || frames.length === 0}
+          aria-label="Next move"
+          title="Next move"
         >
-          <svg viewBox="0 0 16 16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6,4 10,8 6,12" />
-          </svg>
+          <ChevronRight aria-hidden="true" />
         </button>
-
         <button
           type="button"
-          className="solve-icon-btn"
+          className="icon-button"
           onClick={replay}
           disabled={!hasReplay}
           aria-label="Replay from start"
+          title="Replay from start"
         >
-          <svg viewBox="0 0 16 16" stroke="currentColor" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M2.5 8a5.5 5.5 0 1 1 1.1 3.3" />
-            <polyline points="2.5,4.5 2.5,8 6,8" />
-          </svg>
+          <RotateCcw aria-hidden="true" />
         </button>
       </div>
 
-      <div className="solve-progress" aria-hidden="true">
-        <span style={{ width: `${hasReplay ? (index / (frames.length - 1)) * 100 : 0}%` }} />
+      <div className="timeline">
+        <input
+          type="range"
+          min={0}
+          max={Math.max(moveCount, 1)}
+          value={index}
+          disabled={!hasReplay}
+          onChange={(event) => scrubTo(Number(event.target.value))}
+          aria-label="Solution timeline"
+        />
+        <div className="move-sequence" aria-label={moveCount ? `Solution moves: ${frames.slice(1).map((frame) => frame.move).join("")}` : "Solution pending"}>
+          {moveCount ? frames.slice(1).map((frame, frameIndex) => (
+            <span key={`${frameIndex}-${frame.move}`} className={frameIndex < index ? "move-complete" : ""}>
+              {MOVE_ARROWS[frame.move ?? ""] ?? frame.move}
+            </span>
+          )) : <span>Awaiting solve path</span>}
+        </div>
       </div>
-
-      <p className="solve-keyboard-hint">Space · ← → · R</p>
-    </div>
+    </section>
   );
 }

@@ -1,7 +1,5 @@
-import { ManualRefreshButton } from "./manual-refresh-button";
-import { SolveDashboard } from "./solve-dashboard";
-import type { SolveFrame } from "./solve-player";
-import type { Cell } from "./board";
+import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
+import type { Cell } from "./replay-model";
 
 export const dynamic = "force-dynamic";
 
@@ -21,108 +19,97 @@ type SolutionRecord = {
   step_boards: SolveStep[];
   states_checked: number | null;
   elapsed_ms: number | null;
-  status: "pending" | "solved" | "unsolved" | "failed";
+  status: DailyStatus;
   error_message: string | null;
 };
 
-const sampleBoard: Cell[][] = [
-  ["X", "", "", "X", "", ""],
-  ["", "X", "X", "", "O", ""],
-  ["", "O", "", "", "X", "X"],
-  ["X", "", "B", "X", "", ""],
-  ["", "X", "", "", "", ""],
-  ["", "", "", "X", "", "U"],
-];
-
-const sampleSolution: SolutionRecord = {
+const demoSolution: SolutionRecord = {
   puzzle_date: new Date().toISOString().slice(0, 10),
   source_url: "",
   parser_name: "gemini",
   solver_name: "bfs",
-  board: sampleBoard,
-  moves: null,
+  board: [
+    ["", "", "", "", "", ""],
+    ["", "O", "O", "", "", ""],
+    ["", "", "X", "", "", ""],
+    ["", "", "", "", "", "U"],
+    ["", "B", "B", "", "", ""],
+    ["", "", "", "", "", ""],
+  ],
+  moves: "LLUU",
   final_board: null,
   step_boards: [],
-  states_checked: null,
-  elapsed_ms: null,
-  status: "pending",
-  error_message: "Set API_BASE_URL to show today's generated solution.",
+  states_checked: 128,
+  elapsed_ms: 7,
+  status: "solved",
+  error_message: null,
 };
 
-async function getTodaySolution(): Promise<SolutionRecord> {
+function unavailableSolution(errorMessage: string): SolutionRecord {
+  return {
+    ...demoSolution,
+    board: null,
+    moves: null,
+    states_checked: null,
+    elapsed_ms: null,
+    status: "failed",
+    error_message: errorMessage,
+  };
+}
+
+async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: boolean }> {
   const apiBaseUrl = process.env.API_BASE_URL;
-  if (!apiBaseUrl) return sampleSolution;
+  if (!apiBaseUrl) {
+    return process.env.NODE_ENV === "development"
+      ? { solution: demoSolution, isDemo: true }
+      : { solution: unavailableSolution("API_BASE_URL is not configured."), isDemo: false };
+  }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/solutions/today`, {
-      cache: "no-store",
-    });
-
+    const response = await fetch(`${apiBaseUrl}/solutions/today`, { cache: "no-store" });
     if (!response.ok) {
-      return {
-        ...sampleSolution,
-        status: "failed",
-        error_message: `Backend returned ${response.status}.`,
-      };
+      return { solution: unavailableSolution(`Backend returned ${response.status}.`), isDemo: false };
     }
-
-    return response.json();
+    return { solution: await response.json(), isDemo: false };
   } catch (error) {
     return {
-      ...sampleSolution,
-      status: "failed",
-      error_message: error instanceof Error ? error.message : "Could not reach backend.",
+      solution: unavailableSolution(error instanceof Error ? error.message : "Could not reach backend."),
+      isDemo: false,
     };
   }
 }
 
-function formatDate(date: string) {
+function formatDate(date: string): string {
   const [year, month, day] = date.split("-");
   if (!year || !month || !day) return date;
   return `${Number(month)}/${Number(day)}/${year}`;
 }
 
-function statusText(status: SolutionRecord["status"]) {
+function statusText(status: DailyStatus, isDemo: boolean): string {
+  if (isDemo) return "Local demo";
   if (status === "solved") return "Solution ready";
   if (status === "unsolved") return "No route found";
   if (status === "failed") return "Capture needs review";
-  return "Waiting for the garden to settle";
+  return "Solve pending";
 }
 
 export default async function Home() {
-  const solution = await getTodaySolution();
-  const board = solution.board ?? sampleBoard;
-  const solveFrames: SolveFrame[] = [
-    { move: "Start", board },
-    ...solution.step_boards,
-  ];
+  const { solution, isDemo } = await getTodaySolution();
 
   return (
     <main className="page">
-      <div className="petal-field" aria-hidden="true">
-        <span className="petal p1" />
-        <span className="petal p2" />
-        <span className="petal p3" />
-        <span className="petal p4" />
-        <span className="petal p5" />
-        <span className="petal p6" />
-        <span className="firefly f1" />
-        <span className="firefly f2" />
-        <span className="firefly f3" />
-      </div>
-
-      <section className="scene">
-        <header className="hero">
+      <section className="game-scene">
+        <header className="game-header">
           <h1>Tic-Tac-Go</h1>
+          <p>Daily Solver</p>
           <div className="date-pill">
             <time dateTime={solution.puzzle_date}>{formatDate(solution.puzzle_date)}</time>
-            <span>{statusText(solution.status)}</span>
+            <span>{statusText(solution.status, isDemo)}</span>
           </div>
-          <ManualRefreshButton />
         </header>
 
         <SolveDashboard
-          frames={solveFrames}
+          board={solution.board}
           moves={solution.moves}
           statesChecked={solution.states_checked}
           elapsedMs={solution.elapsed_ms}
@@ -130,17 +117,17 @@ export default async function Home() {
           solverName={solution.solver_name}
           status={solution.status}
           errorMessage={solution.error_message}
-          stepBoards={solution.step_boards}
+          isDemo={isDemo}
         />
 
         <footer className="site-footer">
-          <p>
+          <span>Daily board capture and optimal replay.</span>
+          <span>
             Built by{" "}
-            <a href="https://github.com/Abdullah-Waris" target="_blank" rel="noopener noreferrer" className="footer-link">Abdullah</a>
+            <a href="https://github.com/Abdullah-Waris" target="_blank" rel="noopener noreferrer">Abdullah</a>
             {" & "}
-            <a href="https://www.shauryav.com/" target="_blank" rel="noopener noreferrer" className="footer-link">Shaurya</a>
-          </p>
-          <span>Daily board capture, parser &amp; solver pipeline.</span>
+            <a href="https://www.shauryav.com/" target="_blank" rel="noopener noreferrer">Shaurya</a>
+          </span>
         </footer>
       </section>
     </main>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,15 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const displayFont = DM_Serif_Display({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: "400",
-});
-
 export const metadata: Metadata = {
-  title: "Tic Tac Go — Daily Solver",
-  description: "Google's daily Tic Tac Go puzzle — captured automatically, parsed with AI, and solved by algorithm.",
+  title: "Tic-Tac-Go Daily Solver",
+  description: "Today's Tic-Tac-Go puzzle, captured automatically and replayed with an optimal solve path.",
 };
 
 export default function RootLayout({
@@ -31,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${displayFont.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
