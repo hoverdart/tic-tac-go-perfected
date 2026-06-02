@@ -1,0 +1,5 @@
+- moving background (live, with fireflies and swaying trees and all)
+- title of the board showing up
+- reload button
+- rotating O (this is a silly change)
+- actually host the FastAPI thing so this website works

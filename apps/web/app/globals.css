@@ -65,7 +65,6 @@ a:focus-visible {
   background-image: url("/garden-background.jpg");
   background-position: center;
   background-size: cover;
-  background-attachment: fixed;
 }
 
 .game-scene {
