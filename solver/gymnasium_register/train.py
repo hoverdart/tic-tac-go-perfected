@@ -163,7 +163,7 @@ def learnProcess(num, threshold = 24):
     else:
         model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
 
-    if num == 9:
+    if num == 10:
         inject(model, injection_boards)
 
     while not threshold_reached:
