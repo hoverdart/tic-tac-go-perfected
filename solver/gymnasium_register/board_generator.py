@@ -42,7 +42,10 @@ class BoardGenerator:
     # ------------------------------------------------------------------
     # Minimum required BFS solution length per graduation
     # ------------------------------------------------------------------
-    _MIN_SOLUTION = {1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 7, 9: 6, 10: 6}
+    _MIN_SOLUTION = {
+        1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 5,
+        7: 6, 8: 6, 9: 7, 10: 7, 11: 6, 12: 6
+    }
 
     # ------------------------------------------------------------------
     # Graduation parameters
@@ -58,18 +61,29 @@ class BoardGenerator:
                 num_bs=0, randomize_os=True,  align_os_bias=1.0, min_o_dist=2,
                 slightly_misaligned_os=True),
         4: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
-                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3),
+                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3,
+                max_o_dist=4, agent_max_o_dist=10),
         5: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
-                num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3),
-        6: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
-                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=4),
-        7: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
-                num_bs=0, randomize_os=True,  align_os_bias=0.2, min_o_dist=4),
-        8: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
-                num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4),
-        9: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+                num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3,
+                agent_max_o_dist=13, agent_far_fraction=None),
+        6: dict(active_rows=8, active_cols=8, num_xs=5,  x_danger=1,
+                num_bs=0, randomize_os=True,  align_os_bias=0.45, min_o_dist=3,
+                agent_max_o_dist=16, agent_far_fraction=None),
+        7: dict(active_rows=8, active_cols=8, num_xs=7,  x_danger=1,
+                num_bs=0, randomize_os=True,  align_os_bias=0.42, min_o_dist=4,
+                agent_far_fraction=0.5),
+        8: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
+                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=4,
+                agent_far_fraction=1/3),
+        9: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
+                num_bs=0, randomize_os=True,  align_os_bias=0.2, min_o_dist=4,
+                agent_far_fraction=1/3),
+        10: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
+                 num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4,
+                 agent_far_fraction=1/3),
+        11: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
-        10: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        12: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                  num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
     }
 
@@ -94,7 +108,7 @@ class BoardGenerator:
         Returns:
             List of 8x8 tuple-of-tuples boards ready to drop into your env.
         """
-        assert 1 <= grad <= 10, "grad must be 1-10"
+        assert 1 <= grad <= 12, "grad must be 1-12"
         if seed is not None:
             random.seed(seed)
 
@@ -176,7 +190,7 @@ class BoardGenerator:
         """
         p = self._GRAD_PARAMS[grad]
 
-        if grad in (9, 10):
+        if grad in (11, 12):
             ar, ac = random.choice(self._GRAD9_SIZES)
             area = ar * ac
             num_xs = max(2, area // 7)
@@ -197,7 +211,12 @@ class BoardGenerator:
             if p.get("slightly_misaligned_os"):
                 o1, o2 = self._place_slightly_misaligned_os(valid)
             else:
-                o1, o2 = self._place_os(valid, p["align_os_bias"], p["min_o_dist"])
+                o1, o2 = self._place_os(
+                    valid,
+                    p["align_os_bias"],
+                    p["min_o_dist"],
+                    p.get("max_o_dist"),
+                )
             if o1 is None:
                 return None
         else:
@@ -262,20 +281,25 @@ class BoardGenerator:
 
         return None, None
 
-    def _place_os(self, valid, align_bias, min_dist):
+    def _place_os(self, valid, align_bias, min_dist, max_dist=None):
         for _ in range(500):
             o1 = random.choice(valid)
             if random.random() < align_bias:
                 # Same row or col (partially aligned = easier)
                 pool = (
                     [(o1[0], c) for (r, c) in valid
-                     if r == o1[0] and abs(c - o1[1]) >= min_dist]
+                     if r == o1[0]
+                     and abs(c - o1[1]) >= min_dist
+                     and (max_dist is None or abs(c - o1[1]) <= max_dist)]
                     + [(r, o1[1]) for (r, c) in valid
-                       if c == o1[1] and abs(r - o1[0]) >= min_dist]
+                       if c == o1[1]
+                       and abs(r - o1[0]) >= min_dist
+                       and (max_dist is None or abs(r - o1[0]) <= max_dist)]
                 )
             else:
                 pool = [(r, c) for (r, c) in valid
-                        if abs(r-o1[0]) + abs(c-o1[1]) >= min_dist]
+                        if abs(r-o1[0]) + abs(c-o1[1]) >= min_dist
+                        and (max_dist is None or abs(r-o1[0]) + abs(c-o1[1]) <= max_dist)]
                 if min_dist >= 3 and pool:
                     pool.sort(key=lambda p:
                               -(abs(p[0]-o1[0]) + abs(p[1]-o1[1])))
@@ -295,13 +319,25 @@ class BoardGenerator:
         ]
         if not candidates:
             return None
-        if grad >= 6:
-            # Prefer cells farthest from both Os
+        max_o_dist = self._GRAD_PARAMS[grad].get("agent_max_o_dist")
+        if max_o_dist is not None:
+            capped_candidates = [
+                p for p in candidates
+                if (
+                    abs(p[0]-o1[0]) + abs(p[1]-o1[1]) +
+                    abs(p[0]-o2[0]) + abs(p[1]-o2[1])
+                ) <= max_o_dist
+            ]
+            if capped_candidates:
+                candidates = capped_candidates
+
+        far_fraction = self._GRAD_PARAMS[grad].get("agent_far_fraction")
+        if far_fraction is not None:
             candidates.sort(key=lambda p: -(
                 abs(p[0]-o1[0]) + abs(p[1]-o1[1]) +
                 abs(p[0]-o2[0]) + abs(p[1]-o2[1])
             ))
-            candidates = candidates[:max(1, len(candidates)//3)]
+            candidates = candidates[:max(1, int(len(candidates) * far_fraction))]
         return random.choice(candidates)
 
     # ------------------------------------------------------------------

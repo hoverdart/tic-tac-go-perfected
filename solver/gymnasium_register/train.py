@@ -96,7 +96,7 @@ policy_kwargs = dict(
 model_path = Path("dqn_tic_tac_go.zip")
 
 def get_exploration_fraction(num):
-    if num == 10:
+    if num == 12:
         return 0.15
     if num <= 2:
         return 0.60
@@ -107,9 +107,9 @@ def get_exploration_fraction(num):
     return 0.20
 
 def set_exploration_schedule(model, num):
-    if num == 10:
+    if num == 12:
         model.exploration_initial_eps = 0.20
-    elif num == 9:
+    elif num == 11:
         model.exploration_initial_eps = 0.30
     else:
         model.exploration_initial_eps = 0.50
@@ -157,13 +157,14 @@ def learnProcess(num, threshold = 24):
 
     callbackEnv = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
     obs, info = callbackEnv.reset()
-
+    
     if model_path.exists():
         model = DQN.load(model_path, env=env)
+        model.replay_buffer.reset()
     else:
         model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
 
-    if num == 10:
+    if num == 12:
         inject(model, injection_boards)
 
     while not threshold_reached:
@@ -291,7 +292,7 @@ board = (("", "", "", "", "X", "", "", ""),
 
 learnProcess(5, 28)
 
-#6  8x8, full Xs
+#6  8x8, medium random Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("", "", "", "", "", "X", "", ""),
@@ -303,7 +304,13 @@ board = (("", "", "", "", "X", "", "", ""),
 
 learnProcess(6, 28)
 
-#8x8, dangerous near-line-threat Xs
+#7  8x8, more random Xs, farther Os, agent starts somewhat far
+learnProcess(7, 28)
+
+#8  8x8, full random Xs, agent starts far
+learnProcess(8, 30)
+
+#9  8x8, dangerous near-line-threat Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("B", "B", "B", "", "", "X", "", ""),
@@ -313,12 +320,12 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "B", "B", "", "", ""),
          ("X", "", "", "B", "B", "", "", "X"))
 
-learnProcess(7, 30)
+learnProcess(9, 30)
 
-#8  8x8, Xs + B blocks
-learnProcess(8, 30)
+#10  8x8, Xs + B blocks
+learnProcess(10, 30)
 
-#Graduation 9 Varying Board Sizes, Real Board (Change Threshold, Find boards)
+#Graduation 11 Varying Board Sizes, Real Board (Change Threshold, Find boards)
 board = (("", "", "", "", "", "", "", ""),
          ("", "", "U", "X", "", "", "O", ""),
          ("", "B", "B", "", "X", "B", "B", "X"),
@@ -328,10 +335,10 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(9, 29)
+learnProcess(11, 29)
 
-#Graduation 10 Final Training
-learnProcess(10, 36)
+#Graduation 12 Final Training
+learnProcess(12, 36)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
