@@ -42,8 +42,8 @@ next to the Next.js frontend mounted at `/`.
 
 The root `app.py` file exports this FastAPI app for Vercel, and the root
 `pyproject.toml` provides the Python dependencies. Configure the Vercel project
-with `API_ALLOWED_ORIGINS`, `CRON_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY`,
-and `GOOGLE_TIC_TAC_GO_URL`.
+with `API_ALLOWED_ORIGINS=https://tictacgo.shauryav.com`, `CRON_SECRET`,
+`DATABASE_URL`, `GEMINI_API_KEY`, and `GOOGLE_TIC_TAC_GO_URL`.
 
 After deployment, the API is available under `/api/python`, for example
 `/api/python/health` and `/api/python/solutions/today`.

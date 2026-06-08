@@ -71,11 +71,16 @@ install step.
 
 Set these environment variables on the Vercel project:
 
-- `API_ALLOWED_ORIGINS`: your app URL, for example `https://your-app.vercel.app`
+- `API_ALLOWED_ORIGINS`: `https://tictacgo.shauryav.com`
 - `CRON_SECRET`
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
 
 The web service uses Vercel's generated `BACKEND_URL` to call FastAPI. You can
-still set `API_BASE_URL` to override it manually.
+still set `API_BASE_URL` to override it manually, but do not set it to
+`http://127.0.0.1:8000` or `http://localhost:8000` in Vercel. Those values are
+only for local development.
+
+If you set `API_BASE_URL` in production, use
+`https://tictacgo.shauryav.com/api/python`.

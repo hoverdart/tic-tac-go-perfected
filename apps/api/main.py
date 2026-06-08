@@ -98,6 +98,7 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
 
 
 app = FastAPI(title="Tic Tac Go Solver API")
+logger = logging.getLogger("tic_tac_go.api")
 
 allowed_origins = [
     origin.strip()
@@ -139,6 +140,9 @@ def daily_solve_job() -> JobResponse:
         record = run_daily_solve()
     except StorageError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("daily_solve_job.unhandled")
+        raise HTTPException(status_code=500, detail=f"Daily solve failed: {exc}") from exc
 
     return JobResponse(**record)
 
