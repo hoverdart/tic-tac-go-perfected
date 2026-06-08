@@ -131,8 +131,17 @@ _GAME_CONTAINER_SELECTORS = [
 
 def _capture_board_image(page, screenshot_path: Path) -> None:
     page.wait_for_timeout(8_000)
+    try:
+        board = page.locator("canvas.board").first
+        board.wait_for(state="visible", timeout=5_000)
+        board.screenshot(path=str(screenshot_path))
+        logger.info("capture.board_canvas_screenshot_done")
+        return
+    except Exception as exc:
+        logger.info("capture.board_canvas_screenshot_failed error=%s", exc)
+
     page.screenshot(path=str(screenshot_path), full_page=True)
-    logger.info("capture.full_page_screenshot_done")
+    logger.info("capture.full_page_screenshot_fallback")
 
 
 def google_tic_tac_go_url() -> str:
