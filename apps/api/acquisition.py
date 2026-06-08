@@ -56,7 +56,11 @@ def _env_value(*names: str) -> str | None:
     for name in names:
         value = os.getenv(name)
         if value:
-            return value.strip()
+            stripped = value.strip().strip('"').strip("'")
+            assignment_prefix = f"{name}="
+            if stripped.startswith(assignment_prefix):
+                stripped = stripped[len(assignment_prefix):].strip().strip('"').strip("'")
+            return stripped
     return None
 
 
@@ -115,7 +119,16 @@ def _remote_browser_url() -> str | None:
 
 
 def _running_on_vercel() -> bool:
-    return os.getenv("VERCEL") == "1" or os.getenv("VERCEL_ENV") is not None
+    serverless_markers = (
+        "VERCEL",
+        "VERCEL_ENV",
+        "VERCEL_URL",
+        "AWS_LAMBDA_FUNCTION_NAME",
+        "AWS_LAMBDA_RUNTIME_API",
+        "AWS_EXECUTION_ENV",
+        "LAMBDA_TASK_ROOT",
+    )
+    return any(os.getenv(marker) for marker in serverless_markers)
 
 
 def capture_google_board_screenshot(source_url: str | None = None) -> Path:
