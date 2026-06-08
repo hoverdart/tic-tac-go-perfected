@@ -66,10 +66,9 @@ the repository root. Vercel Services will mount:
 - `app.py` at `/api/python`
 
 The root `app.py` exports `apps.api.main:app` for Vercel's Python runtime, and
-`pyproject.toml` defines the Python dependencies plus the Playwright install.
-The backend service build command downloads only Chromium's headless shell into
-`.playwright-browsers` so it is available to the daily screenshot job at
-runtime without bundling the full browser.
+`pyproject.toml` defines the Python dependencies. Vercel's function bundle is
+too small for a local Chromium binary, so the daily screenshot job should use a
+remote browser endpoint in production.
 
 Set these environment variables on the Vercel project:
 
@@ -78,6 +77,28 @@ Set these environment variables on the Vercel project:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
+- `BROWSERBASE_API_KEY`: Browserbase API key for the daily screenshot job
+- `BROWSERBASE_PROJECT_ID`: optional, but recommended if your Browserbase key
+  can access more than one project
+
+You can also set `PLAYWRIGHT_CDP_URL` or `BROWSERLESS_WS_URL` directly if you
+use another remote browser provider.
+
+For Browserbase:
+
+1. Copy your API key from Browserbase and set `BROWSERBASE_API_KEY` in Vercel.
+2. Copy your Project ID from Browserbase settings and set `BROWSERBASE_PROJECT_ID`.
+3. Redeploy and test `POST /api/manual/daily-solve`.
+
+The simplest remote browser option is Browserless BaaS:
+
+1. Create a Browserless project and copy the WebSocket/CDP endpoint from its dashboard.
+2. Set `PLAYWRIGHT_CDP_URL` in Vercel to that endpoint, for example
+   `wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
+3. Redeploy and test `POST /api/manual/daily-solve`.
+
+Do not deploy the browser runner as another Vercel Function. The same bundle
+limits apply there too.
 
 The web service uses Vercel's generated `BACKEND_URL` to call FastAPI. You can
 still set `API_BASE_URL` to override it manually, but do not set it to

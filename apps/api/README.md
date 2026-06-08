@@ -43,7 +43,17 @@ next to the Next.js frontend mounted at `/`.
 The root `app.py` file exports this FastAPI app for Vercel, and the root
 `pyproject.toml` provides the Python dependencies. Configure the Vercel project
 with `API_ALLOWED_ORIGINS=https://tictacgo.shauryav.com`, `CRON_SECRET`,
-`DATABASE_URL`, `GEMINI_API_KEY`, and `GOOGLE_TIC_TAC_GO_URL`.
+`DATABASE_URL`, `GEMINI_API_KEY`, `GOOGLE_TIC_TAC_GO_URL`,
+`BROWSERBASE_API_KEY`, and optionally `BROWSERBASE_PROJECT_ID`.
+
+The Vercel Python function bundle cannot fit a bundled Chromium binary. In
+production, set Browserbase credentials or one of the remote browser endpoint
+variables so the daily job connects to an external Chromium instance instead of
+launching a local browser.
+For Browserbase, the API creates a session and connects to its returned
+`connectUrl`.
+For Browserless BaaS, set `PLAYWRIGHT_CDP_URL` to the dashboard-provided
+WebSocket URL, such as `wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
 
 After deployment, the API is available under `/api/python`, for example
 `/api/python/health` and `/api/python/solutions/today`.

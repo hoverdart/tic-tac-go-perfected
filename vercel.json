@@ -8,7 +8,6 @@
     },
     "backend": {
       "entrypoint": "app.py",
-      "buildCommand": "rm -rf .playwright-browsers && PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers python -m playwright install --only-shell chromium",
       "routePrefix": "/api/python"
     }
   },

@@ -8,13 +8,15 @@
 import os
 import tempfile
 import logging
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from pathlib import Path
 
 
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
+BROWSERBASE_SESSIONS_URL = "https://api.browserbase.com/v1/sessions"
 logger = logging.getLogger("tic_tac_go.daily_solve")
-REPO_ROOT = Path(__file__).resolve().parents[2]
-PLAYWRIGHT_BROWSERS_PATH = REPO_ROOT / ".playwright-browsers"
 
 
 class BoardCaptureError(RuntimeError):
@@ -50,13 +52,73 @@ def google_tic_tac_go_url() -> str:
     return os.getenv("GOOGLE_TIC_TAC_GO_URL", DEFAULT_GOOGLE_TIC_TAC_GO_URL)
 
 
-def _configure_playwright_browser_path() -> None:
-    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(PLAYWRIGHT_BROWSERS_PATH))
+def _env_value(*names: str) -> str | None:
+    for name in names:
+        value = os.getenv(name)
+        if value:
+            return value.strip()
+    return None
+
+
+def _browserbase_connect_url() -> str | None:
+    api_key = _env_value("BROWSERBASE_API_KEY", "browserbase_api_key")
+    if not api_key:
+        return None
+
+    project_id = _env_value("BROWSERBASE_PROJECT_ID", "browserbase_project_id")
+    payload: dict[str, object] = {
+        "browserSettings": {
+            "viewport": {"width": 1280, "height": 1400},
+        },
+        "timeout": 120,
+    }
+    if project_id:
+        payload["projectId"] = project_id
+
+    request = Request(
+        BROWSERBASE_SESSIONS_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "X-BB-API-Key": api_key,
+        },
+        method="POST",
+    )
+
+    try:
+        with urlopen(request, timeout=30) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise BoardCaptureError(
+            f"Browserbase session creation failed with HTTP {exc.code}: {detail}"
+        ) from exc
+    except (URLError, TimeoutError) as exc:
+        raise BoardCaptureError(f"Could not reach Browserbase: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise BoardCaptureError("Browserbase returned invalid JSON.") from exc
+
+    connect_url = body.get("connectUrl")
+    if not isinstance(connect_url, str) or not connect_url:
+        raise BoardCaptureError("Browserbase did not return a connectUrl.")
+
+    logger.info("capture.browserbase_session_created session_id=%s", body.get("id"))
+    return connect_url
+
+
+def _remote_browser_url() -> str | None:
+    return (
+        _env_value("PLAYWRIGHT_CDP_URL")
+        or _env_value("BROWSERLESS_WS_URL")
+        or _browserbase_connect_url()
+    )
+
+
+def _running_on_vercel() -> bool:
+    return os.getenv("VERCEL") == "1" or os.getenv("VERCEL_ENV") is not None
 
 
 def capture_google_board_screenshot(source_url: str | None = None) -> Path:
-    _configure_playwright_browser_path()
-
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright
@@ -74,8 +136,20 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
 
     try:
         with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=True)
-            logger.info("capture.browser_launched chromium=headless")
+            remote_browser_url = _remote_browser_url()
+            if remote_browser_url:
+                browser = playwright.chromium.connect_over_cdp(remote_browser_url)
+                logger.info("capture.browser_connected chromium=remote")
+            elif _running_on_vercel():
+                raise BoardCaptureError(
+                    "Vercel cannot bundle Chromium for Playwright. Set "
+                    "PLAYWRIGHT_CDP_URL, BROWSERLESS_WS_URL, or "
+                    "BROWSERBASE_API_KEY to use a remote Chromium endpoint."
+                )
+            else:
+                browser = playwright.chromium.launch(headless=True)
+                logger.info("capture.browser_launched chromium=headless")
+
             page = browser.new_page(
                 viewport={"width": 1280, "height": 1400},
                 device_scale_factor=1,
