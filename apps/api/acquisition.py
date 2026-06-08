@@ -37,26 +37,78 @@ class RemoteBrowserTarget:
 def _dismiss_tutorial_overlay(page) -> bool:
     """Click the Google Tic Tac Go tutorial Skip button when it appears."""
     candidates = [
-        page.get_by_text("Skip", exact=True),
-        page.get_by_role("button", name="Skip"),
-        page.locator("text=Skip"),
+        ("button[name=Skip]", page.get_by_role("button", name="Skip")),
+        ("text=Skip", page.get_by_text("Skip", exact=True)),
+        ("role/button text=Skip", page.locator("button:has-text('Skip'), [role='button']:has-text('Skip')")),
     ]
 
-    for locator in candidates:
+    hidden_candidates = 0
+    for selector_name, locator in candidates:
         try:
-            if locator.count() == 0:
+            count = locator.count()
+            if count == 0:
                 continue
-            first = locator.first
-            first.wait_for(state="visible", timeout=2_000)
-            first.click(timeout=2_000)
-            logger.info("capture.tutorial_dismissed selector=%s", locator)
-            page.wait_for_timeout(1_000)
-            return True
         except Exception as exc:
-            logger.info("capture.skip_click_candidate_failed error=%s", exc)
+            logger.debug("capture.skip_count_failed selector=%s error=%s", selector_name, exc)
+            continue
 
-    logger.info("capture.tutorial_not_found")
+        for index in range(min(count, 5)):
+            candidate = locator.nth(index)
+            try:
+                if not candidate.is_visible(timeout=500):
+                    hidden_candidates += 1
+                    continue
+
+                candidate.click(timeout=2_000)
+                logger.info("capture.tutorial_dismissed selector=%s index=%s", selector_name, index)
+                page.wait_for_timeout(1_000)
+                return True
+            except Exception as exc:
+                logger.debug(
+                    "capture.skip_click_candidate_failed selector=%s index=%s error=%s",
+                    selector_name,
+                    index,
+                    exc,
+                )
+
+    try:
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(500)
+    except Exception as exc:
+        logger.debug("capture.escape_dismiss_failed error=%s", exc)
+
+    if hidden_candidates:
+        logger.info("capture.tutorial_not_visible hidden_skip_candidates=%s", hidden_candidates)
+    else:
+        logger.info("capture.tutorial_not_found")
+
     return False
+
+
+def _response_status(response) -> int | None:
+    if response is None:
+        return None
+
+    try:
+        return response.status
+    except Exception:
+        return None
+
+
+def _wait_for_network_idle(page) -> None:
+    try:
+        page.wait_for_load_state("networkidle", timeout=15_000)
+    except Exception as exc:
+        logger.info("capture.networkidle_timeout_or_unavailable error=%s", exc)
+
+
+def _log_page_state(page, phase: str) -> None:
+    try:
+        title = page.title()
+    except Exception:
+        title = "<unavailable>"
+
+    logger.info("capture.page_state phase=%s title=%r current_url=%s", phase, title, page.url)
 
 
 def google_tic_tac_go_url() -> str:
@@ -346,11 +398,14 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
                 viewport={"width": 1280, "height": 1400},
                 device_scale_factor=1,
             )
-            page.goto(url, wait_until="networkidle", timeout=45_000)
-            logger.info("capture.page_loaded title=%r current_url=%s", page.title(), page.url)
+            response = page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+            logger.info("capture.goto_done status=%s target_url=%s", _response_status(response), url)
+            _wait_for_network_idle(page)
+            _log_page_state(page, "after_goto")
             page.wait_for_timeout(2_000)
             dismissed = _dismiss_tutorial_overlay(page)
             logger.info("capture.tutorial_dismissed=%s", dismissed)
+            _log_page_state(page, "before_screenshot")
             page.screenshot(path=str(screenshot_path), full_page=True)
             browser.close()
     except PlaywrightTimeoutError as exc:
