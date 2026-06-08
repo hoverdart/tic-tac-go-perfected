@@ -1,7 +1,14 @@
 const BACKEND_ROUTE_PREFIX = "/api/python";
 
 function trimTrailingSlash(value: string): string {
-  return value.endsWith("/") ? value.slice(0, -1) : value;
+  const trimmed = value.trim();
+  return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
+}
+
+function normalizeEnvUrl(value: string): string {
+  const trimmed = value.trim();
+  const assignmentMatch = trimmed.match(/^(?:API_BASE_URL|BACKEND_URL)=(.+)$/);
+  return assignmentMatch ? assignmentMatch[1].trim() : trimmed;
 }
 
 function isLocalhostUrl(value: string): boolean {
@@ -14,7 +21,7 @@ function isLocalhostUrl(value: string): boolean {
 }
 
 function resolveBackendUrl(value: string): string | null {
-  const trimmed = trimTrailingSlash(value);
+  const trimmed = trimTrailingSlash(normalizeEnvUrl(value));
   if (/^https?:\/\//.test(trimmed)) return trimmed;
 
   if (trimmed.startsWith("/") && process.env.VERCEL_URL) {

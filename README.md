@@ -67,7 +67,9 @@ the repository root. Vercel Services will mount:
 
 The root `app.py` exports `apps.api.main:app` for Vercel's Python runtime, and
 `pyproject.toml` defines the Python dependencies plus the Playwright Chromium
-install step.
+install. The backend service build command downloads Chromium into
+`.playwright-browsers` so it is available to the daily screenshot job at
+runtime.
 
 Set these environment variables on the Vercel project:
 

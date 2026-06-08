@@ -13,6 +13,8 @@ from pathlib import Path
 
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
 logger = logging.getLogger("tic_tac_go.daily_solve")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PLAYWRIGHT_BROWSERS_PATH = REPO_ROOT / ".playwright-browsers"
 
 
 class BoardCaptureError(RuntimeError):
@@ -48,7 +50,13 @@ def google_tic_tac_go_url() -> str:
     return os.getenv("GOOGLE_TIC_TAC_GO_URL", DEFAULT_GOOGLE_TIC_TAC_GO_URL)
 
 
+def _configure_playwright_browser_path() -> None:
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(PLAYWRIGHT_BROWSERS_PATH))
+
+
 def capture_google_board_screenshot(source_url: str | None = None) -> Path:
+    _configure_playwright_browser_path()
+
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright

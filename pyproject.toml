@@ -9,6 +9,3 @@ dependencies = [
     "psycopg[binary]",
     "uvicorn[standard]",
 ]
-
-[tool.vercel.scripts]
-build = "python -m playwright install chromium"
