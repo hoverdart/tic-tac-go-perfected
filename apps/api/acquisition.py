@@ -16,6 +16,7 @@ from pathlib import Path
 
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
 BROWSERBASE_SESSIONS_URL = "https://api.browserbase.com/v1/sessions"
+BROWSERLESS_DEFAULT_REGION = "production-sfo"
 logger = logging.getLogger("tic_tac_go.daily_solve")
 
 
@@ -110,10 +111,20 @@ def _browserbase_connect_url() -> str | None:
     return connect_url
 
 
+def _browserless_connect_url() -> str | None:
+    token = _env_value("BROWSERLESS_TOKEN", "browserless_token")
+    if not token:
+        return None
+
+    region = _env_value("BROWSERLESS_REGION", "browserless_region") or BROWSERLESS_DEFAULT_REGION
+    return f"wss://{region}.browserless.io?token={token}"
+
+
 def _remote_browser_url() -> str | None:
     return (
         _env_value("PLAYWRIGHT_CDP_URL")
         or _env_value("BROWSERLESS_WS_URL")
+        or _browserless_connect_url()
         or _browserbase_connect_url()
     )
 
@@ -156,8 +167,9 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
             elif _running_on_vercel():
                 raise BoardCaptureError(
                     "Vercel cannot bundle Chromium for Playwright. Set "
-                    "PLAYWRIGHT_CDP_URL, BROWSERLESS_WS_URL, or "
-                    "BROWSERBASE_API_KEY to use a remote Chromium endpoint."
+                    "PLAYWRIGHT_CDP_URL, BROWSERLESS_WS_URL, "
+                    "BROWSERLESS_TOKEN, or BROWSERBASE_API_KEY to use a "
+                    "remote Chromium endpoint."
                 )
             else:
                 browser = playwright.chromium.launch(headless=True)

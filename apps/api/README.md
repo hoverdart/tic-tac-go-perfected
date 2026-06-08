@@ -52,8 +52,8 @@ variables so the daily job connects to an external Chromium instance instead of
 launching a local browser.
 For Browserbase, the API creates a session and connects to its returned
 `connectUrl`.
-For Browserless BaaS, set `PLAYWRIGHT_CDP_URL` to the dashboard-provided
-WebSocket URL, such as `wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
+For Browserless BaaS, set `BROWSERLESS_TOKEN`; the API builds the WebSocket URL
+`wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
 
 After deployment, the API is available under `/api/python`, for example
 `/api/python/health` and `/api/python/solutions/today`.

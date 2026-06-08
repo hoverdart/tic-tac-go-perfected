@@ -80,6 +80,8 @@ Set these environment variables on the Vercel project:
 - `BROWSERBASE_API_KEY`: Browserbase API key for the daily screenshot job
 - `BROWSERBASE_PROJECT_ID`: optional, but recommended if your Browserbase key
   can access more than one project
+- `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead
+- `BROWSERLESS_REGION`: optional Browserless region, defaults to `production-sfo`
 
 You can also set `PLAYWRIGHT_CDP_URL` or `BROWSERLESS_WS_URL` directly if you
 use another remote browser provider.
@@ -92,10 +94,13 @@ For Browserbase:
 
 The simplest remote browser option is Browserless BaaS:
 
-1. Create a Browserless project and copy the WebSocket/CDP endpoint from its dashboard.
-2. Set `PLAYWRIGHT_CDP_URL` in Vercel to that endpoint, for example
-   `wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
+1. Create a Browserless project and copy the API token from its dashboard.
+2. Set `BROWSERLESS_TOKEN` in Vercel to that token.
 3. Redeploy and test `POST /api/manual/daily-solve`.
+
+Browserless REST URLs such as `/pdf` are for one-off HTTP tasks. This app uses
+Browserless BaaS over WebSocket/CDP, equivalent to
+`wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
 
 Do not deploy the browser runner as another Vercel Function. The same bundle
 limits apply there too.
