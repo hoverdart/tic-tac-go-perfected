@@ -1,0 +1,14 @@
+[project]
+name = "tic-tac-go-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "google-genai",
+    "playwright",
+    "psycopg[binary]",
+    "uvicorn[standard]",
+]
+
+[tool.vercel.scripts]
+build = "python -m playwright install chromium"

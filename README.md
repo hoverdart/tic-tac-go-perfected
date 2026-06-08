@@ -53,7 +53,29 @@ npm install
 npm run dev
 ```
 
-For Vercel, set the project root directory to `apps/web`.
+For Vercel, deploy from the repository root. The root `vercel.json` configures
+the Next.js frontend and FastAPI backend as services in one Vercel project.
+Set `CRON_SECRET` on the Vercel project.
 
-The web app needs `API_BASE_URL` so it can read daily solutions from FastAPI.
-Set the same `CRON_SECRET` in both Vercel and the FastAPI host.
+### Deploy to Vercel
+
+Create one Vercel project from this repository and keep the project root set to
+the repository root. Vercel Services will mount:
+
+- `apps/web` at `/`
+- `app.py` at `/api/python`
+
+The root `app.py` exports `apps.api.main:app` for Vercel's Python runtime, and
+`pyproject.toml` defines the Python dependencies plus the Playwright Chromium
+install step.
+
+Set these environment variables on the Vercel project:
+
+- `API_ALLOWED_ORIGINS`: your app URL, for example `https://your-app.vercel.app`
+- `CRON_SECRET`
+- `DATABASE_URL`
+- `GEMINI_API_KEY`
+- `GOOGLE_TIC_TAC_GO_URL`
+
+The web service uses Vercel's generated `BACKEND_URL` to call FastAPI. You can
+still set `API_BASE_URL` to override it manually.

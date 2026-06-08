@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { getBackendBaseUrl } from "../../../backend-url";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
-  const apiBaseUrl = process.env.API_BASE_URL;
+  const apiBaseUrl = getBackendBaseUrl();
   const authHeader = request.headers.get("authorization");
 
   if (!cronSecret) {
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
 
   if (!apiBaseUrl) {
     return NextResponse.json(
-      { ok: false, error: "API_BASE_URL is not configured." },
+      { ok: false, error: "Backend URL is not configured." },
       { status: 500 },
     );
   }

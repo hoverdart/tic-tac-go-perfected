@@ -33,3 +33,17 @@ Set these variables before running the daily job:
 - `POST /jobs/daily-solve`: protected cron endpoint that captures, parses, solves, and stores today's board.
 - `GET /solutions/today`: today's stored solution or a pending response.
 - `GET /solutions/{date}`: stored solution for `YYYY-MM-DD`.
+
+## Deploy to Vercel
+
+Deploy from the repository root as one Vercel project. The root `vercel.json`
+configures this FastAPI backend as a Vercel Service mounted at `/api/python`,
+next to the Next.js frontend mounted at `/`.
+
+The root `app.py` file exports this FastAPI app for Vercel, and the root
+`pyproject.toml` provides the Python dependencies. Configure the Vercel project
+with `API_ALLOWED_ORIGINS`, `CRON_SECRET`, `DATABASE_URL`, `GEMINI_API_KEY`,
+and `GOOGLE_TIC_TAC_GO_URL`.
+
+After deployment, the API is available under `/api/python`, for example
+`/api/python/health` and `/api/python/solutions/today`.

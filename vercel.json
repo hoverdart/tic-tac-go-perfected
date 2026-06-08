@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "experimentalServices": {
+    "frontend": {
+      "entrypoint": "apps/web",
+      "framework": "nextjs",
+      "routePrefix": "/"
+    },
+    "backend": {
+      "entrypoint": "app.py",
+      "routePrefix": "/api/python"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-solve",
+      "schedule": "5 0 * * *"
+    }
+  ],
+  "functions": {
+    "app.py": {
+      "excludeFiles": "{apps/web/**,eval_logs/**,tests/**,solver/gymnasium_register/**,solver/randomPythonFiles/run_*.py,solver/randomPythonFiles/gymnasium-*.py,**/__pycache__/**,**/*.pyc,**/.DS_Store}"
+    }
+  }
+}
