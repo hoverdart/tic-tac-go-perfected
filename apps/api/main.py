@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from apps.api.acquisition import remote_browser_diagnostics
 from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution
 from solver.service import SolverError, solve_board
@@ -118,6 +119,14 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get(
+    "/debug/remote-browser",
+    dependencies=[Depends(require_cron_secret)],
+)
+def debug_remote_browser() -> dict[str, object]:
+    return remote_browser_diagnostics()
 
 
 @app.post("/solve", response_model=SolveResponse)

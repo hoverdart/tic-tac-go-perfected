@@ -4,11 +4,14 @@
     Google, and capture a screenshot of the game board.
 """
 
+from __future__ import annotations
 
 import os
 import tempfile
 import logging
 import json
+from dataclasses import dataclass
+from urllib.parse import parse_qs, quote, urlparse
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from pathlib import Path
@@ -22,6 +25,13 @@ logger = logging.getLogger("tic_tac_go.daily_solve")
 
 class BoardCaptureError(RuntimeError):
     """Raised when the Google board cannot be captured."""
+
+
+@dataclass(frozen=True)
+class RemoteBrowserTarget:
+    provider: str
+    source: str
+    url: str
 
 
 def _dismiss_tutorial_overlay(page) -> bool:
@@ -58,17 +68,48 @@ def _env_value(*names: str) -> str | None:
         value = os.getenv(name)
         if value:
             stripped = value.strip().strip('"').strip("'")
-            assignment_prefix = f"{name}="
-            if stripped.startswith(assignment_prefix):
-                stripped = stripped[len(assignment_prefix):].strip().strip('"').strip("'")
+            for env_name in names:
+                assignment_prefix = f"{env_name}="
+                if stripped.startswith(assignment_prefix):
+                    stripped = stripped[len(assignment_prefix):].strip().strip('"').strip("'")
+                    break
+            else:
+                return stripped
             return stripped
     return None
 
 
-def _browserbase_connect_url() -> str | None:
+def _redacted_url(url: str) -> str:
+    parsed = urlparse(url)
+    if not parsed.query:
+        return url
+
+    redacted_query = []
+    for part in parsed.query.split("&"):
+        key = part.split("=", 1)[0]
+        if key.lower() in {"token", "api_key", "apikey", "key"}:
+            redacted_query.append(f"{key}=<redacted>")
+        else:
+            redacted_query.append(part)
+
+    return parsed._replace(query="&".join(redacted_query)).geturl()
+
+
+def _diagnostic_host(url: str) -> str | None:
+    return urlparse(url).netloc or None
+
+
+def _browserbase_connect_url(create_session: bool = True) -> RemoteBrowserTarget | None:
     api_key = _env_value("BROWSERBASE_API_KEY", "browserbase_api_key")
     if not api_key:
         return None
+
+    if not create_session:
+        return RemoteBrowserTarget(
+            provider="browserbase",
+            source="BROWSERBASE_API_KEY",
+            url=BROWSERBASE_SESSIONS_URL,
+        )
 
     project_id = _env_value("BROWSERBASE_PROJECT_ID", "browserbase_project_id")
     payload: dict[str, object] = {
@@ -108,24 +149,155 @@ def _browserbase_connect_url() -> str | None:
         raise BoardCaptureError("Browserbase did not return a connectUrl.")
 
     logger.info("capture.browserbase_session_created session_id=%s", body.get("id"))
-    return connect_url
+    return RemoteBrowserTarget(
+        provider="browserbase",
+        source="BROWSERBASE_API_KEY",
+        url=connect_url,
+    )
 
 
-def _browserless_connect_url() -> str | None:
+def _browserless_token_from_value(value: str) -> str:
+    if "token=" not in value:
+        return value
+
+    parsed = urlparse(value)
+    tokens = parse_qs(parsed.query).get("token")
+    return tokens[0].strip() if tokens else value.split("token=", 1)[1].split("&", 1)[0].strip()
+
+
+def _browserless_connect_url() -> RemoteBrowserTarget | None:
     token = _env_value("BROWSERLESS_TOKEN", "browserless_token")
     if not token:
         return None
 
+    token = _browserless_token_from_value(token)
     region = _env_value("BROWSERLESS_REGION", "browserless_region") or BROWSERLESS_DEFAULT_REGION
-    return f"wss://{region}.browserless.io?token={token}"
+    return RemoteBrowserTarget(
+        provider="browserless",
+        source="BROWSERLESS_TOKEN",
+        url=f"wss://{region}.browserless.io?token={quote(token, safe='')}",
+    )
+
+
+def _direct_remote_target(source: str, url: str) -> RemoteBrowserTarget:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"ws", "wss", "http", "https"}:
+        raise BoardCaptureError(
+            f"{source} must be a WebSocket/CDP URL. Got unsupported scheme {parsed.scheme!r}."
+        )
+    if "browserless.io" in parsed.netloc and "/pdf" in parsed.path:
+        raise BoardCaptureError(
+            f"{source} is a Browserless REST PDF endpoint. Use "
+            "`BROWSERLESS_TOKEN` or `wss://production-sfo.browserless.io?token=...` instead."
+        )
+    if "browserless.io" in parsed.netloc and "token" not in parse_qs(parsed.query):
+        raise BoardCaptureError(
+            f"{source} points at Browserless but has no token query parameter."
+        )
+
+    provider = "browserless" if "browserless.io" in parsed.netloc else "direct"
+    return RemoteBrowserTarget(provider=provider, source=source, url=url)
+
+
+def _remote_browser_target(create_browserbase_session: bool = True) -> RemoteBrowserTarget | None:
+    provider = (_env_value("REMOTE_BROWSER_PROVIDER", "remote_browser_provider") or "").lower()
+
+    if provider:
+        if provider == "browserless":
+            target = _browserless_connect_url()
+            if not target:
+                raise BoardCaptureError(
+                    "REMOTE_BROWSER_PROVIDER=browserless requires BROWSERLESS_TOKEN."
+                )
+            return target
+        if provider == "browserbase":
+            target = _browserbase_connect_url(create_session=create_browserbase_session)
+            if not target:
+                raise BoardCaptureError(
+                    "REMOTE_BROWSER_PROVIDER=browserbase requires BROWSERBASE_API_KEY."
+                )
+            return target
+        if provider in {"direct", "url"}:
+            direct_url = _env_value("BROWSERLESS_WS_URL") or _env_value("PLAYWRIGHT_CDP_URL")
+            if not direct_url:
+                raise BoardCaptureError(
+                    "REMOTE_BROWSER_PROVIDER=direct requires BROWSERLESS_WS_URL or PLAYWRIGHT_CDP_URL."
+                )
+            return _direct_remote_target("BROWSERLESS_WS_URL or PLAYWRIGHT_CDP_URL", direct_url)
+        if provider not in {"direct", "url"}:
+            raise BoardCaptureError(
+                "REMOTE_BROWSER_PROVIDER must be browserless, browserbase, direct, or unset."
+            )
+
+    browserless_target = _browserless_connect_url()
+    if browserless_target:
+        return browserless_target
+
+    browserless_url = _env_value("BROWSERLESS_WS_URL")
+    if browserless_url:
+        return _direct_remote_target("BROWSERLESS_WS_URL", browserless_url)
+
+    cdp_url = _env_value("PLAYWRIGHT_CDP_URL")
+    if cdp_url:
+        return _direct_remote_target("PLAYWRIGHT_CDP_URL", cdp_url)
+
+    return _browserbase_connect_url(create_session=create_browserbase_session)
+
+
+def remote_browser_diagnostics() -> dict[str, object]:
+    configured = {
+        name: _env_value(name) is not None
+        for name in (
+            "REMOTE_BROWSER_PROVIDER",
+            "BROWSERLESS_TOKEN",
+            "BROWSERLESS_WS_URL",
+            "PLAYWRIGHT_CDP_URL",
+            "BROWSERBASE_API_KEY",
+            "BROWSERBASE_PROJECT_ID",
+        )
+    }
+
+    try:
+        target = _remote_browser_target(create_browserbase_session=False)
+    except BoardCaptureError as exc:
+        return {
+            "configured": configured,
+            "selected_provider": None,
+            "selected_source": None,
+            "selected_host": None,
+            "error": str(exc),
+        }
+
+    return {
+        "configured": configured,
+        "selected_provider": target.provider if target else None,
+        "selected_source": target.source if target else None,
+        "selected_host": _diagnostic_host(target.url) if target else None,
+        "selected_url": _redacted_url(target.url) if target else None,
+        "error": None,
+    }
 
 
 def _remote_browser_url() -> str | None:
+    target = _remote_browser_target()
+    if target:
+        logger.info(
+            "capture.remote_browser.selected provider=%s source=%s host=%s",
+            target.provider,
+            target.source,
+            _diagnostic_host(target.url),
+        )
+        return target.url
+
+    return None
+
+
+def _missing_remote_browser_message() -> str:
     return (
-        _env_value("PLAYWRIGHT_CDP_URL")
-        or _env_value("BROWSERLESS_WS_URL")
-        or _browserless_connect_url()
-        or _browserbase_connect_url()
+        "Vercel cannot bundle Chromium for Playwright. Recommended setup: set "
+        "REMOTE_BROWSER_PROVIDER=browserless and BROWSERLESS_TOKEN to your "
+        "Browserless token. Alternatively set BROWSERLESS_WS_URL, "
+        "PLAYWRIGHT_CDP_URL, or BROWSERBASE_API_KEY."
     )
 
 
@@ -165,12 +337,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
                 browser = playwright.chromium.connect_over_cdp(remote_browser_url)
                 logger.info("capture.browser_connected chromium=remote")
             elif _running_on_vercel():
-                raise BoardCaptureError(
-                    "Vercel cannot bundle Chromium for Playwright. Set "
-                    "PLAYWRIGHT_CDP_URL, BROWSERLESS_WS_URL, "
-                    "BROWSERLESS_TOKEN, or BROWSERBASE_API_KEY to use a "
-                    "remote Chromium endpoint."
-                )
+                raise BoardCaptureError(_missing_remote_browser_message())
             else:
                 browser = playwright.chromium.launch(headless=True)
                 logger.info("capture.browser_launched chromium=headless")

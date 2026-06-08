@@ -77,20 +77,14 @@ Set these environment variables on the Vercel project:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
-- `BROWSERBASE_API_KEY`: Browserbase API key for the daily screenshot job
-- `BROWSERBASE_PROJECT_ID`: optional, but recommended if your Browserbase key
-  can access more than one project
+- `REMOTE_BROWSER_PROVIDER`: `browserless`
 - `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead
 - `BROWSERLESS_REGION`: optional Browserless region, defaults to `production-sfo`
 
 You can also set `PLAYWRIGHT_CDP_URL` or `BROWSERLESS_WS_URL` directly if you
-use another remote browser provider.
-
-For Browserbase:
-
-1. Copy your API key from Browserbase and set `BROWSERBASE_API_KEY` in Vercel.
-2. Copy your Project ID from Browserbase settings and set `BROWSERBASE_PROJECT_ID`.
-3. Redeploy and test `POST /api/manual/daily-solve`.
+use another remote browser provider. Remove stale `PLAYWRIGHT_CDP_URL`,
+`BROWSERLESS_WS_URL`, `BROWSERBASE_API_KEY`, and `BROWSERBASE_PROJECT_ID` values
+from Vercel unless you intentionally use them.
 
 The simplest remote browser option is Browserless BaaS:
 
@@ -101,6 +95,13 @@ The simplest remote browser option is Browserless BaaS:
 Browserless REST URLs such as `/pdf` are for one-off HTTP tasks. This app uses
 Browserless BaaS over WebSocket/CDP, equivalent to
 `wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
+
+You can inspect which remote browser config Vercel selected with:
+
+```bash
+curl https://tictacgo.shauryav.com/api/python/debug/remote-browser \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
 
 Do not deploy the browser runner as another Vercel Function. The same bundle
 limits apply there too.
