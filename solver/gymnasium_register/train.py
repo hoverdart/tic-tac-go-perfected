@@ -51,21 +51,43 @@ class GraduationEvalCallback(EvalCallback):
 
 
 class StopTrainingOnMeanReward(BaseCallback):
-    def __init__(self, reward_threshold, verbose=0):
+    def __init__(self, reward_threshold, max_reward_std, verbose=0):
         super().__init__(verbose=verbose)
         self.reward_threshold = reward_threshold
+        self.max_reward_std = max_reward_std
         self.threshold_reached = False
 
     def _on_step(self) -> bool:
         mean_reward = self.parent.last_mean_reward
-        if mean_reward >= self.reward_threshold:
+        reward_std = None
+        if hasattr(self.parent, "evaluations_results") and self.parent.evaluations_results:
+            reward_std = float(np.std(self.parent.evaluations_results[-1]))
+
+        if self.verbose >= 1 and reward_std is not None:
+            print(f"Eval mean={mean_reward:.2f}, std={reward_std:.2f}")
+
+        if (
+            mean_reward >= self.reward_threshold
+            and reward_std is not None
+            and reward_std <= self.max_reward_std
+        ):
             self.threshold_reached = True
             if self.verbose >= 1:
                 print(
                     f"Stopping training because the mean reward {mean_reward:.2f} "
-                    f"is above the threshold {self.reward_threshold}"
+                    f"is above the threshold {self.reward_threshold} "
+                    f"and reward std {reward_std:.2f} is at or below {self.max_reward_std}"
                 )
             return False
+
+        if self.verbose >= 1 and mean_reward >= self.reward_threshold:
+            if reward_std is None:
+                print("Not graduating because reward std is unavailable")
+            else:
+                print(
+                    f"Not graduating because reward std {reward_std:.2f} "
+                    f"is above {self.max_reward_std}"
+                )
 
         return True
     
@@ -150,6 +172,7 @@ def inject(model, boards):
 
 def learnProcess(num, threshold = 24):
     eval_episodes = 5 if num < 4 else 10
+    max_reward_std = 15 if num <= 3 else 10
     threshold_reached = False
 
     env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
@@ -170,12 +193,17 @@ def learnProcess(num, threshold = 24):
     while not threshold_reached:
         set_exploration_schedule(model, num)
 
-        callback_on_thresh = StopTrainingOnMeanReward(threshold, verbose=1)
+        callback_on_thresh = StopTrainingOnMeanReward(
+            threshold,
+            max_reward_std=max_reward_std,
+            verbose=1,
+        )
         env_callback = GraduationEvalCallback(num,
                                               callbackEnv, 
                                               callback_after_eval=callback_on_thresh, 
                                               eval_freq=1000,
                                               n_eval_episodes=eval_episodes,
+                                              log_path=f"./eval_logs/grad_{num}",
                                               verbose=1)
 
         model.learn(total_timesteps=50000, log_interval=4, reset_num_timesteps=True, callback=env_callback)
