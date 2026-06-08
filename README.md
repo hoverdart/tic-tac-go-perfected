@@ -45,6 +45,17 @@ If the frontend is not running on `http://localhost:3000`, set
 The daily job also needs `DATABASE_URL`, `GEMINI_API_KEY`, `CRON_SECRET`, and
 `GOOGLE_TIC_TAC_GO_URL`.
 
+The API uses the legacy solver by default. To try the optimized pure-Python
+solver, set:
+
+```bash
+SOLVER_IMPL=optimized
+SOLVER_MODE=hybrid
+```
+
+`SOLVER_MODE` can be `hybrid`, `fast`, or `exact`; `hybrid` is the default.
+Set `SOLVER_FALLBACK=none` to disable the legacy fallback.
+
 ### Web
 
 ```bash
@@ -53,7 +64,73 @@ npm install
 npm run dev
 ```
 
-For Vercel, set the project root directory to `apps/web`.
+For Vercel, deploy from the repository root. The root `vercel.json` configures
+the Next.js frontend and FastAPI backend as services in one Vercel project.
+Set `CRON_SECRET` on the Vercel project.
 
-The web app needs `API_BASE_URL` so it can read daily solutions from FastAPI.
-Set the same `CRON_SECRET` in both Vercel and the FastAPI host.
+### Deploy to Vercel
+
+Create one Vercel project from this repository and keep the project root set to
+the repository root. Vercel Services will mount:
+
+- `apps/web` at `/`
+- `app.py` at `/api/python`
+
+The root `app.py` exports `apps.api.main:app` for Vercel's Python runtime, and
+`pyproject.toml` defines the Python dependencies. Vercel's function bundle is
+too small for a local Chromium binary, so the daily screenshot job should use a
+remote browser endpoint in production.
+
+Set these environment variables on the Vercel project:
+
+- `API_ALLOWED_ORIGINS`: `https://tictacgo.shauryav.com`
+- `CRON_SECRET`
+- `DATABASE_URL`
+- `GEMINI_API_KEY`
+- `GOOGLE_TIC_TAC_GO_URL`
+- `SOLVER_IMPL`: optional, set to `optimized` to use the new solver
+- `SOLVER_MODE`: optional, `hybrid`, `fast`, or `exact`
+- `REMOTE_BROWSER_PROVIDER`: `browserless`
+- `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead
+- `BROWSERLESS_REGION`: optional Browserless region, defaults to `production-sfo`
+
+You can also set `PLAYWRIGHT_CDP_URL` or `BROWSERLESS_WS_URL` directly if you
+use another remote browser provider. Remove stale `PLAYWRIGHT_CDP_URL`,
+`BROWSERLESS_WS_URL`, `BROWSERBASE_API_KEY`, and `BROWSERBASE_PROJECT_ID` values
+from Vercel unless you intentionally use them.
+
+The simplest remote browser option is Browserless BaaS:
+
+1. Create a Browserless project and copy the API token from its dashboard.
+2. Set `BROWSERLESS_TOKEN` in Vercel to that token.
+3. Redeploy and test `POST /api/manual/daily-solve`.
+
+Browserless REST URLs such as `/pdf` are for one-off HTTP tasks. This app uses
+Browserless BaaS over WebSocket/CDP, equivalent to
+`wss://production-sfo.browserless.io?token=YOUR_TOKEN`.
+
+You can inspect which remote browser config Vercel selected with:
+
+```bash
+curl https://tictacgo.shauryav.com/api/python/debug/remote-browser \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+You can download the exact screenshot the production capture step sees with:
+
+```bash
+curl https://tictacgo.shauryav.com/api/python/debug/screenshot \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  --output debug-artifacts/google-tic-tac-go.png
+```
+
+Do not deploy the browser runner as another Vercel Function. The same bundle
+limits apply there too.
+
+The web service uses Vercel's generated `BACKEND_URL` to call FastAPI. You can
+still set `API_BASE_URL` to override it manually, but do not set it to
+`http://127.0.0.1:8000` or `http://localhost:8000` in Vercel. Those values are
+only for local development.
+
+If you set `API_BASE_URL` in production, use
+`https://tictacgo.shauryav.com/api/python`.

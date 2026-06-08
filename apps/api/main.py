@@ -5,8 +5,10 @@ from typing import Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics
 from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution
 from solver.service import SolverError, solve_board
@@ -98,6 +100,7 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
 
 
 app = FastAPI(title="Tic Tac Go Solver API")
+logger = logging.getLogger("tic_tac_go.api")
 
 allowed_origins = [
     origin.strip()
@@ -117,6 +120,33 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get(
+    "/debug/remote-browser",
+    dependencies=[Depends(require_cron_secret)],
+)
+def debug_remote_browser() -> dict[str, object]:
+    return remote_browser_diagnostics()
+
+
+@app.get(
+    "/debug/screenshot",
+    dependencies=[Depends(require_cron_secret)],
+)
+def debug_screenshot() -> FileResponse:
+    try:
+        screenshot_path = capture_google_board_screenshot()
+    except Exception as exc:
+        logger.exception("debug_screenshot.failed")
+        raise HTTPException(status_code=500, detail=f"Screenshot capture failed: {exc}") from exc
+
+    return FileResponse(
+        screenshot_path,
+        media_type="image/png",
+        filename="google-tic-tac-go.png",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.post("/solve", response_model=SolveResponse)
@@ -139,6 +169,9 @@ def daily_solve_job() -> JobResponse:
         record = run_daily_solve()
     except StorageError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("daily_solve_job.unhandled")
+        raise HTTPException(status_code=500, detail=f"Daily solve failed: {exc}") from exc
 
     return JobResponse(**record)
 

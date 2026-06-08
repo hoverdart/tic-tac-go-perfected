@@ -9,6 +9,9 @@ the Gemini fallback parser while the OpenCV parser is still being worked on.
 ## Project Layout
 
 - `solve.py`: easiest way to run the fast solver
+- `optimized_solver.py`: opt-in compact-state solver used by the API when `SOLVER_IMPL=optimized`
+- `benchmark_solvers.py`: compares legacy and optimized solver performance
+- `algorithms/README.md`: notes on how each solver works and how to compare them
 - `screenshots/`: drop screenshots here for the `reg-settings` command
 - `randomPythonFiles/superTicTacGoSolver.py`: solver implementation
 - `boardParsers/fallbackBoardParser.py`: Gemini screenshot parser
@@ -83,6 +86,24 @@ For a bounded test run, use `--max-states`:
 
 ```bash
 python3 solve.py --quiet-progress --max-states 10000
+```
+
+## Try The Optimized Solver
+
+The API defaults to the legacy solver. Set these before starting FastAPI to use
+the optimized solver:
+
+```bash
+SOLVER_IMPL=optimized
+SOLVER_MODE=hybrid
+```
+
+`SOLVER_MODE` accepts `hybrid`, `fast`, or `exact`. `hybrid` returns a strong
+solution quickly and keeps looking for a shorter one inside the state budget.
+To compare both solvers on ranked boards:
+
+```bash
+python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 ```
 
 ## Solve From A Screenshot With Gemini

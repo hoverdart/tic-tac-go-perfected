@@ -1,4 +1,5 @@
 import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
+import { getBackendBaseUrl } from "./backend-url";
 import type { Cell } from "./replay-model";
 
 export const dynamic = "force-dynamic";
@@ -58,11 +59,11 @@ function unavailableSolution(errorMessage: string): SolutionRecord {
 }
 
 async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: boolean }> {
-  const apiBaseUrl = process.env.API_BASE_URL;
+  const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) {
     return process.env.NODE_ENV === "development"
       ? { solution: demoSolution, isDemo: true }
-      : { solution: unavailableSolution("API_BASE_URL is not configured."), isDemo: false };
+      : { solution: unavailableSolution("Backend URL is not configured."), isDemo: false };
   }
 
   try {

@@ -64,7 +64,7 @@ export function SolveDashboard({
         </dl>
         <p className={`diagnostic-note diagnostic-${status}`}>
           {isDemo
-            ? "Demo data is shown locally because API_BASE_URL is not configured."
+            ? "Demo data is shown locally because the backend is not configured."
             : errorMessage ?? (status === "solved" ? "Today's solve path is ready." : "The daily solve is still processing.")}
         </p>
       </details>

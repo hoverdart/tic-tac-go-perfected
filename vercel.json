@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "experimentalServices": {
+    "frontend": {
+      "entrypoint": "apps/web",
+      "framework": "nextjs",
+      "routePrefix": "/"
+    },
+    "backend": {
+      "entrypoint": "app.py",
+      "routePrefix": "/api/python"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-solve",
+      "schedule": "5 0 * * *"
+    }
+  ]
+}
