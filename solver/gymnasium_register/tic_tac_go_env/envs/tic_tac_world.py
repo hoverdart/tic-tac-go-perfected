@@ -75,6 +75,7 @@ class TicTacWorldEnv(gym.Env):
         self.window = None
         self.clock = None
         self.reset_option = reset_option
+        self.visited_states = set()
 
         assert self.render_mode is None or self.render_mode in self.metadata["render_modes"]
 
@@ -544,6 +545,7 @@ class TicTacWorldEnv(gym.Env):
         self.o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
         self.o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
         self.board = tuple(tuple(row) for row in self.initial_board)
+        self.visited_states = {self.board}
 
         observation = self._get_obs()
         info = self._get_info()
@@ -570,6 +572,10 @@ class TicTacWorldEnv(gym.Env):
         if currentPos[0] == self.agent_location[0] and currentPos[1] == self.agent_location[1]:
             same = True
 
+        board_key = tuple(tuple(row) for row in self.board)
+        revisited = board_key in self.visited_states
+        self.visited_states.add(board_key)
+
         won = self.solved()
         lost = self.lostCheck()
         softLocked = self.softLocked()
@@ -578,7 +584,7 @@ class TicTacWorldEnv(gym.Env):
         truncated = False
 
         #Negative per step scales with size
-        reward = -0.5 * (16 / (self.length * self.width))
+        reward = -0.8 * (16 / (self.length * self.width))
 
         if softLocked:
             terminated = True
@@ -586,6 +592,10 @@ class TicTacWorldEnv(gym.Env):
 
         if same:
             reward += -1
+
+        if revisited:
+            terminated = True
+            reward += -5
 
         if lost:
             reward += -10

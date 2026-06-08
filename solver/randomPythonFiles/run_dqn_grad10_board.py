@@ -13,7 +13,7 @@ from stable_baselines3 import DQN
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GYM_REGISTER_DIR = REPO_ROOT / "solver" / "gymnasium_register"
-MAX_STEPS = 100
+MAX_STEPS = 200
 DETERMINISTIC = False
 REPLAY_DELAY_SECONDS = 0.35
 FINAL_HOLD_SECONDS = 3.0
@@ -110,7 +110,7 @@ def make_env(board, render_mode):
 
 def main():
     model_path = find_model_path()
-    boards = TRAINING_BOARDS[4]
+    boards = TRAINING_BOARDS[5]
     board = tuple(tuple(row) for row in random.choice(boards))
 
     env = make_env(board, render_mode=None)

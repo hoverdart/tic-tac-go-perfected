@@ -1,7 +1,7 @@
 import gymnasium as gym
 from stable_baselines3 import DQN
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
+from stable_baselines3.common.callbacks import BaseCallback, CallbackList, EvalCallback
 from stable_baselines3.common.utils import LinearSchedule
 import torch as th
 import torch.nn as nn
@@ -50,6 +50,16 @@ class GraduationEvalCallback(EvalCallback):
         return super()._on_step()
 
 
+class GraduationTrainingLogCallback(BaseCallback):
+    def __init__(self, graduation):
+        super().__init__()
+        self.graduation = graduation
+
+    def _on_step(self) -> bool:
+        self.logger.record("time/grad", self.graduation)
+        return True
+
+
 class StopTrainingOnMeanReward(BaseCallback):
     def __init__(self, reward_threshold, max_reward_std, verbose=0):
         super().__init__(verbose=verbose)
@@ -62,6 +72,8 @@ class StopTrainingOnMeanReward(BaseCallback):
         reward_std = None
         if hasattr(self.parent, "evaluations_results") and self.parent.evaluations_results:
             reward_std = float(np.std(self.parent.evaluations_results[-1]))
+            self.logger.record("eval/reward_std", reward_std)
+            self.logger.record("eval/reward_var", float(np.var(self.parent.evaluations_results[-1])))
 
         if self.verbose >= 1 and reward_std is not None:
             print(f"Eval mean={mean_reward:.2f}, std={reward_std:.2f}")
@@ -206,7 +218,12 @@ def learnProcess(num, threshold = 24):
                                               log_path=f"./eval_logs/grad_{num}",
                                               verbose=1)
 
-        model.learn(total_timesteps=50000, log_interval=4, reset_num_timesteps=True, callback=env_callback)
+        callbacks = CallbackList([
+            GraduationTrainingLogCallback(num),
+            env_callback,
+        ])
+
+        model.learn(total_timesteps=50000, log_interval=4, reset_num_timesteps=True, callback=callbacks)
         model.save(model_path)
 
         threshold_reached = callback_on_thresh.threshold_reached
