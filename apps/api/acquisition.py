@@ -111,6 +111,30 @@ def _log_page_state(page, phase: str) -> None:
     logger.info("capture.page_state phase=%s title=%r current_url=%s", phase, title, page.url)
 
 
+def _reveal_board_area(page) -> None:
+    try:
+        page.mouse.wheel(0, 700)
+        page.wait_for_timeout(1_000)
+        logger.info("capture.board_reveal_wheel_done")
+    except Exception as exc:
+        logger.info("capture.board_reveal_wheel_failed error=%s", exc)
+
+
+_GAME_CONTAINER_SELECTORS = [
+    "canvas.board",
+    "[data-hveid] .iKdzV",   # Google knowledge-panel game widget wrapper
+    "div[id*='ttt']",
+    "div[class*='game']",
+    "g-scrolling-carousel",
+]
+
+
+def _capture_board_image(page, screenshot_path: Path) -> None:
+    page.wait_for_timeout(8_000)
+    page.screenshot(path=str(screenshot_path), full_page=True)
+    logger.info("capture.full_page_screenshot_done")
+
+
 def google_tic_tac_go_url() -> str:
     return os.getenv("GOOGLE_TIC_TAC_GO_URL", DEFAULT_GOOGLE_TIC_TAC_GO_URL)
 
@@ -400,13 +424,16 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
             )
             response = page.goto(url, wait_until="domcontentloaded", timeout=45_000)
             logger.info("capture.goto_done status=%s target_url=%s", _response_status(response), url)
+            page.set_viewport_size({"width": 1920, "height": 1080})
+            logger.info("capture.viewport_set width=1920 height=1080")
             _wait_for_network_idle(page)
             _log_page_state(page, "after_goto")
             page.wait_for_timeout(2_000)
             dismissed = _dismiss_tutorial_overlay(page)
             logger.info("capture.tutorial_dismissed=%s", dismissed)
+            page.wait_for_timeout(2_500)
             _log_page_state(page, "before_screenshot")
-            page.screenshot(path=str(screenshot_path), full_page=True)
+            _capture_board_image(page, screenshot_path)
             browser.close()
     except PlaywrightTimeoutError as exc:
         raise BoardCaptureError(f"Timed out while loading Google Tic Tac Go: {url}") from exc

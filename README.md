@@ -103,6 +103,14 @@ curl https://tictacgo.shauryav.com/api/python/debug/remote-browser \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
+You can download the exact screenshot the production capture step sees with:
+
+```bash
+curl https://tictacgo.shauryav.com/api/python/debug/screenshot \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  --output debug-artifacts/google-tic-tac-go.png
+```
+
 Do not deploy the browser runner as another Vercel Function. The same bundle
 limits apply there too.
 
