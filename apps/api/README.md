@@ -26,6 +26,11 @@ Set these variables before running the daily job:
 - `CRON_SECRET`
 - `GOOGLE_TIC_TAC_GO_URL`
 
+The API defaults to the legacy solver. To try the optimized solver, set
+`SOLVER_IMPL=optimized`; `SOLVER_MODE` can be `hybrid`, `fast`, or `exact` and
+defaults to `hybrid`. The optimized path falls back to the legacy solver unless
+`SOLVER_FALLBACK=none` is set.
+
 ## Endpoints
 
 - `GET /health`: basic service health check.
@@ -44,7 +49,8 @@ The root `app.py` file exports this FastAPI app for Vercel, and the root
 `pyproject.toml` provides the Python dependencies. Configure the Vercel project
 with `API_ALLOWED_ORIGINS=https://tictacgo.shauryav.com`, `CRON_SECRET`,
 `DATABASE_URL`, `GEMINI_API_KEY`, `GOOGLE_TIC_TAC_GO_URL`,
-`REMOTE_BROWSER_PROVIDER=browserless`, and `BROWSERLESS_TOKEN`.
+`REMOTE_BROWSER_PROVIDER=browserless`, and `BROWSERLESS_TOKEN`. Optionally set
+`SOLVER_IMPL=optimized` and `SOLVER_MODE=hybrid` to use the optimized solver.
 
 The Vercel Python function bundle cannot fit a bundled Chromium binary. In
 production, set Browserless credentials or another remote browser endpoint so
