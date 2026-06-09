@@ -550,6 +550,113 @@ a:focus-visible {
   }
 }
 
+.history-carousel {
+  margin: 20px 20px 0;
+}
+
+.history-label {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(22, 31, 19, 0.5);
+}
+
+.history-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-scroll::-webkit-scrollbar {
+  height: 3px;
+}
+
+.history-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.history-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+.history-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 236, 220, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 241, 230, 0.1);
+  color: rgba(255, 247, 239, 0.75);
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.history-tile:hover:not(:disabled) {
+  background: rgba(255, 241, 230, 0.2);
+  transform: translateY(-1px);
+}
+
+.history-tile:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.history-tile-active {
+  background: rgba(255, 244, 241, 0.92) !important;
+  border-color: rgba(255, 244, 241, 0.92);
+  color: var(--ink);
+}
+
+.history-tile-active:hover:not(:disabled) {
+  transform: none;
+}
+
+.history-tile-date {
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.history-tile-icon {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.history-tile-solved .history-tile-icon {
+  color: #5aad7e;
+}
+
+.history-tile-active.history-tile-solved .history-tile-icon {
+  color: #2e7d52;
+}
+
+.history-tile-failed .history-tile-icon {
+  color: #ff7043;
+}
+
+.history-tile-active.history-tile-failed .history-tile-icon {
+  color: #c45a38;
+}
+
+@media (max-width: 587px) {
+  .history-carousel {
+    margin-inline: 0;
+    padding-inline: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

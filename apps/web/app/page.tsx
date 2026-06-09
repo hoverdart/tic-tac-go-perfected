@@ -1,28 +1,8 @@
-import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
+import type { Metadata } from "next";
+import { GameView, type SolutionRecord, type HistoryEntry } from "./game-view";
 import { getBackendBaseUrl } from "./backend-url";
-import type { Cell } from "./replay-model";
 
 export const dynamic = "force-dynamic";
-
-type SolveStep = {
-  move: string;
-  board: Cell[][];
-};
-
-type SolutionRecord = {
-  puzzle_date: string;
-  source_url: string;
-  parser_name: string;
-  solver_name: string;
-  board: Cell[][] | null;
-  moves: string | null;
-  final_board: Cell[][] | null;
-  step_boards: SolveStep[];
-  states_checked: number | null;
-  elapsed_ms: number | null;
-  status: DailyStatus;
-  error_message: string | null;
-};
 
 const demoSolution: SolutionRecord = {
   puzzle_date: new Date().toISOString().slice(0, 10),
@@ -80,46 +60,42 @@ async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: b
   }
 }
 
+async function getRecentHistory(): Promise<HistoryEntry[]> {
+  const apiBaseUrl = getBackendBaseUrl();
+  if (!apiBaseUrl) return [];
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=30`, { cache: "no-store" });
+    if (!response.ok) return [];
+    return await response.json();
+  } catch {
+    return [];
+  }
+}
+
 function formatDate(date: string): string {
   const [year, month, day] = date.split("-");
   if (!year || !month || !day) return date;
   return `${Number(month)}/${Number(day)}/${year}`;
 }
 
-function statusText(status: DailyStatus, isDemo: boolean): string {
-  if (isDemo) return "Local demo";
-  if (status === "solved") return "Solution ready";
-  if (status === "unsolved") return "No route found";
-  if (status === "failed") return "Capture needs review";
-  return "Solve pending";
+export async function generateMetadata(): Promise<Metadata> {
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    title: `Tic-Tac-Go Solution | ${formatDate(today)}`,
+  };
 }
 
 export default async function Home() {
-  const { solution, isDemo } = await getTodaySolution();
+  const [{ solution, isDemo }, history] = await Promise.all([
+    getTodaySolution(),
+    getRecentHistory(),
+  ]);
 
   return (
     <main className="page">
       <section className="game-scene">
-        <header className="game-header">
-          <h1>Tic-Tac-Go</h1>
-          <p>Daily Solver</p>
-          <div className="date-pill">
-            <time dateTime={solution.puzzle_date}>{formatDate(solution.puzzle_date)}</time>
-            <span>{statusText(solution.status, isDemo)}</span>
-          </div>
-        </header>
-
-        <SolveDashboard
-          board={solution.board}
-          moves={solution.moves}
-          statesChecked={solution.states_checked}
-          elapsedMs={solution.elapsed_ms}
-          parserName={solution.parser_name}
-          solverName={solution.solver_name}
-          status={solution.status}
-          errorMessage={solution.error_message}
-          isDemo={isDemo}
-        />
+        <GameView initialSolution={solution} history={history} isDemo={isDemo} />
 
         <footer className="site-footer">
           <span>Daily board capture and optimal replay.</span>

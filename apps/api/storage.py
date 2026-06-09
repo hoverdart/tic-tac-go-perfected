@@ -145,3 +145,15 @@ def get_solution(puzzle_date: date) -> dict[str, Any] | None:
         ).fetchone()
         logger.info("storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None)
         return dict(row) if row else None
+
+
+def list_recent_solutions(limit: int = 30) -> list[dict[str, Any]]:
+    logger.info("storage.list.start limit=%s", limit)
+    init_db()
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT puzzle_date, status FROM daily_solutions ORDER BY puzzle_date DESC LIMIT %s",
+            (limit,),
+        ).fetchall()
+        logger.info("storage.list.done count=%s", len(rows))
+        return [dict(row) for row in rows]
