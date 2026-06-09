@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics
+from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics, CaptureResult
 from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution, list_recent_solutions
 from solver.service import SolverError, solve_board
@@ -62,11 +62,13 @@ class SolutionRecord(BaseModel):
     elapsed_ms: float | None
     status: Literal["pending", "solved", "unsolved", "failed"]
     error_message: str | None
+    puzzle_title: str | None = None
 
 
 class SolutionSummary(BaseModel):
     puzzle_date: date
     status: Literal["pending", "solved", "unsolved", "failed"]
+    puzzle_title: str | None = None
 
 
 class JobResponse(BaseModel):
@@ -101,6 +103,7 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
         elapsed_ms=None,
         status="pending",
         error_message="No solution has been generated for this date yet.",
+        puzzle_title=None,
     )
 
 
@@ -141,13 +144,13 @@ def debug_remote_browser() -> dict[str, object]:
 )
 def debug_screenshot() -> FileResponse:
     try:
-        screenshot_path = capture_google_board_screenshot()
+        result = capture_google_board_screenshot()
     except Exception as exc:
         logger.exception("debug_screenshot.failed")
         raise HTTPException(status_code=500, detail=f"Screenshot capture failed: {exc}") from exc
 
     return FileResponse(
-        screenshot_path,
+        result.screenshot_path,
         media_type="image/png",
         filename="google-tic-tac-go.png",
         headers={"Cache-Control": "no-store"},

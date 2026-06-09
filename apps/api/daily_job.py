@@ -10,7 +10,7 @@ import logging
 import traceback
 from typing import Any
 
-from apps.api.acquisition import capture_google_board_screenshot, google_tic_tac_go_url
+from apps.api.acquisition import capture_google_board_screenshot, google_tic_tac_go_url, CaptureResult
 from apps.api.parser import PARSER_NAME, parse_board_from_screenshot
 from apps.api.storage import upsert_solution
 from solver.service import SOLVER_NAME, solve_board
@@ -37,6 +37,7 @@ def _failed_record(
     source_url: str,
     error_message: str,
     board: list[list[str]] | None = None,
+    puzzle_title: str | None = None,
 ) -> dict[str, Any]:
     return {
         "puzzle_date": puzzle_date,
@@ -51,6 +52,7 @@ def _failed_record(
         "elapsed_ms": None,
         "status": "failed",
         "error_message": error_message,
+        "puzzle_title": puzzle_title,
     }
 
 
@@ -63,8 +65,14 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
 
     try:
         logger.info("daily_solve.capture.begin")
-        screenshot_path = capture_google_board_screenshot(source_url)
-        logger.info("daily_solve.capture.ok screenshot_path=%s", screenshot_path)
+        capture_result = capture_google_board_screenshot(source_url)
+        screenshot_path = capture_result.screenshot_path
+        puzzle_title = capture_result.puzzle_title
+        logger.info(
+            "daily_solve.capture.ok screenshot_path=%s puzzle_title=%r",
+            screenshot_path,
+            puzzle_title,
+        )
 
         logger.info("daily_solve.parse.begin screenshot_path=%s", screenshot_path)
         board = parse_board_from_screenshot(screenshot_path)
@@ -85,7 +93,8 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
     except Exception as exc:
         logger.error("daily_solve.failed error=%s", exc)
         logger.error("daily_solve.traceback\n%s", traceback.format_exc())
-        record = _failed_record(target_date, source_url, str(exc))
+        title = locals().get("puzzle_title")
+        record = _failed_record(target_date, source_url, str(exc), puzzle_title=title)
         logger.info("daily_solve.persist_failed.begin record=%s", record)
         stored = upsert_solution(record)
         logger.info("daily_solve.persist_failed.done stored=%s", stored)
@@ -107,6 +116,7 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
         "elapsed_ms": solve_result["elapsed_ms"],
         "status": status,
         "error_message": None if solve_result["solved"] else "Solver did not find a solution.",
+        "puzzle_title": puzzle_title,
     }
     logger.info(
         "daily_solve.persist.begin status=%s moves=%r states_checked=%s elapsed_ms=%s",

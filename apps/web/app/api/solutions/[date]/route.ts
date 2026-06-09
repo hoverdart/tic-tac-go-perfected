@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBackendBaseUrl } from "../../../../backend-url";
+import { getBackendBaseUrl } from "../../../backend-url";
 
 export const dynamic = "force-dynamic";
 
