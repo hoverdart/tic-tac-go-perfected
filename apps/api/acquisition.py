@@ -22,9 +22,26 @@ BROWSERBASE_SESSIONS_URL = "https://api.browserbase.com/v1/sessions"
 BROWSERLESS_DEFAULT_REGION = "production-sfo"
 logger = logging.getLogger("tic_tac_go.daily_solve")
 
+# CSS selectors tried in order when extracting the puzzle title from the loaded page.
+_TITLE_CSS_SELECTORS = [
+    ".lnXdpd",              # Google game info container (seen on some Knowledge Panel games)
+    ".Bc2kGd",              # Google game header
+    ".yTXDjf",              # Google Knowledge Panel heading variant
+    ".UWnNse",              # Another Knowledge Panel title class
+    "[role='heading']",     # Any ARIA heading near the board
+    "canvas.board ~ h3",    # h3 immediately after the board canvas
+    "canvas.board ~ * h3",  # h3 inside a sibling of the canvas
+]
+
 
 class BoardCaptureError(RuntimeError):
     """Raised when the Google board cannot be captured."""
+
+
+@dataclass(frozen=True)
+class CaptureResult:
+    screenshot_path: Path
+    puzzle_title: str | None
 
 
 @dataclass(frozen=True)
@@ -127,6 +144,63 @@ _GAME_CONTAINER_SELECTORS = [
     "div[class*='game']",
     "g-scrolling-carousel",
 ]
+
+
+def _extract_puzzle_title(page) -> str | None:
+    """Attempt to read the daily puzzle name (e.g. 'Gear Shift') from the loaded page.
+
+    Tries CSS selectors first, then falls back to a JavaScript DOM walk starting from
+    the board canvas. Returns None on any failure so callers are never blocked.
+    """
+    # CSS selector pass
+    for selector in _TITLE_CSS_SELECTORS:
+        try:
+            locator = page.locator(selector)
+            count = locator.count()
+            if not count:
+                continue
+            for i in range(min(count, 3)):
+                el = locator.nth(i)
+                if not el.is_visible(timeout=300):
+                    continue
+                text = el.inner_text(timeout=1_000).strip()
+                if 3 <= len(text) <= 60 and text.lower() not in {"tic tac go", "skip", "close"}:
+                    logger.info("capture.title_css_found selector=%r title=%r", selector, text)
+                    return text
+        except Exception as exc:
+            logger.debug("capture.title_css_failed selector=%r error=%s", selector, exc)
+
+    # JavaScript fallback: walk up from the board canvas looking for headings
+    try:
+        title = page.evaluate("""
+            () => {
+                const canvas = document.querySelector('canvas.board');
+                if (!canvas) return null;
+                const skip = new Set(['tic tac go', 'google', 'skip', 'close', 'back', 'how to play']);
+                let node = canvas.parentElement;
+                for (let depth = 0; depth < 12 && node; depth++) {
+                    const els = Array.from(
+                        node.querySelectorAll('h1,h2,h3,h4,h5,[role="heading"]')
+                    );
+                    for (const el of els) {
+                        const text = (el.innerText || el.textContent || '').trim();
+                        if (text.length >= 3 && text.length <= 60 && !skip.has(text.toLowerCase())) {
+                            return text;
+                        }
+                    }
+                    node = node.parentElement;
+                }
+                return null;
+            }
+        """)
+        if title:
+            logger.info("capture.title_js_found title=%r", title)
+            return title
+    except Exception as exc:
+        logger.debug("capture.title_js_failed error=%s", exc)
+
+    logger.info("capture.title_not_found")
+    return None
 
 
 def _capture_board_image(page, screenshot_path: Path) -> None:
@@ -399,7 +473,7 @@ def _running_on_vercel() -> bool:
     return any(os.getenv(marker) for marker in serverless_markers)
 
 
-def capture_google_board_screenshot(source_url: str | None = None) -> Path:
+def capture_google_board_screenshot(source_url: str | None = None) -> CaptureResult:
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright
@@ -412,6 +486,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
     url = source_url or google_tic_tac_go_url()
     output_dir = Path(tempfile.mkdtemp(prefix="tic-tac-go-"))
     screenshot_path = output_dir / "google-tic-tac-go.png"
+    puzzle_title: str | None = None
 
     logger.info("capture.start url=%s screenshot_path=%s", url, screenshot_path)
 
@@ -443,6 +518,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
             page.wait_for_timeout(2_500)
             _log_page_state(page, "before_screenshot")
             _capture_board_image(page, screenshot_path)
+            puzzle_title = _extract_puzzle_title(page)
             browser.close()
     except PlaywrightTimeoutError as exc:
         raise BoardCaptureError(f"Timed out while loading Google Tic Tac Go: {url}") from exc
@@ -453,8 +529,9 @@ def capture_google_board_screenshot(source_url: str | None = None) -> Path:
         raise BoardCaptureError("Playwright finished without producing a screenshot.")
 
     logger.info(
-        "capture.done screenshot_path=%s bytes=%s",
+        "capture.done screenshot_path=%s bytes=%s puzzle_title=%r",
         screenshot_path,
         screenshot_path.stat().st_size,
+        puzzle_title,
     )
-    return screenshot_path
+    return CaptureResult(screenshot_path=screenshot_path, puzzle_title=puzzle_title)

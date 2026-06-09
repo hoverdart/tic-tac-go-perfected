@@ -14,7 +14,8 @@
       "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/tmp/tic-tac-go-after.png --window-size=1280,900 http://localhost:3000/)",
       "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/tmp/tic-tac-go-full.png --window-size=1280,900 --virtual-time-budget=3000 \"http://localhost:3000/#bottom\")",
       "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --print-to-pdf=/tmp/tic-tac-go-full.pdf --window-size=1280,2400 http://localhost:3000/)",
-      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/tmp/tic-tac-go-bottom.png --window-size=1280,1800 http://localhost:3000/)"
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/tmp/tic-tac-go-bottom.png --window-size=1280,1800 http://localhost:3000/)",
+      "Bash(npm install *)"
     ]
   }
 }

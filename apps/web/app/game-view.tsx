@@ -22,11 +22,13 @@ export type SolutionRecord = {
   elapsed_ms: number | null;
   status: DailyStatus;
   error_message: string | null;
+  puzzle_title: string | null;
 };
 
 export type HistoryEntry = {
   puzzle_date: string;
   status: DailyStatus;
+  puzzle_title: string | null;
 };
 
 type Props = {
@@ -49,9 +51,9 @@ function formatShortDate(date: string): string {
   return `${MONTHS[Number(month) - 1] ?? month} ${Number(day)}`;
 }
 
-function statusText(status: DailyStatus, isDemo: boolean): string {
+function statusText(status: DailyStatus, isDemo: boolean, puzzleTitle: string | null): string {
   if (isDemo) return "Local demo";
-  if (status === "solved") return "Solution ready";
+  if (status === "solved") return puzzleTitle ?? "Solution ready";
   if (status === "unsolved") return "No route found";
   if (status === "failed") return "Capture needs review";
   return "Solve pending";
@@ -107,7 +109,7 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
         <p>Daily Solver</p>
         <div className="date-pill">
           <time dateTime={currentSolution.puzzle_date}>{formatDate(currentSolution.puzzle_date)}</time>
-          <span>{statusText(currentSolution.status, showDemo)}</span>
+          <span>{statusText(currentSolution.status, showDemo, currentSolution.puzzle_title)}</span>
         </div>
       </header>
 
@@ -145,9 +147,11 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
                   onClick={() => void selectDate(entry.puzzle_date)}
                   disabled={loadingDate !== null}
                   aria-pressed={isActive}
-                  aria-label={`${formatShortDate(entry.puzzle_date)} — ${entry.status}`}
+                  aria-label={`${entry.puzzle_title ?? formatShortDate(entry.puzzle_date)} — ${entry.status}`}
                 >
-                  <span className="history-tile-date">{formatShortDate(entry.puzzle_date)}</span>
+                  <span className="history-tile-date">
+                    {entry.puzzle_title ?? formatShortDate(entry.puzzle_date)}
+                  </span>
                   <span className="history-tile-icon" aria-hidden="true">
                     {isLoading ? "…" : statusIcon(entry.status)}
                   </span>

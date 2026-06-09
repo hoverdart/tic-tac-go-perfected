@@ -24,6 +24,7 @@ const demoSolution: SolutionRecord = {
   elapsed_ms: 7,
   status: "solved",
   error_message: null,
+  puzzle_title: null,
 };
 
 function unavailableSolution(errorMessage: string): SolutionRecord {

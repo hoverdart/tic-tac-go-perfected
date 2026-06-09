@@ -55,10 +55,15 @@ def init_db() -> None:
                 elapsed_ms double precision,
                 status text NOT NULL,
                 error_message text,
+                puzzle_title text,
                 created_at timestamptz NOT NULL DEFAULT now(),
                 updated_at timestamptz NOT NULL DEFAULT now()
             )
             """
+        )
+        # Migrate tables that existed before puzzle_title was added
+        conn.execute(
+            "ALTER TABLE daily_solutions ADD COLUMN IF NOT EXISTS puzzle_title text"
         )
     logger.info("storage.init_db.done")
 
@@ -87,7 +92,8 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 states_checked,
                 elapsed_ms,
                 status,
-                error_message
+                error_message,
+                puzzle_title
             )
             VALUES (
                 %(puzzle_date)s,
@@ -101,7 +107,8 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 %(states_checked)s,
                 %(elapsed_ms)s,
                 %(status)s,
-                %(error_message)s
+                %(error_message)s,
+                %(puzzle_title)s
             )
             ON CONFLICT (puzzle_date) DO UPDATE SET
                 source_url = EXCLUDED.source_url,
@@ -115,6 +122,7 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 elapsed_ms = EXCLUDED.elapsed_ms,
                 status = EXCLUDED.status,
                 error_message = EXCLUDED.error_message,
+                puzzle_title = EXCLUDED.puzzle_title,
                 updated_at = now()
             RETURNING *
             """,
@@ -123,6 +131,7 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 "board": _json(record.get("board")),
                 "final_board": _json(record.get("final_board")),
                 "step_boards": _json(record.get("step_boards", [])),
+                "puzzle_title": record.get("puzzle_title"),
             },
         ).fetchone()
         stored = dict(row)
@@ -152,7 +161,7 @@ def list_recent_solutions(limit: int = 30) -> list[dict[str, Any]]:
     init_db()
     with _connect() as conn:
         rows = conn.execute(
-            "SELECT puzzle_date, status FROM daily_solutions ORDER BY puzzle_date DESC LIMIT %s",
+            "SELECT puzzle_date, status, puzzle_title FROM daily_solutions ORDER BY puzzle_date DESC LIMIT %s",
             (limit,),
         ).fetchall()
         logger.info("storage.list.done count=%s", len(rows))
