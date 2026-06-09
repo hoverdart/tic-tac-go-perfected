@@ -6,6 +6,7 @@ from stable_baselines3.common.utils import LinearSchedule
 import torch as th
 import torch.nn as nn
 import numpy as np
+import importlib.util
 from pathlib import Path
 import tic_tac_go_env
 import BFStoTrainer
@@ -128,6 +129,31 @@ policy_kwargs = dict(
 )
 
 model_path = Path("dqn_tic_tac_go.zip")
+eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
+
+def load_eval_boards_for_grad(grad_num):
+    if not eval_boards_path.exists():
+        return None
+
+    spec = importlib.util.spec_from_file_location("generated_eval_boards", eval_boards_path)
+    generated_eval_boards = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generated_eval_boards)
+
+    eval_boards = getattr(generated_eval_boards, "EVAL_BOARDS", {})
+    boards = eval_boards.get(grad_num)
+    if not boards:
+        return None
+
+    return {grad_num: boards}
+
+def use_eval_boards_if_available(env, grad_num):
+    eval_boards = load_eval_boards_for_grad(grad_num)
+    if eval_boards is None:
+        print(f"Eval grad {grad_num}: using training boards")
+        return
+
+    env.unwrapped.board_pool_override = eval_boards
+    print(f"Eval grad {grad_num}: using {len(eval_boards[grad_num])} held-out eval boards")
 
 def get_exploration_fraction(num):
     if num == 12:
@@ -191,6 +217,7 @@ def learnProcess(num, threshold = 24):
     obs, info = env.reset()
 
     callbackEnv = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
+    use_eval_boards_if_available(callbackEnv, num)
     obs, info = callbackEnv.reset()
     
     if model_path.exists():

@@ -75,7 +75,9 @@ class TicTacWorldEnv(gym.Env):
         self.window = None
         self.clock = None
         self.reset_option = reset_option
-        self.visited_states = set()
+        self.visited_states = {}
+        self.current_grad = reset_option
+        self.board_pool_override = None
 
         assert self.render_mode is None or self.render_mode in self.metadata["render_modes"]
 
@@ -467,7 +469,12 @@ class TicTacWorldEnv(gym.Env):
             options = self.reset_option
 
         grad = options if options in self.training_board_counts else 11
-        boards = self.get_training_boards()[grad]
+        self.current_grad = grad
+        board_pool = self.board_pool_override
+        if not board_pool or grad not in board_pool or not board_pool[grad]:
+            board_pool = self.get_training_boards()
+
+        boards = board_pool[grad]
         if not boards:
             raise ValueError(f"No training boards available for graduation {grad}")
 
@@ -545,7 +552,7 @@ class TicTacWorldEnv(gym.Env):
         self.o_one_location = np.array([self.oOneX, self.oOneY], dtype=np.int32)
         self.o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
         self.board = tuple(tuple(row) for row in self.initial_board)
-        self.visited_states = {self.board}
+        self.visited_states = {self.board: 1}
 
         observation = self._get_obs()
         info = self._get_info()
@@ -573,8 +580,9 @@ class TicTacWorldEnv(gym.Env):
             same = True
 
         board_key = tuple(tuple(row) for row in self.board)
-        revisited = board_key in self.visited_states
-        self.visited_states.add(board_key)
+        board_state_count = self.visited_states.get(board_key, 0) + 1
+        self.visited_states[board_key] = board_state_count
+        repeated_too_much = self.current_grad > 4 and board_state_count >= 3
 
         won = self.solved()
         lost = self.lostCheck()
@@ -593,7 +601,7 @@ class TicTacWorldEnv(gym.Env):
         if same:
             reward += -1
 
-        if revisited:
+        if repeated_too_much:
             terminated = True
             reward += -5
 

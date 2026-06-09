@@ -110,7 +110,7 @@ def make_env(board, render_mode):
 
 def main():
     model_path = find_model_path()
-    boards = TRAINING_BOARDS[5]
+    boards = TRAINING_BOARDS[1]
     board = tuple(tuple(row) for row in random.choice(boards))
 
     env = make_env(board, render_mode=None)
