@@ -1,3 +1,15 @@
+"""
+Public interface between the FastAPI layer and the underlying solver implementations.
+
+This module is the single entry point for solving a board. It handles:
+  - Solver selection: reads SOLVER_IMPL and SOLVER_MODE from environment variables
+    once at import time (see SOLVER_NAME below) and routes calls accordingly.
+  - Fallback logic: if the optimized A* solver gives up (returns None) and budget
+    remains, the legacy BFS solver gets a second attempt as a safety net.
+  - Result normalization: regardless of which solver ran, solve_board() always
+    returns the same dict shape so callers never need to know which path was taken.
+"""
+
 from __future__ import annotations
 
 import os
@@ -13,6 +25,12 @@ from solver.randomPythonFiles.superTicTacGoSolver import (
 
 
 def _solver_impl() -> str:
+    """Return the solver implementation to use, read from SOLVER_IMPL env var.
+
+    Valid values: "legacy" (BFS) or "optimized" (A*). Defaults to "legacy".
+    Note: this is called at module load time to set SOLVER_NAME — changing
+    SOLVER_IMPL after the server has started won't affect a running process.
+    """
     impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
     if impl not in {"legacy", "optimized"}:
         return "legacy"
@@ -20,12 +38,24 @@ def _solver_impl() -> str:
 
 
 def _solver_mode() -> str:
+    """Return the search mode for the optimized solver, read from SOLVER_MODE.
+
+    Valid values:
+      "fast"   — greedy weighted A* (weight=2.0), returns the first solution found.
+      "hybrid" — starts greedy (weight=1.35), then relaxes to exact (weight=1.0)
+                 after the first solution to search for a shorter one.
+      "exact"  — unweighted Dijkstra (weight=0.0), guarantees the optimal solution.
+
+    Like _solver_impl(), this is evaluated once at import time.
+    """
     mode = os.getenv("SOLVER_MODE", "hybrid").strip().lower()
     if mode not in {"hybrid", "fast", "exact"}:
         return "hybrid"
     return mode
 
 
+# Computed once at import time so the same string is used for logging and storage
+# throughout the server's lifetime, regardless of any later env-var changes.
 SOLVER_NAME = f"optimized-{_solver_mode()}" if _solver_impl() == "optimized" else "bfs"
 
 
@@ -34,6 +64,7 @@ class SolverError(ValueError):
 
 
 def _to_wire_board(board: tuple[tuple[str, ...], ...]) -> list[list[str]]:
+    """Convert an internal tuple-of-tuples board to a JSON-serializable list of lists."""
     return [list(row) for row in board]
 
 
@@ -41,6 +72,14 @@ def _build_steps(
     start_board: tuple[tuple[str, ...], ...],
     moves: str | None,
 ) -> list[dict[str, Any]]:
+    """Re-simulate each move from the start board and record the resulting board state.
+
+    The solver returns only the final board, not the intermediate boards for each
+    step. To produce the per-move breakdown the API exposes, we replay the move
+    string one character at a time using apply_single_move.
+
+    Returns an empty list if moves is None or empty (unsolved or already solved).
+    """
     if not moves:
         return []
 
@@ -54,6 +93,31 @@ def _build_steps(
 
 
 def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[str, Any]:
+    """Solve a Tic Tac Go board and return a normalized result dict.
+
+    Routing logic:
+      - If SOLVER_IMPL=optimized, runs the A* solver first.
+      - If the A* solver returns None (no solution found within budget) AND there
+        are still states left in the budget AND SOLVER_FALLBACK=legacy, the legacy
+        BFS solver gets to try with whatever budget remains. This acts as a safety
+        net for edge cases the optimized solver's pruning might incorrectly discard.
+      - If SOLVER_IMPL=legacy (or unset), runs the BFS solver directly.
+
+    The `remaining_states` / `can_fallback` check ensures we never invoke the
+    fallback solver when the optimized solver already exhausted the full budget —
+    there would be nothing left for it to try.
+
+    Args:
+        board: 2-D list of strings representing the board (e.g. from JSON body).
+        max_states: optional cap on total states explored across both solvers.
+
+    Returns:
+        A dict with keys: solved, moves, states_checked, elapsed_ms,
+        start_board, final_board, steps.
+
+    Raises:
+        SolverError: if the board fails validation (wrong shape, missing U, etc.).
+    """
     try:
         start_board = normalize_board(board)
     except ValueError as exc:
@@ -67,6 +131,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
             progress_every=0,
             max_states=max_states,
         )
+        # Only fall back to legacy if budget wasn't fully consumed by the A* run.
         remaining_states = None if max_states is None else max_states - states_checked
         can_fallback = remaining_states is None or remaining_states > 0
         if (

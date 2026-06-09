@@ -1,3 +1,7 @@
+// Thin wrapper that combines the animated replay board and the solver
+// diagnostics panel into one cohesive block. It has no "use client" directive,
+// so it can be rendered as a Server Component when imported from page.tsx, or
+// as part of the client tree when imported from game-view.tsx.
 import { buildReplayFrames, type Cell } from "./replay-model";
 import { SolvePlayer } from "./solve-player";
 
@@ -27,6 +31,8 @@ function emptyMessage(status: DailyStatus): string {
   return "Board pending";
 }
 
+// A single labeled stat rendered as a dt/dd pair. The parent <dl> is a CSS
+// grid so each Metric lines up in a two-column label/value layout.
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="metric">
@@ -35,6 +41,7 @@ function Metric({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
 export function SolveDashboard({
   board,
   moves,

@@ -1,3 +1,6 @@
+// Next.js automatically renders this component while page.tsx is streaming or
+// suspended. The skeleton shapes mirror the real page layout (header, board)
+// so there's no jarring layout shift when the actual content arrives.
 export default function Loading() {
   return (
     <main className="page">

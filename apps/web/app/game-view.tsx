@@ -1,3 +1,7 @@
+// Root client component for the interactive page. Owns all mutable UI state:
+// which date's solution is currently displayed and whether a fetch is in flight.
+// Today's solution and the history list arrive as server-rendered props;
+// past solutions are fetched on demand through the /api/solutions/[date] route.
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -9,6 +13,7 @@ type SolveStep = {
   board: Cell[][];
 };
 
+// Mirrors the full solution record returned by the FastAPI backend.
 export type SolutionRecord = {
   puzzle_date: string;
   source_url: string;
@@ -25,6 +30,7 @@ export type SolutionRecord = {
   puzzle_title: string | null;
 };
 
+// Lightweight summary used for carousel tiles — no board data.
 export type HistoryEntry = {
   puzzle_date: string;
   status: DailyStatus;
@@ -68,6 +74,9 @@ function statusIcon(status: DailyStatus): string {
 export function GameView({ initialSolution, history, isDemo }: Props) {
   const [currentSolution, setCurrentSolution] = useState<SolutionRecord>(initialSolution);
   const [loadingDate, setLoadingDate] = useState<string | null>(null);
+
+  // Used to scroll the carousel all the way to the right on first render so
+  // today's tile (the last one) is visible without manual scrolling.
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,8 +87,10 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
 
   const selectDate = useCallback(
     async (date: string) => {
+      // Ignore taps on the already-active tile or while another fetch is running
       if (date === currentSolution.puzzle_date || loadingDate !== null) return;
 
+      // Today's solution was already fetched server-side — no need to round-trip
       if (date === initialSolution.puzzle_date) {
         setCurrentSolution(initialSolution);
         return;
@@ -92,7 +103,7 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
           setCurrentSolution(await res.json());
         }
       } catch {
-        // keep current solution on network error
+        // Keep the current solution visible on network error
       } finally {
         setLoadingDate(null);
       }
@@ -113,6 +124,10 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
         </div>
       </header>
 
+      {/* key={puzzle_date} forces SolveDashboard (and its SolvePlayer child) to
+          fully unmount and remount when the selected date changes. Without this,
+          the frame index and playback state would carry over from the previous
+          solution and show the wrong position on the new board. */}
       <SolveDashboard
         key={currentSolution.puzzle_date}
         board={currentSolution.board}
@@ -126,6 +141,10 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
         isDemo={showDemo}
       />
 
+      {/* Carousel: only rendered when there's actual history. The list arrives
+          in chronological order from the server; we reverse it here so the
+          most recent date is on the right. The scrollRef effect above ensures
+          that rightmost tile is in view on load. */}
       {history.length > 0 && (
         <nav className="history-carousel" aria-label="Past solutions">
           <p className="history-label">Past Solutions</p>

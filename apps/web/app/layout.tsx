@@ -1,3 +1,6 @@
+// Root layout — applies the Geist font variables and globals.css to every page.
+// The metadata exported here is the site-wide fallback title/description;
+// individual pages override it by exporting their own generateMetadata function.
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

@@ -1,3 +1,16 @@
+"""
+Postgres persistence layer for daily puzzle solutions.
+
+All reads and writes go through a single `daily_solutions` table. The public
+API is `upsert_solution`, `get_solution`, and `list_recent_solutions`; the
+rest is internal plumbing.
+
+`psycopg` is imported lazily (inside `_connect`) rather than at module top so
+the API server stays importable in environments where the Postgres driver isn't
+installed — for example when running only the solver locally or during tests
+that mock the storage layer.
+"""
+
 import os
 import logging
 from datetime import date
@@ -12,6 +25,7 @@ logger = logging.getLogger("tic_tac_go.daily_solve")
 
 
 def _database_url() -> str:
+    """Read and return the DATABASE_URL env var, or raise StorageError."""
     database_url = os.getenv("DATABASE_URL")
     if not database_url:
         raise StorageError("DATABASE_URL is not configured.")
@@ -19,6 +33,10 @@ def _database_url() -> str:
 
 
 def _connect():
+    """Open a psycopg connection with dict-style row access.
+
+    psycopg is imported here rather than at module top — see module docstring.
+    """
     try:
         import psycopg
         from psycopg.rows import dict_row
@@ -32,12 +50,30 @@ def _connect():
 
 
 def _json(value: Any):
+    """Wrap a Python value in a psycopg Jsonb object.
+
+    psycopg won't automatically serialise nested Python dicts/lists into
+    Postgres jsonb columns — we need to wrap them explicitly. Board state
+    is stored as jsonb so it's queryable; plain text serialisation wouldn't
+    be.
+    """
     from psycopg.types.json import Jsonb
 
     return Jsonb(value)
 
 
 def init_db() -> None:
+    """Ensure the daily_solutions table exists and is up to date.
+
+    Called at the top of every public storage function rather than once at
+    startup so the table is created on the first real request in a cold
+    environment (e.g. a fresh Vercel deployment) without needing a separate
+    migration step.
+
+    Column additions use `ADD COLUMN IF NOT EXISTS` so they're safe to re-run
+    on every call. This is intentionally lightweight — proper migrations would
+    be overkill for a single-table schema that evolves slowly.
+    """
     logger.info("storage.init_db.start")
     with _connect() as conn:
         conn.execute(
@@ -61,7 +97,8 @@ def init_db() -> None:
             )
             """
         )
-        # Migrate tables that existed before puzzle_title was added
+        # puzzle_title was added after the initial release; existing rows are
+        # migrated automatically on the next access.
         conn.execute(
             "ALTER TABLE daily_solutions ADD COLUMN IF NOT EXISTS puzzle_title text"
         )
@@ -69,6 +106,12 @@ def init_db() -> None:
 
 
 def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
+    """Insert or replace a daily solution record, returning the stored row.
+
+    Uses Postgres INSERT ... ON CONFLICT DO UPDATE so re-running the daily job
+    for the same date (e.g. after a parse failure) always reflects the latest
+    result rather than creating a duplicate.
+    """
     logger.info(
         "storage.upsert.start puzzle_date=%s status=%s states_checked=%s elapsed_ms=%s",
         record.get("puzzle_date"),
@@ -145,6 +188,7 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_solution(puzzle_date: date) -> dict[str, Any] | None:
+    """Return the stored solution for a given date, or None if it doesn't exist."""
     logger.info("storage.get.start puzzle_date=%s", puzzle_date)
     init_db()
     with _connect() as conn:
@@ -157,6 +201,7 @@ def get_solution(puzzle_date: date) -> dict[str, Any] | None:
 
 
 def list_recent_solutions(limit: int = 30) -> list[dict[str, Any]]:
+    """Return a lightweight summary list of the most recent solutions."""
     logger.info("storage.list.start limit=%s", limit)
     init_db()
     with _connect() as conn:

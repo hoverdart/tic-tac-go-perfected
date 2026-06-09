@@ -1,9 +1,17 @@
+// Next.js Server Component — fetches today's solution and recent history from
+// the FastAPI backend, then passes them to GameView for rendering. Static
+// caching is disabled so the board is always the current day's data on every
+// request (not a stale build-time snapshot).
 import type { Metadata } from "next";
 import { GameView, type SolutionRecord, type HistoryEntry } from "./game-view";
 import { getBackendBaseUrl } from "./backend-url";
 
 export const dynamic = "force-dynamic";
 
+// Hardcoded demo board used in two situations:
+//   1. Local development when no backend URL is configured (isDemo: true)
+//   2. As a structural template for unavailableSolution() — its board shape
+//      keeps the UI intact even when real data is missing.
 const demoSolution: SolutionRecord = {
   puzzle_date: new Date().toISOString().slice(0, 10),
   source_url: "",
@@ -27,6 +35,8 @@ const demoSolution: SolutionRecord = {
   puzzle_title: null,
 };
 
+// Spreads the demo board shape so the UI doesn't break when the backend is
+// unavailable — only the data fields are replaced with the error context.
 function unavailableSolution(errorMessage: string): SolutionRecord {
   return {
     ...demoSolution,
@@ -41,6 +51,9 @@ function unavailableSolution(errorMessage: string): SolutionRecord {
 
 async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: boolean }> {
   const apiBaseUrl = getBackendBaseUrl();
+
+  // In local dev with no backend configured, show the demo board so the UI is
+  // fully interactive. In production, surface the error instead.
   if (!apiBaseUrl) {
     return process.env.NODE_ENV === "development"
       ? { solution: demoSolution, isDemo: true }
@@ -61,6 +74,8 @@ async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: b
   }
 }
 
+// Returns an empty array on any failure — the carousel just doesn't render
+// rather than breaking the page.
 async function getRecentHistory(): Promise<HistoryEntry[]> {
   const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) return [];
@@ -80,6 +95,9 @@ function formatDate(date: string): string {
   return `${Number(month)}/${Number(day)}/${year}`;
 }
 
+// Exported separately from the page component so Next.js can call it during
+// the request to populate <head> tags. This overrides the fallback title set
+// in layout.tsx with the current date.
 export async function generateMetadata(): Promise<Metadata> {
   const today = new Date().toISOString().slice(0, 10);
   return {
