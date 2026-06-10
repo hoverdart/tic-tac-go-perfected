@@ -147,11 +147,29 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
           that rightmost tile is in view on load. */}
       {history.length > 0 && (
         <nav className="history-carousel" aria-label="Past solutions">
-          <p className="history-label">Past Solutions</p>
+          <div className="history-header">
+            <p className="history-label">Past Solutions</p>
+            {/* Show a jump-back button whenever a past date is selected */}
+            {currentSolution.puzzle_date !== initialSolution.puzzle_date && (
+              <button
+                type="button"
+                className="history-today-btn"
+                onClick={() => {
+                  void selectDate(initialSolution.puzzle_date);
+                  if (scrollRef.current) {
+                    scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+                  }
+                }}
+              >
+                Today ↩
+              </button>
+            )}
+          </div>
           <div className="history-scroll" ref={scrollRef}>
             {[...history].reverse().map((entry) => {
               const isActive = entry.puzzle_date === currentSolution.puzzle_date;
               const isLoading = entry.puzzle_date === loadingDate;
+              const isToday = entry.puzzle_date === initialSolution.puzzle_date;
               return (
                 <button
                   key={entry.puzzle_date}
@@ -168,8 +186,13 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
                   aria-pressed={isActive}
                   aria-label={`${entry.puzzle_title ?? formatShortDate(entry.puzzle_date)} — ${entry.status}`}
                 >
+                  {/* Primary line: puzzle title if known, otherwise a dash */}
+                  <span className="history-tile-title">
+                    {entry.puzzle_title ?? "—"}
+                  </span>
+                  {/* Secondary line: "Today" for the current date, short date otherwise */}
                   <span className="history-tile-date">
-                    {entry.puzzle_title ?? formatShortDate(entry.puzzle_date)}
+                    {isToday ? "Today" : formatShortDate(entry.puzzle_date)}
                   </span>
                   <span className="history-tile-icon" aria-hidden="true">
                     {isLoading ? "…" : statusIcon(entry.status)}

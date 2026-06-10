@@ -11,6 +11,8 @@ installed — for example when running only the solver locally or during tests
 that mock the storage layer.
 """
 
+from __future__ import annotations
+
 import os
 import logging
 from datetime import date

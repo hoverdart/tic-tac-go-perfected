@@ -19,6 +19,7 @@ from typing import Any
 from apps.api.acquisition import capture_google_board_screenshot, google_tic_tac_go_url
 from apps.api.parser import PARSER_NAME, parse_board_from_screenshot
 from apps.api.storage import upsert_solution
+from apps.api.title_fetcher import title_from_past_days
 from solver.service import SOLVER_NAME, solve_board
 
 
@@ -85,7 +86,7 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
     try:
         # Step 1: capture a screenshot of the live puzzle.
         logger.info("daily_solve.capture.begin")
-        capture_result = capture_google_board_screenshot(source_url)
+        capture_result = capture_google_board_screenshot(source_url, puzzle_date=target_date)
         screenshot_path = capture_result.screenshot_path
         puzzle_title = capture_result.puzzle_title
         logger.info(
@@ -115,6 +116,8 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
     except Exception as exc:
         logger.error("daily_solve.failed error=%s", exc)
         logger.error("daily_solve.traceback\n%s", traceback.format_exc())
+        if puzzle_title is None:
+            puzzle_title = title_from_past_days(target_date)
         record = _failed_record(target_date, source_url, str(exc), puzzle_title=puzzle_title)
         logger.info("daily_solve.persist_failed.begin record=%s", record)
         stored = upsert_solution(record)

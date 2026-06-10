@@ -30,31 +30,19 @@ import tempfile
 import logging
 import json
 from dataclasses import dataclass
+from datetime import date
 from urllib.parse import parse_qs, quote, urlparse
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from pathlib import Path
+
+from apps.api.title_fetcher import extract_puzzle_title
 
 
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
 BROWSERBASE_SESSIONS_URL = "https://api.browserbase.com/v1/sessions"
 BROWSERLESS_DEFAULT_REGION = "production-sfo"
 logger = logging.getLogger("tic_tac_go.daily_solve")
-
-# Google's minified class names change between deployments, so we maintain a
-# prioritised list of selectors to try when hunting for the puzzle title.
-# The JavaScript DOM-walk in _extract_puzzle_title is the more durable path;
-# these CSS selectors are a fast first pass that avoids the JS round-trip when
-# a known class happens to be present.
-_TITLE_CSS_SELECTORS = [
-    ".lnXdpd",              # Google game info container (seen on some Knowledge Panel games)
-    ".Bc2kGd",              # Google game header
-    ".yTXDjf",              # Google Knowledge Panel heading variant
-    ".UWnNse",              # Another Knowledge Panel title class
-    "[role='heading']",     # Any ARIA heading near the board
-    "canvas.board ~ h3",    # h3 immediately after the board canvas
-    "canvas.board ~ * h3",  # h3 inside a sibling of the canvas
-]
 
 
 class BoardCaptureError(RuntimeError):
@@ -205,79 +193,6 @@ _GAME_CONTAINER_SELECTORS = [
     "div[class*='game']",
     "g-scrolling-carousel",
 ]
-
-
-def _extract_puzzle_title(page) -> str | None:
-    """
-    Attempt to read the daily puzzle name (e.g. "Gear Shift") from the loaded page.
-
-    Strategy
-    --------
-    1. CSS selector pass: try each entry in _TITLE_CSS_SELECTORS in order.
-       Google's minified class names are volatile, so this may hit or miss
-       depending on the current deployment. When a match is found we validate
-       it with a length/content filter to avoid returning UI chrome ("Skip",
-       "Tic Tac Go", etc.) as a puzzle title.
-
-    2. JavaScript DOM walk: if no CSS selector matched, inject a script that
-       climbs up from `canvas.board` through up to 12 ancestor nodes looking
-       for any heading element. This approach is independent of class names and
-       is therefore more resilient to Google's minification churn.
-
-    Returns None on any failure so callers are never blocked by a missing title.
-    """
-    # CSS selector pass
-    for selector in _TITLE_CSS_SELECTORS:
-        try:
-            locator = page.locator(selector)
-            count = locator.count()
-            if not count:
-                continue
-            for i in range(min(count, 3)):
-                el = locator.nth(i)
-                if not el.is_visible(timeout=300):
-                    continue
-                text = el.inner_text(timeout=1_000).strip()
-                # Filter out UI strings that look like headings but are not puzzle titles
-                if 3 <= len(text) <= 60 and text.lower() not in {"tic tac go", "skip", "close"}:
-                    logger.info("capture.title_css_found selector=%r title=%r", selector, text)
-                    return text
-        except Exception as exc:
-            logger.debug("capture.title_css_failed selector=%r error=%s", selector, exc)
-
-    # JavaScript fallback: walk up from the board canvas looking for headings.
-    # We anchor on canvas.board because it is a stable landmark — its class is
-    # set by Google's game code, not by their CSS build pipeline.
-    try:
-        title = page.evaluate("""
-            () => {
-                const canvas = document.querySelector('canvas.board');
-                if (!canvas) return null;
-                const skip = new Set(['tic tac go', 'google', 'skip', 'close', 'back', 'how to play']);
-                let node = canvas.parentElement;
-                for (let depth = 0; depth < 12 && node; depth++) {
-                    const els = Array.from(
-                        node.querySelectorAll('h1,h2,h3,h4,h5,[role="heading"]')
-                    );
-                    for (const el of els) {
-                        const text = (el.innerText || el.textContent || '').trim();
-                        if (text.length >= 3 && text.length <= 60 && !skip.has(text.toLowerCase())) {
-                            return text;
-                        }
-                    }
-                    node = node.parentElement;
-                }
-                return null;
-            }
-        """)
-        if title:
-            logger.info("capture.title_js_found title=%r", title)
-            return title
-    except Exception as exc:
-        logger.debug("capture.title_js_failed error=%s", exc)
-
-    logger.info("capture.title_not_found")
-    return None
 
 
 def _capture_board_image(page, screenshot_path: Path) -> None:
@@ -644,7 +559,10 @@ def _running_on_vercel() -> bool:
     return any(os.getenv(marker) for marker in serverless_markers)
 
 
-def capture_google_board_screenshot(source_url: str | None = None) -> CaptureResult:
+def capture_google_board_screenshot(
+    source_url: str | None = None,
+    puzzle_date: date | None = None,
+) -> CaptureResult:
     """
     Navigate to the Google Tic Tac Go page, capture the game canvas, and
     extract the daily puzzle title.
@@ -717,7 +635,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> CaptureRes
             page.wait_for_timeout(2_500)
             _log_page_state(page, "before_screenshot")
             _capture_board_image(page, screenshot_path)
-            puzzle_title = _extract_puzzle_title(page)
+            puzzle_title = extract_puzzle_title(page, puzzle_date=puzzle_date)
             browser.close()
     except PlaywrightTimeoutError as exc:
         raise BoardCaptureError(f"Timed out while loading Google Tic Tac Go: {url}") from exc

@@ -551,11 +551,18 @@ a:focus-visible {
 }
 
 .history-carousel {
-  margin: 20px 20px 0;
+  margin: 24px 20px 0;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .history-label {
-  margin: 0 0 8px;
+  margin: 0;
   color: rgba(255, 255, 255, 0.55);
   font-size: 10px;
   font-weight: 760;
@@ -564,11 +571,28 @@ a:focus-visible {
   text-shadow: 0 1px 4px rgba(22, 31, 19, 0.5);
 }
 
+.history-today-btn {
+  padding: 3px 10px;
+  border: 1px solid rgba(255, 236, 220, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 241, 230, 0.12);
+  color: rgba(255, 247, 239, 0.8);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.history-today-btn:hover {
+  background: rgba(255, 241, 230, 0.25);
+  color: rgba(255, 247, 239, 1);
+}
+
 .history-scroll {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -590,11 +614,12 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   flex-shrink: 0;
-  padding: 7px 10px;
+  min-width: 72px;
+  padding: 10px 14px;
   border: 1px solid rgba(255, 236, 220, 0.18);
-  border-radius: 8px;
+  border-radius: 10px;
   background: rgba(255, 241, 230, 0.1);
   color: rgba(255, 247, 239, 0.75);
   cursor: pointer;
@@ -621,17 +646,35 @@ a:focus-visible {
   transform: none;
 }
 
+/* Primary line — puzzle title or a dash when unknown */
+.history-tile-title {
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.2;
+  white-space: nowrap;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Secondary line — "Today" or the short date */
 .history-tile-date {
   font-size: 11px;
-  font-weight: 760;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
+  opacity: 0.7;
+}
+
+.history-tile-active .history-tile-date {
+  opacity: 0.6;
 }
 
 .history-tile-icon {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
+  margin-top: 2px;
 }
 
 .history-tile-solved .history-tile-icon {

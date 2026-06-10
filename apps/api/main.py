@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics
 from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution, list_recent_solutions
+from apps.api.title_fetcher import title_from_past_days
 from solver.service import SolverError, solve_board
 
 
@@ -138,8 +139,18 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
         elapsed_ms=None,
         status="pending",
         error_message="No solution has been generated for this date yet.",
-        puzzle_title=None,
+        puzzle_title=title_from_past_days(puzzle_date),
     )
+
+
+def with_title_fallback(record: dict) -> dict:
+    """Fill a missing DB title from the historical manifest without mutating storage."""
+    if record.get("puzzle_title"):
+        return record
+    return {
+        **record,
+        "puzzle_title": title_from_past_days(record.get("puzzle_date")),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -258,7 +269,7 @@ def today_solution() -> SolutionRecord:
 
     if record is None:
         return pending_solution(puzzle_date)
-    return SolutionRecord(**record)
+    return SolutionRecord(**with_title_fallback(record))
 
 
 @app.get("/solutions/recent", response_model=list[SolutionSummary])
@@ -268,7 +279,7 @@ def recent_solutions(limit: int = 30) -> list[SolutionSummary]:
         rows = list_recent_solutions(limit=min(limit, 90))
     except StorageError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return [SolutionSummary(**row) for row in rows]
+    return [SolutionSummary(**with_title_fallback(row)) for row in rows]
 
 
 @app.get("/solutions/{puzzle_date}", response_model=SolutionRecord)
@@ -281,4 +292,4 @@ def solution_by_date(puzzle_date: date) -> SolutionRecord:
 
     if record is None:
         return pending_solution(puzzle_date)
-    return SolutionRecord(**record)
+    return SolutionRecord(**with_title_fallback(record))
