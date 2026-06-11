@@ -8,8 +8,8 @@ from typing import Optional
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
     training_board_counts = {
-        1: 15, 2: 30, 3: 50, 4: 75, 5: 75, 6: 75,
-        7: 75, 8: 75, 9: 75, 10: 75, 11: 50, 12: 0
+        1: 15, 2: 30, 3: 30, 4: 50, 5: 50, 6: 75, 7: 75,
+        8: 75, 9: 75, 10: 75, 11: 75, 12: 75, 13: 50, 14: 0
     }
     training_boards_file = Path(__file__).resolve().parents[2] / "generated_training_boards.py"
     training_boards = None
@@ -64,7 +64,7 @@ class TicTacWorldEnv(gym.Env):
         lines.append("}\n")
         cls.training_boards_file.write_text("".join(lines))
 
-    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=12):
+    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=14):
         self.length = length
         self.width = width
         self.board = board
@@ -78,6 +78,11 @@ class TicTacWorldEnv(gym.Env):
         self.visited_states = {}
         self.current_grad = reset_option
         self.board_pool_override = None
+        self.board_sequence_override = None
+        self.board_sequence_index = 0
+        self.terminate_on_repeated_states = False
+        self.repeat_termination_limit = 3
+        self.penalize_repeated_states = True
 
         assert self.render_mode is None or self.render_mode in self.metadata["render_modes"]
 
@@ -468,7 +473,7 @@ class TicTacWorldEnv(gym.Env):
         if(options is None):
             options = self.reset_option
 
-        grad = options if options in self.training_board_counts else 11
+        grad = options if options in self.training_board_counts else 13
         self.current_grad = grad
         board_pool = self.board_pool_override
         if not board_pool or grad not in board_pool or not board_pool[grad]:
@@ -478,14 +483,21 @@ class TicTacWorldEnv(gym.Env):
         if not boards:
             raise ValueError(f"No training boards available for graduation {grad}")
 
-        for _ in range(len(boards)):
-            selected_board = boards[np.random.randint(len(boards))]
+        board_sequence = self.board_sequence_override
+        if board_sequence and grad in board_sequence and board_sequence[grad]:
+            sequence_boards = board_sequence[grad]
+            selected_board = sequence_boards[self.board_sequence_index % len(sequence_boards)]
+            self.board_sequence_index += 1
             self.board = [list(row) for row in selected_board]
-            if not self.softLocked(self.board):
-                break
         else:
-            selected_board = boards[np.random.randint(len(boards))]
-            self.board = [list(row) for row in selected_board]
+            for _ in range(len(boards)):
+                selected_board = boards[np.random.randint(len(boards))]
+                self.board = [list(row) for row in selected_board]
+                if not self.softLocked(self.board):
+                    break
+            else:
+                selected_board = boards[np.random.randint(len(boards))]
+                self.board = [list(row) for row in selected_board]
 
         length = 0
         width = 0
@@ -582,7 +594,11 @@ class TicTacWorldEnv(gym.Env):
         board_key = tuple(tuple(row) for row in self.board)
         board_state_count = self.visited_states.get(board_key, 0) + 1
         self.visited_states[board_key] = board_state_count
-        repeated_too_much = self.current_grad > 4 and board_state_count >= 3
+        repeated_too_much = (
+            self.terminate_on_repeated_states
+            and self.current_grad >= 4
+            and board_state_count >= self.repeat_termination_limit
+        )
 
         won = self.solved()
         lost = self.lostCheck()
@@ -603,7 +619,8 @@ class TicTacWorldEnv(gym.Env):
 
         if repeated_too_much:
             terminated = True
-            reward += -5
+            if self.penalize_repeated_states:
+                reward += -5
 
         if lost:
             reward += -10

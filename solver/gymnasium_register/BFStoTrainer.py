@@ -85,6 +85,148 @@ class BFStoTrainer:
     def moveRight(self, board):
         return self.move(board, 0, 1)
 
+    def active_size(self, board):
+        length = 0
+        width = 0
+
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if board[i][j] != "B":
+                    if i > length - 1:
+                        length = i + 1
+                    if j > width - 1:
+                        width = j + 1
+
+        if length == 0:
+            length = len(board)
+        if width == 0:
+            width = len(board[0])
+
+        return length, width
+
+    def softLocked(self, board):
+        def in_bounds(row, col):
+            return 0 <= row < len(board) and 0 <= col < len(board[row])
+
+        def x_is_movable(row, col):
+            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+            for row_change, col_change in directions:
+                push_from_row = row - row_change
+                push_from_col = col - col_change
+                push_to_row = row + row_change
+                push_to_col = col + col_change
+
+                if not in_bounds(push_from_row, push_from_col):
+                    continue
+                if not in_bounds(push_to_row, push_to_col):
+                    continue
+                if board[push_from_row][push_from_col] not in ("", "U"):
+                    continue
+                if board[push_to_row][push_to_col] == "":
+                    return True
+
+            return False
+
+        def spot_can_become_user(row, col):
+            if board[row][col] in ("", "U"):
+                return True
+            if board[row][col] == "X":
+                return x_is_movable(row, col)
+            return False
+
+        def spot_can_become_empty(row, col):
+            if board[row][col] == "":
+                return True
+            if board[row][col] == "X":
+                return x_is_movable(row, col)
+            return False
+
+        def o_is_movable(row, col):
+            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+            for row_change, col_change in directions:
+                push_from_row = row - row_change
+                push_from_col = col - col_change
+                push_to_row = row + row_change
+                push_to_col = col + col_change
+
+                if not in_bounds(push_from_row, push_from_col):
+                    continue
+                if not in_bounds(push_to_row, push_to_col):
+                    continue
+                if not spot_can_become_user(push_from_row, push_from_col):
+                    continue
+                if spot_can_become_empty(push_to_row, push_to_col):
+                    return True
+
+            return False
+
+        def o_can_move_direction(row, col, row_change, col_change):
+            push_from_row = row - row_change
+            push_from_col = col - col_change
+            push_to_row = row + row_change
+            push_to_col = col + col_change
+
+            if not in_bounds(push_from_row, push_from_col):
+                return False
+            if not in_bounds(push_to_row, push_to_col):
+                return False
+            if not spot_can_become_user(push_from_row, push_from_col):
+                return False
+            return spot_can_become_empty(push_to_row, push_to_col)
+
+        o_locations = []
+        for i in range(0, len(board)):
+            for j in range(0, len(board[i])):
+                if board[i][j] == "O":
+                    o_locations.append((i, j))
+
+        if len(o_locations) == 2:
+            first_o, second_o = o_locations
+            os_are_aligned = first_o[0] == second_o[0] or first_o[1] == second_o[1]
+            if not os_are_aligned:
+                first_o_movable = o_is_movable(first_o[0], first_o[1])
+                second_o_movable = o_is_movable(second_o[0], second_o[1])
+                if not first_o_movable and not second_o_movable:
+                    return True
+
+                left_o, right_o = sorted(o_locations, key=lambda location: location[1])
+                if right_o[1] - left_o[1] > 2:
+                    left_can_move_right = o_can_move_direction(left_o[0], left_o[1], 0, 1)
+                    right_can_move_left = o_can_move_direction(right_o[0], right_o[1], 0, -1)
+                    if not left_can_move_right and not right_can_move_left:
+                        return True
+
+                top_o, bottom_o = sorted(o_locations, key=lambda location: location[0])
+                if bottom_o[0] - top_o[0] > 2:
+                    top_can_move_down = o_can_move_direction(top_o[0], top_o[1], 1, 0)
+                    bottom_can_move_up = o_can_move_direction(bottom_o[0], bottom_o[1], -1, 0)
+                    if not top_can_move_down and not bottom_can_move_up:
+                        return True
+
+        found_two_os_in_line = False
+
+        for i in range(0, len(board)):
+            for j in range(0, len(board[i]) - 2):
+                line = [board[i][j], board[i][j + 1], board[i][j + 2]]
+                if line.count("O") == 2:
+                    found_two_os_in_line = True
+                    for col in range(j, j + 3):
+                        if board[i][col] != "O" and spot_can_become_user(i, col):
+                            return False
+
+        for i in range(0, len(board) - 2):
+            for j in range(0, len(board[i])):
+                line = [board[i][j], board[i + 1][j], board[i + 2][j]]
+                if line.count("O") == 2:
+                    found_two_os_in_line = True
+                    for row in range(i, i + 3):
+                        if board[row][j] != "O" and spot_can_become_user(row, j):
+                            return False
+
+        return found_two_os_in_line
+
     def make_obs(self, board):
         mapping = {"": 0, "X": 1, "O": 2, "U": 3, "B": 4}
         arr = [[mapping[cell] for cell in row] for row in board]
@@ -106,11 +248,22 @@ class BFStoTrainer:
 
         return threeDArr
 
-    def replayMoves(self, startBoard, moves):
+    def replayMoves(
+        self,
+        startBoard,
+        moves,
+        current_grad=14,
+        terminate_on_repeated_states=True,
+        repeat_termination_limit=3,
+        penalize_repeated_states=True,
+    ):
         board = tuple(tuple(row) for row in startBoard)
         data = []
+        visited_states = {board: 1}
+        length, width = self.active_size(board)
 
         for i, move in enumerate(moves):
+            current_pos = self.find_user(board)
             state_before_move = self.make_obs(board)
 
             if move == "U":
@@ -126,9 +279,39 @@ class BFStoTrainer:
                 action_chose = 3
                 next_board = self.moveRight(board)
 
-            reward_got = -0.1 * (16 / (len(startBoard) * len(startBoard[0])))
-            done = i == len(moves) - 1
-            if done:
+            next_pos = self.find_user(next_board)
+            same = current_pos == next_pos
+
+            board_state_count = visited_states.get(next_board, 0) + 1
+            visited_states[next_board] = board_state_count
+            repeated_too_much = (
+                terminate_on_repeated_states
+                and current_grad >= 4
+                and board_state_count >= repeat_termination_limit
+            )
+
+            won = self.solved(next_board)
+            lost = self.lostCheck(next_board)
+            softLocked = self.softLocked(next_board)
+
+            done = won or lost
+            reward_got = -0.8 * (16 / (length * width))
+
+            if softLocked:
+                done = True
+                reward_got += -10
+
+            if same:
+                reward_got += -1
+
+            if repeated_too_much:
+                done = True
+                if penalize_repeated_states:
+                    reward_got += -5
+
+            if lost:
+                reward_got += -10
+            elif won:
                 reward_got += 40
 
             data.append(
@@ -142,10 +325,20 @@ class BFStoTrainer:
             )
 
             board = next_board
+            if done:
+                break
 
         return data
 
-    def solve(self, board, preMoves = None):
+    def solve(
+        self,
+        board,
+        preMoves=None,
+        current_grad=14,
+        terminate_on_repeated_states=True,
+        repeat_termination_limit=3,
+        penalize_repeated_states=True,
+    ):
         start_board = tuple(tuple(row) for row in board)
         currentBoards = deque()
         visited = set()
@@ -153,8 +346,15 @@ class BFStoTrainer:
         visited.add(start_board)
         statesChecked = 0
 
-        if(preMoves != None):
-            return self.replayMoves(start_board, preMoves)
+        if preMoves is not None:
+            return self.replayMoves(
+                start_board,
+                preMoves,
+                current_grad=current_grad,
+                terminate_on_repeated_states=terminate_on_repeated_states,
+                repeat_termination_limit=repeat_termination_limit,
+                penalize_repeated_states=penalize_repeated_states,
+            )
 
         while currentBoards:
             currentBoard, moves = currentBoards.popleft()
@@ -170,7 +370,16 @@ class BFStoTrainer:
                 print("=== SOLVED ===")
                 print("Moves:", moves)
                 print("States checked: ", statesChecked)
-                return self.replayMoves(start_board, moves)
+                return self.replayMoves(
+                    start_board,
+                    moves,
+                    current_grad=current_grad,
+                    terminate_on_repeated_states=terminate_on_repeated_states,
+                    repeat_termination_limit=repeat_termination_limit,
+                    penalize_repeated_states=penalize_repeated_states,
+                )
+            if self.softLocked(currentBoard):
+                continue
 
             nextBoards = [
                 (self.moveUp(currentBoard), moves + "U"),
@@ -181,6 +390,10 @@ class BFStoTrainer:
 
             for nextBoard, nextMoves in nextBoards:
                 if nextBoard not in visited:
+                    if self.lostCheck(nextBoard):
+                        continue
+                    if not self.solved(nextBoard) and self.softLocked(nextBoard):
+                        continue
                     currentBoards.append((nextBoard, nextMoves))
                     visited.add(nextBoard)
 

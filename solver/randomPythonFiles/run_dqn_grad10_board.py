@@ -22,6 +22,10 @@ if str(GYM_REGISTER_DIR) not in sys.path:
     sys.path.insert(0, str(GYM_REGISTER_DIR))
 
 import tic_tac_go_env  # noqa: E402,F401
+try:
+    from generated_eval_boards import EVAL_BOARDS  # noqa: E402
+except ImportError:
+    EVAL_BOARDS = {}
 from generated_training_boards import TRAINING_BOARDS  # noqa: E402
 
 
@@ -76,9 +80,9 @@ def remove_loops(moves, boards):
     return "".join(clean_moves)
 
 
-def replay_cleaned_path(env, world, cleaned_moves, action_by_name):
+def replay_cleaned_path(env, world, cleaned_moves, action_by_name, grad):
     print("=== CLEANED PATH REPLAY ===")
-    env.reset(options=10)
+    env.reset(options=grad)
     print("Cleaned step 0: start")
     print_board(world.board)
     time.sleep(REPLAY_DELAY_SECONDS)
@@ -97,34 +101,40 @@ def replay_cleaned_path(env, world, cleaned_moves, action_by_name):
     time.sleep(FINAL_HOLD_SECONDS)
 
 
-def make_env(board, render_mode):
+def make_env(board, render_mode, grad):
     return gym.make(
         "tic_tac_go_env/TicTacWorld-v0",
         length=len(board),
         width=len(board[0]),
         board=board,
         render_mode=render_mode,
-        reset_option=10,
+        reset_option=grad,
     )
 
 
 def main():
+    use_eval_boards = True
+    grad = 6
+
     model_path = find_model_path()
-    boards = TRAINING_BOARDS[1]
+    board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS
+    board_source = "eval" if board_pool is EVAL_BOARDS else "training"
+    boards = board_pool[grad]
     board = tuple(tuple(row) for row in random.choice(boards))
 
-    env = make_env(board, render_mode=None)
+    env = make_env(board, render_mode=None, grad=grad)
     world = env.unwrapped
 
     model = DQN.load(model_path, env=env)
 
     # The env's reset samples through the class training-board cache, so pin it
     # to this script's random board before reset initializes locations.
-    type(world).training_boards = {10: [board]}
-    obs, _ = env.reset(options=10)
+    type(world).training_boards = {grad: [board]}
+    obs, _ = env.reset(options=grad)
     start_soft_locked = world.softLocked(world.board)
 
     print(f"Model: {model_path}")
+    print(f"Board source: {board_source}, grad {grad}")
     print("=== START BOARD ===")
     print_board(world.board)
     print(f"Start board soft locked: {start_soft_locked}")
@@ -138,7 +148,7 @@ def main():
 
     while True:
         if attempt > 1:
-            obs, _ = env.reset(options=10)
+            obs, _ = env.reset(options=grad)
         moves = []
         boards_seen = [board_key(world.board)]
         total_reward = 0.0
@@ -178,14 +188,15 @@ def main():
                     print(f"Raw moves: {''.join(moves)}")
                     print(f"Cleaned moves: {cleaned_moves}")
                     print(f"Removed moves: {len(moves) - len(cleaned_moves)}")
-                    replay_env = make_env(board, render_mode="human")
+                    replay_env = make_env(board, render_mode="human", grad=grad)
                     replay_world = replay_env.unwrapped
-                    type(replay_world).training_boards = {10: [board]}
+                    type(replay_world).training_boards = {grad: [board]}
                     replay_cleaned_path(
                         replay_env,
                         replay_world,
                         cleaned_moves,
                         action_by_name,
+                        grad,
                     )
                     replay_env.close()
                     return

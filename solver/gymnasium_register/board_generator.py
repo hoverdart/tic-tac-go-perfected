@@ -43,8 +43,8 @@ class BoardGenerator:
     # Minimum required BFS solution length per graduation
     # ------------------------------------------------------------------
     _MIN_SOLUTION = {
-        1: 1, 2: 3, 3: 3, 4: 4, 5: 5, 6: 5,
-        7: 6, 8: 6, 9: 7, 10: 7, 11: 6, 12: 6
+        1: 1, 2: 1, 3: 3, 4: 1, 5: 3, 6: 4, 7: 5,
+        8: 5, 9: 6, 10: 6, 11: 7, 12: 7, 13: 6, 14: 6
     }
 
     # ------------------------------------------------------------------
@@ -54,36 +54,44 @@ class BoardGenerator:
     # align_os_bias: probability Os are placed already row/col aligned
     _GRAD_PARAMS = {
         1: dict(active_rows=3, active_cols=3, num_xs=0,  x_danger=0,
-                num_bs=0, randomize_os=False, align_os_bias=1.0, min_o_dist=1),
+                num_bs=0, randomize_os=True, align_os_bias=1.0, min_o_dist=1,
+                o_line_distances=(1,)),
         2: dict(active_rows=6, active_cols=6, num_xs=0,  x_danger=0,
-                num_bs=0, randomize_os=False, align_os_bias=1.0, min_o_dist=2),
-        3: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
+                num_bs=0, randomize_os=True, align_os_bias=1.0, min_o_dist=1,
+                o_line_distances=(1,)),
+        3: dict(active_rows=6, active_cols=6, num_xs=0,  x_danger=0,
+                num_bs=0, randomize_os=True, align_os_bias=1.0, min_o_dist=2,
+                o_line_distances=(2, 3)),
+        4: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
+                num_bs=0, randomize_os=True, align_os_bias=1.0, min_o_dist=1,
+                o_line_distances=(1,)),
+        5: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
                 num_bs=0, randomize_os=True,  align_os_bias=1.0, min_o_dist=2,
                 slightly_misaligned_os=True),
-        4: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
+        6: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3,
                 max_o_dist=4, agent_max_o_dist=8),
-        5: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
+        7: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3,
                 agent_max_o_dist=10, agent_far_fraction=None),
-        6: dict(active_rows=8, active_cols=8, num_xs=5,  x_danger=1,
+        8: dict(active_rows=8, active_cols=8, num_xs=5,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.45, min_o_dist=3,
                 agent_max_o_dist=13, agent_far_fraction=None),
-        7: dict(active_rows=8, active_cols=8, num_xs=7,  x_danger=1,
+        9: dict(active_rows=8, active_cols=8, num_xs=7,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.42, min_o_dist=4,
                 agent_max_o_dist=16, agent_far_fraction=None),
-        8: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
+        10: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=4,
                 agent_far_fraction=0.5),
-        9: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
+        11: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
                 num_bs=0, randomize_os=True,  align_os_bias=0.2, min_o_dist=4,
                 agent_far_fraction=1/3),
-        10: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
+        12: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
                  num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4,
                  agent_far_fraction=1/3),
-        11: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        13: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
-        12: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        14: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                  num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
     }
 
@@ -108,7 +116,7 @@ class BoardGenerator:
         Returns:
             List of 8x8 tuple-of-tuples boards ready to drop into your env.
         """
-        assert 1 <= grad <= 12, "grad must be 1-12"
+        assert 1 <= grad <= 14, "grad must be 1-14"
         if seed is not None:
             random.seed(seed)
 
@@ -190,7 +198,7 @@ class BoardGenerator:
         """
         p = self._GRAD_PARAMS[grad]
 
-        if grad in (11, 12):
+        if grad in (13, 14):
             ar, ac = random.choice(self._GRAD9_SIZES)
             area = ar * ac
             num_xs = max(2, area // 7)
@@ -208,7 +216,9 @@ class BoardGenerator:
 
         # --- Place Os ---
         if p["randomize_os"]:
-            if p.get("slightly_misaligned_os"):
+            if p.get("o_line_distances"):
+                o1, o2 = self._place_line_os(valid, p["o_line_distances"])
+            elif p.get("slightly_misaligned_os"):
                 o1, o2 = self._place_slightly_misaligned_os(valid)
             else:
                 o1, o2 = self._place_os(
@@ -263,6 +273,27 @@ class BoardGenerator:
     # ------------------------------------------------------------------
     # O placement
     # ------------------------------------------------------------------
+
+    def _place_line_os(self, valid, distances):
+        valid_set = set(valid)
+        directions = [(1, 0), (0, 1)]
+
+        for _ in range(500):
+            o1 = random.choice(valid)
+            distance = random.choice(distances)
+            random.shuffle(directions)
+            for row_change, col_change in directions:
+                o2 = (o1[0] + row_change * distance,
+                      o1[1] + col_change * distance)
+                if o2 in valid_set:
+                    return o1, o2
+
+                o2 = (o1[0] - row_change * distance,
+                      o1[1] - col_change * distance)
+                if o2 in valid_set:
+                    return o1, o2
+
+        return None, None
 
     def _place_slightly_misaligned_os(self, valid):
         valid_set = set(valid)

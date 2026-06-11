@@ -7,23 +7,34 @@ import torch as th
 import torch.nn as nn
 import numpy as np
 import importlib.util
+import shutil
+import random
 from pathlib import Path
+from datetime import datetime
 import tic_tac_go_env
 import BFStoTrainer
+from injection_boards import (
+    GRAD6_INJECTION_BOARDS,
+    GRAD6_INJECTION_SOLUTIONS,
+    GRAD7_INJECTION_BOARDS,
+    GRAD7_INJECTION_SOLUTIONS,
+    FINAL_INJECTION_BOARDS,
+    FINAL_INJECTION_SOLUTIONS,
+)
 
 #This class is AI code idk whats happening inside
-#it just creates a custom 3X3 window for the CNN
+#Three 3x3 conv layers give each final conv cell a 7x7 receptive field.
 class CustomTinyCNN(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
+    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):
         super().__init__(observation_space, features_dim)
         n_input_channels = observation_space.shape[0]
         
         self.cnn = nn.Sequential(
-            # First layer: 3x3 filter fits perfectly on a 6x6 board
             nn.Conv2d(n_input_channels, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            # Second layer: 3x3 filter to capture local combinations
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Flatten(),
         )
@@ -40,24 +51,40 @@ class CustomTinyCNN(BaseFeaturesExtractor):
 #This class is also AI
 #Print out grad number with other info
 class GraduationEvalCallback(EvalCallback):
-    def __init__(self, graduation, *args, **kwargs):
+    def __init__(self, graduation, eval_metrics, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graduation = graduation
+        self.eval_metrics = eval_metrics
 
     def _on_step(self) -> bool:
-        if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
+        should_eval = self.eval_freq > 0 and self.n_calls % self.eval_freq == 0
+        if should_eval:
             print(f"\nGraduation {self.graduation}")
 
-        return super()._on_step()
+        continue_training = super()._on_step()
+
+        if should_eval and self.evaluations_results:
+            rewards = self.evaluations_results[-1]
+            lengths = self.evaluations_length[-1]
+            self.eval_metrics["reward_std"] = float(np.std(rewards))
+            self.eval_metrics["mean_length"] = float(np.mean(lengths))
+            self.eval_metrics["mean_reward"] = float(self.last_mean_reward)
+
+        return continue_training
 
 
 class GraduationTrainingLogCallback(BaseCallback):
-    def __init__(self, graduation):
+    def __init__(self, graduation, eval_metrics):
         super().__init__()
         self.graduation = graduation
+        self.eval_metrics = eval_metrics
 
     def _on_step(self) -> bool:
         self.logger.record("time/grad", self.graduation)
+        if "reward_std" in self.eval_metrics:
+            self.logger.record("rollout/eval_reward_std", self.eval_metrics["reward_std"])
+            self.logger.record("rollout/eval_mean_length", self.eval_metrics["mean_length"])
+            self.logger.record("rollout/eval_mean_reward", self.eval_metrics["mean_reward"])
         return True
 
 
@@ -67,6 +94,8 @@ class StopTrainingOnMeanReward(BaseCallback):
         self.reward_threshold = reward_threshold
         self.max_reward_std = max_reward_std
         self.threshold_reached = False
+        self.graduation_mean_reward = None
+        self.graduation_reward_std = None
 
     def _on_step(self) -> bool:
         mean_reward = self.parent.last_mean_reward
@@ -74,7 +103,6 @@ class StopTrainingOnMeanReward(BaseCallback):
         if hasattr(self.parent, "evaluations_results") and self.parent.evaluations_results:
             reward_std = float(np.std(self.parent.evaluations_results[-1]))
             self.logger.record("eval/reward_std", reward_std)
-            self.logger.record("eval/reward_var", float(np.var(self.parent.evaluations_results[-1])))
 
         if self.verbose >= 1 and reward_std is not None:
             print(f"Eval mean={mean_reward:.2f}, std={reward_std:.2f}")
@@ -85,6 +113,8 @@ class StopTrainingOnMeanReward(BaseCallback):
             and reward_std <= self.max_reward_std
         ):
             self.threshold_reached = True
+            self.graduation_mean_reward = float(mean_reward)
+            self.graduation_reward_std = float(reward_std)
             if self.verbose >= 1:
                 print(
                     f"Stopping training because the mean reward {mean_reward:.2f} "
@@ -124,12 +154,61 @@ obs, info = callbackEnv.reset()
 
 policy_kwargs = dict(
     features_extractor_class=CustomTinyCNN,
-    features_extractor_kwargs=dict(features_dim=128),
+    features_extractor_kwargs=dict(features_dim=256),
     normalize_images=False
 )
 
 model_path = Path("dqn_tic_tac_go.zip")
 eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
+graduation_output_dir = Path(__file__).resolve().parent / "graduation_checkpoints"
+graduation_log_path = graduation_output_dir / "graduation_log.txt"
+START_FROM_GRAD = 7
+
+def timestamp():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def write_graduation_log(lines):
+    graduation_output_dir.mkdir(parents=True, exist_ok=True)
+    if isinstance(lines, str):
+        lines = [lines]
+    with graduation_log_path.open("a") as log_file:
+        log_file.write(f"[{timestamp()}]\n")
+        for line in lines:
+            log_file.write(f"{line}\n")
+        log_file.write("\n")
+
+def model_training_stats(model):
+    return {
+        "num_timesteps": getattr(model, "num_timesteps", None),
+        "n_updates": getattr(model, "_n_updates", None),
+    }
+
+def format_value(value):
+    if value is None:
+        return "unknown"
+    if isinstance(value, float):
+        return f"{value:.2f}"
+    return str(value)
+
+def save_graduation_checkpoint(model, model_path, grad_num, mean_reward, reward_std, mean_length):
+    graduation_output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = graduation_output_dir / f"dqn_tic_tac_go_grad_{grad_num}.zip"
+    shutil.copy2(model_path, checkpoint_path)
+
+    training_stats = model_training_stats(model)
+    write_graduation_log([
+        f"EVENT: END grad {grad_num} / PASSED",
+        f"NEXT_GRAD: {grad_num + 1}",
+        f"CHECKPOINT_FILE: {checkpoint_path.name}",
+        "EVAL_STATS:",
+        f"  eval_mean_reward: {format_value(mean_reward)}",
+        f"  eval_reward_std: {format_value(reward_std)}",
+        f"  eval_mean_length: {format_value(mean_length)}",
+        "TRAINING_STATS_AT_SAVE:",
+        f"  num_timesteps: {format_value(training_stats['num_timesteps'])}",
+        f"  n_updates: {format_value(training_stats['n_updates'])}",
+    ])
+    print(f"Saved graduation checkpoint: {checkpoint_path}")
 
 def load_eval_boards_for_grad(grad_num):
     if not eval_boards_path.exists():
@@ -155,21 +234,36 @@ def use_eval_boards_if_available(env, grad_num):
     env.unwrapped.board_pool_override = eval_boards
     print(f"Eval grad {grad_num}: using {len(eval_boards[grad_num])} held-out eval boards")
 
+def use_fixed_grad7_eval_sequence(env, grad_num):
+    if grad_num != 7:
+        return
+
+    eval_boards = load_eval_boards_for_grad(grad_num)
+    if eval_boards is None:
+        return
+
+    boards = eval_boards[grad_num]
+    rng = random.Random(7007)
+    fixed_boards = rng.sample(boards, min(30, len(boards)))
+    env.unwrapped.board_sequence_override = {grad_num: fixed_boards}
+    env.unwrapped.board_sequence_index = 0
+    print(f"Eval grad {grad_num}: fixed {len(fixed_boards)} board eval sequence")
+
 def get_exploration_fraction(num):
-    if num == 12:
+    if num == 14:
         return 0.15
-    if num <= 2:
-        return 0.60
     if num <= 4:
-        return 0.40
+        return 0.60
     if num <= 6:
+        return 0.40
+    if num <= 8:
         return 0.30
     return 0.20
 
 def set_exploration_schedule(model, num):
-    if num == 12:
+    if num == 14:
         model.exploration_initial_eps = 0.20
-    elif num == 11:
+    elif num == 13:
         model.exploration_initial_eps = 0.30
     else:
         model.exploration_initial_eps = 0.50
@@ -181,22 +275,23 @@ def set_exploration_schedule(model, num):
         model.exploration_fraction,
     )
 
-def inject(model, boards):
+def inject(model, boards, solutions, current_grad):
     BFSone = BFStoTrainer.BFStoTrainer()
+
+    if len(boards) != len(solutions):
+        raise ValueError("Injection board count must match solution count")
 
     model.replay_buffer.reset()
 
-    injectCounter = 0
-    injectSolve = ["RRULUUULUULDULULLDDLDDDUUUURRRRDRDRDDDLLULULLULUURDDLDRRDR", 
-                   "DDDLLLLDDRURULUL",
-                   "LDDRURURRDLLLDLDDRUULURRRUR",
-                   "RRULDLDDRUURU",
-                   "LLDDRDDUULLDRR",
-                   "LLDDRUDRDDLUULU"]
-
-    for board_to_solve in boards:
-        dataset = BFSone.solve(board_to_solve, injectSolve[injectCounter])
-        injectCounter += 1
+    for board_to_solve, solution in zip(boards, solutions):
+        dataset = BFSone.solve(
+            board_to_solve,
+            solution,
+            current_grad=current_grad,
+            terminate_on_repeated_states=True,
+            repeat_termination_limit=3,
+            penalize_repeated_states=True,
+        )
 
         for step in dataset:
             model.replay_buffer.add(
@@ -209,15 +304,22 @@ def inject(model, boards):
             )
 
 def learnProcess(num, threshold = 24):
-    eval_episodes = 5 if num < 4 else 10
-    max_reward_std = 15 if num <= 3 else 10
+    eval_episodes = 5 if num < 6 else 30
+    max_reward_std = 15 if num <= 5 else 10
     threshold_reached = False
 
     env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
+    env.unwrapped.terminate_on_repeated_states = True
+    env.unwrapped.repeat_termination_limit = 3
+    env.unwrapped.penalize_repeated_states = True
     obs, info = env.reset()
 
     callbackEnv = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
+    callbackEnv.unwrapped.terminate_on_repeated_states = True
+    callbackEnv.unwrapped.repeat_termination_limit = 5
+    callbackEnv.unwrapped.penalize_repeated_states = False
     use_eval_boards_if_available(callbackEnv, num)
+    use_fixed_grad7_eval_sequence(callbackEnv, num)
     obs, info = callbackEnv.reset()
     
     if model_path.exists():
@@ -226,11 +328,36 @@ def learnProcess(num, threshold = 24):
     else:
         model = DQN("CnnPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
 
-    if num == 12:
-        inject(model, injection_boards)
+    training_stats = model_training_stats(model)
+    write_graduation_log([
+        f"EVENT: START grad {num}",
+        "THRESHOLDS:",
+        f"  reward_threshold: {threshold}",
+        f"  max_reward_std: {max_reward_std}",
+        "EVAL_CONFIG:",
+        f"  eval_episodes: {eval_episodes}",
+        "TRAINING_STATS_AT_START:",
+        f"  num_timesteps: {format_value(training_stats['num_timesteps'])}",
+        f"  n_updates: {format_value(training_stats['n_updates'])}",
+    ])
+
+    if num == 6:
+        inject(model, GRAD6_INJECTION_BOARDS, GRAD6_INJECTION_SOLUTIONS, current_grad=num)
+
+    if num == 7:
+        inject(
+            model,
+            GRAD7_INJECTION_BOARDS,
+            GRAD7_INJECTION_SOLUTIONS,
+            current_grad=num,
+        )
+
+    if num == 14:
+        inject(model, FINAL_INJECTION_BOARDS, FINAL_INJECTION_SOLUTIONS, current_grad=num)
 
     while not threshold_reached:
         set_exploration_schedule(model, num)
+        eval_metrics = {}
 
         callback_on_thresh = StopTrainingOnMeanReward(
             threshold,
@@ -238,6 +365,7 @@ def learnProcess(num, threshold = 24):
             verbose=1,
         )
         env_callback = GraduationEvalCallback(num,
+                                              eval_metrics,
                                               callbackEnv, 
                                               callback_after_eval=callback_on_thresh, 
                                               eval_freq=1000,
@@ -246,7 +374,7 @@ def learnProcess(num, threshold = 24):
                                               verbose=1)
 
         callbacks = CallbackList([
-            GraduationTrainingLogCallback(num),
+            GraduationTrainingLogCallback(num, eval_metrics),
             env_callback,
         ])
 
@@ -254,68 +382,35 @@ def learnProcess(num, threshold = 24):
         model.save(model_path)
 
         threshold_reached = callback_on_thresh.threshold_reached
+        if threshold_reached:
+            mean_reward = callback_on_thresh.graduation_mean_reward
+            reward_std = callback_on_thresh.graduation_reward_std
+            mean_length = eval_metrics.get("mean_length")
+            save_graduation_checkpoint(
+                model,
+                model_path,
+                num,
+                mean_reward,
+                reward_std,
+                mean_length,
+            )
 
-injection_boards = [
-    (("", "X", "", "", "X", "", "B", "B"),
-     ("", "O", "", "X", "", "X", "X", "B"),
-     ("", "", "B", "B", "X", "", "", ""),
-     ("", "", "B", "B", "", "", "X", "X"),
-     ("X", "X", "", "", "B", "X", "", ""),
-     ("", "B", "X", "", "", "B", "", ""),
-     ("", "B", "", "", "", "", "O", ""),
-     ("", "", "X", "", "", "U", "", "")),
+def run_grad(num, threshold=24):
+    if num < START_FROM_GRAD:
+        print(f"Skipping grad {num}; START_FROM_GRAD={START_FROM_GRAD}")
+        return
 
-    (("", "", "X", "X", "", "U", "B", "B"),
-     ("", "O", "", "", "X", "", "B", "B"),
-     ("", "X", "X", "B", "X", "X", "B", "B"),
-     ("", "", "X", "", "", "", "B", "B"),
-     ("", "", "O", "X", "", "", "B", "B"),
-     ("", "", "", "", "", "", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B")),
+    learnProcess(num, threshold)
 
-    (("", "U", "", "X", "", "", "B", "B"),
-     ("", "X", "X", "", "O", "", "B", "B"),
-     ("X", "", "X", "B", "", "X", "B", "B"),
-     ("", "O", "", "B", "X", "", "B", "B"),
-     ("", "X", "", "X", "", "X", "B", "B"),
-     ("", "", "", "X", "X", "", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B")),
-
-    (("", "X", "", "O", "B", "B", "B", "B"),
-     ("U", "", "", "X", "B", "B", "B", "B"),
-     ("", "O", "X", "", "B", "B", "B", "B"),
-     ("", "X", "", "X", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B")),
-
-    (("", "", "X", "U", "", "", "B", "B"),
-     ("X", "", "B", "", "X", "", "B", "B"),
-     ("", "O", "", "X", "B", "X", "B", "B"),
-     ("X", "", "", "", "O", "", "B", "B"),
-     ("", "X", "X", "B", "X", "X", "B", "B"),
-     ("X", "", "", "X", "", "", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B"),
-     ("B", "B", "B", "B", "B", "B", "B", "B")),
-
-    (("", "", "B", "B", "B", "B", "B", "B"),
-     ("X", "", "B", "B", "B", "B", "B", "B"),
-     ("", "", "X", "U", "B", "B", "B", "B"),
-     ("O", "", "X", "X", "B", "B", "B", "B"),
-     ("", "X", "", "", "B", "B", "B", "B"),
-     ("X", "", "O", "", "B", "B", "B", "B"),
-     ("B", "B", "", "X", "B", "B", "B", "B"),
-     ("B", "B", "", "", "B", "B", "B", "B")),
-]
-
-#1  3x3 active area, static Os, only agent randomized
-learnProcess(1)
+#1  3x3 active area, adjacent Os, agent randomized
+run_grad(1)
 
 
-#2 6x6 active area, static Os, only agent randomized
+#2 6x6 active area, adjacent Os, agent randomized
+run_grad(2)
+
+
+#3 6x6 active area, close line Os, agent randomized
 
 board = (("", "", "", "", "", "", "B", "B"),
          ("", "", "", "", "", "", "B", "B"),
@@ -326,9 +421,12 @@ board = (("", "", "", "", "", "", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"))
 
-learnProcess(2)
+run_grad(3)
 
-#3 8x8, Os only slightly misaligned, no Xs
+#4 8x8 active area, adjacent Os, no Xs
+run_grad(4)
+
+#5 8x8, Os only slightly misaligned, no Xs
 board = (("", "", "", "", "", "", "B", "B"),
          ("", "", "", "", "O", "", "B", "B"),
          ("", "", "", "", "", "", "B", "B"),
@@ -338,9 +436,9 @@ board = (("", "", "", "", "", "", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"))
 
-learnProcess(3)
+run_grad(5)
 
-#4  8x8, randomized Os (spread out), no Xs
+#6  8x8, randomized Os (spread out), no Xs
 board = (("", "", "", "", "X", "", "B", "B"),
          ("", "X", "", "", "O", "", "B", "B"),
          ("", "", "", "", "", "X", "B", "B"),
@@ -350,9 +448,9 @@ board = (("", "", "", "", "X", "", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"),
          ("B", "B", "B", "B", "B", "B", "B", "B"))
 
-learnProcess(4)
+run_grad(6)
 
-#5  8x8, randomized Os + sparse non-dangerous Xs
+#7  8x8, randomized Os + sparse non-dangerous Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("", "", "", "", "", "X", "", ""),
@@ -362,9 +460,9 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-learnProcess(5, 28)
+run_grad(7, 28)
 
-#6  8x8, medium random Xs
+#8  8x8, medium random Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("", "", "", "", "", "X", "", ""),
@@ -374,15 +472,15 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-learnProcess(6, 28)
+run_grad(8, 28)
 
-#7  8x8, more random Xs, farther Os, agent starts somewhat far
-learnProcess(7, 28)
+#9  8x8, more random Xs, farther Os, agent starts somewhat far
+run_grad(9, 28)
 
-#8  8x8, full random Xs, agent starts far
-learnProcess(8, 30)
+#10  8x8, full random Xs, agent starts far
+run_grad(10, 30)
 
-#9  8x8, dangerous near-line-threat Xs
+#11  8x8, dangerous near-line-threat Xs
 board = (("", "", "", "", "X", "", "", ""),
          ("", "X", "", "O", "", "", "", ""),
          ("B", "B", "B", "", "", "X", "", ""),
@@ -392,12 +490,12 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "B", "B", "", "", ""),
          ("X", "", "", "B", "B", "", "", "X"))
 
-learnProcess(9, 30)
+run_grad(11, 30)
 
-#10  8x8, Xs + B blocks
-learnProcess(10, 30)
+#12  8x8, Xs + B blocks
+run_grad(12, 30)
 
-#Graduation 11 Varying Board Sizes, Real Board (Change Threshold, Find boards)
+#Graduation 13 Varying Board Sizes, Real Board (Change Threshold, Find boards)
 board = (("", "", "", "", "", "", "", ""),
          ("", "", "U", "X", "", "", "O", ""),
          ("", "B", "B", "", "X", "B", "B", "X"),
@@ -407,10 +505,10 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-learnProcess(11, 29)
+run_grad(13, 29)
 
-#Graduation 12 Final Training
-learnProcess(12, 36)
+#Graduation 14 Final Training
+run_grad(14, 36)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
