@@ -1,8 +1,16 @@
+// GET /api/cron/daily-solve
+// Triggered automatically by Vercel Cron on a daily schedule to kick off the
+// board capture and solve pipeline. Vercel passes the CRON_SECRET in the
+// Authorization header; we validate it before forwarding the job to the FastAPI
+// backend's POST /jobs/daily-solve endpoint. Do not call this manually —
+// use /api/manual/daily-solve instead (it accepts POST without the header check).
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
 
 export const dynamic = "force-dynamic";
 
+// Reads the response body defensively: returns parsed JSON when possible,
+// falls back to the first 2 KB of text, or null if the body is empty.
 async function readBackendBody(response: Response) {
   const text = await response.text();
   if (!text) return null;
@@ -26,6 +34,7 @@ export async function GET(request: Request) {
     );
   }
 
+  // Reject anything that doesn't carry the correct bearer token
   if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json(
       { ok: false, error: "Unauthorized" },
@@ -44,6 +53,7 @@ export async function GET(request: Request) {
   let response: Response;
 
   try {
+    // Forward the secret to the backend so it can authenticate the job request
     response = await fetch(backendUrl, {
       method: "POST",
       headers: {

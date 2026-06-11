@@ -1,7 +1,26 @@
 """
-    This is Playwright, a module that allows us to open 
-    a local browser, navigate to the Tic Tac Go page on 
-    Google, and capture a screenshot of the game board.
+Board acquisition: visit Google Search, locate the daily Tic Tac Go puzzle,
+and return a screenshot of the game canvas together with the puzzle title.
+
+The module supports three browser backends, chosen automatically at runtime:
+
+  1. Local Chromium  — default when running on a developer machine.
+  2. Browserless     — a hosted Chrome-as-a-service reachable via WebSocket/CDP.
+                       Configured via BROWSERLESS_TOKEN (or BROWSERLESS_WS_URL).
+  3. Browserbase     — another hosted browser service that requires creating a
+                       session through its REST API before connecting over CDP.
+                       Configured via BROWSERBASE_API_KEY (and optionally
+                       BROWSERBASE_PROJECT_ID).
+
+Vercel and other serverless runtimes cannot bundle a full Chromium binary, so
+the code refuses to start without one of the remote backends when it detects
+it is running in that environment.
+
+Public surface
+--------------
+capture_google_board_screenshot()  — the main entry point called by the solver
+remote_browser_diagnostics()       — health-check helper exposed by the API
+BoardCaptureError                  — raised on any unrecoverable failure
 """
 
 from __future__ import annotations
@@ -11,27 +30,19 @@ import tempfile
 import logging
 import json
 from dataclasses import dataclass
+from datetime import date
 from urllib.parse import parse_qs, quote, urlparse
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from pathlib import Path
+
+from apps.api.title_fetcher import extract_puzzle_title
 
 
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
 BROWSERBASE_SESSIONS_URL = "https://api.browserbase.com/v1/sessions"
 BROWSERLESS_DEFAULT_REGION = "production-sfo"
 logger = logging.getLogger("tic_tac_go.daily_solve")
-
-# CSS selectors tried in order when extracting the puzzle title from the loaded page.
-_TITLE_CSS_SELECTORS = [
-    ".lnXdpd",              # Google game info container (seen on some Knowledge Panel games)
-    ".Bc2kGd",              # Google game header
-    ".yTXDjf",              # Google Knowledge Panel heading variant
-    ".UWnNse",              # Another Knowledge Panel title class
-    "[role='heading']",     # Any ARIA heading near the board
-    "canvas.board ~ h3",    # h3 immediately after the board canvas
-    "canvas.board ~ * h3",  # h3 inside a sibling of the canvas
-]
 
 
 class BoardCaptureError(RuntimeError):
@@ -40,19 +51,39 @@ class BoardCaptureError(RuntimeError):
 
 @dataclass(frozen=True)
 class CaptureResult:
+    """
+    Everything the caller needs from one acquisition run.
+
+    Both fields travel together because the screenshot and the puzzle title
+    are extracted in the same browser session. Bundling them prevents a second
+    browser launch just to recover a title that was already on the page.
+    puzzle_title is None when title extraction fails; the screenshot is still
+    usable for the solver in that case.
+    """
     screenshot_path: Path
     puzzle_title: str | None
 
 
 @dataclass(frozen=True)
 class RemoteBrowserTarget:
-    provider: str
-    source: str
-    url: str
+    """A resolved remote-browser connection target, ready to pass to Playwright."""
+    provider: str   # "browserless", "browserbase", or "direct"
+    source: str     # which env var(s) supplied the configuration
+    url: str        # WebSocket/CDP URL to connect to
 
 
 def _dismiss_tutorial_overlay(page) -> bool:
-    """Click the Google Tic Tac Go tutorial Skip button when it appears."""
+    """
+    Dismiss the first-visit tutorial overlay that Google occasionally shows
+    before the Tic Tac Go board is interactive.
+
+    Google's DOM structure for this overlay is not stable across deployments,
+    so we try several selector strategies in priority order rather than
+    committing to a single one. If a visible Skip button is found, it is
+    clicked and we return True. If nothing visible is found we send Escape
+    as a last-ditch attempt and return False — the caller can log the outcome
+    but should not treat a False return as fatal.
+    """
     candidates = [
         ("button[name=Skip]", page.get_by_role("button", name="Skip")),
         ("text=Skip", page.get_by_text("Skip", exact=True)),
@@ -88,6 +119,7 @@ def _dismiss_tutorial_overlay(page) -> bool:
                     exc,
                 )
 
+    # Last resort: Escape sometimes closes modal overlays that have no Skip button
     try:
         page.keyboard.press("Escape")
         page.wait_for_timeout(500)
@@ -103,6 +135,7 @@ def _dismiss_tutorial_overlay(page) -> bool:
 
 
 def _response_status(response) -> int | None:
+    """Return the HTTP status code from a Playwright response, or None if unavailable."""
     if response is None:
         return None
 
@@ -113,6 +146,14 @@ def _response_status(response) -> int | None:
 
 
 def _wait_for_network_idle(page) -> None:
+    """
+    Wait until the page has no in-flight network requests.
+
+    We swallow the timeout exception intentionally — network-idle is a
+    best-effort signal, not a hard requirement. Some Google Search pages keep
+    long-polling connections open indefinitely, so treating a timeout here as
+    fatal would break the common case.
+    """
     try:
         page.wait_for_load_state("networkidle", timeout=15_000)
     except Exception as exc:
@@ -120,6 +161,7 @@ def _wait_for_network_idle(page) -> None:
 
 
 def _log_page_state(page, phase: str) -> None:
+    """Log the current page title and URL as a breadcrumb for debugging."""
     try:
         title = page.title()
     except Exception:
@@ -129,6 +171,13 @@ def _log_page_state(page, phase: str) -> None:
 
 
 def _reveal_board_area(page) -> None:
+    """
+    Scroll down to bring the game board into the viewport.
+
+    Google Search results place the Knowledge Panel game widget below the fold
+    on some screen sizes. A small wheel scroll is usually enough to reveal it
+    without accidentally scrolling past it.
+    """
     try:
         page.mouse.wheel(0, 700)
         page.wait_for_timeout(1_000)
@@ -146,64 +195,16 @@ _GAME_CONTAINER_SELECTORS = [
 ]
 
 
-def _extract_puzzle_title(page) -> str | None:
-    """Attempt to read the daily puzzle name (e.g. 'Gear Shift') from the loaded page.
-
-    Tries CSS selectors first, then falls back to a JavaScript DOM walk starting from
-    the board canvas. Returns None on any failure so callers are never blocked.
-    """
-    # CSS selector pass
-    for selector in _TITLE_CSS_SELECTORS:
-        try:
-            locator = page.locator(selector)
-            count = locator.count()
-            if not count:
-                continue
-            for i in range(min(count, 3)):
-                el = locator.nth(i)
-                if not el.is_visible(timeout=300):
-                    continue
-                text = el.inner_text(timeout=1_000).strip()
-                if 3 <= len(text) <= 60 and text.lower() not in {"tic tac go", "skip", "close"}:
-                    logger.info("capture.title_css_found selector=%r title=%r", selector, text)
-                    return text
-        except Exception as exc:
-            logger.debug("capture.title_css_failed selector=%r error=%s", selector, exc)
-
-    # JavaScript fallback: walk up from the board canvas looking for headings
-    try:
-        title = page.evaluate("""
-            () => {
-                const canvas = document.querySelector('canvas.board');
-                if (!canvas) return null;
-                const skip = new Set(['tic tac go', 'google', 'skip', 'close', 'back', 'how to play']);
-                let node = canvas.parentElement;
-                for (let depth = 0; depth < 12 && node; depth++) {
-                    const els = Array.from(
-                        node.querySelectorAll('h1,h2,h3,h4,h5,[role="heading"]')
-                    );
-                    for (const el of els) {
-                        const text = (el.innerText || el.textContent || '').trim();
-                        if (text.length >= 3 && text.length <= 60 && !skip.has(text.toLowerCase())) {
-                            return text;
-                        }
-                    }
-                    node = node.parentElement;
-                }
-                return null;
-            }
-        """)
-        if title:
-            logger.info("capture.title_js_found title=%r", title)
-            return title
-    except Exception as exc:
-        logger.debug("capture.title_js_failed error=%s", exc)
-
-    logger.info("capture.title_not_found")
-    return None
-
-
 def _capture_board_image(page, screenshot_path: Path) -> None:
+    """
+    Save a screenshot of the game board canvas to screenshot_path.
+
+    We wait 8 seconds before attempting the screenshot to give Google's canvas
+    rendering time to settle after any animations. If the canvas locator is
+    available and visible we screenshot just that element; otherwise we fall
+    back to a full-page screenshot so we always produce some output for
+    debugging even if the board did not load cleanly.
+    """
     page.wait_for_timeout(8_000)
     try:
         board = page.locator("canvas.board").first
@@ -214,15 +215,24 @@ def _capture_board_image(page, screenshot_path: Path) -> None:
     except Exception as exc:
         logger.info("capture.board_canvas_screenshot_failed error=%s", exc)
 
+    # Fallback: capture the whole page so we have something to inspect
     page.screenshot(path=str(screenshot_path), full_page=True)
     logger.info("capture.full_page_screenshot_fallback")
 
 
 def google_tic_tac_go_url() -> str:
+    """Return the Google Search URL for Tic Tac Go, overrideable via env var."""
     return os.getenv("GOOGLE_TIC_TAC_GO_URL", DEFAULT_GOOGLE_TIC_TAC_GO_URL)
 
 
 def _env_value(*names: str) -> str | None:
+    """
+    Look up the first non-empty value among the given environment variable names.
+
+    Also handles the edge case where a value was accidentally set as
+    `VAR_NAME=actual_value` (i.e. the shell assignment leaked into the value
+    string), stripping the prefix and surrounding quotes before returning.
+    """
     for name in names:
         value = os.getenv(name)
         if value:
@@ -239,6 +249,7 @@ def _env_value(*names: str) -> str | None:
 
 
 def _redacted_url(url: str) -> str:
+    """Return the URL with token/key query parameters replaced by '<redacted>' for safe logging."""
     parsed = urlparse(url)
     if not parsed.query:
         return url
@@ -255,10 +266,27 @@ def _redacted_url(url: str) -> str:
 
 
 def _diagnostic_host(url: str) -> str | None:
+    """Extract the host:port portion of a URL for log messages."""
     return urlparse(url).netloc or None
 
 
 def _browserbase_connect_url(create_session: bool = True) -> RemoteBrowserTarget | None:
+    """
+    Resolve a Browserbase CDP connection URL, optionally creating a new session.
+
+    Browserbase is a managed browser service. Unlike Browserless, it requires
+    an explicit REST API call to spin up a session before Playwright can
+    connect. That call returns a one-time `connectUrl` (a WebSocket address
+    scoped to the new session) which we hand off to Playwright's
+    connect_over_cdp().
+
+    When create_session=False (used by the diagnostics endpoint) we return a
+    placeholder target without making a network call, so callers can check
+    whether Browserbase is configured without incurring a session creation cost.
+
+    Returns None if BROWSERBASE_API_KEY is not configured.
+    Raises BoardCaptureError on session creation failures.
+    """
     api_key = _env_value("BROWSERBASE_API_KEY", "browserbase_api_key")
     if not api_key:
         return None
@@ -316,6 +344,13 @@ def _browserbase_connect_url(create_session: bool = True) -> RemoteBrowserTarget
 
 
 def _browserless_token_from_value(value: str) -> str:
+    """
+    Extract a bare token string from a value that might be a full WebSocket URL.
+
+    Operators sometimes paste a full Browserless connection URL into the token
+    env var. We handle that gracefully by pulling the token= query parameter
+    out rather than failing with a confusing auth error.
+    """
     if "token=" not in value:
         return value
 
@@ -325,6 +360,10 @@ def _browserless_token_from_value(value: str) -> str:
 
 
 def _browserless_connect_url() -> RemoteBrowserTarget | None:
+    """Build a Browserless WebSocket URL from BROWSERLESS_TOKEN (and optionally BROWSERLESS_REGION).
+
+    Returns None if BROWSERLESS_TOKEN is not set.
+    """
     token = _env_value("BROWSERLESS_TOKEN", "browserless_token")
     if not token:
         return None
@@ -339,6 +378,13 @@ def _browserless_connect_url() -> RemoteBrowserTarget | None:
 
 
 def _direct_remote_target(source: str, url: str) -> RemoteBrowserTarget:
+    """
+    Validate and wrap an explicitly provided WebSocket or CDP URL.
+
+    Raises BoardCaptureError with a descriptive message if the URL looks
+    obviously wrong (e.g. an HTTP REST endpoint instead of a WebSocket address,
+    or a Browserless URL that is missing its token parameter).
+    """
     parsed = urlparse(url)
     if parsed.scheme not in {"ws", "wss", "http", "https"}:
         raise BoardCaptureError(
@@ -359,6 +405,27 @@ def _direct_remote_target(source: str, url: str) -> RemoteBrowserTarget:
 
 
 def _remote_browser_target(create_browserbase_session: bool = True) -> RemoteBrowserTarget | None:
+    """
+    Resolve which remote browser to use, returning a ready-to-connect target.
+
+    Resolution order
+    ----------------
+    1. REMOTE_BROWSER_PROVIDER — if set, the named provider is used exclusively
+       and an error is raised if its required credentials are missing. This
+       prevents silent fallthrough to a different provider than the operator
+       intended.
+
+    2. BROWSERLESS_TOKEN       — construct a Browserless WSS URL from the token.
+
+    3. BROWSERLESS_WS_URL      — use the raw WebSocket URL as-is.
+
+    4. PLAYWRIGHT_CDP_URL      — use a raw CDP URL (e.g. a self-hosted Chrome).
+
+    5. BROWSERBASE_API_KEY     — create a Browserbase session and connect to it.
+
+    Returns None only when none of the above env vars are configured, which
+    means the caller should fall back to launching a local Chromium instance.
+    """
     provider = (_env_value("REMOTE_BROWSER_PROVIDER", "remote_browser_provider") or "").lower()
 
     if provider:
@@ -388,6 +455,7 @@ def _remote_browser_target(create_browserbase_session: bool = True) -> RemoteBro
                 "REMOTE_BROWSER_PROVIDER must be browserless, browserbase, direct, or unset."
             )
 
+    # No explicit provider — auto-detect from whichever credentials are present
     browserless_target = _browserless_connect_url()
     if browserless_target:
         return browserless_target
@@ -404,6 +472,13 @@ def _remote_browser_target(create_browserbase_session: bool = True) -> RemoteBro
 
 
 def remote_browser_diagnostics() -> dict[str, object]:
+    """
+    Return a summary of the current remote-browser configuration for the API
+    health-check endpoint.
+
+    Avoids creating an actual Browserbase session (create_browserbase_session=False)
+    so this can be called cheaply on every health-check request.
+    """
     configured = {
         name: _env_value(name) is not None
         for name in (
@@ -438,6 +513,7 @@ def remote_browser_diagnostics() -> dict[str, object]:
 
 
 def _remote_browser_url() -> str | None:
+    """Resolve and log the remote browser URL, returning None if no remote browser is configured."""
     target = _remote_browser_target()
     if target:
         logger.info(
@@ -452,6 +528,7 @@ def _remote_browser_url() -> str | None:
 
 
 def _missing_remote_browser_message() -> str:
+    """Return the error message shown when Vercel is detected but no remote browser is configured."""
     return (
         "Vercel cannot bundle Chromium for Playwright. Recommended setup: set "
         "REMOTE_BROWSER_PROVIDER=browserless and BROWSERLESS_TOKEN to your "
@@ -461,6 +538,15 @@ def _missing_remote_browser_message() -> str:
 
 
 def _running_on_vercel() -> bool:
+    """
+    Detect whether the process is running inside a Vercel (or AWS Lambda) serverless environment.
+
+    Vercel's build pipeline strips native binaries, so the Playwright Chromium
+    bundle is unavailable at runtime. We check both Vercel's own markers and
+    the underlying Lambda markers that Vercel's infrastructure sets, since
+    future Vercel runtime versions might drop the VERCEL_* variables while
+    keeping the Lambda ones.
+    """
     serverless_markers = (
         "VERCEL",
         "VERCEL_ENV",
@@ -473,7 +559,33 @@ def _running_on_vercel() -> bool:
     return any(os.getenv(marker) for marker in serverless_markers)
 
 
-def capture_google_board_screenshot(source_url: str | None = None) -> CaptureResult:
+def capture_google_board_screenshot(
+    source_url: str | None = None,
+    puzzle_date: date | None = None,
+) -> CaptureResult:
+    """
+    Navigate to the Google Tic Tac Go page, capture the game canvas, and
+    extract the daily puzzle title.
+
+    Flow
+    ----
+    1. Choose a browser backend (remote CDP or local Chromium).
+    2. Navigate to the Google Search URL for Tic Tac Go.
+    3. Wait for the page to settle (network idle + fixed delay).
+    4. Dismiss the tutorial overlay if one appears.
+    5. Wait again for any post-dismiss animations.
+    6. Screenshot the canvas element (falling back to a full-page screenshot).
+    7. Extract the puzzle title from the surrounding DOM.
+    8. Return a CaptureResult with both artifacts.
+
+    puzzle_title is initialised to None before the browser block so that if
+    title extraction fails partway through — or raises — we can still return a
+    valid CaptureResult with the screenshot we already saved rather than losing
+    both pieces of data to an exception.
+
+    Raises BoardCaptureError on any unrecoverable failure (timeout, missing
+    screenshot file, misconfigured remote browser, etc.).
+    """
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright
@@ -486,6 +598,8 @@ def capture_google_board_screenshot(source_url: str | None = None) -> CaptureRes
     url = source_url or google_tic_tac_go_url()
     output_dir = Path(tempfile.mkdtemp(prefix="tic-tac-go-"))
     screenshot_path = output_dir / "google-tic-tac-go.png"
+    # Initialised here so it remains accessible after the browser block even if
+    # title extraction raises inside the try/except below.
     puzzle_title: str | None = None
 
     logger.info("capture.start url=%s screenshot_path=%s", url, screenshot_path)
@@ -497,6 +611,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> CaptureRes
                 browser = playwright.chromium.connect_over_cdp(remote_browser_url)
                 logger.info("capture.browser_connected chromium=remote")
             elif _running_on_vercel():
+                # No remote browser configured and we can't launch Chromium locally
                 raise BoardCaptureError(_missing_remote_browser_message())
             else:
                 browser = playwright.chromium.launch(headless=True)
@@ -508,6 +623,8 @@ def capture_google_board_screenshot(source_url: str | None = None) -> CaptureRes
             )
             response = page.goto(url, wait_until="domcontentloaded", timeout=45_000)
             logger.info("capture.goto_done status=%s target_url=%s", _response_status(response), url)
+            # Expand the viewport after initial load so the Knowledge Panel game
+            # widget has more horizontal room to render fully
             page.set_viewport_size({"width": 1920, "height": 1080})
             logger.info("capture.viewport_set width=1920 height=1080")
             _wait_for_network_idle(page)
@@ -518,7 +635,7 @@ def capture_google_board_screenshot(source_url: str | None = None) -> CaptureRes
             page.wait_for_timeout(2_500)
             _log_page_state(page, "before_screenshot")
             _capture_board_image(page, screenshot_path)
-            puzzle_title = _extract_puzzle_title(page)
+            puzzle_title = extract_puzzle_title(page, puzzle_date=puzzle_date)
             browser.close()
     except PlaywrightTimeoutError as exc:
         raise BoardCaptureError(f"Timed out while loading Google Tic Tac Go: {url}") from exc

@@ -1,8 +1,16 @@
+// POST /api/manual/daily-solve
+// Manually triggers the daily board capture and solve pipeline. Intended for
+// development and one-off re-runs when the cron job needs to be replayed.
+// Accepts POST with no Authorization header check (unlike the cron route), but
+// still requires CRON_SECRET to be set so it can authenticate against the
+// FastAPI backend. Do not expose this endpoint publicly in production.
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
 
 export const dynamic = "force-dynamic";
 
+// Reads the response body defensively: returns parsed JSON when possible,
+// falls back to the first 2 KB of text, or null if the body is empty.
 async function readBackendBody(response: Response) {
   const text = await response.text();
   if (!text) return null;
@@ -36,6 +44,7 @@ export async function POST() {
   let response: Response;
 
   try {
+    // The FastAPI backend still requires the secret for authentication
     response = await fetch(backendUrl, {
       method: "POST",
       headers: {

@@ -1,18 +1,25 @@
 """
-    Defines the daily cron job that captures the 
-    current day's Tic Tac Go puzzle, parses it, 
-    solves it, and stores the results in the database.
-"""
+Daily solve job.
 
+Orchestrates the three-step pipeline for each day's Tic Tac Go puzzle:
+  1. Capture — screenshot the live Google puzzle via a remote browser.
+  2. Parse   — send the screenshot to the Gemini vision parser to extract
+               the board grid.
+  3. Solve   — run the BFS solver and write the result to Postgres.
+
+Any failure at any step is caught, stored as a "failed" record in the DB,
+and re-raised so the caller (the API job endpoint) can surface it properly.
+"""
 
 from datetime import UTC, date, datetime
 import logging
 import traceback
 from typing import Any
 
-from apps.api.acquisition import capture_google_board_screenshot, google_tic_tac_go_url, CaptureResult
+from apps.api.acquisition import capture_google_board_screenshot, google_tic_tac_go_url
 from apps.api.parser import PARSER_NAME, parse_board_from_screenshot
 from apps.api.storage import upsert_solution
+from apps.api.title_fetcher import title_from_past_days
 from solver.service import SOLVER_NAME, solve_board
 
 
@@ -20,6 +27,7 @@ logger = logging.getLogger("tic_tac_go.daily_solve")
 
 
 def _board_lines(board: list[list[str]] | None) -> str:
+    """Format a board grid as a human-readable multi-line string for logging."""
     if not board:
         return "<none>"
     return "\n".join(
@@ -29,6 +37,7 @@ def _board_lines(board: list[list[str]] | None) -> str:
 
 
 def utc_puzzle_date() -> date:
+    """Return today's date in UTC — used to key the daily solution record."""
     return datetime.now(UTC).date()
 
 
@@ -39,6 +48,7 @@ def _failed_record(
     board: list[list[str]] | None = None,
     puzzle_title: str | None = None,
 ) -> dict[str, Any]:
+    """Build a minimal 'failed' DB record so we always have something stored."""
     return {
         "puzzle_date": puzzle_date,
         "source_url": source_url,
@@ -57,15 +67,26 @@ def _failed_record(
 
 
 def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
+    """Run the full capture → parse → solve pipeline for one puzzle date.
+
+    Returns the stored DB record dict. If any step fails the error is
+    persisted as a "failed" record and the stored dict is still returned
+    (not re-raised) so the job endpoint can respond with meaningful detail.
+    """
     target_date = puzzle_date or utc_puzzle_date()
     source_url = google_tic_tac_go_url()
+
+    # Declared here so the except block can safely reference it even if the
+    # capture step fails before puzzle_title is assigned.
+    puzzle_title: str | None = None
 
     logger.info("=" * 72)
     logger.info("daily_solve.start puzzle_date=%s source_url=%s", target_date, source_url)
 
     try:
+        # Step 1: capture a screenshot of the live puzzle.
         logger.info("daily_solve.capture.begin")
-        capture_result = capture_google_board_screenshot(source_url)
+        capture_result = capture_google_board_screenshot(source_url, puzzle_date=target_date)
         screenshot_path = capture_result.screenshot_path
         puzzle_title = capture_result.puzzle_title
         logger.info(
@@ -74,10 +95,12 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
             puzzle_title,
         )
 
+        # Step 2: send the screenshot to the Gemini parser to extract the grid.
         logger.info("daily_solve.parse.begin screenshot_path=%s", screenshot_path)
         board = parse_board_from_screenshot(screenshot_path)
         logger.info("daily_solve.parse.ok parser=%s board=\n%s", PARSER_NAME, _board_lines(board))
 
+        # Step 3: run the BFS solver on the parsed grid.
         logger.info("daily_solve.solve.begin solver=%s", SOLVER_NAME)
         solve_result = solve_board(board)
         logger.info(
@@ -93,8 +116,9 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
     except Exception as exc:
         logger.error("daily_solve.failed error=%s", exc)
         logger.error("daily_solve.traceback\n%s", traceback.format_exc())
-        title = locals().get("puzzle_title")
-        record = _failed_record(target_date, source_url, str(exc), puzzle_title=title)
+        if puzzle_title is None:
+            puzzle_title = title_from_past_days(target_date)
+        record = _failed_record(target_date, source_url, str(exc), puzzle_title=puzzle_title)
         logger.info("daily_solve.persist_failed.begin record=%s", record)
         stored = upsert_solution(record)
         logger.info("daily_solve.persist_failed.done stored=%s", stored)

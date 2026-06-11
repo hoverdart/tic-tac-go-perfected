@@ -1,3 +1,17 @@
+"""
+FastAPI application — public HTTP API for the Tic Tac Go solver.
+
+Routes:
+  GET  /health                  — liveness probe
+  GET  /debug/remote-browser    — dump remote-browser diagnostic info (cron-auth required)
+  GET  /debug/screenshot        — capture and return the current puzzle screenshot (cron-auth required)
+  POST /solve                   — solve an arbitrary board submitted in the request body
+  POST /jobs/daily-solve        — trigger the daily capture→parse→solve pipeline (cron-auth required)
+  GET  /solutions/today         — fetch today's stored solution
+  GET  /solutions/recent        — list recent solution summaries
+  GET  /solutions/{puzzle_date} — fetch the stored solution for a specific date
+"""
+
 import os
 import logging
 from datetime import date
@@ -8,9 +22,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics, CaptureResult
+from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics
 from apps.api.daily_job import run_daily_solve, utc_puzzle_date
 from apps.api.storage import StorageError, get_solution, list_recent_solutions
+from apps.api.title_fetcher import title_from_past_days
 from solver.service import SolverError, solve_board
 
 
@@ -21,6 +36,10 @@ logging.basicConfig(
 
 Cell = Literal["", "X", "O", "U", "B"]
 
+
+# ---------------------------------------------------------------------------
+# Request / response models
+# ---------------------------------------------------------------------------
 
 class SolveRequest(BaseModel):
     board: list[list[Cell]] = Field(
@@ -81,7 +100,18 @@ class JobResponse(BaseModel):
     error_message: str | None
 
 
+# ---------------------------------------------------------------------------
+# Auth helpers
+# ---------------------------------------------------------------------------
+
 def require_cron_secret(authorization: str | None = Header(default=None)) -> None:
+    """FastAPI dependency that gates cron/admin endpoints behind a shared secret.
+
+    The secret is read from the CRON_SECRET env var and must be supplied by
+    callers in an `Authorization: Bearer <secret>` header — the same format
+    that Vercel uses when it invokes cron routes, so no extra signing logic
+    is needed on either side.
+    """
     expected = os.getenv("CRON_SECRET")
     if not expected:
         raise HTTPException(status_code=500, detail="CRON_SECRET is not configured.")
@@ -90,6 +120,12 @@ def require_cron_secret(authorization: str | None = Header(default=None)) -> Non
 
 
 def pending_solution(puzzle_date: date) -> SolutionRecord:
+    """Return a synthetic 'pending' record for dates with no stored solution yet.
+
+    Used as a graceful fallback so GET /solutions/{date} always returns a
+    well-formed SolutionRecord rather than a 404, even before the daily job
+    has run for that date.
+    """
     return SolutionRecord(
         puzzle_date=puzzle_date,
         source_url=os.getenv("GOOGLE_TIC_TAC_GO_URL", ""),
@@ -103,9 +139,23 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
         elapsed_ms=None,
         status="pending",
         error_message="No solution has been generated for this date yet.",
-        puzzle_title=None,
+        puzzle_title=title_from_past_days(puzzle_date),
     )
 
+
+def with_title_fallback(record: dict) -> dict:
+    """Fill a missing DB title from the historical manifest without mutating storage."""
+    if record.get("puzzle_title"):
+        return record
+    return {
+        **record,
+        "puzzle_title": title_from_past_days(record.get("puzzle_date")),
+    }
+
+
+# ---------------------------------------------------------------------------
+# App setup
+# ---------------------------------------------------------------------------
 
 app = FastAPI(title="Tic Tac Go Solver API")
 logger = logging.getLogger("tic_tac_go.api")
@@ -125,16 +175,25 @@ app.add_middleware(
 )
 
 
+# ---------------------------------------------------------------------------
+# Health
+# ---------------------------------------------------------------------------
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
+
+# ---------------------------------------------------------------------------
+# Debug endpoints (cron-auth required)
+# ---------------------------------------------------------------------------
 
 @app.get(
     "/debug/remote-browser",
     dependencies=[Depends(require_cron_secret)],
 )
 def debug_remote_browser() -> dict[str, object]:
+    """Return diagnostic information about the remote browser environment."""
     return remote_browser_diagnostics()
 
 
@@ -143,6 +202,7 @@ def debug_remote_browser() -> dict[str, object]:
     dependencies=[Depends(require_cron_secret)],
 )
 def debug_screenshot() -> FileResponse:
+    """Capture the current puzzle and return the screenshot as a PNG."""
     try:
         result = capture_google_board_screenshot()
     except Exception as exc:
@@ -157,8 +217,13 @@ def debug_screenshot() -> FileResponse:
     )
 
 
+# ---------------------------------------------------------------------------
+# Solver endpoint (public)
+# ---------------------------------------------------------------------------
+
 @app.post("/solve", response_model=SolveResponse)
 def solve(request: SolveRequest) -> SolveResponse:
+    """Solve a board submitted directly in the request body."""
     try:
         result = solve_board(request.board, max_states=request.max_states)
     except SolverError as exc:
@@ -167,12 +232,17 @@ def solve(request: SolveRequest) -> SolveResponse:
     return SolveResponse(**result)
 
 
+# ---------------------------------------------------------------------------
+# Cron job endpoint (cron-auth required)
+# ---------------------------------------------------------------------------
+
 @app.post(
     "/jobs/daily-solve",
     response_model=JobResponse,
     dependencies=[Depends(require_cron_secret)],
 )
 def daily_solve_job() -> JobResponse:
+    """Trigger the daily capture → parse → solve pipeline for today's puzzle."""
     try:
         record = run_daily_solve()
     except StorageError as exc:
@@ -184,8 +254,13 @@ def daily_solve_job() -> JobResponse:
     return JobResponse(**record)
 
 
+# ---------------------------------------------------------------------------
+# Solution read endpoints (public)
+# ---------------------------------------------------------------------------
+
 @app.get("/solutions/today", response_model=SolutionRecord)
 def today_solution() -> SolutionRecord:
+    """Return today's stored solution, or a pending record if it hasn't run yet."""
     puzzle_date = utc_puzzle_date()
     try:
         record = get_solution(puzzle_date)
@@ -194,20 +269,22 @@ def today_solution() -> SolutionRecord:
 
     if record is None:
         return pending_solution(puzzle_date)
-    return SolutionRecord(**record)
+    return SolutionRecord(**with_title_fallback(record))
 
 
 @app.get("/solutions/recent", response_model=list[SolutionSummary])
 def recent_solutions(limit: int = 30) -> list[SolutionSummary]:
+    """Return a summary list of recent solutions, capped at 90 entries."""
     try:
         rows = list_recent_solutions(limit=min(limit, 90))
     except StorageError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return [SolutionSummary(**row) for row in rows]
+    return [SolutionSummary(**with_title_fallback(row)) for row in rows]
 
 
 @app.get("/solutions/{puzzle_date}", response_model=SolutionRecord)
 def solution_by_date(puzzle_date: date) -> SolutionRecord:
+    """Return the stored solution for a specific date, or a pending record."""
     try:
         record = get_solution(puzzle_date)
     except StorageError as exc:
@@ -215,4 +292,4 @@ def solution_by_date(puzzle_date: date) -> SolutionRecord:
 
     if record is None:
         return pending_solution(puzzle_date)
-    return SolutionRecord(**record)
+    return SolutionRecord(**with_title_fallback(record))

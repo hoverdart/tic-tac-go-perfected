@@ -1,3 +1,7 @@
+// GET /api/solutions/[date]
+// Client-side proxy to the FastAPI backend's GET /solutions/{date} endpoint.
+// Called by GameView when the user selects a past date from the history carousel.
+// No authentication required — it's a public read of historical solve data.
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
 

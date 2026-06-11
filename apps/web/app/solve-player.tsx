@@ -1,3 +1,6 @@
+// Interactive replay controller. Manages frame index, play/pause state, and
+// timeline scrubbing. This is a client component because it owns animation
+// state and listens to OS-level accessibility preferences in real time.
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -7,6 +10,19 @@ import type { ReplayFrame } from "./replay-model";
 
 const MOVE_ARROWS: Record<string, string> = { D: "↓", U: "↑", L: "←", R: "→" };
 
+// useSyncExternalStore wiring for the prefers-reduced-motion media query.
+// Three arguments:
+//   subscribe      — attaches a change listener to the matchMedia object and
+//                    returns a cleanup function. Called once on mount.
+//   getSnapshot    — returns the current value from window.matchMedia. Called
+//                    on every render and after each change event.
+//   getServerSnapshot — safe fallback for SSR where window doesn't exist;
+//                    always returns false so the server renders the play button
+//                    in its active state.
+//
+// Using useSyncExternalStore (rather than a one-time useEffect) means the
+// component re-renders immediately if the user toggles their OS accessibility
+// setting mid-session without needing a page reload.
 function subscribeToReducedMotion(onChange: () => void): () => void {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
   media.addEventListener("change", onChange);
@@ -36,9 +52,17 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(hasReplay);
   const activeFrame = frames[index] ?? frames[0] ?? null;
+
+  // When reducedMotion is true the auto-advance timer never starts, so
+  // effectivePlaying is false regardless of the play/pause toggle state.
   const effectivePlaying = playing && !reducedMotion;
   const moveCount = Math.max(frames.length - 1, 0);
 
+  // Auto-advance: fires an interval whenever effectivePlaying is true.
+  // The updater-function form of setIndex avoids a stale closure over `index` —
+  // we always get the latest value without needing `index` in the dep array.
+  // The cleanup stops the interval whenever effectivePlaying turns false
+  // (pause, reduced motion, or the last frame is reached).
   useEffect(() => {
     if (!effectivePlaying || !hasReplay) return;
     const timer = window.setInterval(() => {
@@ -58,6 +82,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
     setIndex((current) => Math.min(Math.max(current + delta, 0), frames.length - 1));
   }
 
+  // Resets to frame 0 and restarts playback (unless reduced motion is on).
   function replay() {
     setIndex(0);
     setPlaying(hasReplay && !reducedMotion);
@@ -65,6 +90,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
 
   function togglePlayback() {
     if (!hasReplay || reducedMotion) return;
+    // If we're at the end, wrap back to the start before resuming
     if (index >= frames.length - 1) setIndex(0);
     setPlaying((current) => !current);
   }
@@ -136,6 +162,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
           onChange={(event) => scrubTo(Number(event.target.value))}
           aria-label="Solution timeline"
         />
+        {/* Move sequence: each arrow is highlighted once that move has been played */}
         <div className="move-sequence" aria-label={moveCount ? `Solution moves: ${frames.slice(1).map((frame) => frame.move).join("")}` : "Solution pending"}>
           {moveCount ? frames.slice(1).map((frame, frameIndex) => (
             <span key={`${frameIndex}-${frame.move}`} className={frameIndex < index ? "move-complete" : ""}>
