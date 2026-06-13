@@ -8,8 +8,10 @@ from typing import Optional
 class TicTacWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
     training_board_counts = {
-        1: 15, 2: 30, 3: 30, 4: 50, 5: 50, 6: 75, 7: 75,
-        8: 75, 9: 75, 10: 75, 11: 75, 12: 75, 13: 50, 14: 0
+        1: 15, 2: 30, 3: 30, 4: 50, 5: 50, 6: 75,
+        7: 500, 8: 500, 9: 500,
+        10: 75, 11: 75, 12: 75, 13: 75, 14: 75, 15: 75,
+        16: 50, 17: 0
     }
     training_boards_file = Path(__file__).resolve().parents[2] / "generated_training_boards.py"
     training_boards = None
@@ -64,7 +66,7 @@ class TicTacWorldEnv(gym.Env):
         lines.append("}\n")
         cls.training_boards_file.write_text("".join(lines))
 
-    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=14):
+    def __init__(self, length=8, width=8, board = tuple(tuple()), render_mode=None, reset_option=17):
         self.length = length
         self.width = width
         self.board = board
@@ -473,7 +475,7 @@ class TicTacWorldEnv(gym.Env):
         if(options is None):
             options = self.reset_option
 
-        grad = options if options in self.training_board_counts else 13
+        grad = options if options in self.training_board_counts else 16
         self.current_grad = grad
         board_pool = self.board_pool_override
         if not board_pool or grad not in board_pool or not board_pool[grad]:

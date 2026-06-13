@@ -114,7 +114,7 @@ def make_env(board, render_mode, grad):
 
 def main():
     use_eval_boards = True
-    grad = 6
+    grad = 1
 
     model_path = find_model_path()
     board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS

@@ -43,8 +43,9 @@ class BoardGenerator:
     # Minimum required BFS solution length per graduation
     # ------------------------------------------------------------------
     _MIN_SOLUTION = {
-        1: 1, 2: 1, 3: 3, 4: 1, 5: 3, 6: 4, 7: 5,
-        8: 5, 9: 6, 10: 6, 11: 7, 12: 7, 13: 6, 14: 6
+        1: 1, 2: 1, 3: 3, 4: 1, 5: 3, 6: 4, 7: 4,
+        8: 4, 9: 5, 10: 5, 11: 5, 12: 6, 13: 6, 14: 7,
+        15: 7, 16: 6, 17: 6
     }
 
     # ------------------------------------------------------------------
@@ -71,27 +72,36 @@ class BoardGenerator:
         6: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3,
                 max_o_dist=4, agent_max_o_dist=8),
-        7: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
+        7: dict(active_rows=8, active_cols=8, num_xs=0,  x_danger=0,
+                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3,
+                max_o_dist=7, agent_max_o_dist=10),
+        8: dict(active_rows=8, active_cols=8, num_xs=1,  x_danger=1,
+                num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=3,
+                max_o_dist=10, agent_max_o_dist=10),
+        9: dict(active_rows=8, active_cols=8, num_xs=2,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3,
                 agent_max_o_dist=10, agent_far_fraction=None),
-        8: dict(active_rows=8, active_cols=8, num_xs=5,  x_danger=1,
+        10: dict(active_rows=8, active_cols=8, num_xs=3,  x_danger=1,
+                num_bs=0, randomize_os=True,  align_os_bias=0.5, min_o_dist=3,
+                agent_max_o_dist=10, agent_far_fraction=None),
+        11: dict(active_rows=8, active_cols=8, num_xs=5,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.45, min_o_dist=3,
                 agent_max_o_dist=13, agent_far_fraction=None),
-        9: dict(active_rows=8, active_cols=8, num_xs=7,  x_danger=1,
+        12: dict(active_rows=8, active_cols=8, num_xs=7,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.42, min_o_dist=4,
                 agent_max_o_dist=16, agent_far_fraction=None),
-        10: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
+        13: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=1,
                 num_bs=0, randomize_os=True,  align_os_bias=0.4, min_o_dist=4,
                 agent_far_fraction=0.5),
-        11: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
+        14: dict(active_rows=8, active_cols=8, num_xs=10, x_danger=3,
                 num_bs=0, randomize_os=True,  align_os_bias=0.2, min_o_dist=4,
                 agent_far_fraction=1/3),
-        12: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
+        15: dict(active_rows=8, active_cols=8, num_xs=8,  x_danger=2,
                  num_bs=4, randomize_os=True, align_os_bias=0.2, min_o_dist=4,
                  agent_far_fraction=1/3),
-        13: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        16: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                 num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
-        14: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
+        17: dict(active_rows=None, active_cols=None, num_xs=None, x_danger=2,
                  num_bs=None, randomize_os=True, align_os_bias=0.3, min_o_dist=3),
     }
 
@@ -116,7 +126,7 @@ class BoardGenerator:
         Returns:
             List of 8x8 tuple-of-tuples boards ready to drop into your env.
         """
-        assert 1 <= grad <= 14, "grad must be 1-14"
+        assert 1 <= grad <= 17, "grad must be 1-17"
         if seed is not None:
             random.seed(seed)
 
@@ -198,7 +208,7 @@ class BoardGenerator:
         """
         p = self._GRAD_PARAMS[grad]
 
-        if grad in (13, 14):
+        if grad in (16, 17):
             ar, ac = random.choice(self._GRAD9_SIZES)
             area = ar * ac
             num_xs = max(2, area // 7)

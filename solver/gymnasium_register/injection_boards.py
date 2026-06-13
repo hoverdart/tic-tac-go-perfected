@@ -172,7 +172,7 @@ GRAD6_INJECTION_SOLUTIONS = [
     'URULLL',
 ]
 
-GRAD7_INJECTION_BOARDS = [
+GRAD10_INJECTION_BOARDS = [
     (
         ('', '', '', '', '', '', '', ''),
         ('', '', '', '', '', '', '', 'O'),
@@ -1175,7 +1175,7 @@ GRAD7_INJECTION_BOARDS = [
     ),
 ]
 
-GRAD7_INJECTION_SOLUTIONS = [
+GRAD10_INJECTION_SOLUTIONS = [
     'UUUULLLLLLULURRRRR',
     'LURUULU',
     'ULURUUURU',
