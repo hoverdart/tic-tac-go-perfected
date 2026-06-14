@@ -13,6 +13,7 @@ from stable_baselines3 import DQN
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GYM_REGISTER_DIR = REPO_ROOT / "solver" / "gymnasium_register"
+ALGORITHMS_DIR = REPO_ROOT / "solver" / "algorithms"
 MAX_STEPS = 200
 DETERMINISTIC = False
 REPLAY_DELAY_SECONDS = 0.35
@@ -20,8 +21,11 @@ FINAL_HOLD_SECONDS = 3.0
 
 if str(GYM_REGISTER_DIR) not in sys.path:
     sys.path.insert(0, str(GYM_REGISTER_DIR))
+if str(ALGORITHMS_DIR) not in sys.path:
+    sys.path.insert(0, str(ALGORITHMS_DIR))
 
 import tic_tac_go_env  # noqa: E402,F401
+from beamSearch import beamSearch  # noqa: E402
 try:
     from generated_eval_boards import EVAL_BOARDS  # noqa: E402
 except ImportError:
@@ -114,7 +118,10 @@ def make_env(board, render_mode, grad):
 
 def main():
     use_eval_boards = True
-    grad = 1
+    use_beam_search = True
+    beam_width = 1000
+    beam_max_depth = 80
+    grad = 17
 
     model_path = find_model_path()
     board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS
@@ -135,6 +142,7 @@ def main():
 
     print(f"Model: {model_path}")
     print(f"Board source: {board_source}, grad {grad}")
+    print(f"Use beam search: {use_beam_search}")
     print("=== START BOARD ===")
     print_board(world.board)
     print(f"Start board soft locked: {start_soft_locked}")
@@ -144,6 +152,29 @@ def main():
 
     action_names = {0: "U", 1: "D", 2: "L", 3: "R"}
     action_by_name = {name: action for action, name in action_names.items()}
+
+    if use_beam_search:
+        print("=== BEAM SEARCH ===")
+        print(f"Beam width: {beam_width}")
+        print(f"Max depth: {beam_max_depth}")
+        beam_moves, transition_data = beamSearch(board, model, beam_width, beam_max_depth)
+        print(f"Beam moves: {beam_moves}")
+        print(f"Returned transitions: {len(transition_data)}")
+        if beam_moves:
+            replay_env = make_env(board, render_mode="human", grad=grad)
+            replay_world = replay_env.unwrapped
+            type(replay_world).training_boards = {grad: [board]}
+            replay_cleaned_path(
+                replay_env,
+                replay_world,
+                beam_moves,
+                action_by_name,
+                grad,
+            )
+            replay_env.close()
+        env.close()
+        return
+
     attempt = 1
 
     while True:

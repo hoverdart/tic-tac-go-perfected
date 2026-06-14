@@ -339,3 +339,71 @@ TRAINING_STATS_AT_START:
   num_timesteps: 18000
   n_updates: 12721339
 
+[2026-06-13 02:28:11]
+EVENT: START grad 10
+THRESHOLDS:
+  reward_threshold: 28
+  max_reward_std: 18
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 16351564
+
+[2026-06-13 02:28:17]
+EVENT: END grad 10 / PASSED
+NEXT_GRAD: 11
+CHECKPOINT_FILE: dqn_tic_tac_go_grad_10.zip
+EVAL_STATS:
+  eval_mean_reward: 29.93
+  eval_reward_std: 16.22
+  eval_mean_length: 9.70
+TRAINING_STATS_AT_SAVE:
+  num_timesteps: 2000
+  n_updates: 16352038
+
+[2026-06-13 02:28:17]
+EVENT: START grad 11
+THRESHOLDS:
+  reward_threshold: 28
+  max_reward_std: 20
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 2000
+  n_updates: 16352038
+
+[2026-06-13 02:37:36]
+EVENT: END grad 11 / PASSED
+NEXT_GRAD: 12
+CHECKPOINT_FILE: dqn_tic_tac_go_grad_11.zip
+EVAL_STATS:
+  eval_mean_reward: 30.11
+  eval_reward_std: 16.28
+  eval_mean_length: 9.47
+TRAINING_STATS_AT_SAVE:
+  num_timesteps: 42000
+  n_updates: 16399937
+
+[2026-06-13 02:37:36]
+EVENT: START grad 12
+THRESHOLDS:
+  reward_threshold: 28
+  max_reward_std: 20
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 42000
+  n_updates: 16399937
+
+[2026-06-13 12:57:09]
+EVENT: START grad 11
+THRESHOLDS:
+  reward_threshold: 28
+  max_reward_std: 10
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 2000
+  n_updates: 16352038
+

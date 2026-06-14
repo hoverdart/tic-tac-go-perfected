@@ -195,14 +195,40 @@ class BFStoTrainer:
                 if right_o[1] - left_o[1] > 2:
                     left_can_move_right = o_can_move_direction(left_o[0], left_o[1], 0, 1)
                     right_can_move_left = o_can_move_direction(right_o[0], right_o[1], 0, -1)
-                    if not left_can_move_right and not right_can_move_left:
+                    left_can_move_vertically = (
+                        o_can_move_direction(left_o[0], left_o[1], -1, 0)
+                        or o_can_move_direction(left_o[0], left_o[1], 1, 0)
+                    )
+                    right_can_move_vertically = (
+                        o_can_move_direction(right_o[0], right_o[1], -1, 0)
+                        or o_can_move_direction(right_o[0], right_o[1], 1, 0)
+                    )
+                    if (
+                        not left_can_move_right
+                        and not right_can_move_left
+                        and not left_can_move_vertically
+                        and not right_can_move_vertically
+                    ):
                         return True
 
                 top_o, bottom_o = sorted(o_locations, key=lambda location: location[0])
                 if bottom_o[0] - top_o[0] > 2:
                     top_can_move_down = o_can_move_direction(top_o[0], top_o[1], 1, 0)
                     bottom_can_move_up = o_can_move_direction(bottom_o[0], bottom_o[1], -1, 0)
-                    if not top_can_move_down and not bottom_can_move_up:
+                    top_can_move_sideways = (
+                        o_can_move_direction(top_o[0], top_o[1], 0, -1)
+                        or o_can_move_direction(top_o[0], top_o[1], 0, 1)
+                    )
+                    bottom_can_move_sideways = (
+                        o_can_move_direction(bottom_o[0], bottom_o[1], 0, -1)
+                        or o_can_move_direction(bottom_o[0], bottom_o[1], 0, 1)
+                    )
+                    if (
+                        not top_can_move_down
+                        and not bottom_can_move_up
+                        and not top_can_move_sideways
+                        and not bottom_can_move_sideways
+                    ):
                         return True
 
         found_two_os_in_line = False

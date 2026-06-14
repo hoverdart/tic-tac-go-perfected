@@ -162,7 +162,7 @@ model_path = Path("dqn_tic_tac_go.zip")
 eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
 graduation_output_dir = Path(__file__).resolve().parent / "graduation_checkpoints"
 graduation_log_path = graduation_output_dir / "graduation_log.txt"
-START_FROM_GRAD = 10
+START_FROM_GRAD = 11
 
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -305,7 +305,7 @@ def inject(model, boards, solutions, current_grad):
 
 def learnProcess(num, threshold = 24):
     eval_episodes = 5 if num < 6 else 30
-    max_reward_std = 18 if num == 10 else 15 if num <= 5 else 10
+    max_reward_std = 20 if num >= 11 else 18 if num == 10 else 15 if num <= 5 else 10
     threshold_reached = False
 
     env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
