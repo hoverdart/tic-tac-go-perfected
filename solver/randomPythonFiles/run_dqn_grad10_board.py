@@ -121,7 +121,7 @@ def main():
     use_beam_search = True
     beam_width = 1000
     beam_max_depth = 80
-    grad = 17
+    grad = 15
 
     model_path = find_model_path()
     board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS

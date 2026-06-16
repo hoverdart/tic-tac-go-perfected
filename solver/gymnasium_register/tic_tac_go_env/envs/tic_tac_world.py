@@ -85,6 +85,7 @@ class TicTacWorldEnv(gym.Env):
         self.terminate_on_repeated_states = False
         self.repeat_termination_limit = 3
         self.penalize_repeated_states = True
+        self.episode_steps = 0
 
         assert self.render_mode is None or self.render_mode in self.metadata["render_modes"]
 
@@ -141,6 +142,13 @@ class TicTacWorldEnv(gym.Env):
                                                 dtype=np.int32)
 
         self.action_space = gym.spaces.Discrete(4)
+
+    def episode_step_limit(self):
+        if self.current_grad <= 2:
+            return 50
+        if self.current_grad <= 5:
+            return 75
+        return 100
     
     def moveUp(self, board=None):
         if board is None:
@@ -503,6 +511,7 @@ class TicTacWorldEnv(gym.Env):
 
         grad = options if options in self.training_board_counts else 16
         self.current_grad = grad
+        self.episode_steps = 0
         board_pool = self.board_pool_override
         if not board_pool or grad not in board_pool or not board_pool[grad]:
             board_pool = self.get_training_boards()
@@ -603,6 +612,7 @@ class TicTacWorldEnv(gym.Env):
         return observation, info
     
     def step(self, action):
+        self.episode_steps += 1
 
         currentPos = self.agent_location.copy()
 
@@ -633,10 +643,10 @@ class TicTacWorldEnv(gym.Env):
         softLocked = self.softLocked()
 
         terminated = won or lost
-        truncated = False
+        truncated = self.episode_steps >= self.episode_step_limit()
 
         # Negative per step scales with size.
-        reward = -0.8 * (16 / (self.length * self.width))
+        reward = -1.2 * (16 / (self.length * self.width))
 
         if softLocked:
             terminated = True

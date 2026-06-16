@@ -1,0 +1,2 @@
+grad,run,board_source,board_index,solved,start_soft_locked,lost,soft_locked,terminated,truncated,steps,reward,raw_move_count,cleaned_move_count,raw_moves,cleaned_moves
+10,1,eval,24,True,False,False,False,True,False,65,19.49999999999998,65,16,RRURUDUULRLRLRLRLRLRLRRLLRLRLRLRLRLRLRLRULRLRLRLRLRLRLRLDRDLLLLDL,RRURUULDRDLLLLDL

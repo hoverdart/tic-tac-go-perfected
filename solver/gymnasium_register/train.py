@@ -162,7 +162,7 @@ model_path = Path("dqn_tic_tac_go.zip")
 eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
 graduation_output_dir = Path(__file__).resolve().parent / "graduation_checkpoints"
 graduation_log_path = graduation_output_dir / "graduation_log.txt"
-START_FROM_GRAD = 11
+START_FROM_GRAD = 1
 
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -303,9 +303,29 @@ def inject(model, boards, solutions, current_grad):
                 infos=[{}]
             )
 
-def learnProcess(num, threshold = 24):
+def reward_threshold_for_grad(num):
+    if num <= 6:
+        return 24
+    if num <= 10:
+        return 28
+    if num <= 12:
+        return 29
+    return 31
+
+
+def std_threshold_for_grad(num):
+    if num <= 3:
+        return 7
+    if num <= 10:
+        return 10
+    return 13
+
+
+def learnProcess(num, threshold=None):
+    if threshold is None:
+        threshold = reward_threshold_for_grad(num)
     eval_episodes = 5 if num < 6 else 30
-    max_reward_std = 20 if num >= 11 else 18 if num == 10 else 15 if num <= 5 else 10
+    max_reward_std = std_threshold_for_grad(num)
     threshold_reached = False
 
     env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=6, width=6, board=board, render_mode=render_mode, reset_option=num)
@@ -395,7 +415,7 @@ def learnProcess(num, threshold = 24):
                 mean_length,
             )
 
-def run_grad(num, threshold=24):
+def run_grad(num, threshold=None):
     if num < START_FROM_GRAD:
         print(f"Skipping grad {num}; START_FROM_GRAD={START_FROM_GRAD}")
         return
@@ -457,7 +477,7 @@ run_grad(7)
 run_grad(8)
 
 #9  8x8, 2 random Xs, uncapped O distance, agent distance <= 10
-run_grad(9, 28)
+run_grad(9)
 
 #10  8x8, randomized Os + sparse non-dangerous Xs
 board = (("", "", "", "", "X", "", "", ""),
@@ -469,7 +489,7 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-run_grad(10, 28)
+run_grad(10)
 
 #11  8x8, medium random Xs
 board = (("", "", "", "", "X", "", "", ""),
@@ -481,13 +501,13 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "X", "", "", "", ""),
          ("X", "", "", "", "X", "", "", "X"))
 
-run_grad(11, 28)
+run_grad(11)
 
 #12  8x8, more random Xs, farther Os, agent starts somewhat far
-run_grad(12, 28)
+run_grad(12)
 
 #13  8x8, full random Xs, agent starts far
-run_grad(13, 30)
+run_grad(13)
 
 #14  8x8, dangerous near-line-threat Xs
 board = (("", "", "", "", "X", "", "", ""),
@@ -499,10 +519,10 @@ board = (("", "", "", "", "X", "", "", ""),
          ("", "", "", "B", "B", "", "", ""),
          ("X", "", "", "B", "B", "", "", "X"))
 
-run_grad(14, 30)
+run_grad(14)
 
 #15  8x8, Xs + B blocks
-run_grad(15, 30)
+run_grad(15)
 
 #Graduation 16 Varying Board Sizes, Real Board (Change Threshold, Find boards)
 board = (("", "", "", "", "", "", "", ""),
@@ -514,10 +534,10 @@ board = (("", "", "", "", "", "", "", ""),
          ("", "", "X", "", "O", "", "", "X"),
          ("", "", "", "", "", "X", "", ""))
 
-run_grad(16, 29)
+run_grad(16)
 
 #Graduation 17 Final Training
-run_grad(17, 36)
+run_grad(17)
 
 
 env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
