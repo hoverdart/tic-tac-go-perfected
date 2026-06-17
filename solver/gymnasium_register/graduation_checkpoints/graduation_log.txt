@@ -1,4 +1,4 @@
-[2026-06-14 15:43:43]
+[2026-06-15 18:00:59]
 EVENT: START grad 1
 THRESHOLDS:
   reward_threshold: 24
@@ -9,19 +9,19 @@ TRAINING_STATS_AT_START:
   num_timesteps: 0
   n_updates: 0
 
-[2026-06-14 15:46:39]
+[2026-06-15 18:04:17]
 EVENT: END grad 1 / PASSED
 NEXT_GRAD: 2
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_1.zip
 EVAL_STATS:
-  eval_mean_reward: 34.88
-  eval_reward_std: 2.56
-  eval_mean_length: 2.40
+  eval_mean_reward: 35.73
+  eval_reward_std: 1.91
+  eval_mean_length: 2.00
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 7000
-  n_updates: 14199
+  num_timesteps: 20000
+  n_updates: 17449
 
-[2026-06-14 15:46:39]
+[2026-06-15 18:04:18]
 EVENT: START grad 2
 THRESHOLDS:
   reward_threshold: 24
@@ -29,22 +29,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 5
 TRAINING_STATS_AT_START:
-  num_timesteps: 7000
-  n_updates: 14199
+  num_timesteps: 20000
+  n_updates: 17449
 
-[2026-06-14 15:52:57]
+[2026-06-15 18:10:55]
 EVENT: END grad 2 / PASSED
 NEXT_GRAD: 3
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_2.zip
 EVAL_STATS:
-  eval_mean_reward: 38.61
-  eval_reward_std: 0.64
-  eval_mean_length: 2.60
+  eval_mean_reward: 38.29
+  eval_reward_std: 1.03
+  eval_mean_length: 3.20
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 29000
-  n_updates: 46373
+  num_timesteps: 41000
+  n_updates: 52623
 
-[2026-06-14 15:52:57]
+[2026-06-15 18:10:55]
 EVENT: START grad 3
 THRESHOLDS:
   reward_threshold: 24
@@ -52,22 +52,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 5
 TRAINING_STATS_AT_START:
-  num_timesteps: 29000
-  n_updates: 46373
+  num_timesteps: 41000
+  n_updates: 52623
 
-[2026-06-14 16:04:55]
+[2026-06-15 18:32:47]
 EVENT: END grad 3 / PASSED
 NEXT_GRAD: 4
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_3.zip
 EVAL_STATS:
-  eval_mean_reward: 36.91
-  eval_reward_std: 0.40
-  eval_mean_length: 5.80
+  eval_mean_reward: 37.12
+  eval_reward_std: 0.72
+  eval_mean_length: 5.40
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 47000
-  n_updates: 107997
+  num_timesteps: 14000
+  n_updates: 168372
 
-[2026-06-14 16:04:55]
+[2026-06-15 18:32:47]
 EVENT: START grad 4
 THRESHOLDS:
   reward_threshold: 24
@@ -75,22 +75,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 5
 TRAINING_STATS_AT_START:
-  num_timesteps: 47000
-  n_updates: 107997
+  num_timesteps: 14000
+  n_updates: 168372
 
-[2026-06-14 16:19:22]
+[2026-06-15 18:37:32]
 EVENT: END grad 4 / PASSED
 NEXT_GRAD: 5
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_4.zip
 EVAL_STATS:
-  eval_mean_reward: 38.80
-  eval_reward_std: 0.60
-  eval_mean_length: 4.00
+  eval_mean_reward: 38.32
+  eval_reward_std: 0.62
+  eval_mean_length: 5.60
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 50000
-  n_updates: 182846
+  num_timesteps: 49000
+  n_updates: 193071
 
-[2026-06-14 16:19:22]
+[2026-06-15 18:37:32]
 EVENT: START grad 5
 THRESHOLDS:
   reward_threshold: 24
@@ -98,22 +98,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 5
 TRAINING_STATS_AT_START:
-  num_timesteps: 50000
-  n_updates: 182846
+  num_timesteps: 49000
+  n_updates: 193071
 
-[2026-06-14 16:58:04]
+[2026-06-15 19:31:04]
 EVENT: END grad 5 / PASSED
 NEXT_GRAD: 6
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_5.zip
 EVAL_STATS:
-  eval_mean_reward: 37.48
-  eval_reward_std: 0.77
-  eval_mean_length: 8.40
+  eval_mean_reward: 38.20
+  eval_reward_std: 1.11
+  eval_mean_length: 6.00
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 34000
-  n_updates: 390920
+  num_timesteps: 47000
+  n_updates: 454295
 
-[2026-06-14 16:58:04]
+[2026-06-15 19:31:04]
 EVENT: START grad 6
 THRESHOLDS:
   reward_threshold: 24
@@ -121,22 +121,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 30
 TRAINING_STATS_AT_START:
-  num_timesteps: 34000
-  n_updates: 390920
+  num_timesteps: 47000
+  n_updates: 454295
 
-[2026-06-14 18:56:51]
+[2026-06-16 03:01:40]
 EVENT: END grad 6 / PASSED
 NEXT_GRAD: 7
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_6.zip
 EVAL_STATS:
-  eval_mean_reward: 36.09
-  eval_reward_std: 7.49
-  eval_mean_length: 8.60
+  eval_mean_reward: 36.40
+  eval_reward_std: 7.34
+  eval_mean_length: 7.57
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 4000
-  n_updates: 1015644
+  num_timesteps: 5000
+  n_updates: 1777869
 
-[2026-06-14 18:56:52]
+[2026-06-16 03:01:40]
 EVENT: START grad 7
 THRESHOLDS:
   reward_threshold: 28
@@ -144,22 +144,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 30
 TRAINING_STATS_AT_START:
-  num_timesteps: 4000
-  n_updates: 1015644
+  num_timesteps: 5000
+  n_updates: 1777869
 
-[2026-06-14 19:50:39]
+[2026-06-16 03:38:58]
 EVENT: END grad 7 / PASSED
 NEXT_GRAD: 8
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_7.zip
 EVAL_STATS:
-  eval_mean_reward: 34.21
-  eval_reward_std: 9.99
-  eval_mean_length: 10.40
+  eval_mean_reward: 36.18
+  eval_reward_std: 7.31
+  eval_mean_length: 8.30
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 40000
-  n_updates: 1300068
+  num_timesteps: 35000
+  n_updates: 1873918
 
-[2026-06-14 19:50:39]
+[2026-06-16 03:38:58]
 EVENT: START grad 8
 THRESHOLDS:
   reward_threshold: 28
@@ -167,22 +167,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 30
 TRAINING_STATS_AT_START:
-  num_timesteps: 40000
-  n_updates: 1300068
+  num_timesteps: 35000
+  n_updates: 1873918
 
-[2026-06-14 20:24:36]
+[2026-06-16 04:08:47]
 EVENT: END grad 8 / PASSED
 NEXT_GRAD: 9
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_8.zip
 EVAL_STATS:
-  eval_mean_reward: 33.96
-  eval_reward_std: 9.89
-  eval_mean_length: 11.23
+  eval_mean_reward: 35.43
+  eval_reward_std: 7.38
+  eval_mean_length: 10.80
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 21000
-  n_updates: 1479942
+  num_timesteps: 42000
+  n_updates: 2021617
 
-[2026-06-14 20:24:36]
+[2026-06-16 04:08:47]
 EVENT: START grad 9
 THRESHOLDS:
   reward_threshold: 28
@@ -190,22 +190,22 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 30
 TRAINING_STATS_AT_START:
-  num_timesteps: 21000
-  n_updates: 1479942
+  num_timesteps: 42000
+  n_updates: 2021617
 
-[2026-06-14 23:33:04]
+[2026-06-16 07:34:24]
 EVENT: END grad 9 / PASSED
 NEXT_GRAD: 10
 CHECKPOINT_FILE: dqn_tic_tac_go_grad_9.zip
 EVAL_STATS:
-  eval_mean_reward: 33.72
-  eval_reward_std: 9.88
-  eval_mean_length: 12.03
+  eval_mean_reward: 35.30
+  eval_reward_std: 7.23
+  eval_mean_length: 11.23
 TRAINING_STATS_AT_SAVE:
-  num_timesteps: 7000
-  n_updates: 2404816
+  num_timesteps: 39000
+  n_updates: 3066766
 
-[2026-06-14 23:33:04]
+[2026-06-16 07:34:24]
 EVENT: START grad 10
 THRESHOLDS:
   reward_threshold: 28
@@ -213,6 +213,86 @@ THRESHOLDS:
 EVAL_CONFIG:
   eval_episodes: 30
 TRAINING_STATS_AT_START:
-  num_timesteps: 7000
-  n_updates: 2404816
+  num_timesteps: 39000
+  n_updates: 3066766
+
+[2026-06-17 01:38:12]
+EVENT: START grad 10
+THRESHOLDS:
+  reward_threshold: 28
+  max_reward_std: 15
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 8643091
+
+[2026-06-17 01:38:50]
+EVENT: END grad 10 / PASSED
+NEXT_GRAD: 11
+CHECKPOINT_FILE: dqn_tic_tac_go_grad_10.zip
+EVAL_STATS:
+  eval_mean_reward: 31.33
+  eval_reward_std: 14.28
+  eval_mean_length: 10.67
+TRAINING_STATS_AT_SAVE:
+  num_timesteps: 13000
+  n_updates: 8646315
+
+[2026-06-17 01:38:50]
+EVENT: START grad 11
+THRESHOLDS:
+  reward_threshold: 29
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 13000
+  n_updates: 8646315
+
+[2026-06-17 01:58:43]
+EVENT: END grad 11 / PASSED
+NEXT_GRAD: 12
+CHECKPOINT_FILE: dqn_tic_tac_go_grad_11.zip
+EVAL_STATS:
+  eval_mean_reward: 32.62
+  eval_reward_std: 12.44
+  eval_mean_length: 10.37
+TRAINING_STATS_AT_SAVE:
+  num_timesteps: 3000
+  n_updates: 8746839
+
+[2026-06-17 01:58:43]
+EVENT: START grad 12
+THRESHOLDS:
+  reward_threshold: 29
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 3000
+  n_updates: 8746839
+
+[2026-06-17 10:32:17]
+EVENT: END grad 12 / PASSED
+NEXT_GRAD: 13
+CHECKPOINT_FILE: dqn_tic_tac_go_grad_12.zip
+EVAL_STATS:
+  eval_mean_reward: 31.96
+  eval_reward_std: 12.78
+  eval_mean_length: 12.57
+TRAINING_STATS_AT_SAVE:
+  num_timesteps: 34000
+  n_updates: 11449913
+
+[2026-06-17 10:32:17]
+EVENT: START grad 13
+THRESHOLDS:
+  reward_threshold: 31
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 34000
+  n_updates: 11449913
 

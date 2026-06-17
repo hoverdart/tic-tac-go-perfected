@@ -78,6 +78,7 @@ class TicTacWorldEnv(gym.Env):
         self.clock = None
         self.reset_option = reset_option
         self.visited_states = {}
+        self.visited_config_positions = {}
         self.current_grad = reset_option
         self.board_pool_override = None
         self.board_sequence_override = None
@@ -138,7 +139,7 @@ class TicTacWorldEnv(gym.Env):
         
         self.observation_space = gym.spaces.Box(low = 0, 
                                                 high = 1,
-                                                shape=(5, 8, 8), 
+                                                shape=(6, 8, 8), 
                                                 dtype=np.int32)
 
         self.action_space = gym.spaces.Discrete(4)
@@ -149,6 +150,32 @@ class TicTacWorldEnv(gym.Env):
         if self.current_grad <= 5:
             return 75
         return 100
+
+    def board_config_key(self, board=None):
+        if board is None:
+            board = self.board
+        return tuple(
+            tuple("" if cell == "U" else cell for cell in row)
+            for row in board
+        )
+
+    def user_position_for_board(self, board=None):
+        if board is None:
+            board = self.board
+        for row_index, row in enumerate(board):
+            for col_index, cell in enumerate(row):
+                if cell == "U":
+                    return row_index, col_index
+        return None
+
+    def remember_agent_position_for_config(self, board=None):
+        if board is None:
+            board = self.board
+        user_position = self.user_position_for_board(board)
+        if user_position is None:
+            return
+        config_key = self.board_config_key(board)
+        self.visited_config_positions.setdefault(config_key, set()).add(user_position)
     
     def moveUp(self, board=None):
         if board is None:
@@ -480,7 +507,7 @@ class TicTacWorldEnv(gym.Env):
 
         compatibleBoard = np.array(arr, dtype=np.int32)
 
-        threeDArr = np.zeros((5, 8, 8), dtype=np.int32)
+        threeDArr = np.zeros((6, 8, 8), dtype=np.int32)
 
         for i in range(0, len(compatibleBoard)):
                 for j in range(0, len(compatibleBoard[i])):
@@ -494,6 +521,10 @@ class TicTacWorldEnv(gym.Env):
                         threeDArr[3][i][j] = 1
                     elif compatibleBoard[i][j] == 4:
                         threeDArr[4][i][j] = 1
+
+        config_key = self.board_config_key(self.board)
+        for row, col in self.visited_config_positions.get(config_key, set()):
+            threeDArr[5][row][col] = 1
 
         return threeDArr
     
@@ -602,6 +633,8 @@ class TicTacWorldEnv(gym.Env):
         self.o_two_location = np.array([self.oTwoX, self.oTwoY], dtype=np.int32)
         self.board = tuple(tuple(row) for row in self.initial_board)
         self.visited_states = {self.board: 1}
+        self.visited_config_positions = {}
+        self.remember_agent_position_for_config(self.board)
 
         observation = self._get_obs()
         info = self._get_info()
@@ -664,6 +697,8 @@ class TicTacWorldEnv(gym.Env):
             reward += -10
         elif won:
             reward += 40
+
+        self.remember_agent_position_for_config(self.board)
         
         observation = self._get_obs()
         info = self._get_info()

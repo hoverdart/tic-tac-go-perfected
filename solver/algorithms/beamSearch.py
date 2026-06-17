@@ -86,13 +86,39 @@ def beamSearch(initial_board, model, beam_width, max_depth):
     def moveRight(self, board):
         return self.move(board, 0, 1)
 
-    def get_obs(board):
+    def board_config_key(board):
+        return tuple(
+            tuple("" if cell == "U" else cell for cell in row)
+            for row in board
+        )
+
+    def user_position_for_board(board):
+        for row_index, row in enumerate(board):
+            for col_index, cell in enumerate(row):
+                if cell == "U":
+                    return row_index, col_index
+        return None
+
+    def remember_agent_position_for_config(board, visited_config_positions):
+        user_position = user_position_for_board(board)
+        if user_position is None:
+            return
+        config_key = board_config_key(board)
+        visited_config_positions.setdefault(config_key, set()).add(user_position)
+
+    def copy_visited_config_positions(visited_config_positions):
+        return {
+            config_key: set(positions)
+            for config_key, positions in visited_config_positions.items()
+        }
+
+    def get_obs(board, visited_config_positions=None):
         mapping = {"":0, "X":1, "O":2, "U":3, "B":4}
         arr = [[mapping[cell] for cell in row] for row in board]
 
         compatibleBoard = np.array(arr, dtype=np.int32)
 
-        threeDArr = np.zeros((5, 8, 8), dtype=np.int32)
+        threeDArr = np.zeros((6, 8, 8), dtype=np.int32)
 
         for i in range(0, len(compatibleBoard)):
                 for j in range(0, len(compatibleBoard[i])):
@@ -106,6 +132,11 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                         threeDArr[3][i][j] = 1
                     elif compatibleBoard[i][j] == 4:
                         threeDArr[4][i][j] = 1
+
+        if visited_config_positions is not None:
+            config_key = board_config_key(board)
+            for row, col in visited_config_positions.get(config_key, set()):
+                threeDArr[5][row][col] = 1
 
         return threeDArr
 
@@ -289,11 +320,13 @@ def beamSearch(initial_board, model, beam_width, max_depth):
         board = tuple(tuple(row) for row in startBoard)
         data = []
         visited_states = {board: 1}
+        visited_config_positions = {}
+        remember_agent_position_for_config(board, visited_config_positions)
         length, width = self.active_size(board)
 
         for i, move in enumerate(moves):
             current_pos = self.find_user(board)
-            state_before_move = self.get_obs(board)
+            state_before_move = self.get_obs(board, visited_config_positions)
 
             if move == "U":
                 action_chose = 0
@@ -343,12 +376,17 @@ def beamSearch(initial_board, model, beam_width, max_depth):
             elif won:
                 reward_got += 40
 
+            remember_agent_position_for_config(next_board, visited_config_positions)
+
             data.append(
                 {
                     "observation": state_before_move,
                     "action": action_chose,
                     "reward": reward_got,
-                    "next_observation": self.get_obs(next_board),
+                    "next_observation": self.get_obs(
+                        next_board,
+                        visited_config_positions,
+                    ),
                     "done": done,
                 }
             )
@@ -389,7 +427,9 @@ def beamSearch(initial_board, model, beam_width, max_depth):
         start_board = tuple(tuple(row) for row in board)
         currentBoards = deque()
         visited = set()
-        currentBoards.append((start_board, "", 0))
+        start_config_positions = {}
+        remember_agent_position_for_config(start_board, start_config_positions)
+        currentBoards.append((start_board, "", 0, start_config_positions))
         visited.add(start_board)
         statesChecked = 0
         action_moves = [
@@ -404,7 +444,7 @@ def beamSearch(initial_board, model, beam_width, max_depth):
             candidates = []
 
             for _ in range(depth_size):
-                currentBoard, moves, depth = currentBoards.popleft()
+                currentBoard, moves, depth, visited_config_positions = currentBoards.popleft()
                 statesChecked += 1
 
                 if statesChecked % 100000 == 0:
@@ -433,7 +473,7 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                 if depth >= max_depth:
                     continue
 
-                obs = helpers.get_obs(currentBoard)
+                obs = helpers.get_obs(currentBoard, visited_config_positions)
                 obs_tensor = th.tensor(
                     obs, dtype=th.float32, device=model.device
                 ).unsqueeze(0)
@@ -456,12 +496,21 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                     if not helpers.solved(nextBoard) and helpers.softLocked(nextBoard):
                         continue
 
+                    next_visited_config_positions = copy_visited_config_positions(
+                        visited_config_positions
+                    )
+                    remember_agent_position_for_config(
+                        nextBoard,
+                        next_visited_config_positions,
+                    )
+
                     candidates.append(
                         (
                             float(q_values[int(action_index)]),
                             nextBoard,
                             moves + move_name,
                             depth + 1,
+                            next_visited_config_positions,
                         )
                     )
                     visited.add(nextBoard)
@@ -472,8 +521,9 @@ def beamSearch(initial_board, model, beam_width, max_depth):
 
             candidates.sort(key=lambda candidate: candidate[0], reverse=True)
             currentBoards.extend(
-                (board, moves, depth)
-                for _, board, moves, depth in candidates[:beam_width]
+                (board, moves, depth, visited_config_positions)
+                for _, board, moves, depth, visited_config_positions
+                in candidates[:beam_width]
             )
     
         print("No solution found. States checked:", statesChecked)

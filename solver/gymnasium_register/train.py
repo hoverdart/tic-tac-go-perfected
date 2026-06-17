@@ -162,7 +162,7 @@ model_path = Path("dqn_tic_tac_go.zip")
 eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
 graduation_output_dir = Path(__file__).resolve().parent / "graduation_checkpoints"
 graduation_log_path = graduation_output_dir / "graduation_log.txt"
-START_FROM_GRAD = 1
+START_FROM_GRAD = 10
 
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -316,6 +316,8 @@ def reward_threshold_for_grad(num):
 def std_threshold_for_grad(num):
     if num <= 3:
         return 7
+    if num == 10:
+        return 15
     if num <= 10:
         return 10
     return 13

@@ -253,11 +253,31 @@ class BFStoTrainer:
 
         return found_two_os_in_line
 
-    def make_obs(self, board):
+    def board_config_key(self, board):
+        return tuple(
+            tuple("" if cell == "U" else cell for cell in row)
+            for row in board
+        )
+
+    def user_position_for_board(self, board):
+        for row_index, row in enumerate(board):
+            for col_index, cell in enumerate(row):
+                if cell == "U":
+                    return row_index, col_index
+        return None
+
+    def remember_agent_position_for_config(self, board, visited_config_positions):
+        user_position = self.user_position_for_board(board)
+        if user_position is None:
+            return
+        config_key = self.board_config_key(board)
+        visited_config_positions.setdefault(config_key, set()).add(user_position)
+
+    def make_obs(self, board, visited_config_positions=None):
         mapping = {"": 0, "X": 1, "O": 2, "U": 3, "B": 4}
         arr = [[mapping[cell] for cell in row] for row in board]
         compatibleBoard = np.array(arr, dtype=np.int32)
-        threeDArr = np.zeros((5, 8, 8), dtype=np.int32)
+        threeDArr = np.zeros((6, 8, 8), dtype=np.int32)
 
         for i in range(0, len(compatibleBoard)):
             for j in range(0, len(compatibleBoard[i])):
@@ -271,6 +291,11 @@ class BFStoTrainer:
                     threeDArr[3][i][j] = 1
                 elif compatibleBoard[i][j] == 4:
                     threeDArr[4][i][j] = 1
+
+        if visited_config_positions is not None:
+            config_key = self.board_config_key(board)
+            for row, col in visited_config_positions.get(config_key, set()):
+                threeDArr[5][row][col] = 1
 
         return threeDArr
 
@@ -286,11 +311,13 @@ class BFStoTrainer:
         board = tuple(tuple(row) for row in startBoard)
         data = []
         visited_states = {board: 1}
+        visited_config_positions = {}
+        self.remember_agent_position_for_config(board, visited_config_positions)
         length, width = self.active_size(board)
 
         for i, move in enumerate(moves):
             current_pos = self.find_user(board)
-            state_before_move = self.make_obs(board)
+            state_before_move = self.make_obs(board, visited_config_positions)
 
             if move == "U":
                 action_chose = 0
@@ -340,12 +367,20 @@ class BFStoTrainer:
             elif won:
                 reward_got += 40
 
+            self.remember_agent_position_for_config(
+                next_board,
+                visited_config_positions,
+            )
+
             data.append(
                 {
                     "observation": state_before_move,
                     "action": action_chose,
                     "reward": reward_got,
-                    "next_observation": self.make_obs(next_board),
+                    "next_observation": self.make_obs(
+                        next_board,
+                        visited_config_positions,
+                    ),
                     "done": done,
                 }
             )
