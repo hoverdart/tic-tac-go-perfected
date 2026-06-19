@@ -296,3 +296,47 @@ TRAINING_STATS_AT_START:
   num_timesteps: 34000
   n_updates: 11449913
 
+[2026-06-18 01:54:50]
+EVENT: START grad 15
+THRESHOLDS:
+  reward_threshold: 31
+  max_reward_std: 15
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 15766263
+
+[2026-06-18 14:02:27]
+EVENT: START grad 13
+THRESHOLDS:
+  reward_threshold: 31
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 15766263
+
+[2026-06-18 14:06:36]
+EVENT: START grad 14
+THRESHOLDS:
+  reward_threshold: 31
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 15766263
+
+[2026-06-19 00:24:16]
+EVENT: START grad 16
+THRESHOLDS:
+  reward_threshold: 31
+  max_reward_std: 13
+EVAL_CONFIG:
+  eval_episodes: 30
+TRAINING_STATS_AT_START:
+  num_timesteps: 50000
+  n_updates: 18772738
+
