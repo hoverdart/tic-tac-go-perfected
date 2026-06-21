@@ -1,5 +1,6 @@
 import gymnasium as gym
 from stable_baselines3 import PPO
+from stable_baselines3.common.buffers import RolloutBuffer
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from stable_baselines3.common.callbacks import BaseCallback, CallbackList, EvalCallback
 import torch as th
@@ -154,7 +155,8 @@ eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
 graduation_output_dir = Path(__file__).resolve().parent / "ppo_graduation_checkpoints"
 graduation_log_path = graduation_output_dir / "ppo_graduation_log.txt"
 eval_log_dir = Path(__file__).resolve().parent / "ppo_eval_logs"
-START_FROM_GRAD = 1
+START_FROM_GRAD = 5
+PPO_N_STEPS = 8192
 
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -181,6 +183,18 @@ def format_value(value):
     if isinstance(value, float):
         return f"{value:.2f}"
     return str(value)
+
+def set_ppo_n_steps(model, n_steps):
+    model.n_steps = n_steps
+    model.rollout_buffer = RolloutBuffer(
+        model.n_steps,
+        model.observation_space,
+        model.action_space,
+        device=model.device,
+        gamma=model.gamma,
+        gae_lambda=model.gae_lambda,
+        n_envs=model.n_envs,
+    )
 
 def save_graduation_checkpoint(model, model_path, grad_num, mean_reward, reward_std, mean_length):
     graduation_output_dir.mkdir(parents=True, exist_ok=True)
@@ -285,13 +299,14 @@ def learnProcess(num, threshold=None):
     
     if model_path.exists():
         model = PPO.load(model_path, env=env)
+        set_ppo_n_steps(model, PPO_N_STEPS)
     else:
         model = PPO(
             "CnnPolicy",
             env,
             verbose=1,
             learning_rate=0.0001,
-            n_steps=2048,
+            n_steps=PPO_N_STEPS,
             batch_size=256,
             n_epochs=10,
             ent_coef=0.01,
@@ -311,44 +326,49 @@ def learnProcess(num, threshold=None):
         f"  n_updates: {format_value(training_stats['n_updates'])}",
     ])
 
+    eval_metrics = {}
+
+    callback_on_thresh = StopTrainingOnMeanReward(
+        threshold,
+        max_reward_std=max_reward_std,
+        verbose=1,
+    )
+    env_callback = GraduationEvalCallback(num,
+                                          eval_metrics,
+                                          callbackEnv,
+                                          callback_after_eval=callback_on_thresh,
+                                          eval_freq=1000,
+                                          n_eval_episodes=eval_episodes,
+                                          log_path=str(eval_log_dir / f"grad_{num}"),
+                                          verbose=1)
+
+    callbacks = CallbackList([
+        GraduationTrainingLogCallback(num, eval_metrics),
+        env_callback,
+    ])
+
     while not threshold_reached:
-        eval_metrics = {}
-
-        callback_on_thresh = StopTrainingOnMeanReward(
-            threshold,
-            max_reward_std=max_reward_std,
-            verbose=1,
+        model.learn(
+            total_timesteps=50000,
+            log_interval=4,
+            reset_num_timesteps=False,
+            callback=callbacks,
         )
-        env_callback = GraduationEvalCallback(num,
-                                              eval_metrics,
-                                              callbackEnv, 
-                                              callback_after_eval=callback_on_thresh, 
-                                              eval_freq=1000,
-                                              n_eval_episodes=eval_episodes,
-                                              log_path=str(eval_log_dir / f"grad_{num}"),
-                                              verbose=1)
-
-        callbacks = CallbackList([
-            GraduationTrainingLogCallback(num, eval_metrics),
-            env_callback,
-        ])
-
-        model.learn(total_timesteps=50000, log_interval=4, reset_num_timesteps=True, callback=callbacks)
         model.save(model_path)
 
         threshold_reached = callback_on_thresh.threshold_reached
-        if threshold_reached:
-            mean_reward = callback_on_thresh.graduation_mean_reward
-            reward_std = callback_on_thresh.graduation_reward_std
-            mean_length = eval_metrics.get("mean_length")
-            save_graduation_checkpoint(
-                model,
-                model_path,
-                num,
-                mean_reward,
-                reward_std,
-                mean_length,
-            )
+
+    mean_reward = callback_on_thresh.graduation_mean_reward
+    reward_std = callback_on_thresh.graduation_reward_std
+    mean_length = eval_metrics.get("mean_length")
+    save_graduation_checkpoint(
+        model,
+        model_path,
+        num,
+        mean_reward,
+        reward_std,
+        mean_length,
+    )
 
 def run_grad(num, threshold=None):
     if num < START_FROM_GRAD:

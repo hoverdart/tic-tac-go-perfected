@@ -1,9 +1,16 @@
 import torch as th
 import numpy as np
+import heapq
+import itertools
 from stable_baselines3 import DQN
 from collections import deque
 
-def beamSearch(initial_board, model, beam_width, max_depth):
+def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
+    HEURISTIC_WEIGHT = 1.0
+    OPEN_BOARD_B_LIMIT = 7
+    AGENT_O_CLOSE_DISTANCE = 3
+    AGENT_O_DISTANCE_WEIGHT = 0.4
+
     def lostCheck(self, board):
             for i in range(0, len(board)):
                 for j in range(0, len(board[i]) - 2):
@@ -139,6 +146,88 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                 threeDArr[5][row][col] = 1
 
         return threeDArr
+
+    def valid_win_lines(board):
+        lines = []
+        for row in range(len(board)):
+            for col in range(len(board[row]) - 2):
+                line = [(row, col), (row, col + 1), (row, col + 2)]
+                if all(board[line_row][line_col] != "B" for line_row, line_col in line):
+                    lines.append(line)
+
+        for row in range(len(board) - 2):
+            for col in range(len(board[row])):
+                line = [(row, col), (row + 1, col), (row + 2, col)]
+                if all(board[line_row][line_col] != "B" for line_row, line_col in line):
+                    lines.append(line)
+
+        return lines
+
+    def line_score(board, line, useful_positions):
+        occupied = 0
+        blockers = 0
+        distance = 0
+
+        for target_row, target_col in line:
+            cell = board[target_row][target_col]
+            if cell in ("O", "U"):
+                occupied += 1
+            elif cell == "X":
+                blockers += 1
+
+            distance += min(
+                abs(piece_row - target_row) + abs(piece_col - target_col)
+                for piece_row, piece_col in useful_positions
+            )
+
+        return distance - (occupied * 3) + (blockers * 4)
+
+    def line_completion_heuristic(board):
+        agent_position = None
+        o_positions = []
+        useful_positions = [
+            (row_index, col_index)
+            for row_index, row in enumerate(board)
+            for col_index, cell in enumerate(row)
+            if cell in ("O", "U")
+        ]
+        for row_index, row in enumerate(board):
+            for col_index, cell in enumerate(row):
+                if cell == "U":
+                    agent_position = (row_index, col_index)
+                elif cell == "O":
+                    o_positions.append((row_index, col_index))
+
+        if len(useful_positions) < 3:
+            return 0.0
+
+        scores = sorted(
+            line_score(board, line, useful_positions)
+            for line in valid_win_lines(board)
+        )
+        if not scores:
+            return -1_000_000.0
+
+        best_scores = scores[:3]
+        heuristic = -float(sum(best_scores) / len(best_scores))
+
+        num_bs = sum(cell == "B" for row in board for cell in row)
+        if (
+            num_bs <= OPEN_BOARD_B_LIMIT
+            and agent_position is not None
+            and o_positions
+        ):
+            nearest_o_distance = min(
+                abs(agent_position[0] - o_position[0])
+                + abs(agent_position[1] - o_position[1])
+                for o_position in o_positions
+            )
+            heuristic -= AGENT_O_DISTANCE_WEIGHT * max(
+                0,
+                nearest_o_distance - AGENT_O_CLOSE_DISTANCE,
+            )
+
+        return heuristic
 
     def softLocked(self, board):
         def in_bounds(row, col):
@@ -426,11 +515,13 @@ def beamSearch(initial_board, model, beam_width, max_depth):
     ):
         start_board = tuple(tuple(row) for row in board)
         currentBoards = deque()
-        visited = set()
+        best_depth_seen = {start_board: 0}
+        backup_frontier = []
+        backup_counter = itertools.count()
+        backup_limit = max(beam_width * 10, beam_width)
         start_config_positions = {}
         remember_agent_position_for_config(start_board, start_config_positions)
         currentBoards.append((start_board, "", 0, start_config_positions))
-        visited.add(start_board)
         statesChecked = 0
         action_moves = [
             (0, "U", helpers.moveUp),
@@ -438,13 +529,62 @@ def beamSearch(initial_board, model, beam_width, max_depth):
             (2, "L", helpers.moveLeft),
             (3, "R", helpers.moveRight),
         ]
+
+        def add_to_backup(candidate):
+            score = candidate[0]
+            entry = (score, next(backup_counter), candidate)
+            if len(backup_frontier) < backup_limit:
+                heapq.heappush(backup_frontier, entry)
+            elif score > backup_frontier[0][0]:
+                heapq.heapreplace(backup_frontier, entry)
+
+        def refill_from_backup():
+            refilled = 0
+            refill_count = min(beam_width, len(backup_frontier))
+            refill_entries = heapq.nlargest(refill_count, backup_frontier)
+            refill_ids = {
+                counter
+                for _score, counter, _candidate in refill_entries
+            }
+            backup_frontier[:] = [
+                entry for entry in backup_frontier
+                if entry[1] not in refill_ids
+            ]
+            heapq.heapify(backup_frontier)
+
+            for _score, _counter, candidate in refill_entries:
+                (
+                    _score,
+                    _q_value,
+                    _heuristic,
+                    backup_board,
+                    backup_moves,
+                    backup_depth,
+                    backup_visited_config_positions,
+                ) = candidate
+
+                if best_depth_seen.get(backup_board) != backup_depth:
+                    continue
+
+                currentBoards.append(
+                    (
+                        backup_board,
+                        backup_moves,
+                        backup_depth,
+                        backup_visited_config_positions,
+                    )
+                )
+                refilled += 1
+
+            return refilled
     
         while currentBoards:
             depth_size = len(currentBoards)
             candidates = []
+            depth = currentBoards[0][2]
 
             for _ in range(depth_size):
-                currentBoard, moves, depth, visited_config_positions = currentBoards.popleft()
+                currentBoard, moves, current_depth, visited_config_positions = currentBoards.popleft()
                 statesChecked += 1
 
                 if statesChecked % 100000 == 0:
@@ -470,7 +610,7 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                 if helpers.softLocked(currentBoard):
                     continue
 
-                if depth >= max_depth:
+                if current_depth >= max_depth:
                     continue
 
                 obs = helpers.get_obs(currentBoard, visited_config_positions)
@@ -481,21 +621,37 @@ def beamSearch(initial_board, model, beam_width, max_depth):
                 with th.no_grad():
                     q_values = model.q_net(obs_tensor).cpu().numpy().reshape(-1)
 
-                accepted_from_state = 0
-                for action_index in np.argsort(q_values)[::-1]:
+                scored_actions = []
+                for action_index, q_value in enumerate(q_values):
                     _, move_name, move_fn = action_moves[int(action_index)]
                     nextBoard = move_fn(currentBoard)
 
                     # Illegal moves leave the board unchanged.
                     if nextBoard == currentBoard:
                         continue
-                    if nextBoard in visited:
+                    next_depth = current_depth + 1
+                    if next_depth >= best_depth_seen.get(nextBoard, 1_000_000_000):
                         continue
                     if helpers.lostCheck(nextBoard):
                         continue
                     if not helpers.solved(nextBoard) and helpers.softLocked(nextBoard):
                         continue
 
+                    heuristic = line_completion_heuristic(nextBoard)
+                    score = 0 * float(q_value) + HEURISTIC_WEIGHT * heuristic
+                    scored_actions.append(
+                        (
+                            score,
+                            float(q_value),
+                            heuristic,
+                            int(action_index),
+                            move_name,
+                            nextBoard,
+                        )
+                    )
+
+                scored_actions.sort(key=lambda action: action[0], reverse=True)
+                for score, q_value, heuristic, action_index, move_name, nextBoard in scored_actions:
                     next_visited_config_positions = copy_visited_config_positions(
                         visited_config_positions
                     )
@@ -506,25 +662,45 @@ def beamSearch(initial_board, model, beam_width, max_depth):
 
                     candidates.append(
                         (
-                            float(q_values[int(action_index)]),
+                            score,
+                            q_value,
+                            heuristic,
                             nextBoard,
                             moves + move_name,
-                            depth + 1,
+                            next_depth,
                             next_visited_config_positions,
                         )
                     )
-                    visited.add(nextBoard)
-                    accepted_from_state += 1
-
-                    if accepted_from_state == 2:
-                        break
+                    best_depth_seen[nextBoard] = next_depth
 
             candidates.sort(key=lambda candidate: candidate[0], reverse=True)
+            kept_candidates = candidates[:beam_width]
+            pruned_candidates = candidates[beam_width:]
+            for candidate in pruned_candidates:
+                add_to_backup(candidate)
+            if debug:
+                print(
+                    f"Depth {depth}: "
+                    f"frontier={depth_size}, "
+                    f"candidates={len(candidates)}, "
+                    f"kept={len(kept_candidates)}, "
+                    f"pruned_to_backup={len(pruned_candidates)}, "
+                    f"backup={len(backup_frontier)}, "
+                    f"seen={len(best_depth_seen)}, "
+                    f"states_checked={statesChecked}"
+                )
             currentBoards.extend(
                 (board, moves, depth, visited_config_positions)
-                for _, board, moves, depth, visited_config_positions
-                in candidates[:beam_width]
+                for _, _, _, board, moves, depth, visited_config_positions
+                in kept_candidates
             )
+            if not currentBoards:
+                refilled = refill_from_backup()
+                if debug and refilled:
+                    print(
+                        f"Refilled active frontier from backup: "
+                        f"{refilled}, backup_remaining={len(backup_frontier)}"
+                    )
     
         print("No solution found. States checked:", statesChecked)
         return "", []

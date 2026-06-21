@@ -14,12 +14,7 @@ from datetime import datetime
 import tic_tac_go_env
 import BFStoTrainer
 from injection_boards import (
-    GRAD6_INJECTION_BOARDS,
-    GRAD6_INJECTION_SOLUTIONS,
-    GRAD10_INJECTION_BOARDS,
-    GRAD10_INJECTION_SOLUTIONS,
-    FINAL_INJECTION_BOARDS,
-    FINAL_INJECTION_SOLUTIONS,
+    INJECTION_BY_GRAD,
 )
 
 #This class is AI code idk whats happening inside
@@ -162,7 +157,7 @@ model_path = Path("dqn_tic_tac_go.zip")
 eval_boards_path = Path(__file__).resolve().parent / "generated_eval_boards.py"
 graduation_output_dir = Path(__file__).resolve().parent / "graduation_checkpoints"
 graduation_log_path = graduation_output_dir / "graduation_log.txt"
-START_FROM_GRAD = 13
+START_FROM_GRAD = 11
 
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -365,19 +360,9 @@ def learnProcess(num, threshold=None):
         f"  n_updates: {format_value(training_stats['n_updates'])}",
     ])
 
-    if num == 6:
-        inject(model, GRAD6_INJECTION_BOARDS, GRAD6_INJECTION_SOLUTIONS, current_grad=num)
-
-    if num == 10:
-        inject(
-            model,
-            GRAD10_INJECTION_BOARDS,
-            GRAD10_INJECTION_SOLUTIONS,
-            current_grad=num,
-        )
-
-    if num == 17:
-        inject(model, FINAL_INJECTION_BOARDS, FINAL_INJECTION_SOLUTIONS, current_grad=num)
+    if num in INJECTION_BY_GRAD:
+        injection_boards, injection_solutions = INJECTION_BY_GRAD[num]
+        inject(model, injection_boards, injection_solutions, current_grad=num)
 
     while not threshold_reached:
         set_exploration_schedule(model, num)

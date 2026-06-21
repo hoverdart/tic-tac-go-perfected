@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import random
 import sys
 import time
@@ -14,6 +15,8 @@ from stable_baselines3 import DQN
 REPO_ROOT = Path(__file__).resolve().parents[2]
 GYM_REGISTER_DIR = REPO_ROOT / "solver" / "gymnasium_register"
 ALGORITHMS_DIR = REPO_ROOT / "solver" / "algorithms"
+TRAINING_BOARDS_PATH = GYM_REGISTER_DIR / "generated_training_boards.py"
+EVAL_BOARDS_PATH = GYM_REGISTER_DIR / "generated_eval_boards.py"
 MAX_STEPS = 200
 DETERMINISTIC = False
 REPLAY_DELAY_SECONDS = 0.35
@@ -49,6 +52,29 @@ def print_board(board):
     for row in board:
         print(" ".join(cell if cell else "." for cell in row))
     print()
+
+
+def board_line_numbers(board_file_path, variable_name, grad):
+    tree = ast.parse(board_file_path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == variable_name
+            for target in node.targets
+        ):
+            continue
+        if not isinstance(node.value, ast.Dict):
+            continue
+
+        for key_node, value_node in zip(node.value.keys, node.value.values):
+            if not isinstance(key_node, ast.Constant) or key_node.value != grad:
+                continue
+            if not isinstance(value_node, ast.List):
+                break
+            return [board_node.lineno for board_node in value_node.elts]
+
+    raise ValueError(f"Could not find grad {grad} in {board_file_path}")
 
 
 def board_key(board):
@@ -117,17 +143,26 @@ def make_env(board, render_mode, grad):
 
 
 def main():
-    use_eval_boards = True
-    use_beam_search = False
-    beam_width = 1000
-    beam_max_depth = 80
+    use_eval_boards = False
+    use_beam_search = True
+    debug_beam_search = True
+    beam_width = 5000
+    beam_max_depth = 200
     grad = 17
+    seed = 139
+    #hard one: 3502721434
 
     model_path = find_model_path()
+    active_seed = seed if seed is not None else random.randrange(2**32)
+    rng = random.Random(active_seed)
     board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS
     board_source = "eval" if board_pool is EVAL_BOARDS else "training"
+    board_file_path = EVAL_BOARDS_PATH if board_source == "eval" else TRAINING_BOARDS_PATH
+    board_variable_name = "EVAL_BOARDS" if board_source == "eval" else "TRAINING_BOARDS"
     boards = board_pool[grad]
-    board = tuple(tuple(row) for row in random.choice(boards))
+    board_index = rng.randrange(len(boards))
+    board_line = board_line_numbers(board_file_path, board_variable_name, grad)[board_index]
+    board = tuple(tuple(row) for row in boards[board_index])
 
     env = make_env(board, render_mode=None, grad=grad)
     world = env.unwrapped
@@ -142,6 +177,9 @@ def main():
 
     print(f"Model: {model_path}")
     print(f"Board source: {board_source}, grad {grad}")
+    print(f"Board number: {board_index + 1} / {len(boards)}")
+    print(f"Board file line: {board_file_path}:{board_line}")
+    print(f"Seed: {active_seed}")
     print(f"Use beam search: {use_beam_search}")
     print("=== START BOARD ===")
     print_board(world.board)
@@ -157,7 +195,14 @@ def main():
         print("=== BEAM SEARCH ===")
         print(f"Beam width: {beam_width}")
         print(f"Max depth: {beam_max_depth}")
-        beam_moves, transition_data = beamSearch(board, model, beam_width, beam_max_depth)
+        print(f"Debug beam search: {debug_beam_search}")
+        beam_moves, transition_data = beamSearch(
+            board,
+            model,
+            beam_width,
+            beam_max_depth,
+            debug=debug_beam_search,
+        )
         print(f"Beam moves: {beam_moves}")
         print(f"Returned transitions: {len(transition_data)}")
         if beam_moves:
