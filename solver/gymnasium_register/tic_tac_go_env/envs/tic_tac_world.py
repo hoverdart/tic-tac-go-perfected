@@ -681,9 +681,9 @@ class TicTacWorldEnv(gym.Env):
         # Negative per step scales with size.
         reward = -1.2 * (16 / (self.length * self.width))
 
-        if softLocked:
-            terminated = True
-            reward += -10
+        # if softLocked:
+        #     terminated = True
+        #     reward += -10
 
         if same:
             reward += -1

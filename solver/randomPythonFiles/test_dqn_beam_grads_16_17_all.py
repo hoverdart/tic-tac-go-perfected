@@ -24,10 +24,14 @@ GRADS = (16, 17)
 BEAM_WIDTH = 5000
 BEAM_MAX_DEPTH = 200
 REPORT_PATH = GYM_REGISTER_DIR / "dqn_beam_grads_16_17_all_report.csv"
+WRITE_CSV = True
 ONLY_RERUN_FAILED_FROM_CSV = True
 USE_MULTIPROCESSING = True
 WORKERS = 6
 BOARD_TIMEOUT_SECONDS = 350
+BEAM_RESTARTS = 5
+RANDOM_TIEBREAK = True
+TIEBREAK_NOISE = 0.05
 
 FIELDNAMES = [
     "grad",
@@ -190,15 +194,19 @@ def make_report_row(model, line_numbers, grad, board_index):
     soft_locked = start_soft_locked(board, grad)
 
     start = time.monotonic()
+    restart_seed = (grad * 1_000_000) + (board_index * 10_000)
     with contextlib.redirect_stdout(io.StringIO()):
         beam_moves, _ = beamSearch(
             board,
             model,
             BEAM_WIDTH,
             BEAM_MAX_DEPTH,
+            random_tiebreak=RANDOM_TIEBREAK,
+            seed=restart_seed,
+            tiebreak_noise=TIEBREAK_NOISE,
+            restarts=BEAM_RESTARTS,
         )
     elapsed = time.monotonic() - start
-
     solved, cleaned_moves = replay_moves(board, grad, beam_moves)
 
     return {
@@ -227,8 +235,9 @@ def make_report_row_worker(task):
     env = make_env(board, render_mode=None, grad=grad)
     model = DQN.load(model_path, env=env)
     env.close()
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(BOARD_TIMEOUT_SECONDS)
+    if BOARD_TIMEOUT_SECONDS is not None:
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(BOARD_TIMEOUT_SECONDS)
     try:
         return make_report_row(model, line_numbers, grad, board_index)
     except BoardTimeout:
@@ -253,7 +262,8 @@ def make_report_row_worker(task):
             "cleaned_moves": "",
         }
     finally:
-        signal.alarm(0)
+        if BOARD_TIMEOUT_SECONDS is not None:
+            signal.alarm(0)
 
 
 def make_report_rows(tasks, model, line_numbers):
@@ -310,6 +320,10 @@ def main():
     print(f"Beam width: {BEAM_WIDTH}")
     print(f"Beam max depth: {BEAM_MAX_DEPTH}")
     print(f"Board timeout seconds: {BOARD_TIMEOUT_SECONDS}")
+    print(f"Beam restarts: {BEAM_RESTARTS}")
+    print(f"Random tiebreak: {RANDOM_TIEBREAK}")
+    print(f"Tiebreak noise: {TIEBREAK_NOISE}")
+    print(f"Write CSV: {WRITE_CSV}")
     print(f"Only rerun failed rows from CSV: {ONLY_RERUN_FAILED_FROM_CSV}")
     print(f"Use multiprocessing: {USE_MULTIPROCESSING}")
     if USE_MULTIPROCESSING:
@@ -336,12 +350,14 @@ def main():
 
         rows = [rows_by_key[(int(row["grad"]), int(row["board_index"]))]
                 for row in existing_rows]
-        with REPORT_PATH.open("w", newline="", encoding="utf-8") as report_file:
-            writer = csv.DictWriter(report_file, fieldnames=FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(rows)
-
-        print(f"Updated failed rows in report: {REPORT_PATH}")
+        if WRITE_CSV:
+            with REPORT_PATH.open("w", newline="", encoding="utf-8") as report_file:
+                writer = csv.DictWriter(report_file, fieldnames=FIELDNAMES)
+                writer.writeheader()
+                writer.writerows(rows)
+            print(f"Updated failed rows in report: {REPORT_PATH}")
+        else:
+            print("CSV write disabled; report was not updated.")
         return
 
     tasks = [
@@ -356,8 +372,11 @@ def main():
         solved_count = sum(csv_bool(row["solved"]) for row in grad_rows)
         print(f"Grad {grad} solved {solved_count}/{len(grad_rows)}")
 
-    save_merged_rows(rows)
-    print(f"Updated report: {REPORT_PATH}")
+    if WRITE_CSV:
+        save_merged_rows(rows)
+        print(f"Updated report: {REPORT_PATH}")
+    else:
+        print("CSV write disabled; report was not updated.")
 
 
 if __name__ == "__main__":

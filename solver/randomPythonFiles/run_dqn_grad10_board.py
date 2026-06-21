@@ -148,8 +148,11 @@ def main():
     debug_beam_search = True
     beam_width = 5000
     beam_max_depth = 200
-    grad = 17
-    seed = 139
+    beam_restarts = 5
+    random_tiebreak = True
+    tiebreak_noise = 0.05
+    grad = 16
+    seed = 58
     #hard one: 3502721434
 
     model_path = find_model_path()
@@ -184,9 +187,9 @@ def main():
     print("=== START BOARD ===")
     print_board(world.board)
     print(f"Start board soft locked: {start_soft_locked}")
-    if start_soft_locked:
-        print("Not trying to solve because the starting board is soft locked.")
-        return
+    # if start_soft_locked:
+    #     print("Not trying to solve because the starting board is soft locked.")
+    #     return
 
     action_names = {0: "U", 1: "D", 2: "L", 3: "R"}
     action_by_name = {name: action for action, name in action_names.items()}
@@ -195,6 +198,9 @@ def main():
         print("=== BEAM SEARCH ===")
         print(f"Beam width: {beam_width}")
         print(f"Max depth: {beam_max_depth}")
+        print(f"Beam restarts: {beam_restarts}")
+        print(f"Random tiebreak: {random_tiebreak}")
+        print(f"Tiebreak noise: {tiebreak_noise}")
         print(f"Debug beam search: {debug_beam_search}")
         beam_moves, transition_data = beamSearch(
             board,
@@ -202,6 +208,10 @@ def main():
             beam_width,
             beam_max_depth,
             debug=debug_beam_search,
+            random_tiebreak=random_tiebreak,
+            seed=active_seed,
+            tiebreak_noise=tiebreak_noise,
+            restarts=beam_restarts,
         )
         print(f"Beam moves: {beam_moves}")
         print(f"Returned transitions: {len(transition_data)}")

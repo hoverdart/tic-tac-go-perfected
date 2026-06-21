@@ -350,9 +350,9 @@ class BFStoTrainer:
             done = won or lost
             reward_got = -0.8 * (16 / (length * width))
 
-            if softLocked:
-                done = True
-                reward_got += -10
+            # if softLocked:
+            #     done = True
+            #     reward_got += -10
 
             if same:
                 reward_got += -1
@@ -439,8 +439,8 @@ class BFStoTrainer:
                     repeat_termination_limit=repeat_termination_limit,
                     penalize_repeated_states=penalize_repeated_states,
                 )
-            if self.softLocked(currentBoard):
-                continue
+            # if self.softLocked(currentBoard):
+            #     continue
 
             nextBoards = [
                 (self.moveUp(currentBoard), moves + "U"),
@@ -453,8 +453,8 @@ class BFStoTrainer:
                 if nextBoard not in visited:
                     if self.lostCheck(nextBoard):
                         continue
-                    if not self.solved(nextBoard) and self.softLocked(nextBoard):
-                        continue
+                    # if not self.solved(nextBoard) and self.softLocked(nextBoard):
+                    #     continue
                     currentBoards.append((nextBoard, nextMoves))
                     visited.add(nextBoard)
 

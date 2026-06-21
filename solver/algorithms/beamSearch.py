@@ -1,15 +1,25 @@
-import torch as th
 import numpy as np
 import heapq
 import itertools
-from stable_baselines3 import DQN
+import random
 from collections import deque
 
-def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
+def beamSearch(
+    initial_board,
+    model,
+    beam_width,
+    max_depth,
+    debug=False,
+    random_tiebreak=False,
+    seed=None,
+    tiebreak_noise=1e-6,
+    restarts=1,
+):
     HEURISTIC_WEIGHT = 1.0
     OPEN_BOARD_B_LIMIT = 7
     AGENT_O_CLOSE_DISTANCE = 3
     AGENT_O_DISTANCE_WEIGHT = 0.4
+    PATH_BLOCKER_WEIGHT = 0.5
 
     def lostCheck(self, board):
             for i in range(0, len(board)):
@@ -182,6 +192,71 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
 
         return distance - (occupied * 3) + (blockers * 4)
 
+    def l_path_cells(start, end, row_first):
+        start_row, start_col = start
+        end_row, end_col = end
+        cells = []
+
+        if row_first:
+            col_step = 1 if end_col >= start_col else -1
+            for col in range(start_col, end_col + col_step, col_step):
+                cells.append((start_row, col))
+
+            row_step = 1 if end_row >= start_row else -1
+            for row in range(start_row + row_step, end_row + row_step, row_step):
+                cells.append((row, end_col))
+        else:
+            row_step = 1 if end_row >= start_row else -1
+            for row in range(start_row, end_row + row_step, row_step):
+                cells.append((row, start_col))
+
+            col_step = 1 if end_col >= start_col else -1
+            for col in range(start_col + col_step, end_col + col_step, col_step):
+                cells.append((end_row, col))
+
+        return cells[1:-1]
+
+    def count_path_blockers(board, agent_position, o_positions):
+        blockers = 0
+        for o_position in o_positions:
+            row_first_blockers = sum(
+                board[row][col] == "X"
+                for row, col in l_path_cells(agent_position, o_position, True)
+            )
+            col_first_blockers = sum(
+                board[row][col] == "X"
+                for row, col in l_path_cells(agent_position, o_position, False)
+            )
+            blockers += min(row_first_blockers, col_first_blockers)
+
+        return blockers
+
+    def o_can_be_pushed_somewhere(board, row, col):
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        def in_bounds(check_row, check_col):
+            return (
+                0 <= check_row < len(board)
+                and 0 <= check_col < len(board[check_row])
+            )
+
+        def is_wall(check_row, check_col):
+            return not in_bounds(check_row, check_col) or board[check_row][check_col] == "B"
+
+        for row_change, col_change in directions:
+            push_from_row = row - row_change
+            push_from_col = col - col_change
+            push_to_row = row + row_change
+            push_to_col = col + col_change
+
+            if is_wall(push_from_row, push_from_col):
+                continue
+            if is_wall(push_to_row, push_to_col):
+                continue
+            return True
+
+        return False
+
     def line_completion_heuristic(board):
         agent_position = None
         o_positions = []
@@ -217,14 +292,24 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
             and agent_position is not None
             and o_positions
         ):
+            path_target_os = [
+                o_position
+                for o_position in o_positions
+                if o_can_be_pushed_somewhere(board, o_position[0], o_position[1])
+            ] or o_positions
             nearest_o_distance = min(
                 abs(agent_position[0] - o_position[0])
                 + abs(agent_position[1] - o_position[1])
-                for o_position in o_positions
+                for o_position in path_target_os
             )
             heuristic -= AGENT_O_DISTANCE_WEIGHT * max(
                 0,
                 nearest_o_distance - AGENT_O_CLOSE_DISTANCE,
+            )
+            heuristic -= PATH_BLOCKER_WEIGHT * count_path_blockers(
+                board,
+                agent_position,
+                path_target_os,
             )
 
         return heuristic
@@ -233,150 +318,123 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
         def in_bounds(row, col):
             return 0 <= row < len(board) and 0 <= col < len(board[row])
 
-        def x_is_movable(row, col):
-            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
+        def is_wall(row, col):
+            return not in_bounds(row, col) or board[row][col] == "B"
+
+        def is_surrounded_by_walls(row, col):
+            return all(is_wall(row + dr, col + dc) for dr, dc in directions)
+
+        def o_can_be_pushed_somewhere(row, col):
             for row_change, col_change in directions:
                 push_from_row = row - row_change
                 push_from_col = col - col_change
                 push_to_row = row + row_change
                 push_to_col = col + col_change
 
-                if not in_bounds(push_from_row, push_from_col):
+                if is_wall(push_from_row, push_from_col):
                     continue
-                if not in_bounds(push_to_row, push_to_col):
+                if is_wall(push_to_row, push_to_col):
                     continue
-                if board[push_from_row][push_from_col] not in ("", "U"):
-                    continue
-                if board[push_to_row][push_to_col] == "":
-                    return True
-
-            return False
-
-        def spot_can_become_user(row, col):
-            if board[row][col] in ("", "U"):
                 return True
-            if board[row][col] == "X":
-                return x_is_movable(row, col)
-            return False
-
-        def spot_can_become_empty(row, col):
-            if board[row][col] == "":
-                return True
-            if board[row][col] == "X":
-                return x_is_movable(row, col)
-            return False
-
-        def o_is_movable(row, col):
-            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-            for row_change, col_change in directions:
-                push_from_row = row - row_change
-                push_from_col = col - col_change
-                push_to_row = row + row_change
-                push_to_col = col + col_change
-
-                if not in_bounds(push_from_row, push_from_col):
-                    continue
-                if not in_bounds(push_to_row, push_to_col):
-                    continue
-                if not spot_can_become_user(push_from_row, push_from_col):
-                    continue
-                if spot_can_become_empty(push_to_row, push_to_col):
-                    return True
 
             return False
 
-        def o_can_move_direction(row, col, row_change, col_change):
-            push_from_row = row - row_change
-            push_from_col = col - col_change
-            push_to_row = row + row_change
-            push_to_col = col + col_change
+        useful_positions = [
+            (row, col)
+            for row in range(len(board))
+            for col in range(len(board[row]))
+            if board[row][col] != "B"
+        ]
+        if not useful_positions:
+            return True
 
-            if not in_bounds(push_from_row, push_from_col):
+        min_row = min(row for row, _ in useful_positions)
+        max_row = max(row for row, _ in useful_positions)
+        min_col = min(col for _, col in useful_positions)
+        max_col = max(col for _, col in useful_positions)
+
+        def on_playable_edge(row, col):
+            return row in (min_row, max_row) or col in (min_col, max_col)
+
+        def has_near_line_slot(o_locations):
+            if len(o_locations) != 2:
                 return False
-            if not in_bounds(push_to_row, push_to_col):
-                return False
-            if not spot_can_become_user(push_from_row, push_from_col):
-                return False
-            return spot_can_become_empty(push_to_row, push_to_col)
+
+            first_o, second_o = sorted(o_locations)
+            row_distance = abs(first_o[0] - second_o[0])
+            col_distance = abs(first_o[1] - second_o[1])
+
+            if first_o[0] == second_o[0] and col_distance == 1:
+                row = first_o[0]
+                left_col = min(first_o[1], second_o[1]) - 1
+                right_col = max(first_o[1], second_o[1]) + 1
+                return (
+                    in_bounds(row, left_col)
+                    and board[row][left_col] != "B"
+                ) or (
+                    in_bounds(row, right_col)
+                    and board[row][right_col] != "B"
+                )
+
+            if first_o[0] == second_o[0] and col_distance == 2:
+                row = first_o[0]
+                middle_col = (first_o[1] + second_o[1]) // 2
+                return board[row][middle_col] != "B"
+
+            if first_o[1] == second_o[1] and row_distance == 1:
+                col = first_o[1]
+                top_row = min(first_o[0], second_o[0]) - 1
+                bottom_row = max(first_o[0], second_o[0]) + 1
+                return (
+                    in_bounds(top_row, col)
+                    and board[top_row][col] != "B"
+                ) or (
+                    in_bounds(bottom_row, col)
+                    and board[bottom_row][col] != "B"
+                )
+
+            if first_o[1] == second_o[1] and row_distance == 2:
+                middle_row = (first_o[0] + second_o[0]) // 2
+                col = first_o[1]
+                return board[middle_row][col] != "B"
+
+            return False
 
         o_locations = []
-        for i in range(0, len(board)):
-            for j in range(0, len(board[i])):
-                if board[i][j] == "O":
-                    o_locations.append((i, j))
+        user_location = None
+        for row in range(len(board)):
+            for col in range(len(board[row])):
+                if board[row][col] == "O":
+                    o_locations.append((row, col))
+                elif board[row][col] == "U":
+                    user_location = (row, col)
+
+        if user_location is None:
+            return True
+
+        if is_surrounded_by_walls(*user_location):
+            return True
+
+        if any(is_surrounded_by_walls(row, col) for row, col in o_locations):
+            return True
 
         if len(o_locations) == 2:
-            first_o, second_o = o_locations
-            os_are_aligned = first_o[0] == second_o[0] or first_o[1] == second_o[1]
-            if not os_are_aligned:
-                first_o_movable = o_is_movable(first_o[0], first_o[1])
-                second_o_movable = o_is_movable(second_o[0], second_o[1])
-                if not first_o_movable and not second_o_movable:
-                    return True
+            near_line_slot = has_near_line_slot(o_locations)
+            if (
+                not near_line_slot
+                and all(on_playable_edge(row, col) for row, col in o_locations)
+            ):
+                return True
 
-                left_o, right_o = sorted(o_locations, key=lambda location: location[1])
-                if right_o[1] - left_o[1] > 2:
-                    left_can_move_right = o_can_move_direction(left_o[0], left_o[1], 0, 1)
-                    right_can_move_left = o_can_move_direction(right_o[0], right_o[1], 0, -1)
-                    left_can_move_vertically = (
-                        o_can_move_direction(left_o[0], left_o[1], -1, 0)
-                        or o_can_move_direction(left_o[0], left_o[1], 1, 0)
-                    )
-                    right_can_move_vertically = (
-                        o_can_move_direction(right_o[0], right_o[1], -1, 0)
-                        or o_can_move_direction(right_o[0], right_o[1], 1, 0)
-                    )
-                    if (
-                        not left_can_move_right
-                        and not right_can_move_left
-                        and not left_can_move_vertically
-                        and not right_can_move_vertically
-                    ):
-                        return True
+            if (
+                not near_line_slot
+                and not any(o_can_be_pushed_somewhere(row, col) for row, col in o_locations)
+            ):
+                return True
 
-                top_o, bottom_o = sorted(o_locations, key=lambda location: location[0])
-                if bottom_o[0] - top_o[0] > 2:
-                    top_can_move_down = o_can_move_direction(top_o[0], top_o[1], 1, 0)
-                    bottom_can_move_up = o_can_move_direction(bottom_o[0], bottom_o[1], -1, 0)
-                    top_can_move_sideways = (
-                        o_can_move_direction(top_o[0], top_o[1], 0, -1)
-                        or o_can_move_direction(top_o[0], top_o[1], 0, 1)
-                    )
-                    bottom_can_move_sideways = (
-                        o_can_move_direction(bottom_o[0], bottom_o[1], 0, -1)
-                        or o_can_move_direction(bottom_o[0], bottom_o[1], 0, 1)
-                    )
-                    if (
-                        not top_can_move_down
-                        and not bottom_can_move_up
-                        and not top_can_move_sideways
-                        and not bottom_can_move_sideways
-                    ):
-                        return True
-
-        found_two_os_in_line = False
-
-        for i in range(0, len(board)):
-            for j in range(0, len(board[i]) - 2):
-                line = [board[i][j], board[i][j + 1], board[i][j + 2]]
-                if line.count("O") == 2:
-                    found_two_os_in_line = True
-                    for col in range(j, j + 3):
-                        if board[i][col] != "O" and spot_can_become_user(i, col):
-                            return False
-
-        for i in range(0, len(board) - 2):
-            for j in range(0, len(board[i])):
-                line = [board[i][j], board[i + 1][j], board[i + 2][j]]
-                if line.count("O") == 2:
-                    found_two_os_in_line = True
-                    for row in range(i, i + 3):
-                        if board[row][j] != "O" and spot_can_become_user(row, j):
-                            return False
-
-        return found_two_os_in_line
+        return False
 
     def active_size(self, board):
         length = 0
@@ -448,9 +506,9 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
             done = won or lost
             reward_got = -0.8 * (16 / (length * width))
 
-            if softLocked:
-                done = True
-                reward_got += -10
+            # if softLocked:
+            #     done = True
+            #     reward_got += -10
 
             if same:
                 reward_got += -1
@@ -512,6 +570,8 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
         preMoves=None,
         current_grad=14,
         terminate_on_repeated_states=False,
+        restart_seed=None,
+        restart_index=0,
     ):
         start_board = tuple(tuple(row) for row in board)
         currentBoards = deque()
@@ -529,6 +589,12 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
             (2, "L", helpers.moveLeft),
             (3, "R", helpers.moveRight),
         ]
+        rng = random.Random(restart_seed)
+
+        def ranked_score(item):
+            if not random_tiebreak:
+                return item[0]
+            return item[0] + rng.uniform(-tiebreak_noise, tiebreak_noise)
 
         def add_to_backup(candidate):
             score = candidate[0]
@@ -613,17 +679,19 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
                 if current_depth >= max_depth:
                     continue
 
-                obs = helpers.get_obs(currentBoard, visited_config_positions)
-                obs_tensor = th.tensor(
-                    obs, dtype=th.float32, device=model.device
-                ).unsqueeze(0)
-
-                with th.no_grad():
-                    q_values = model.q_net(obs_tensor).cpu().numpy().reshape(-1)
+                # DQN scoring is intentionally disabled for now. Keep this here
+                # for easy comparison if we want to re-enable q-value guidance.
+                # obs = helpers.get_obs(currentBoard, visited_config_positions)
+                # obs_tensor = th.tensor(
+                #     obs, dtype=th.float32, device=model.device
+                # ).unsqueeze(0)
+                #
+                # with th.no_grad():
+                #     q_values = model.q_net(obs_tensor).cpu().numpy().reshape(-1)
 
                 scored_actions = []
-                for action_index, q_value in enumerate(q_values):
-                    _, move_name, move_fn = action_moves[int(action_index)]
+                for action_index, move_name, move_fn in action_moves:
+                    q_value = 0.0
                     nextBoard = move_fn(currentBoard)
 
                     # Illegal moves leave the board unchanged.
@@ -638,11 +706,12 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
                         continue
 
                     heuristic = line_completion_heuristic(nextBoard)
-                    score = 0 * float(q_value) + HEURISTIC_WEIGHT * heuristic
+                    # score = float(q_value) + HEURISTIC_WEIGHT * heuristic
+                    score = HEURISTIC_WEIGHT * heuristic
                     scored_actions.append(
                         (
                             score,
-                            float(q_value),
+                            q_value,
                             heuristic,
                             int(action_index),
                             move_name,
@@ -650,7 +719,7 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
                         )
                     )
 
-                scored_actions.sort(key=lambda action: action[0], reverse=True)
+                scored_actions.sort(key=ranked_score, reverse=True)
                 for score, q_value, heuristic, action_index, move_name, nextBoard in scored_actions:
                     next_visited_config_positions = copy_visited_config_positions(
                         visited_config_positions
@@ -673,7 +742,7 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
                     )
                     best_depth_seen[nextBoard] = next_depth
 
-            candidates.sort(key=lambda candidate: candidate[0], reverse=True)
+            candidates.sort(key=ranked_score, reverse=True)
             kept_candidates = candidates[:beam_width]
             pruned_candidates = candidates[beam_width:]
             for candidate in pruned_candidates:
@@ -702,8 +771,26 @@ def beamSearch(initial_board, model, beam_width, max_depth, debug=False):
                         f"{refilled}, backup_remaining={len(backup_frontier)}"
                     )
     
-        print("No solution found. States checked:", statesChecked)
+        print(
+            f"No solution found on restart {restart_index}. "
+            f"States checked: {statesChecked}"
+        )
         return "", []
 
 
-    return solve(initial_board)
+    base_seed = seed if seed is not None else random.randrange(2**32)
+    attempts = max(1, restarts)
+    last_result = ("", [])
+    for restart_index in range(attempts):
+        restart_seed = base_seed + restart_index
+        result = solve(
+            initial_board,
+            restart_seed=restart_seed,
+            restart_index=restart_index,
+        )
+        moves, transition_data = result
+        if moves:
+            return result
+        last_result = result
+
+    return last_result
