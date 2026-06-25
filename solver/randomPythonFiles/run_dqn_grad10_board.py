@@ -151,8 +151,8 @@ def main():
     beam_restarts = 5
     random_tiebreak = True
     tiebreak_noise = 0.05
-    grad = 16
-    seed = 58
+    grad = 15
+    seed = None
     #hard one: 3502721434
 
     model_path = find_model_path()

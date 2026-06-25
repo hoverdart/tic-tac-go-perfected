@@ -2,6 +2,7 @@ import numpy as np
 import heapq
 import itertools
 import random
+import torch as th
 from collections import deque
 
 def beamSearch(
@@ -14,8 +15,11 @@ def beamSearch(
     seed=None,
     tiebreak_noise=1e-6,
     restarts=1,
+    random_prefix_steps=None,
+    model_action_weight=1,
 ):
     HEURISTIC_WEIGHT = 1.0
+    MODEL_ACTION_WEIGHT = model_action_weight
     OPEN_BOARD_B_LIMIT = 7
     AGENT_O_CLOSE_DISTANCE = 3
     AGENT_O_DISTANCE_WEIGHT = 0.4
@@ -156,6 +160,23 @@ def beamSearch(
                 threeDArr[5][row][col] = 1
 
         return threeDArr
+
+    def board_to_rows(board):
+        return [" ".join(cell if cell else "." for cell in row) for row in board]
+
+    def model_action_scores(board):
+        if model is None or not hasattr(model, "get_obs"):
+            return None
+
+        obs = model.get_obs(board_to_rows(board)).unsqueeze(0)
+        try:
+            device = next(model.parameters()).device
+            obs = obs.to(device)
+        except StopIteration:
+            pass
+
+        with th.no_grad():
+            return model(obs)[0].detach().cpu()
 
     def valid_win_lines(board):
         lines = []
@@ -572,16 +593,32 @@ def beamSearch(
         terminate_on_repeated_states=False,
         restart_seed=None,
         restart_index=0,
+        original_start_board=None,
+        allow_random_prefix=True,
     ):
-        start_board = tuple(tuple(row) for row in board)
+        search_start_board = tuple(tuple(row) for row in board)
+        start_board = (
+            tuple(tuple(row) for row in original_start_board)
+            if original_start_board is not None
+            else search_start_board
+        )
+        initial_moves = preMoves or ""
+        initial_depth = len(initial_moves)
         currentBoards = deque()
-        best_depth_seen = {start_board: 0}
+        best_depth_seen = {search_start_board: initial_depth}
         backup_frontier = []
         backup_counter = itertools.count()
         backup_limit = max(beam_width * 10, beam_width)
         start_config_positions = {}
-        remember_agent_position_for_config(start_board, start_config_positions)
-        currentBoards.append((start_board, "", 0, start_config_positions))
+        remember_agent_position_for_config(search_start_board, start_config_positions)
+        currentBoards.append(
+            (
+                search_start_board,
+                initial_moves,
+                initial_depth,
+                start_config_positions,
+            )
+        )
         statesChecked = 0
         action_moves = [
             (0, "U", helpers.moveUp),
@@ -643,6 +680,64 @@ def beamSearch(
                 refilled += 1
 
             return refilled
+
+        def random_prefix(prefix_board, max_prefix_steps):
+            prefix_board = tuple(tuple(row) for row in prefix_board)
+            prefix_moves = ""
+            seen_prefix_boards = {prefix_board}
+
+            for _ in range(max_prefix_steps):
+                legal_prefix_moves = []
+                for _action_index, move_name, move_fn in action_moves:
+                    next_board = move_fn(prefix_board)
+                    if next_board == prefix_board:
+                        continue
+                    if next_board in seen_prefix_boards:
+                        continue
+                    if helpers.lostCheck(next_board):
+                        continue
+                    if not helpers.solved(next_board) and helpers.softLocked(next_board):
+                        continue
+                    legal_prefix_moves.append((move_name, next_board))
+
+                if not legal_prefix_moves:
+                    break
+
+                push_moves = [
+                    (move_name, next_board)
+                    for move_name, next_board in legal_prefix_moves
+                    if sum(cell in ("O", "X") for row in next_board for cell in row)
+                    == sum(cell in ("O", "X") for row in prefix_board for cell in row)
+                    and next_board != prefix_board
+                ]
+                move_name, prefix_board = rng.choice(push_moves or legal_prefix_moves)
+                prefix_moves += move_name
+                seen_prefix_boards.add(prefix_board)
+
+                if helpers.solved(prefix_board):
+                    break
+
+            return prefix_board, prefix_moves
+
+        prefix_step_options = random_prefix_steps or [0]
+        max_prefix_steps = rng.choice(prefix_step_options)
+        if allow_random_prefix and max_prefix_steps > 0:
+            prefixed_board, prefix_moves = random_prefix(start_board, max_prefix_steps)
+            if debug:
+                print(
+                    f"Restart {restart_index}: random_prefix_steps="
+                    f"{max_prefix_steps}, actual_prefix_moves={len(prefix_moves)}"
+                )
+            return solve(
+                prefixed_board,
+                preMoves=prefix_moves,
+                current_grad=current_grad,
+                terminate_on_repeated_states=terminate_on_repeated_states,
+                restart_seed=restart_seed,
+                restart_index=restart_index,
+                original_start_board=start_board,
+                allow_random_prefix=False,
+            )
     
         while currentBoards:
             depth_size = len(currentBoards)
@@ -679,19 +774,15 @@ def beamSearch(
                 if current_depth >= max_depth:
                     continue
 
-                # DQN scoring is intentionally disabled for now. Keep this here
-                # for easy comparison if we want to re-enable q-value guidance.
-                # obs = helpers.get_obs(currentBoard, visited_config_positions)
-                # obs_tensor = th.tensor(
-                #     obs, dtype=th.float32, device=model.device
-                # ).unsqueeze(0)
-                #
-                # with th.no_grad():
-                #     q_values = model.q_net(obs_tensor).cpu().numpy().reshape(-1)
+                model_scores = model_action_scores(currentBoard)
 
                 scored_actions = []
                 for action_index, move_name, move_fn in action_moves:
-                    q_value = 0.0
+                    q_value = (
+                        float(model_scores[action_index])
+                        if model_scores is not None
+                        else 0.0
+                    )
                     nextBoard = move_fn(currentBoard)
 
                     # Illegal moves leave the board unchanged.
@@ -706,8 +797,9 @@ def beamSearch(
                         continue
 
                     heuristic = line_completion_heuristic(nextBoard)
-                    # score = float(q_value) + HEURISTIC_WEIGHT * heuristic
-                    score = HEURISTIC_WEIGHT * heuristic
+                    score = (HEURISTIC_WEIGHT * heuristic) + (
+                        MODEL_ACTION_WEIGHT * q_value
+                    )
                     scored_actions.append(
                         (
                             score,

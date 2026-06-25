@@ -12,6 +12,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
+import torch as th
 from stable_baselines3 import DQN
 
 
@@ -32,6 +33,10 @@ BOARD_TIMEOUT_SECONDS = 350
 BEAM_RESTARTS = 5
 RANDOM_TIEBREAK = True
 TIEBREAK_NOISE = 0.05
+RANDOM_PREFIX_STEPS = [0, 5, 10, 15, 20]
+USE_CNN = True
+CNN_MODEL_PATH = GYM_REGISTER_DIR / "small_cnn_policy.pt"
+CNN_MODEL_ACTION_WEIGHT = 1
 
 FIELDNAMES = [
     "grad",
@@ -58,6 +63,7 @@ if str(ALGORITHMS_DIR) not in sys.path:
 
 from beamSearch import beamSearch  # noqa: E402
 from generated_training_boards import TRAINING_BOARDS  # noqa: E402
+from smallCNN import SmallCNN  # noqa: E402
 from run_dqn_grad10_board import (  # noqa: E402
     board_key,
     find_model_path,
@@ -185,6 +191,24 @@ def save_merged_rows(new_rows):
         writer.writerows(rows)
 
 
+def load_search_model(board=None, grad=None):
+    if USE_CNN:
+        model = SmallCNN()
+        model.load_state_dict(th.load(CNN_MODEL_PATH, map_location="cpu"))
+        model.eval()
+        return model
+
+    model_path = find_model_path()
+    if board is None:
+        board = tuple(tuple(row) for row in TRAINING_BOARDS[GRADS[0]][0])
+    if grad is None:
+        grad = GRADS[0]
+    env = make_env(board, render_mode=None, grad=grad)
+    model = DQN.load(model_path, env=env)
+    env.close()
+    return model
+
+
 def make_report_row(model, line_numbers, grad, board_index):
     board = tuple(tuple(row) for row in TRAINING_BOARDS[grad][board_index])
     board_line = line_numbers[grad][board_index]
@@ -205,6 +229,8 @@ def make_report_row(model, line_numbers, grad, board_index):
             seed=restart_seed,
             tiebreak_noise=TIEBREAK_NOISE,
             restarts=BEAM_RESTARTS,
+            random_prefix_steps=RANDOM_PREFIX_STEPS,
+            model_action_weight=CNN_MODEL_ACTION_WEIGHT,
         )
     elapsed = time.monotonic() - start
     solved, cleaned_moves = replay_moves(board, grad, beam_moves)
@@ -230,11 +256,8 @@ def make_report_row(model, line_numbers, grad, board_index):
 
 def make_report_row_worker(task):
     grad, board_index, line_numbers = task
-    model_path = find_model_path()
     board = tuple(tuple(row) for row in TRAINING_BOARDS[grad][board_index])
-    env = make_env(board, render_mode=None, grad=grad)
-    model = DQN.load(model_path, env=env)
-    env.close()
+    model = load_search_model(board, grad)
     if BOARD_TIMEOUT_SECONDS is not None:
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(BOARD_TIMEOUT_SECONDS)
@@ -306,16 +329,15 @@ def print_progress(index, total, row, prefix=""):
 
 
 def main():
-    model_path = find_model_path()
-    first_board = tuple(tuple(row) for row in TRAINING_BOARDS[GRADS[0]][0])
-    first_env = make_env(first_board, render_mode=None, grad=GRADS[0])
-    model = DQN.load(model_path, env=first_env)
-    first_env.close()
+    model = load_search_model()
 
     line_numbers = training_board_line_numbers()
     rows = []
 
-    print(f"Model: {model_path}")
+    print(f"Use CNN: {USE_CNN}")
+    print(f"Model: {CNN_MODEL_PATH if USE_CNN else find_model_path()}")
+    if USE_CNN:
+        print(f"CNN model action weight: {CNN_MODEL_ACTION_WEIGHT}")
     print(f"Report: {REPORT_PATH}")
     print(f"Beam width: {BEAM_WIDTH}")
     print(f"Beam max depth: {BEAM_MAX_DEPTH}")
@@ -323,6 +345,7 @@ def main():
     print(f"Beam restarts: {BEAM_RESTARTS}")
     print(f"Random tiebreak: {RANDOM_TIEBREAK}")
     print(f"Tiebreak noise: {TIEBREAK_NOISE}")
+    print(f"Random prefix steps: {RANDOM_PREFIX_STEPS}")
     print(f"Write CSV: {WRITE_CSV}")
     print(f"Only rerun failed rows from CSV: {ONLY_RERUN_FAILED_FROM_CSV}")
     print(f"Use multiprocessing: {USE_MULTIPROCESSING}")
