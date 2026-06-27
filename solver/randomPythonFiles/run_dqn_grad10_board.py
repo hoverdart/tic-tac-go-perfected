@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 import gymnasium as gym
+import torch as th
 from stable_baselines3 import DQN
 
 
@@ -29,6 +30,8 @@ if str(ALGORITHMS_DIR) not in sys.path:
 
 import tic_tac_go_env  # noqa: E402,F401
 from beamSearch import beamSearch  # noqa: E402
+from iterativeDeepeningDFS import solve as iddfs_solve  # noqa: E402
+from smallCNN import SmallCNN  # noqa: E402
 try:
     from generated_eval_boards import EVAL_BOARDS  # noqa: E402
 except ImportError:
@@ -46,6 +49,14 @@ def find_model_path():
         return matches[0]
 
     raise FileNotFoundError("Could not find dqn_tic_tac_go*.zip in the repo root")
+
+
+def load_cnn_model():
+    model_path = GYM_REGISTER_DIR / "small_cnn_policy.pt"
+    model = SmallCNN()
+    model.load_state_dict(th.load(model_path, map_location="cpu"))
+    model.eval()
+    return model, model_path
 
 
 def print_board(board):
@@ -142,20 +153,47 @@ def make_env(board, render_mode, grad):
     )
 
 
+def print_iddfs_progress(info):
+    if info["event"] == "depth_start":
+        print(
+            f"IDDFS depth {info['depth_limit']} start: "
+            f"states_checked={info['states_checked']} "
+            f"elapsed={info['elapsed_seconds']:.2f}s",
+            flush=True,
+        )
+        return
+
+    print(
+        f"IDDFS depth {info['depth_limit']} end: "
+        f"states_this_depth={info['states_this_depth']} "
+        f"total_states={info['states_checked']} "
+        f"solved={info['solved']} "
+        f"elapsed={info['elapsed_seconds']:.2f}s",
+        flush=True,
+    )
+
+
 def main():
     use_eval_boards = False
     use_beam_search = True
+    use_iddfs = False
+    use_cnn = True
+    cnn_model_action_weight = 1.0
     debug_beam_search = True
     beam_width = 5000
     beam_max_depth = 200
+    iddfs_depth_step = 70
+    iddfs_timeout_seconds = 350
     beam_restarts = 5
     random_tiebreak = True
     tiebreak_noise = 0.05
-    grad = 15
-    seed = None
+    random_prefix_steps = [0, 0, 0, 5, 10]
+    restart_model_action_weights = [0.1, 0.5, 1.0]
+    grad = 17
+    seed = 551
     #hard one: 3502721434
 
-    model_path = find_model_path()
+    dqn_model_path = find_model_path()
     active_seed = seed if seed is not None else random.randrange(2**32)
     rng = random.Random(active_seed)
     board_pool = EVAL_BOARDS if use_eval_boards and grad in EVAL_BOARDS else TRAINING_BOARDS
@@ -170,7 +208,11 @@ def main():
     env = make_env(board, render_mode=None, grad=grad)
     world = env.unwrapped
 
-    model = DQN.load(model_path, env=env)
+    dqn_model = DQN.load(dqn_model_path, env=env)
+    cnn_model = None
+    cnn_model_path = None
+    if use_cnn:
+        cnn_model, cnn_model_path = load_cnn_model()
 
     # The env's reset samples through the class training-board cache, so pin it
     # to this script's random board before reset initializes locations.
@@ -178,12 +220,17 @@ def main():
     obs, _ = env.reset(options=grad)
     start_soft_locked = world.softLocked(world.board)
 
-    print(f"Model: {model_path}")
+    print(f"DQN model: {dqn_model_path}")
+    if use_cnn:
+        print(f"CNN model: {cnn_model_path}")
+        print(f"CNN action weight: {cnn_model_action_weight}")
     print(f"Board source: {board_source}, grad {grad}")
     print(f"Board number: {board_index + 1} / {len(boards)}")
     print(f"Board file line: {board_file_path}:{board_line}")
     print(f"Seed: {active_seed}")
     print(f"Use beam search: {use_beam_search}")
+    print(f"Use IDDFS: {use_iddfs}")
+    print(f"Use CNN in beam: {use_cnn}")
     print("=== START BOARD ===")
     print_board(world.board)
     print(f"Start board soft locked: {start_soft_locked}")
@@ -195,26 +242,55 @@ def main():
     action_by_name = {name: action for action, name in action_names.items()}
 
     if use_beam_search:
-        print("=== BEAM SEARCH ===")
-        print(f"Beam width: {beam_width}")
-        print(f"Max depth: {beam_max_depth}")
-        print(f"Beam restarts: {beam_restarts}")
-        print(f"Random tiebreak: {random_tiebreak}")
-        print(f"Tiebreak noise: {tiebreak_noise}")
-        print(f"Debug beam search: {debug_beam_search}")
-        beam_moves, transition_data = beamSearch(
-            board,
-            model,
-            beam_width,
-            beam_max_depth,
-            debug=debug_beam_search,
-            random_tiebreak=random_tiebreak,
-            seed=active_seed,
-            tiebreak_noise=tiebreak_noise,
-            restarts=beam_restarts,
-        )
-        print(f"Beam moves: {beam_moves}")
-        print(f"Returned transitions: {len(transition_data)}")
+        search_model = cnn_model if use_cnn else dqn_model
+        if use_iddfs:
+            print("=== GUIDED IDDFS ===")
+            print(f"Max depth: {beam_max_depth}")
+            print(f"Depth step: {iddfs_depth_step}")
+            print(f"Timeout seconds: {iddfs_timeout_seconds}")
+            print(f"CNN action weight: {cnn_model_action_weight}")
+            start = time.monotonic()
+            beam_moves, _final_board, states_checked = iddfs_solve(
+                board,
+                model=search_model,
+                max_depth=beam_max_depth,
+                depth_step=iddfs_depth_step,
+                timeout_seconds=iddfs_timeout_seconds,
+                model_action_weight=cnn_model_action_weight,
+                progress_callback=print_iddfs_progress,
+            )
+            elapsed = time.monotonic() - start
+            transition_data = []
+            print(f"IDDFS moves: {beam_moves}")
+            print(f"IDDFS move count: {len(beam_moves)}")
+            print(f"IDDFS states checked: {states_checked}")
+            print(f"IDDFS elapsed seconds: {elapsed:.2f}")
+        else:
+            print("=== BEAM SEARCH ===")
+            print(f"Beam width: {beam_width}")
+            print(f"Max depth: {beam_max_depth}")
+            print(f"Beam restarts: {beam_restarts}")
+            print(f"Random tiebreak: {random_tiebreak}")
+            print(f"Tiebreak noise: {tiebreak_noise}")
+            print(f"Random prefix steps: {random_prefix_steps}")
+            print(f"Restart CNN weights: {restart_model_action_weights} then keep last")
+            print(f"Debug beam search: {debug_beam_search}")
+            beam_moves, transition_data = beamSearch(
+                board,
+                search_model,
+                beam_width,
+                beam_max_depth,
+                debug=debug_beam_search,
+                random_tiebreak=random_tiebreak,
+                seed=active_seed,
+                tiebreak_noise=tiebreak_noise,
+                restarts=beam_restarts,
+                random_prefix_steps=random_prefix_steps,
+                model_action_weight=cnn_model_action_weight,
+                restart_model_action_weights=restart_model_action_weights,
+            )
+            print(f"Beam moves: {beam_moves}")
+            print(f"Returned transitions: {len(transition_data)}")
         if beam_moves:
             replay_env = make_env(board, render_mode="human", grad=grad)
             replay_world = replay_env.unwrapped
@@ -242,7 +318,7 @@ def main():
         print(f"=== ATTEMPT {attempt} ===")
 
         for step in range(1, MAX_STEPS + 1):
-            action, _ = model.predict(obs, deterministic=DETERMINISTIC)
+            action, _ = dqn_model.predict(obs, deterministic=DETERMINISTIC)
             action_int = int(action)
             moves.append(action_names[action_int])
 

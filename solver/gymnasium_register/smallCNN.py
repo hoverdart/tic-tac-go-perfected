@@ -71,8 +71,27 @@ def main():
         [train_size, val_size],
         generator=split_generator,
     )
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+
+    def train_one_epoch(loader):
+        model.train()
+        total_loss = 0.0
+        total_examples = 0
+
+        for batch_x, batch_y in loader:
+            output = model(batch_x)
+            loss = criterion(output, batch_y)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            batch_size = batch_y.size(0)
+            total_loss += loss.item() * batch_size
+            total_examples += batch_size
+
+        return total_loss / total_examples
 
     def evaluate():
         model.eval()
@@ -108,6 +127,7 @@ def main():
 
     print(f"Training examples: {train_size}")
     print(f"Validation examples: {val_size}")
+    print(f"Optimization examples: {len(dataset)}")
     print(f"Epoch runs: {EPOCH_RUNS}", flush=True)
 
     total_epochs_done = 0
@@ -116,23 +136,8 @@ def main():
     for run_epochs in EPOCH_RUNS:
         for _ in range(run_epochs):
             total_epochs_done += 1
-            model.train()
-            total_loss = 0.0
-            total_examples = 0
+            train_loss = train_one_epoch(train_loader)
 
-            for batch_x, batch_y in train_loader:
-                output = model(batch_x)
-                loss = criterion(output, batch_y)
-
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-                batch_size = batch_y.size(0)
-                total_loss += loss.item() * batch_size
-                total_examples += batch_size
-
-        train_loss = total_loss / total_examples
         val_stats = evaluate()
         print(
             f"after run={run_epochs} epochs "

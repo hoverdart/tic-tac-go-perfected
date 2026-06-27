@@ -33,10 +33,14 @@ BOARD_TIMEOUT_SECONDS = 350
 BEAM_RESTARTS = 5
 RANDOM_TIEBREAK = True
 TIEBREAK_NOISE = 0.05
-RANDOM_PREFIX_STEPS = [0, 5, 10, 15, 20]
+RANDOM_PREFIX_STEPS = [0, 0, 0, 5, 10]
 USE_CNN = True
 CNN_MODEL_PATH = GYM_REGISTER_DIR / "small_cnn_policy.pt"
 CNN_MODEL_ACTION_WEIGHT = 1
+RESTART_MODEL_ACTION_WEIGHTS = [0.1, 0.5, 1.0]
+TRY_HEURISTIC_FIRST = True
+USE_IDDFS = False
+IDDFS_DEPTH_STEP = 20
 
 FIELDNAMES = [
     "grad",
@@ -62,6 +66,7 @@ if str(ALGORITHMS_DIR) not in sys.path:
     sys.path.insert(0, str(ALGORITHMS_DIR))
 
 from beamSearch import beamSearch  # noqa: E402
+from iterativeDeepeningDFS import solve as iddfs_solve  # noqa: E402
 from generated_training_boards import TRAINING_BOARDS  # noqa: E402
 from smallCNN import SmallCNN  # noqa: E402
 from run_dqn_grad10_board import (  # noqa: E402
@@ -217,12 +222,21 @@ def make_report_row(model, line_numbers, grad, board_index):
     active_rows, active_cols = active_size(board)
     soft_locked = start_soft_locked(board, grad)
 
-    start = time.monotonic()
     restart_seed = (grad * 1_000_000) + (board_index * 10_000)
-    with contextlib.redirect_stdout(io.StringIO()):
-        beam_moves, _ = beamSearch(
+
+    def run_search(search_model):
+        if USE_IDDFS:
+            moves, _final_board, _states_checked = iddfs_solve(
+                board,
+                model=search_model,
+                max_depth=BEAM_MAX_DEPTH,
+                depth_step=IDDFS_DEPTH_STEP,
+                model_action_weight=CNN_MODEL_ACTION_WEIGHT,
+            )
+            return moves
+        return beamSearch(
             board,
-            model,
+            search_model,
             BEAM_WIDTH,
             BEAM_MAX_DEPTH,
             random_tiebreak=RANDOM_TIEBREAK,
@@ -231,9 +245,22 @@ def make_report_row(model, line_numbers, grad, board_index):
             restarts=BEAM_RESTARTS,
             random_prefix_steps=RANDOM_PREFIX_STEPS,
             model_action_weight=CNN_MODEL_ACTION_WEIGHT,
-        )
+            restart_model_action_weights=RESTART_MODEL_ACTION_WEIGHTS,
+        )[0]
+
+    start = time.monotonic()
+    with contextlib.redirect_stdout(io.StringIO()):
+        if TRY_HEURISTIC_FIRST:
+            beam_moves = run_search(None)
+            solved, cleaned_moves = replay_moves(board, grad, beam_moves)
+            if not solved and USE_CNN:
+                beam_moves = run_search(model)
+                solved, cleaned_moves = replay_moves(board, grad, beam_moves)
+        else:
+            beam_moves = run_search(model)
+            solved, cleaned_moves = replay_moves(board, grad, beam_moves)
+
     elapsed = time.monotonic() - start
-    solved, cleaned_moves = replay_moves(board, grad, beam_moves)
 
     return {
         "grad": grad,
@@ -338,7 +365,12 @@ def main():
     print(f"Model: {CNN_MODEL_PATH if USE_CNN else find_model_path()}")
     if USE_CNN:
         print(f"CNN model action weight: {CNN_MODEL_ACTION_WEIGHT}")
+        print(f"Restart CNN weights: {RESTART_MODEL_ACTION_WEIGHTS} then keep last")
+    print(f"Try heuristic first: {TRY_HEURISTIC_FIRST}")
     print(f"Report: {REPORT_PATH}")
+    print(f"Use IDDFS: {USE_IDDFS}")
+    if USE_IDDFS:
+        print(f"IDDFS depth step: {IDDFS_DEPTH_STEP}")
     print(f"Beam width: {BEAM_WIDTH}")
     print(f"Beam max depth: {BEAM_MAX_DEPTH}")
     print(f"Board timeout seconds: {BOARD_TIMEOUT_SECONDS}")

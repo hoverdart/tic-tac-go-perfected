@@ -36,11 +36,10 @@ ACTION_MOVES = (
 # Add known solutions here.
 KNOWN_SOLUTIONS = {
     # (16, 37): "PUT_MOVES_HERE",
-    (16, 21): "RURRDRRULLLRDLLLRRUULDRDLRRRUUDLLLUUUUUURRDRRRDDLDDLDDRRULLLLDLUUUUUULURR",
-    (17, 7): "RRDRRRDDLDDDUUURRDDDLRUUULLDRLULLLDLRRRRLLLDDULLDDRULURDRULURRRURD",
-    (17, 137): "UUURRDLDLURDLDRLDDRRDRUUDDRRRLRULLDLULLLURDRRRRRRUUUUULLDLLLULDDDDLDRRRRDR",
-    (16, 6): "LDLUUUDDRRURRDLLLDLUDDDRUURULDURRRDLLRDDLLUURRDRRRLDDRRULDLURULLULLLDDRRUULURDRUU",
-    (16, 14): "DDLDLDUUDDLLURDRURURUUUUULLLDDDDDRRDRUUULUUURRRDULLDRLLDDRRU",
+    (17, 62): "UURDLDRRRURLLLULUURDDLDRRRDRU",
+    (17, 106): "UUUDRDRRUULLRRRRUULDRDLLLDL",
+    (17, 107): "URULUULLLLLDLDRDRDLUUUURRRUULDRDLLULDDDD",
+    (17, 176): "DLDLLULULLDRRURDDRDRDDDLLDLUULURLLLURUURRRD",
 }
 
 FIELDNAMES = [
@@ -358,6 +357,82 @@ def obvious_soft_locked(board):
     def is_surrounded_by_walls(row, col):
         return all(is_wall(row + dr, col + dc) for dr, dc in directions)
 
+    def o_can_be_pushed_somewhere_local(row, col):
+        for row_change, col_change in directions:
+            push_from_row = row - row_change
+            push_from_col = col - col_change
+            push_to_row = row + row_change
+            push_to_col = col + col_change
+
+            if is_wall(push_from_row, push_from_col):
+                continue
+            if is_wall(push_to_row, push_to_col):
+                continue
+            return True
+
+        return False
+
+    useful_positions = [
+        (row, col)
+        for row in range(len(board))
+        for col in range(len(board[row]))
+        if board[row][col] != "B"
+    ]
+    if not useful_positions:
+        return True
+
+    min_row = min(row for row, _ in useful_positions)
+    max_row = max(row for row, _ in useful_positions)
+    min_col = min(col for _, col in useful_positions)
+    max_col = max(col for _, col in useful_positions)
+
+    def on_playable_edge(row, col):
+        return row in (min_row, max_row) or col in (min_col, max_col)
+
+    def has_near_line_slot(o_locations):
+        if len(o_locations) != 2:
+            return False
+
+        first_o, second_o = sorted(o_locations)
+        row_distance = abs(first_o[0] - second_o[0])
+        col_distance = abs(first_o[1] - second_o[1])
+
+        if first_o[0] == second_o[0] and col_distance == 1:
+            row = first_o[0]
+            left_col = min(first_o[1], second_o[1]) - 1
+            right_col = max(first_o[1], second_o[1]) + 1
+            return (
+                in_bounds(row, left_col)
+                and board[row][left_col] != "B"
+            ) or (
+                in_bounds(row, right_col)
+                and board[row][right_col] != "B"
+            )
+
+        if first_o[0] == second_o[0] and col_distance == 2:
+            row = first_o[0]
+            middle_col = (first_o[1] + second_o[1]) // 2
+            return board[row][middle_col] != "B"
+
+        if first_o[1] == second_o[1] and row_distance == 1:
+            col = first_o[1]
+            top_row = min(first_o[0], second_o[0]) - 1
+            bottom_row = max(first_o[0], second_o[0]) + 1
+            return (
+                in_bounds(top_row, col)
+                and board[top_row][col] != "B"
+            ) or (
+                in_bounds(bottom_row, col)
+                and board[bottom_row][col] != "B"
+            )
+
+        if first_o[1] == second_o[1] and row_distance == 2:
+            middle_row = (first_o[0] + second_o[0]) // 2
+            col = first_o[1]
+            return board[middle_row][col] != "B"
+
+        return False
+
     o_locations = []
     user_location = None
     for row in range(len(board)):
@@ -369,14 +444,34 @@ def obvious_soft_locked(board):
 
     if user_location is None:
         return True
+
     if is_surrounded_by_walls(*user_location):
         return True
+
     if any(is_surrounded_by_walls(row, col) for row, col in o_locations):
         return True
-    if len(o_locations) == 2 and not any(
-        o_can_be_pushed_somewhere(board, row, col) for row, col in o_locations
-    ):
-        return True
+
+    if len(o_locations) == 2:
+        near_line_slot = has_near_line_slot(o_locations)
+        if (
+            not near_line_slot
+            and all(on_playable_edge(row, col) for row, col in o_locations)
+            and not any(
+                o_can_be_pushed_somewhere_local(row, col)
+                for row, col in o_locations
+            )
+        ):
+            return True
+
+        if (
+            not near_line_slot
+            and not any(
+                o_can_be_pushed_somewhere_local(row, col)
+                for row, col in o_locations
+            )
+        ):
+            return True
+
     return False
 
 

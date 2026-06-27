@@ -1,0 +1,4094 @@
+[
+    {
+        "id": "20250101",
+        "name": "Tutorial",
+        "date": {
+            "year": 2025,
+            "month": 1,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWWWWWWWW----XOWW-P-X--WW----XOWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251007",
+        "name": "Bendable",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW------WW-P--OXWW----X-WWWWWX-XWWWWW-O-WWWWW---WWWWWWWWW"
+    },
+    {
+        "id": "20250929",
+        "name": "In Time Out",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-PWOWWWWXO--WWWW--X-WWWW--X-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20250925",
+        "name": "Cornered",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWO----PWW-X-XX-WW--XWWWWWXW----WW-X-WO-WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20251006",
+        "name": "One Off",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW---XWWWW-XO-WWWW-PX-WWWWXOX-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251002",
+        "name": "Smirk",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP---X-WW-WX-W-WW-O-XXOWW-WX---WW-WWWW-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20251001",
+        "name": "Do Naught",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW--O-XXWWXXWW-XWW--WWO-WW-PX-X-WW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20251004",
+        "name": "Play Outside",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-----------X----WXWWW---W-O-W---W--PW---WWWWWX-X-O-X----X-----"
+    },
+    {
+        "id": "20251009",
+        "name": "U Can Do It!",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP-WW--WWX-WW--WW--WW-OWW-XO-X-WWX-X--XWW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20251013",
+        "name": "In Passing",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWX---WWWW-X--WWWWXWOOWWWWP---WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20250928",
+        "name": "Jailbreak",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X----X--X--XXW--WXX--WOPW----W--W--XXWWWW-X---XX---X---O--X"
+    },
+    {
+        "id": "20250926",
+        "name": "Stairsteps",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-XWWW-XX---WWO-WXX-XW--W--XO---X---X-W-X-WW--WW--P-X-WWW---X-"
+    },
+    {
+        "id": "20250927",
+        "name": "Do Not Pass",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-P-X-X----X--X--WWWWWWXXX--X-----X-X------XWWXWX-O-WW-O----WW---"
+    },
+    {
+        "id": "20250930",
+        "name": "Counter Intuitive",
+        "date": {
+            "year": 2025,
+            "month": 9,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WW-WW-X-WWXOXX--WW--XXWXWW-X--O-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20251003",
+        "name": "Pick a Side",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WW-X--WWWX-XP--W--X---X--X-WWXX-X--WW----OWWWWOX---WW-X----WW---"
+    },
+    {
+        "id": "20251005",
+        "name": "Strange Fit",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P---X-----WW-OX-XXWW--X---WWWW---OWWWW----WW--XX-X--XX----X--X--"
+    },
+    {
+        "id": "20251008",
+        "name": "Step Aside",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-W-OX-WWXOX-X-WW-X-X--WW-X-XW-WWX----PWWWWWWWWW"
+    },
+    {
+        "id": "20251010",
+        "name": "Brackets",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "------X--WWOOWW--WX--XW--W--X-W--W-X-XW--W----W--WWP-WW----X----"
+    },
+    {
+        "id": "20251011",
+        "name": "Once Around",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P-----X--WWWXX---WWWX----WWW-XO-X-X---X--XX--WW--O-XXWW---------"
+    },
+    {
+        "id": "20251012",
+        "name": "Escape Route",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-------X-O--WWWW---OWWWW---PWWWW-X--WWWWXX-X---X--X-X-X--X-"
+    },
+    {
+        "id": "20251014",
+        "name": "Keystone",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP-----WW-X--X-WW-XWWX-WW--WW--WW-OWWO-WW--WW--WWWWWWWWW"
+    },
+    {
+        "id": "20251015",
+        "name": "Ravine",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX--XWPWW-X-XW-WW-OX---WW---X-XWW-WX-X-WWOWX--XWWWWWWWWW"
+    },
+    {
+        "id": "20251016",
+        "name": "Peekaboo",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW------WW-O-WX-WWXX-XP-WWW-W-O-WW-X----WW-X---XWWWWWWWWW"
+    },
+    {
+        "id": "20251017",
+        "name": "Nine Lives",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WW-WWPWWW-X--X-W-X----X--OW--WO---W--W--W------WW-X--X-WWWW--WWW"
+    },
+    {
+        "id": "20251018",
+        "name": "Plot Twist",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P-X-X--X-X---X--WWWWW--X-----W---X-O-W-X--XWW-O-X-----X---X-X---"
+    },
+    {
+        "id": "20251019",
+        "name": "Save the Princess",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X---OX-X-X-X--X-X------X-X-X----X-X-X--O-X-X------X-XP-----X-"
+    },
+    {
+        "id": "20251020",
+        "name": "Sew Close",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--X-WWWW-X-OWWWW-WO-WWWWP---WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251021",
+        "name": "Wrong Way",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WW-W-X-XWW--XO--WW-X-WWOWW-WX---WW-X--X-WWWWWWWWW"
+    },
+    {
+        "id": "20251022",
+        "name": "Upended",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX---X-WW--WX--WW-X---WWWWWWW-XWWXX-XO-WWP---O-WWWWWWWWW"
+    },
+    {
+        "id": "20251023",
+        "name": "Water Water Everywhere",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWW-XX-WW--XOOXW-XX-WOXW-X---X--X-P-X-WXOW-XX-WXOOX--WW-XX--WWW"
+    },
+    {
+        "id": "20251024",
+        "name": "The Long Haul",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-WW-O-X-XXW--WWX-----WW--XXXX--WX---WX--W---W----O---X--P--"
+    },
+    {
+        "id": "20251025",
+        "name": "Block Breaker",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X------WXW-WO----O-X---XWXWXWX-------------------P------WWWW--"
+    },
+    {
+        "id": "20251026",
+        "name": "Lock In",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-WOW---X-W-WX---X-X-X--XPX-X-----X-WWW-XW-X---X-XXW-O-----W---"
+    },
+    {
+        "id": "20251027",
+        "name": "Tip Toe",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWW-OWWWWW-X--WWWW-OP-WWWW--X-WWWWXX--WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251028",
+        "name": "Monkey Business",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-----WW--O-X-WWXWWW--WW---PW-WW--X-W-WW-O----WWWWWWWWW"
+    },
+    {
+        "id": "20251029",
+        "name": "Let Sleeping Dogs Lie",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-W-X--WW-PX-X-WWXX-W--WW-XX-X-WW-W-XOXWW--X-OXWWWWWWWWW"
+    },
+    {
+        "id": "20251030",
+        "name": "Bee In Your Bonnet",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--WW--WWPX-O--WW-O-WXWWWWXW---WW--X---WW----W-WWWWWWWWW"
+    },
+    {
+        "id": "20251031",
+        "name": "Safety Training",
+        "date": {
+            "year": 2025,
+            "month": 10,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-----X---X-W--OX----WXX-X-X-X-P--X-X------W-XWW--WWWW-O-------X-"
+    },
+    {
+        "id": "20251101",
+        "name": "Food Court",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX----X--X---O--W-XWWW---X----W--WWWWWWX----X-X---O--W---X--X---"
+    },
+    {
+        "id": "20251102",
+        "name": "O Brother...",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WP-----W---WWX-----WW-XX---WW----O-WW-O----WW-XX---WWX--W------W"
+    },
+    {
+        "id": "20251103",
+        "name": "No Sweat",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--X-WWWW-X--WWWW--XOWWWW-OP-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251104",
+        "name": "And A Cherry On Top",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--WPWW-W--X-WW--O-W-WW-WWX--WWX-O-X-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20251105",
+        "name": "Team Meeting",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---O--WW-XWW-XWW-X----WW--X-XXWW-OXW--WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20251106",
+        "name": "False Walls",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---W--WW-O-WO-WW-W-W--WW-W-W--WW-W-X--WWPX-X--WWWWWWWWW"
+    },
+    {
+        "id": "20251107",
+        "name": "Minefield",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X------OX-----XX-P------XWW----X-WWWWW-X-X------X--XO--X---X--"
+    },
+    {
+        "id": "20251108",
+        "name": "Herding Cats",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X--XP-----XW-WXWW---X---W-O----XW-----X--W---OW-X-WW------X--"
+    },
+    {
+        "id": "20251109",
+        "name": "Antechamber",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---W-----O-W-XO---WW--X-X--X-WW-----XWW--WW--WW-XWWX----PX---X--"
+    },
+    {
+        "id": "20251110",
+        "name": "So Close",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X-WWWWW--O-WWWWOPW-WWWWX---WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251111",
+        "name": "Ledge Leap",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-XO-WW---X--WWWWX--XWW-O--WWWW-X--X-WW----P-WWWWWWWWW"
+    },
+    {
+        "id": "20251112",
+        "name": "Desk Setup",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--PX--WW-W-XWWWWOW--X-WW-WW-O-WW----X-WW-WWX--WWWWWWWWW"
+    },
+    {
+        "id": "20251113",
+        "name": "Peas In A Pod",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW--O-WWWX-X--XWW-PWXX-WW-XXW--WW----O-WWW--X-WWWWWWWWWW"
+    },
+    {
+        "id": "20251114",
+        "name": "Only Way Out",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X-----X-X-O-X-W--W---W-X--WXXW-PO-W---W--W----XWW-X--X---X--"
+    },
+    {
+        "id": "20251115",
+        "name": "Platforms",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X----W---P-O-X--WWW---X-WWWWWWX----WWW--X----X--WO--X---X--"
+    },
+    {
+        "id": "20251116",
+        "name": "Minefields",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X---X-XO--X-----XWWP-X-XWWWWX---WWWW--XX-WWX----X-O--X---X----"
+    },
+    {
+        "id": "20251117",
+        "name": "Cornered",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW----WWWW-XO-WWWWOPX-WWWWX-XWWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251118",
+        "name": "Corridor Chaos",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW--P--XWWX-WXW-WWW-O-W-WW-XX--OWWX-----WWWWWWWWW"
+    },
+    {
+        "id": "20251119",
+        "name": "Triple Pairs",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--W--WW-X-WO-WW-X----WW-WW-X-WWOXW-XWWW-X---WWWWWWWWWW"
+    },
+    {
+        "id": "20251120",
+        "name": "Boxed In",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW--X-WWWO--X-PWWX-WW--WW--WWOXWW-X----WWW----WWWWWWWWWW"
+    },
+    {
+        "id": "20251121",
+        "name": "Checkers",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-WWX--X--WW--WW-OX--OWW----X-XPWWX---X-WW--WW--XX--WW-X--X-"
+    },
+    {
+        "id": "20251122",
+        "name": "Missing Piece",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWX--O-XWW-X-W-----X-WXX-OX--X----W--WWX-WWX-WP---X--WX-X--X----"
+    },
+    {
+        "id": "20251123",
+        "name": "Connecting the Dots",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-----O--XX-W-WXX-W-------O-XX-WX-W-X--------XXW-X-WXWP---X--X-X-"
+    },
+    {
+        "id": "20251124",
+        "name": "Lost Sheep",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWO---WWWW-PX-WWWWXXO-WWWW---XWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251125",
+        "name": "Security System",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--WW--WW---O--WW---O--WW-WXXW-WWXX-PXXWW------WWWWWWWWW"
+    },
+    {
+        "id": "20251126",
+        "name": "In The Doghouse",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWW--WWWWWPX--WWW--OX--WW-X-WO-WWX-X--XWW------WWWWWWWWW"
+    },
+    {
+        "id": "20251127",
+        "name": "Flywheel",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-W--WW---WO-WW-XX---WWXW-WWWWW-O--XPWW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20251128",
+        "name": "Lake in the Woods",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "W-X----W-X-P-X--X--W-OW--X-W--W-X-XWWWW--X-WWOW-X----X--WX-----W"
+    },
+    {
+        "id": "20251129",
+        "name": "Downstream Effects",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-----OPXXWX--XWW-W-XW--W-W---X-W-W-X--XO-WX------X----X---X-"
+    },
+    {
+        "id": "20251130",
+        "name": "Neutral State",
+        "date": {
+            "year": 2025,
+            "month": 11,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX--X---XX-O--XX---WW---XXWWWW----WWWWXX---WW----XX-O-X----X---X"
+    },
+    {
+        "id": "20251201",
+        "name": "No Diagonals",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWO--XWWWW-PX-WWWW--O-WWWWX-X-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251202",
+        "name": "Dead End",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-----WWW-XX-X-WW--WW--WW-XPW--WW-W--O-WWOW---XWWWWWWWWW"
+    },
+    {
+        "id": "20251203",
+        "name": "Neighbors",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WW-X--W-WW-OPXO-WW-WW-WXWW------WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20251204",
+        "name": "Catty Corner",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-----XWW-W-OX-WWX-PW-XWW--W-O-WWX--X--WW-XXWXXWWWWWWWWW"
+    },
+    {
+        "id": "20251205",
+        "name": "Line of Sight",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-WWWPX--XWWW-X-O-------XXWWW-X-X-WWWO-X--X--X---X--XX-XX---X--"
+    },
+    {
+        "id": "20251206",
+        "name": "Face to Face",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "W--X--XWXX-WW-XX---W-X-W--XOP-X-WW-XO-X---X-W--X-XXWWW-X--------"
+    },
+    {
+        "id": "20251207",
+        "name": "Thread the Needle",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-----W--X-X--WO---X-XW--XX-WPW---XXW--X--O-W-X-X-X-W-XX--X-W----"
+    },
+    {
+        "id": "20251208",
+        "name": "Watch Your Step",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWO---WWWW--OXWWWWPX--WWWW-X-XWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251209",
+        "name": "U-Turn",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WW---XX-WW-OWWOXWW--WW--WW-XX-X-WWP-----WWWWWWWWW"
+    },
+    {
+        "id": "20251210",
+        "name": "Rounded Corners",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WW-X--X-WW-OWWOXWW--XX--WW-X-PX-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20251211",
+        "name": "Tight Spaces",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-----PWW-OWWWWWW-X----WW-WWW--WW-O-X-XWW-----XWWWWWWWWW"
+    },
+    {
+        "id": "20251212",
+        "name": "-_-",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----------PX--O--WW-XWWX--XX--X-XX-------WWWWWW---X-O--X-----X--"
+    },
+    {
+        "id": "20251213",
+        "name": "The Pits",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----XX-X-O-W--X-XXWXX-X----X-XWW--X-X-WW-X--P-WW-O----WW--X"
+    },
+    {
+        "id": "20251214",
+        "name": "Unboxing",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "W--W-X----P--XOX------X-W-XWW-----XXWWXW-X--X-O-X--X------XX--X-"
+    },
+    {
+        "id": "20251215",
+        "name": "Loopy",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW--X-OXWW-X--X-WW---X-XWW--WWO-WWP-----WWWWWWWWW"
+    },
+    {
+        "id": "20251216",
+        "name": "Centrally Located",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----O-WW-X--X-WW-WOX--WW--X-W-WW-P-XW-WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20251217",
+        "name": "Ups and Down",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-PO-W-WW-X-WW-WW-WXX--WW-X--OXWW--W---WWWWWWWWW"
+    },
+    {
+        "id": "20251218",
+        "name": "Spotted You Across The Room",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--W---WWXXWXP-WW---O--WW-XOXWXWW--WX--WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20251219",
+        "name": "Cross Worlds",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-----XX-W--XOX--W--X----W-P-XXX--X---X-XX--WX-XO-X-WX-----X---"
+    },
+    {
+        "id": "20251220",
+        "name": "All Things Equal",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X--OXO--X-X---XX--WWWW---X-O--X--X--P-X-X-WWWW-X-XX--XX---XO-X--"
+    },
+    {
+        "id": "20251221",
+        "name": "Imposter",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---------WXPXWOXXW-X-W---X--X-X---XW-XW--X-W-OWXX-OWX-W-X--X-X-X"
+    },
+    {
+        "id": "20251222",
+        "name": "Leapfrog",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW----WWWW-PWOWWWWXO--WWWW-X-XWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251223",
+        "name": "Alcove",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-X-WP-WW-X-WW-WW--O--XWW-XWWO-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20251224",
+        "name": "Blocked",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--XX-PWW-O--X-WW-XXWXXWW--X---WW--OX--WW------WWWWWWWWW"
+    },
+    {
+        "id": "20251225",
+        "name": "Back Pain",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WW--O-W-WW-WWX--WW-WW-X-WW-O-XPXWW-X--X-WWWWWWWWW"
+    },
+    {
+        "id": "20251226",
+        "name": "Skull & Crossbones",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "------X-XO--XX----WWWWW-X-WXPXW-X-WW-WW--X-WXW----X---O--X------"
+    },
+    {
+        "id": "20251227",
+        "name": "Marathon",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---------WXWXWO----X-----PWWWWWXX-WWWWW----X-----WXWXWO---------"
+    },
+    {
+        "id": "20251228",
+        "name": "Cornered",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X------O-X-W---PWXXWX---W--W---X---W-X--X--W---WWWWWO----X----"
+    },
+    {
+        "id": "20251229",
+        "name": "Out of Place",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--OXWWWWX-X-WWWW-OPXWWWW----WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20251230",
+        "name": "Stuck in the Middle",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-OPWX-WW---X-XWWWWW---WW-O-XW-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20251231",
+        "name": "Exile",
+        "date": {
+            "year": 2025,
+            "month": 12,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---W-PWW-O-W--WWW--X--WW--W---WW--W-O-WW--W---WWWWWWWWW"
+    },
+    {
+        "id": "20260101",
+        "name": "Everything in its Place",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-P-X--WW-XX-O-WWX-XW-XWW-O-WX-WW-X-X-XWW---XX-WWWWWWWWW"
+    },
+    {
+        "id": "20260102",
+        "name": "Roundabout Way",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-----X---XOWWX----XP--XX-X-WWX---X-WW--------X---WW-OWW----X----"
+    },
+    {
+        "id": "20260103",
+        "name": "Pushups",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X---X-XOW----W-X-W--W---X--X-OXW-X---X-W-X--XX-WX------W--P"
+    },
+    {
+        "id": "20260104",
+        "name": "A Bridge Too Far",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X----X-X-X-WW----PWWWWX--X---W-X--W-O-X--XWWWW-XXX-WW-O-------X-"
+    },
+    {
+        "id": "20260105",
+        "name": "Naught So Easy",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--O-WWWWPX-XWWWWXOX-WWWW----WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260106",
+        "name": "Barricade",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X--WWW--WXO-WW-XP-X-WW-X-W-XWW-WOW--WW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20260107",
+        "name": "A Fine Line",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWPW--X-WW-W-OX-WW-W-W--WW--X---WW-WWXX-WW-O---XWWWWWWWWW"
+    },
+    {
+        "id": "20260108",
+        "name": "Surprise Party",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-O-X-WWWXWWO--WW--W---WWX-XW--WWXPX---WWWWWWWWW"
+    },
+    {
+        "id": "20260109",
+        "name": "The Tail Wags The Dog",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---WWWWWX---WWP--XOWWWW---X--X--W-X--X-WWW-WW-WW-X--O-X---X--X--"
+    },
+    {
+        "id": "20260110",
+        "name": "Throne Room",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X----XO-X-XX---X--X-X-WW-X-W--WWO-WW-XWWX-WWX-WW--WW---P--W"
+    },
+    {
+        "id": "20260111",
+        "name": "Corn Maze",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P---W------XW-O-WW-X---X-X--W-----W-WWW--O---W-X-WWX-W-------X--"
+    },
+    {
+        "id": "20260112",
+        "name": "Two at a Time",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWW--WWWWWWO-WWWWW-X-XWWWWP-O-WWWWWX-WWWWWW-XWWWWWWWWWWW"
+    },
+    {
+        "id": "20260113",
+        "name": "Blind Corners",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--WW--WW-O-X--WWW-OXXWWWW-X--WWWX-X-P-WW-XWW-XWWWWWWWWW"
+    },
+    {
+        "id": "20260114",
+        "name": "Cup o' Joe",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWPWWWWWW--WWWWWW-WWWWW-X-X---WX-X--W-WOX--XO-WW-X--WWWWWWWWWW"
+    },
+    {
+        "id": "20260115",
+        "name": "Waterworks",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW------WW-OXWW-WW-WP---WW-WWOX-WW-X--W-WW--W---WWWWWWWWW"
+    },
+    {
+        "id": "20260116",
+        "name": "Wrong Angle",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-----------O-X--WPWWWW-------WX---X--W---XWXOW-X-X---W-------X--"
+    },
+    {
+        "id": "20260117",
+        "name": "Plugged Up",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---O-----X-W-----X--WWWX-W--WW---W--W-O--W--XX-X-W--X----P-X----"
+    },
+    {
+        "id": "20260118",
+        "name": "Summoning Circle",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---------P-XX-----X--X---X-OX-X--X-XX-X---X--X-----XX-O---------"
+    },
+    {
+        "id": "20260119",
+        "name": "Waffling",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X-OWWWWP--XWWWW-OX-WWWW-X-XWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260120",
+        "name": "Fish And Chips",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWW-XWWWWWX---XWW--XXO-WWPX----WWWXO-X-WWWWX-WWWWWWWWWWW"
+    },
+    {
+        "id": "20260121",
+        "name": "Lucky Horseshoe",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW-P--WWWX-XX--WW----X-WW-X--X-WW-OWWO-WWX-WW--WWWWWWWWW"
+    },
+    {
+        "id": "20260122",
+        "name": "Tidy Up",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--XX--WW-X--X-WW-OWWO-WW--X---WWX-XX-XWW--PX--WWWWWWWWW"
+    },
+    {
+        "id": "20260123",
+        "name": "Walking Gingerly",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-P--X-XX--X-XXX---X----X-WWXX-XOXW--OX--X--X---X-X--X---X--XX-"
+    },
+    {
+        "id": "20260124",
+        "name": "In the Goal",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X-X--X-----X-----XWWWW--P----WOX-XX-OW--X-WWWWX-----X----X-X---X"
+    },
+    {
+        "id": "20260125",
+        "name": "Harmonic Progression",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X--X-W-X--X--WX--XW--XO-X-W-X---PO-X-W-X--X--WX--XW--X--X-W-X--X"
+    },
+    {
+        "id": "20260126",
+        "name": "Playground",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW--X-WWWW-O--WWWWPXWXWWWW--X-WWWW-XO-WWWW--X-WWWWWWWWWW"
+    },
+    {
+        "id": "20260127",
+        "name": "Starry Sky",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--XP--WWX-W-X-WW-O-XWXWWX---O-WW-XXWXXWWX--X--WWWWWWWWW"
+    },
+    {
+        "id": "20260128",
+        "name": "Workaround",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW--X-OXWW-XW---WW-X-WXXWW-O-X--WW--PX--WWWWWWWWW"
+    },
+    {
+        "id": "20260129",
+        "name": "Blockade",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-O-X--WWWWX--XWWWW-XX-WW-O-P--WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260130",
+        "name": "Eureka!",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X---X--X-X---XXX-WX-X---OWOX--X-X--X-X--X----XW--XX-PWWW-X--WW"
+    },
+    {
+        "id": "20260131",
+        "name": "The Stacks",
+        "date": {
+            "year": 2026,
+            "month": 1,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X---X--XO-X---X-X-X--XPWWWWXX--X-X--------XX--XX-OX--XX----X-"
+    },
+    {
+        "id": "20260201",
+        "name": "Dance Floor",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X---X----O-X--X---XX-X--WW--X--XX-X-X-WW--XX-X--PX--X-O---X-X---"
+    },
+    {
+        "id": "20260202",
+        "name": "Shoveling Snow",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW--X--OWW-X-XP-WWX-OX-XWW----X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260203",
+        "name": "Across the Universe",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--O--OWWX--X-XWW-XX---WWX----XWW-XX-XXWWP--X--WWWWWWWWW"
+    },
+    {
+        "id": "20260204",
+        "name": "Maypole",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WWX-O-X-WWX--W--WW-X--O-WWPXX--XWW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260205",
+        "name": "Untangled",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X-X-WW-OX-O-WW-X-X--WWX-X-XXWW-XX---WWP--X--WWWWWWWWW"
+    },
+    {
+        "id": "20260206",
+        "name": "Halfway Home",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-W---X-XXW-X----X--OXXXO-X--X-X--XX----XX--XX-X-X-W-XX-P--W---"
+    },
+    {
+        "id": "20260207",
+        "name": "Primordial Soup",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X--X-XO-X------X-XX-XWWWW-X----X-X-X--X-X---X-XX-PX-O-WW---"
+    },
+    {
+        "id": "20260208",
+        "name": "Toric Lens",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X-X--X-X--O--X---X----XWWXX-XX-WW--XX-----PX-OX-X-X--X--X---"
+    },
+    {
+        "id": "20260209",
+        "name": "Piece of Cake",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-O--WWWW-POWWWWWXX--WWWW--XXWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260210",
+        "name": "Dungeon",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WW-XO-X-WW--WWXPWW--X--XWWX-XO--WW-X-X--WWWWWWWWW"
+    },
+    {
+        "id": "20260211",
+        "name": "Slot Machine",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X--PWW-O-X--WW-X-WXXWWXXW---WW--X-O-WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260212",
+        "name": "Cautionary Tale",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-X--X-WWP-XXO-WWX---XXWW-X-XOXWWX-----WWWWWWWWW"
+    },
+    {
+        "id": "20260213",
+        "name": "I Spy",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X------XX-XO--X---X--WW-X--WWWW--X-WW--X-X----OX--XX------X-P"
+    },
+    {
+        "id": "20260214",
+        "name": "Database",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-XX--XP---X-X----X---OXX-OX-WX-XX-X-X----X--X-X----X-X-X--XX----"
+    },
+    {
+        "id": "20260215",
+        "name": "Full Steam Ahead",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X-X--PO-X-X-X--X----WWWWW-XXWWWWWX--X--X---X-XO--X-----X-X-X"
+    },
+    {
+        "id": "20260216",
+        "name": "Outside In",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW-X--WWWX-O-XPWW--X-X-WWXX-X--WW--OX-XWWW-X--WWWWWWWWWW"
+    },
+    {
+        "id": "20260217",
+        "name": "Palate Cleanser",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WW-XXO--WW---WWXWW-X--X-WW-OX-X-WWX-X--PWWWWWWWWW"
+    },
+    {
+        "id": "20260218",
+        "name": "Knotty By Nature",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-OXX--WWX--OXXWWX-W---WW-XX--XWW--PXX-WWWWWWWWW"
+    },
+    {
+        "id": "20260219",
+        "name": "Untangled",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WW-OXXO-WWX-----WWX-XX-XWW-X-XX-WW-XP---WWWWWWWWW"
+    },
+    {
+        "id": "20260220",
+        "name": "Laser Tag",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P-X--X----X-O-XX-X-WW-----WWWWXXX-X-X----X--O-XX--X--X--XX-X-X--"
+    },
+    {
+        "id": "20260221",
+        "name": "Teahouse",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X--PXX-X--X-X--X-W-X--X--WO--OW--W-X-X--X-X------XX-X---X---"
+    },
+    {
+        "id": "20260222",
+        "name": "House of Cards",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-X--OX---X-----XX---X-WW-XX-XXWWO--X--X-X-X--X---X--XX-X-P-"
+    },
+    {
+        "id": "20260223",
+        "name": "Candyland",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW--X---WWX--XO-WW-OX--XWW-X-P--WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260224",
+        "name": "Sweet Relief",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WW---X-XWWX-XOWPWW-X--XXWW-O-X--WW-X--X-WWWWWWWWW"
+    },
+    {
+        "id": "20260225",
+        "name": "Pinched Nerve",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-W--XWW-O--X-WW--XX--WW-XX-OXWWX--X--WW-XW-P-WWWWWWWWW"
+    },
+    {
+        "id": "20260226",
+        "name": "Bouquet of Flowers",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-O--WW--XX-XWWX-X-X-WW-XP--XWWXO-XX-WW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20260227",
+        "name": "Orion's Belt",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X----X---X-X--XX-XO-X---W-X--XX--W--X-XOX-WX---X--XP----X--X-"
+    },
+    {
+        "id": "20260228",
+        "name": "Elbow Room",
+        "date": {
+            "year": 2026,
+            "month": 2,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX-X----X---XX-X-X-WW--X-X--WOX--OX-W-------X---X-XX-XX--X--X---"
+    },
+    {
+        "id": "20260301",
+        "name": "Immovable Objects",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X---X-X-X-X--XWW-O--X--WX---X-OX---X--W-X-X-XX-X--XP--X--X-"
+    },
+    {
+        "id": "20260302",
+        "name": "Boom Gate",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X-OWWWW-PX-WWWW-O--WWWWX-X-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260303",
+        "name": "Good Rally",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-XX--XWWX-WWO-WW--X--XWW-O-X--WW-X-X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260304",
+        "name": "Spiraling",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX--W--WW-OX-X-WWX-X---WW-X-XOWWW-X----WWP--X--WWWWWWWWW"
+    },
+    {
+        "id": "20260305",
+        "name": "Balance Beam",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WWX---O-WW-X-WX-WW--X-X-WW-OX--XWWX---P-WWWWWWWWW"
+    },
+    {
+        "id": "20260306",
+        "name": "Chaos Board",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX--X-----X-XX--X--O--X--XWWWW-XX-WWWWX--X--O-X----X-X---X-X--X-"
+    },
+    {
+        "id": "20260307",
+        "name": "Train Tracks",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-XX---X--X--XXOXX---W-X----X-W--WWXOXW---X-X--XXXPX--X---X---X--"
+    },
+    {
+        "id": "20260308",
+        "name": "Locked In",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-WP--XX--WXXOX---W----XO-WX-X---XW---X-X--X-X-X-X-X-X----X----"
+    },
+    {
+        "id": "20260309",
+        "name": "Lighthouse",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW----WWWW-XOXWWWW--X-WWWWW-X-WWWW-O-XWWWW-XP-WWWWWWWWWW"
+    },
+    {
+        "id": "20260310",
+        "name": "Six Feet Under",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-OX-X-WW-X-XWWWW---P--WWXX-XOXWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260311",
+        "name": "Bank Teller",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WWXX-W--WW-O-WO-WW-XX-XXWWX--X--WW-XP-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260312",
+        "name": "Tried and True",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--P-X-WWX-XX--WW-X--XOWW--OXX-WW-XX--XWW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260313",
+        "name": "Quilts and Quibbles",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-----OX--XXX---XX---XW-X--X-X-X-W--X---O-X---X-XX-X--X--X-P"
+    },
+    {
+        "id": "20260314",
+        "name": "Tee Off",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X-X-X--X-X---X-O--X---WWWW-XPX--WXX--X--WOX-X-X--X-----X----"
+    },
+    {
+        "id": "20260315",
+        "name": "Four Corners",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X---XO-X---X-W--WX---XX---X--X-X--PX-W--WX--X-XXO-X--X-----"
+    },
+    {
+        "id": "20260316",
+        "name": "One Small Step",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--PXWWWWXX-OWWWW-O--WWWW--X-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260317",
+        "name": "Handshake",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WWX--O-XWWX-XX-XWW-X-XX-WWX--O--WW-X--XPWWWWWWWWW"
+    },
+    {
+        "id": "20260318",
+        "name": "Helpful Advice",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WWX-OX--WW-XX---WW--X-XPWW-O-XX-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260319",
+        "name": "Sideways",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW--OXX-WW-WW---WW--W-XXWWX--XO-WWP-X---WWWWWWWWW"
+    },
+    {
+        "id": "20260320",
+        "name": "All Mixed Up",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P-X-X---------X-X-WWXO-X-X-WW-X---XWWW--X-O-XWX--X---X-----X--X-"
+    },
+    {
+        "id": "20260321",
+        "name": "Friends In High Places",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X-X---X----XX----O-W-XX--XXW---X---W--O-X-WWWX---X-W--X--P--X---"
+    },
+    {
+        "id": "20260322",
+        "name": "Stairstep",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X----X-X-X-O---W---XX-O-WXX-----X--W-X---W-----XWWX-XX-WWW-P-"
+    },
+    {
+        "id": "20260323",
+        "name": "Poker Face",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW----X-WWX-OX--WW-XX-XXWWP-W-O-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260324",
+        "name": "Elbow Joint",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WW-XX-X-WWX--X-OWW-X-X--WW-OX-XXWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260325",
+        "name": "Treasure Trove",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWPX----WWX-XOXXWW-X-W--WW--W--XWWXXO-X-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260326",
+        "name": "Runway",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWXOW--XWW--W-X-WWX-W-X-WWX--XO-WW-XX--XWWP-X---WWWWWWWWW"
+    },
+    {
+        "id": "20260327",
+        "name": "Simplicity",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X---X--X---X-X--OWX--XXX-W--X---WWW----X--WXO-XP-X---X--X---X-"
+    },
+    {
+        "id": "20260328",
+        "name": "Platforms",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-X---XO---X-X---X-WX--WWW----XX--X--X--WWWOX-----X--P-X-----"
+    },
+    {
+        "id": "20260329",
+        "name": "Neutrality",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X---XX--X-XO---X-W--XWX-WWW------W-XX--X--X--XO-X--XX----X--P"
+    },
+    {
+        "id": "20260330",
+        "name": "S Curve",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WW--WWWWWWX-WWWWWW--XPWWWWO-XXWWWW-X--WWWWX-O-WWWWWW-XWWWWWW--WW"
+    },
+    {
+        "id": "20260331",
+        "name": "Defusion",
+        "date": {
+            "year": 2026,
+            "month": 3,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWPX-X--WWXX-WO-WW---W--WWX-X-X-WW-XO-XXWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260401",
+        "name": "Circling the Drain",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP-X---WW--X-OXWW-XWX--WW--X-XWWWXO-X--WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260402",
+        "name": "Greeting Card",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW--XO-XWW-X-WX-WWPX--XXWW--XO--WW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260403",
+        "name": "Line Dance",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X--XXX---XW----X--WO-------X-XOWWWW-X-X-X-XX---X---------X--P"
+    },
+    {
+        "id": "20260404",
+        "name": "Four Angles",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P--X-X---X--X-----W--WOX-X-X----X----X-X-OWX-WX-X--------X--X---"
+    },
+    {
+        "id": "20260405",
+        "name": "Test Your Strength",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX--X---XX-X-XO------X--WW----WWWW--X-WW--X--X--XO--X-X---X---X-"
+    },
+    {
+        "id": "20260406",
+        "name": "Escargot",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW--X-X-WW-X-XO-WW----X-WWXWOXX-WWPX----WWWWWWWWW"
+    },
+    {
+        "id": "20260407",
+        "name": "Mindreader",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WW-O---XWWX-W-XXWW-XPX--WW-X-XO-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260408",
+        "name": "Full Stack",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WW-X-XO-WW--XX--WWX-X-X-WW-XO--XWWP-X---WWWWWWWWW"
+    },
+    {
+        "id": "20260409",
+        "name": "Tiles and Grout",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-XX-PXWWO--X--WW-W--X-WW-XX-OXWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260410",
+        "name": "Around the Corner",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X--X-X-X-O---WW--XXXOWX-X----X--WX-----WW----X--X--X----X-P"
+    },
+    {
+        "id": "20260411",
+        "name": "False Alarm",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-----X-X--X-----W---XOWWWWOX---WW-----X-WX-----XX-X--X--P--X"
+    },
+    {
+        "id": "20260412",
+        "name": "Gated Community",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X---OX-----X--WXW-X---XPX---XWWXW----WW---XX-X--XO----X----"
+    },
+    {
+        "id": "20260413",
+        "name": "Under the Weather",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWP-X-WWWWXXO-WWWW--X-WWWW-X--WWWW--OXWWWW-X--WWWWWWWWWW"
+    },
+    {
+        "id": "20260414",
+        "name": "Pressure Valve",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-OXX--WWWW-X--WWWW--X-WWPX--OXWW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260415",
+        "name": "Push and Pull",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WWX--XO-WW-WX---WWX--XWXWW-OX-X-WW--X--PWWWWWWWWW"
+    },
+    {
+        "id": "20260416",
+        "name": "Play the Fool",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-W-P-WW-O-XX-WW-X--XXWW-XX---WW---XOXWW-X-W--WWWWWWWWW"
+    },
+    {
+        "id": "20260417",
+        "name": "Braided River",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X--X--O-X-----X-W-X-XX-WWW------WWWX--XX-WO-X-X---X-----X---P"
+    },
+    {
+        "id": "20260418",
+        "name": "Hop the Fence",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X--XX------O--X--XWX-X--X--W--X----XW--XXX---WX-------O-P--X-X--"
+    },
+    {
+        "id": "20260419",
+        "name": "Skip A Beat",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---W-----O-WXOX-X--W-X---X-WX--X--XW--X-X--W-X---X--X------X--XP"
+    },
+    {
+        "id": "20260420",
+        "name": "Sourdough",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-XPWWWWW-O--WWWW-X-XXWWWW-XX--WWWW--O-WWWWW---WWWWWWWWW"
+    },
+    {
+        "id": "20260421",
+        "name": "Cut Your Teeth",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--P-WW-X-XO-WWX-W-X-WW--W-X-WW-OX--XWW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260422",
+        "name": "Dark Forest",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWPX-X--WWXX----WW--XWOXWWX---X-WW-OXX--WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260423",
+        "name": "Now You See Me",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WWXOXXO-WW---X--WWX-X-X-WW-X--XXWW--X-P-WWWWWWWWW"
+    },
+    {
+        "id": "20260424",
+        "name": "First Time Caller",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---W--X--X-W--OXXX-X--X-----X-WW--XW--X-X--WX----O-X------X--X-P"
+    },
+    {
+        "id": "20260425",
+        "name": "Stick It Out",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X----X--OX-X-W-X----XWW---X--WWWX--XO--X--X--X------X-X--XP"
+    },
+    {
+        "id": "20260426",
+        "name": "Throwback",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X-XP-XO--X----WX--X-XX-W---------W-X--X-W----X---OXX---X-X--"
+    },
+    {
+        "id": "20260427",
+        "name": "Cruise Control",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW---X--WWX-X-O-WW-XWWX-WW-O-X--WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260428",
+        "name": "Polygon",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX--X--WW-X--O-WW-X-WX-WW--XW-XWWXO-X--WWPX--X-WWWWWWWWW"
+    },
+    {
+        "id": "20260429",
+        "name": "Nova",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWPX----WW-XWOXXWW--X---WWX-WX--WW-O--XXWW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260430",
+        "name": "One Way",
+        "date": {
+            "year": 2026,
+            "month": 4,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X-XPWWXO---XWW-X-X--WW--XW-XWWX--XO-WW-X-X--WWWWWWWWW"
+    },
+    {
+        "id": "20260501",
+        "name": "Rotate",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X----XO--X-X----X-X--WWWX---W-X--X-X--X------P-X--XO----XW---"
+    },
+    {
+        "id": "20260502",
+        "name": "Hexagon",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X---X---OX--X-----X---XWWWWX-X----W-X---X----XP-OX-X-----X---X-"
+    },
+    {
+        "id": "20260503",
+        "name": "Zen Garden",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----XWWW-X-X-X-W--XO---W-X-WW-X-XWWWWX---X-X--X--X--X-O-P---X--X"
+    },
+    {
+        "id": "20260504",
+        "name": "Supernova",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X--PWWW--XO-WWWXOX--WWW-X-X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260505",
+        "name": "Ricochet",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-OX---WWWW-XX-WWWWX---WWPX-XOXWW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260506",
+        "name": "Pendulum",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP---X-WW--X-O-WWX-WX-XWW-XX-X-WWO-----WW-X-X--WWWWWWWWW"
+    },
+    {
+        "id": "20260507",
+        "name": "Rush Hour",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X--PWW-OW-X-WW--W-X-WWX-X-OXWW-X-X--WWX---X-WWWWWWWWW"
+    },
+    {
+        "id": "20260508",
+        "name": "Star Cluster",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X--X--O-X--X---W--X---XWWWW-XX---W-X----XWW--PX--X-O--X------"
+    },
+    {
+        "id": "20260509",
+        "name": "Paving",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X---OX----X-X-XWW--X-----X---W--X---XW-XXO-------X-P--X-X--"
+    },
+    {
+        "id": "20260510",
+        "name": "Roundabout",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X---X-----XOX-XX--X--X--XX---X----XX--XXX---X-X---X---O-P-X--X--"
+    },
+    {
+        "id": "20260511",
+        "name": "Scale",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW-X--O-WW-X-XX-WW-OX-X-WW-X---PWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260512",
+        "name": "Avalanche",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-O-X--WW-W-X-XWWX-X-W-WW---XO-WW-X---PWWWWWWWWW"
+    },
+    {
+        "id": "20260513",
+        "name": "Lightyear",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WW-X-XO-WWX---X-WW-XX--XWWXO-X--WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260514",
+        "name": "Expressway",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--O--XWW-XW-X-WW-X-W--WWX--XX-WW--X-O-WW-X---PWWWWWWWWW"
+    },
+    {
+        "id": "20260515",
+        "name": "Geyser",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X-----O---X---X-W-WXXX-W--W-----X--X---X-W-X-XX---XO-PX--X---"
+    },
+    {
+        "id": "20260516",
+        "name": "Space Station",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X--X--O-X--X----WX---WW-X-W-X------X---XWX---XX-X-XO-P-X---X-"
+    },
+    {
+        "id": "20260517",
+        "name": "Zig Zag",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---W-X--XO-W-----X--XWW----X--XXWW--X-----X---XX-X--WXO-P-X-W---"
+    },
+    {
+        "id": "20260518",
+        "name": "Speed Bump",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW--X---WWX--XO-WW-XWW-XWW-O--X-WW-X---PWWWWWWWWW"
+    },
+    {
+        "id": "20260519",
+        "name": "Carpool Lane",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WWX--XO-WW-XX-W-WW-X--X-WW-OX-X-WWPX----WWWWWWWWW"
+    },
+    {
+        "id": "20260520",
+        "name": "Asymmetry",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-OX---WWXX-XX-WW---XO-WW-X-P-XWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260521",
+        "name": "Joyride",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-X--PWW-X--X-WW-OW---WWX-WX--WW--X-OXWW-X--X-WWWWWWWWW"
+    },
+    {
+        "id": "20260522",
+        "name": "Merge",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X----X--OX----XWW-X-----X--XXX--X----X-WWX-----O--XX---X--XP"
+    },
+    {
+        "id": "20260523",
+        "name": "Anchor",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-----X---XO--XWWWW----WWWWXXX-WWWW---X---X---OX-X-X-----X--P"
+    },
+    {
+        "id": "20260524",
+        "name": "Gears",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-XP-OX-------X--X-XWWW-XW-----W--X-X--X-X---O----X--X--X---"
+    },
+    {
+        "id": "20260525",
+        "name": "Pyramid",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWP-X-WWWWXOX-WWWW-X--WWWW-X-XWWWWX-O-WWWW--X-WWWWWWWWWW"
+    },
+    {
+        "id": "20260526",
+        "name": "Zipper Merge",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----XPWW-OX--XWWXX-W--WW--X-X-WW-X-XO-WW-X---XWWWWWWWWW"
+    },
+    {
+        "id": "20260527",
+        "name": "Sphere",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--O---WW--WX--WWXXW-XXWW---X--WW-X-XO-WWPX---XWWWWWWWWW"
+    },
+    {
+        "id": "20260528",
+        "name": "Parallel Parking",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX--X--WW-XX-O-WW-O--XXWWX-WX--WW-X----WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260529",
+        "name": "Mirror",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X-X-X--O-----X-WWX---XX-W-------W-XX--XXWW--X---X-O-P-X---X-"
+    },
+    {
+        "id": "20260530",
+        "name": "Tight Squeeze",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P---X-X---X---X--X-WX-O-X-X--W---OW--WX-X-W-X-----X--X-X---X----"
+    },
+    {
+        "id": "20260531",
+        "name": "Short Cut",
+        "date": {
+            "year": 2026,
+            "month": 5,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X---O-X--X-----WX--WWWWW-X--X--W--PX-X-WX-X-O---------X--X-"
+    },
+    {
+        "id": "20260601",
+        "name": "Jungle",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X--WWWW-OXXWWWWPX--WWWWX-XOWWWW----WWWWWWWWWW"
+    },
+    {
+        "id": "20260602",
+        "name": "Narrow Margin",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X---PWW-OX-XXWWX--W--WW-X-X-XWW-X--O-WW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260603",
+        "name": "Sandstorm",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-OWWOXWW--X---WW-X-XX-WWX-X--XWWP-X--XWWWWWWWWW"
+    },
+    {
+        "id": "20260604",
+        "name": "Earthquake",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WW-XW--XWWX-O-X-WW--XW--WWXX--OXWW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20260605",
+        "name": "Oasis",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X--P-OX-X-XX----WW--X--WW----XWWW--X--W--X--X-X---O--X---X--"
+    },
+    {
+        "id": "20260606",
+        "name": "Tidal Wave",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P--X--X---X-WO---X--WW-XX-WW-X-----WX--XXX--X----OX---X-----X--X"
+    },
+    {
+        "id": "20260607",
+        "name": "Quasar",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X-X-X-OX--XX--W-X---XX--W-X----W----X--W-WOX--X---X-P-X-X---"
+    },
+    {
+        "id": "20260608",
+        "name": "Green Light",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X-O-WWWX-X--WWW-OX-XWWWP--X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260609",
+        "name": "Gear Shift",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-OX-X-WWXX---XWW--WXX-WW-X-O--WWP-X---WWWWWWWWW"
+    },
+    {
+        "id": "20260610",
+        "name": "Split",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-O---XWWXWWXX-WW-X--XOWW--XX--WWP-X---WWWWWWWWW"
+    },
+    {
+        "id": "20260611",
+        "name": "Bypass",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WWX--X--WW--OX-XWW-XXPX-WWX--X-OWW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260612",
+        "name": "Tailgate",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-------X-OXX-XWW-X--X--------WX-W---XW-XWXXPO---X--X--X----"
+    },
+    {
+        "id": "20260613",
+        "name": "Spiral",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--------XO-X--XX--XW-X---XWWW-WXX--W--X--X---X---P-X--O-X--X-X--"
+    },
+    {
+        "id": "20260614",
+        "name": "Yellow Light",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X---OX-X-X---W-X--XX---W-----XWPX---X--XW-X--X--XO----X----"
+    },
+    {
+        "id": "20260615",
+        "name": "Monsoon",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW-X--XPWW--X-OXWWXOX---WW-X-X--WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260616",
+        "name": "Kaleidoscope",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WWXO---XWW-WWXX-WW--X---WWX--XOXWW-X-X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260617",
+        "name": "Lagoon",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-O---XWWX-WXX-WW-XW-X-WW--X-O-WWPX--X-WWWWWWWWW"
+    },
+    {
+        "id": "20260618",
+        "name": "Teleport",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WW-XPXO-WWX----XWW--WWX-WW-O---XWW-X-X--WWWWWWWWW"
+    },
+    {
+        "id": "20260619",
+        "name": "Quicksand",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-W----XO-W-XO---XW---XX--WW-X---XWW----X-P-X-X-X-----X---X-X--"
+    },
+    {
+        "id": "20260620",
+        "name": "Constellation",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X--X-XX--XO-X----X------X-WWWWWXPWWWWW-X-X--X-X--XO-X--X----"
+    },
+    {
+        "id": "20260621",
+        "name": "Overpass",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-X---OX-----X---XWXX-X-WP-----WW--X-XX-W---X---X-XO---X-----"
+    },
+    {
+        "id": "20260622",
+        "name": "Crosswalk",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW----PXWWX-XX-OWW-OX---WW-X--X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260623",
+        "name": "Pulsar",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WWXX--X-WW-PWWO-WWXX--X-WWO-X-XXWW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260624",
+        "name": "Red Light",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WWX--XO-WW---PWXWWX-XX--WW-O-X--WW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260625",
+        "name": "Pit Stop",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW---X-XWW-XW-OPWWX--W-XWW-XOX--WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260626",
+        "name": "Freeway",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X----O--X-X--X-P-X--X-WWWW-X--WW----XX-X--XX-----XO--X--X---"
+    },
+    {
+        "id": "20260627",
+        "name": "Blueprint",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-P--X-----O-X----XWWWWXXX--X-X----X---X--X--X---X--WWXOX-X-WW-X-"
+    },
+    {
+        "id": "20260628",
+        "name": "Blizzard",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X--X-X-X-W-X-O---X--X--X--W--WX-X--X----OW-W-WXX-X--XX-P--X----"
+    },
+    {
+        "id": "20260629",
+        "name": "Orbit",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWPO--WWWW-X--WWWWX-X-WWWW-XO-WWWW--X-WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260630",
+        "name": "Labyrinth",
+        "date": {
+            "year": 2026,
+            "month": 6,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW-OW-X-WWX-X-X-WW--W--XWW-X-XO-WW-X--XPWWWWWWWWW"
+    },
+    {
+        "id": "20260701",
+        "name": "Intersection",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WWX--XO-WW-XW-XXWW-X----WWXO-XXPWW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260702",
+        "name": "Equator",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WWXX-OXXWW---W--WW-X-X--WWXO---XWW--X-XPWWWWWWWWW"
+    },
+    {
+        "id": "20260703",
+        "name": "Tundra",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P-X-------X-X-O-XW-W-WXW-X------XW-W-W-W--X--XX--O--X--X-X--X-X-"
+    },
+    {
+        "id": "20260704",
+        "name": "Cube",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X-X-X--X-----XO-X-WW-------WXWXXXX-W-W----X--WW--XO--X-----X---P"
+    },
+    {
+        "id": "20260705",
+        "name": "High Speed",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X----O--X--X-XW--X-----WW-X-XX-X-W-X--XPX-X----X-XO-X--X----"
+    },
+    {
+        "id": "20260706",
+        "name": "Easy Stroll",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWW---X--WWXX-XO-WW-OX-XXWWP-X---WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260707",
+        "name": "Tessellation",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-O--X-WWX-WXX-WW-XX---WW--X-OXWW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260708",
+        "name": "Prism",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--XPX-WWX-XX--WW-OW--XWWX-WXO-WW-X--X-WW--X---WWWWWWWWW"
+    },
+    {
+        "id": "20260709",
+        "name": "Black Hole",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-X-XWWW-X-X--WW-O-X--WW---WWOWW-X--X-WWP--X--WWWWWWWWW"
+    },
+    {
+        "id": "20260710",
+        "name": "Traffic Circle",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X---------X-O-XXW--WXX--WX-W----WP-W--XX--X-XX-O-X------X---X-"
+    },
+    {
+        "id": "20260711",
+        "name": "Toll Booth",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X-X--X-X--XO-------X-WX-X-WWWW---X-XW--XP-X-X-OX--X-----X--X-"
+    },
+    {
+        "id": "20260712",
+        "name": "Nebula",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----XO-X-X-X--WW-X---W--W-XXX--X-----W--W-XX-XWW-O-P----X--"
+    },
+    {
+        "id": "20260713",
+        "name": "Yield",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW--O-PWWW-XX--WWWX--OXWWW---X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260714",
+        "name": "Flip",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--X-WW-O----WWP-WXX-WWXX--WOWW-X--X-WW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260715",
+        "name": "Clone",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---W--WW-O-WXOWWX--W--WW--XX--WWXX-PX-WW----X-WWWWWWWWW"
+    },
+    {
+        "id": "20260716",
+        "name": "Hourglass",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X--XPWWXO-X--WW-X--X-WW--W--XWWXX-XO-WWX-----WWWWWWWWW"
+    },
+    {
+        "id": "20260717",
+        "name": "Cylinder",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----OXX-XX----X---P-XWWW-X-X--W---X--X-XX---X----O----X-X--"
+    },
+    {
+        "id": "20260718",
+        "name": "Volcano",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-XX----P-X--XXO----W---XX---W-X--XW--W-----W--XX-OX-WX---X---X--"
+    },
+    {
+        "id": "20260719",
+        "name": "Mars Rover",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "-X-X-----X-O-XX----X---XXX-WWW-X----W---X--XW-XXPX----O---X-X---"
+    },
+    {
+        "id": "20260720",
+        "name": "Coffee Table",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-X--PWWW--OX-WWW-XX--WWWO-X--WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260721",
+        "name": "Back to Basics",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---XP-WW-O----WW-XWXWWWW---X--WW-X--O-WW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260722",
+        "name": "Symmetry",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWW---PWWWW-XX-WWX-O--XWW-XX-X-WW-O--WWWWX-X-WWWWWWWWWWW"
+    },
+    {
+        "id": "20260723",
+        "name": "Coral Reef",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X-PWWX--XX-WW--XO--WW-XX---WW-O-X-XWW---X--WWWWWWWWW"
+    },
+    {
+        "id": "20260724",
+        "name": "Half Measures",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P--WWX-----WWXO-XX-WW------WW-XX---X----XX-X--X--OXWW-X---XWW---"
+    },
+    {
+        "id": "20260725",
+        "name": "Gridlock",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X--XP--X--WWX--WW----XX--O------X-WXX-WW--W---O-X-X-----X----"
+    },
+    {
+        "id": "20260726",
+        "name": "Bookshelf",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "------X--OX--X--XX--W--X---WW-X-X-WWWWP--X--W-X--OX-X-----X--X--"
+    },
+    {
+        "id": "20260727",
+        "name": "Bite the Bullet",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWW-O-WWWW--X---WW-XW-O-WWP---X-WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260728",
+        "name": "Equilibrium",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW------WW-WX-O-WW-O-XW-WWX-W--XWW--X---WW---P--WWWWWWWWW"
+    },
+    {
+        "id": "20260729",
+        "name": "Desert Mirage",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWX-X---WW-O-X--WWX-X-X-WW-XOX-XWW--X-X-WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260730",
+        "name": "Solar Eclipse",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X-X--WW-OX-X-WW--W--XWW-XWOX-WWX-----WW--X--PWWWWWWWWW"
+    },
+    {
+        "id": "20260731",
+        "name": "Underpass",
+        "date": {
+            "year": 2026,
+            "month": 7,
+            "day": 31
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X---P-XWWW--XX-OW--X--X-W-X----WWW-----X--X--XX--X-O----X----"
+    },
+    {
+        "id": "20260801",
+        "name": "Attic Storage",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 1
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X--X---O----X---W-XX--XXWWPX------W----X--WW-X-OXX-X--------X-"
+    },
+    {
+        "id": "20260802",
+        "name": "Cold Feet",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 2
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X--X--O-X----X-W-XW-X-X-X--X---X--X-P-XW--WX-XO--X--X--X-X---"
+    },
+    {
+        "id": "20260803",
+        "name": "Synchronicity",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 3
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWW--X-WWWWO-X-WWWWWX--WWWW--O-WWWW-X-PWWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260804",
+        "name": "Thunderstorm",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 4
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WW--W-O-WW-XX--XWWX--XX-WW-O-W--WW--X--PWWWWWWWWW"
+    },
+    {
+        "id": "20260805",
+        "name": "Galaxy Cluster",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 5
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-XO-X-WW--WX-XWW-X--X-WWXOX-P-WW-X--X-WWWWWWWWW"
+    },
+    {
+        "id": "20260806",
+        "name": "Switchback",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 6
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP---X-WW--XX--WW--X--XWWX-WW--WW-XOXO-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20260807",
+        "name": "Subway Station",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 7
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "X--X-----P-O--X---WW--XX-X-WW---XX-X--X----W-X----X-X-O---X-----"
+    },
+    {
+        "id": "20260808",
+        "name": "Down to Earth",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 8
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-------O--X---XW-X--XX-W-XX----W----X--WWWWO-XX---X--PX---X--"
+    },
+    {
+        "id": "20260809",
+        "name": "Crossword",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 9
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X-X----O--X-X---X-----XWWWW-XP-WWWW-X---X------O--X-X---X-X---"
+    },
+    {
+        "id": "20260810",
+        "name": "Autumn Leaves",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 10
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWX--XPWWW-X-XXWWWOX-O-WWW-----WWWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260811",
+        "name": "Choke Point",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 11
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWP--X--WWXX--O-WW--WX--WW---X--WW-XO-XXWW-X----WWWWWWWWW"
+    },
+    {
+        "id": "20260812",
+        "name": "Botanical Garden",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 12
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WWXOXO-XWW--W---WW-X-WX-WWXX--X-WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260813",
+        "name": "On the Fence",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 13
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--XX--WW-O--XPWW--W-XOWW--W---WW-X-X-XWW--X-X-WWWWWWWWW"
+    },
+    {
+        "id": "20260814",
+        "name": "Domino Effect",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 14
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---XPX--X--X-X----X-X-X---WW-X--XX-WW-----X-WW---O-X--OX---X-X--"
+    },
+    {
+        "id": "20260815",
+        "name": "Migrating Birds",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 15
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "P--X-----X--X-O-W-X-XX-WWW-X--WWWWW--WWW--X-X-X--O-X--X-X--X-X--"
+    },
+    {
+        "id": "20260816",
+        "name": "Perimeter",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 16
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----O--X----X-WW-XX--W-X---XXWPX------WW-XX-OX--X-----X----"
+    },
+    {
+        "id": "20260817",
+        "name": "Flea Market",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 17
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWWWWWWWWP--X--WW-OXXO-WW--X---WWWWWWWWWWWWWWWWW"
+    },
+    {
+        "id": "20260818",
+        "name": "Out of the Blue",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 18
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW----X-WW-PXO--WW-X-WXXWW--WW--WW-X--O-WW------WWWWWWWWW"
+    },
+    {
+        "id": "20260819",
+        "name": "Tipping Point",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 19
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WW--X-O-WWXOXW--WW-X-XX-WW-WX---WW-----PWWWWWWWWW"
+    },
+    {
+        "id": "20260820",
+        "name": "Hidden Valley",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 20
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--W-XPWWX--X--WW-X--XWWWOX-X-WWW---O--WW-X-X-XWWWWWWWWW"
+    },
+    {
+        "id": "20260821",
+        "name": "Diagonal Alley",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 21
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----OX----X--XX-X--X----XX---XP-----XX-XX-XX---X-O---X-----"
+    },
+    {
+        "id": "20260822",
+        "name": "Clock Tower",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 22
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----PW--X---X-X-X--X--OWW-X--W---X--X--XX---X-X--O----X-X--"
+    },
+    {
+        "id": "20260823",
+        "name": "Spill the Beans",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 23
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "----X----O-X-X---X-X--X-XX-WW-----XWW--X-OW--XX----X-------X---P"
+    },
+    {
+        "id": "20260824",
+        "name": "Vanishing Act",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 24
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWWWWWWWWWWWPO--WWWW--X-WWWW--X-WWWW-XO-WWWW--X-WWWWWWWWWW"
+    },
+    {
+        "id": "20260825",
+        "name": "Deep Ocean",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 25
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW-X----WWXOOXX-WW-X-W--WW--X-XXWWX-X---WW---X-PWWWWWWWWW"
+    },
+    {
+        "id": "20260826",
+        "name": "Man in the Moon",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 26
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW--X---WW-OX---WWX--WW-WW-X-WW-WW-X--OXWW--X-XPWWWWWWWWW"
+    },
+    {
+        "id": "20260827",
+        "name": "Touch and Go",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 27
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "WWWWWWWWW---X--WWXP-XX-WW-XWW--WWX--XO-WW--XX--WW-O----WWWWWWWWW"
+    },
+    {
+        "id": "20260828",
+        "name": "Up in the Air",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 28
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "PX--X---XX--XO------W-X----W---XXXW--X-------X--X-XOX--X---X----"
+    },
+    {
+        "id": "20260829",
+        "name": "Word of Mouth",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 29
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "--X------O-X-XX-XX-W--X--X-P-W----W--XX--X--WX---XX-X-O------X--"
+    },
+    {
+        "id": "20260830",
+        "name": "Time Capsule",
+        "date": {
+            "year": 2026,
+            "month": 8,
+            "day": 30
+        },
+        "width": 8,
+        "height": 8,
+        "puzzle": "---X-----O-X------WWW-XXXXWWW-----WPXX----W----X-X--X-OX-X--X---"
+    }
+]

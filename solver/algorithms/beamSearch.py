@@ -17,9 +17,9 @@ def beamSearch(
     restarts=1,
     random_prefix_steps=None,
     model_action_weight=1,
+    restart_model_action_weights=None,
 ):
     HEURISTIC_WEIGHT = 1.0
-    MODEL_ACTION_WEIGHT = model_action_weight
     OPEN_BOARD_B_LIMIT = 7
     AGENT_O_CLOSE_DISTANCE = 3
     AGENT_O_DISTANCE_WEIGHT = 0.4
@@ -446,6 +446,7 @@ def beamSearch(
             if (
                 not near_line_slot
                 and all(on_playable_edge(row, col) for row, col in o_locations)
+                and not any(o_can_be_pushed_somewhere(row, col) for row, col in o_locations)
             ):
                 return True
 
@@ -593,9 +594,13 @@ def beamSearch(
         terminate_on_repeated_states=False,
         restart_seed=None,
         restart_index=0,
+        current_model_action_weight=None,
         original_start_board=None,
         allow_random_prefix=True,
     ):
+        if current_model_action_weight is None:
+            current_model_action_weight = model_action_weight
+
         search_start_board = tuple(tuple(row) for row in board)
         start_board = (
             tuple(tuple(row) for row in original_start_board)
@@ -735,6 +740,7 @@ def beamSearch(
                 terminate_on_repeated_states=terminate_on_repeated_states,
                 restart_seed=restart_seed,
                 restart_index=restart_index,
+                current_model_action_weight=current_model_action_weight,
                 original_start_board=start_board,
                 allow_random_prefix=False,
             )
@@ -798,7 +804,7 @@ def beamSearch(
 
                     heuristic = line_completion_heuristic(nextBoard)
                     score = (HEURISTIC_WEIGHT * heuristic) + (
-                        MODEL_ACTION_WEIGHT * q_value
+                        current_model_action_weight * q_value
                     )
                     scored_actions.append(
                         (
@@ -875,10 +881,21 @@ def beamSearch(
     last_result = ("", [])
     for restart_index in range(attempts):
         restart_seed = base_seed + restart_index
+        if restart_model_action_weights:
+            weight_index = min(restart_index, len(restart_model_action_weights) - 1)
+            current_model_action_weight = restart_model_action_weights[weight_index]
+        else:
+            current_model_action_weight = model_action_weight
+        if debug:
+            print(
+                f"Restart {restart_index}: "
+                f"model_action_weight={current_model_action_weight}"
+            )
         result = solve(
             initial_board,
             restart_seed=restart_seed,
             restart_index=restart_index,
+            current_model_action_weight=current_model_action_weight,
         )
         moves, transition_data = result
         if moves:

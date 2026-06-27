@@ -28,7 +28,8 @@ BEAM_MAX_DEPTH = 200
 BEAM_RESTARTS = 5
 RANDOM_TIEBREAK = True
 TIEBREAK_NOISE = 0.05
-RANDOM_PREFIX_STEPS = [0, 5, 10, 15, 20]
+RANDOM_PREFIX_STEPS = [0, 0, 0, 5, 10]
+RESTART_MODEL_ACTION_WEIGHTS = [0.1, 0.5, 1.0]
 BEAM_TIMEOUT_SECONDS = 350
 MAX_STEPS = 200
 MODEL_PATH = GYM_REGISTER_DIR / "small_cnn_policy.pt"
@@ -271,8 +272,8 @@ def main():
         print(f"Random tiebreak: {RANDOM_TIEBREAK}")
         print(f"Tiebreak noise: {TIEBREAK_NOISE}")
         print(f"Random prefix steps: {RANDOM_PREFIX_STEPS}")
+        print(f"Restart CNN weights: {RESTART_MODEL_ACTION_WEIGHTS} then keep last")
         print(f"Beam timeout seconds: {BEAM_TIMEOUT_SECONDS}")
-        print("CNN beam scoring: heuristic + 0.5 * cnn_action_logit")
         print(f"Debug beam search: {DEBUG_BEAM_SEARCH}")
         if BEAM_TIMEOUT_SECONDS is not None:
             signal.signal(signal.SIGALRM, timeout_handler)
@@ -289,6 +290,7 @@ def main():
                 tiebreak_noise=TIEBREAK_NOISE,
                 restarts=BEAM_RESTARTS,
                 random_prefix_steps=RANDOM_PREFIX_STEPS,
+                restart_model_action_weights=RESTART_MODEL_ACTION_WEIGHTS,
             )
         except BeamTimeout:
             print("=== BEAM TIMEOUT ===")
