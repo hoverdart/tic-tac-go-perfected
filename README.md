@@ -1,6 +1,6 @@
 # Tic Tac Go Perfected
 
-Fast Tic Tac Go solver with a web frontend and FastAPI backend.
+Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a 3-in-a-row configuration with a web frontend and FastAPI backend. Uses BFS/A* for smaller boards and beam search combined with a behavioral cloning CNN trained on 15,000+ board/move pairs for complex 8x8 configurations, selecting the appropriate algorithm based on board size and complexity. Achieves 93% solve rate across 334 real game boards.
 
 ## Project Layout
 
