@@ -26,15 +26,19 @@ Set these variables before running the daily job:
 - `CRON_SECRET`
 - `GOOGLE_TIC_TAC_GO_URL`
 
-The API defaults to the legacy solver. To try the optimized solver, set
-`SOLVER_IMPL=optimized`; `SOLVER_MODE` can be `hybrid`, `fast`, or `exact` and
-defaults to `hybrid`. The optimized path falls back to the legacy solver unless
-`SOLVER_FALLBACK=none` is set.
+The API chooses a solver per board. Boards that are at least `6x6` route to the
+heuristic-CNN beam solver. Smaller boards default to the legacy solver. To use
+the optimized solver for smaller boards, set `SOLVER_IMPL=optimized`;
+`SOLVER_MODE` can be `hybrid`, `fast`, or `exact` and defaults to `hybrid`.
+The optimized path falls back to the legacy solver unless
+`SOLVER_FALLBACK=none` is set. `POST /solve` includes `solver_name` in the
+response so callers can see which solver actually ran.
 
 ## Endpoints
 
 - `GET /health`: basic service health check.
-- `POST /solve`: accepts a board and returns the move string, final board, replay steps, state count, and elapsed time.
+- `POST /solve`: accepts a board and returns the solver name, move string,
+  final board, replay steps, state count, and elapsed time.
 - `POST /jobs/daily-solve`: protected cron endpoint that captures, parses, solves, and stores today's board.
 - `GET /solutions/today`: today's stored solution or a pending response.
 - `GET /solutions/{date}`: stored solution for `YYYY-MM-DD`.
@@ -50,7 +54,8 @@ The root `app.py` file exports this FastAPI app for Vercel, and the root
 with `API_ALLOWED_ORIGINS=https://tictacgo.shauryav.com`, `CRON_SECRET`,
 `DATABASE_URL`, `GEMINI_API_KEY`, `GOOGLE_TIC_TAC_GO_URL`,
 `REMOTE_BROWSER_PROVIDER=browserless`, and `BROWSERLESS_TOKEN`. Optionally set
-`SOLVER_IMPL=optimized` and `SOLVER_MODE=hybrid` to use the optimized solver.
+`SOLVER_IMPL=optimized` and `SOLVER_MODE=hybrid` to use the optimized solver on
+smaller boards.
 
 The Vercel Python function bundle cannot fit a bundled Chromium binary. In
 production, set Browserless credentials or another remote browser endpoint so

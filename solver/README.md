@@ -1,22 +1,31 @@
 # Tic Tac Go Perfected
 
-Fast Tic Tac Go solver plus a Gymnasium environment for DQN training.
+Fast Tic Tac Go solvers plus a Gymnasium environment for model training.
 
-The solver searches Tic Tac Go boards and prints the move string, final board,
-states checked, and `Time Taken`. Screenshot parsing is currently best run with
-the Gemini fallback parser while the OpenCV parser is still being worked on.
+The solver stack searches Tic Tac Go boards and reports the move string, final
+board, states checked, elapsed time, and the solver used. Screenshot parsing is
+currently best run with the Gemini fallback parser while the OpenCV parser is
+still being worked on.
 
 ## Project Layout
 
-- `solve.py`: easiest way to run the fast solver
-- `optimized_solver.py`: opt-in compact-state solver used by the API when `SOLVER_IMPL=optimized`
+- `solve.py`: easiest way to run the legacy command-line solver
+- `service.py`: API-facing router that chooses the solver for each board
+- `heuristicCNNSolver.py`: production wrapper for heuristic beam search with
+  CNN fallback
+- `beamSearch.py`: beam search implementation used by the heuristic-CNN solver
+- `smallCNN.py`: small behavior-cloned CNN policy used as beam guidance
+- `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristicCNNSolver.py`
+- `optimized_solver.py`: compact-state solver used by the API when
+  `SOLVER_IMPL=optimized` on smaller boards
 - `benchmark_solvers.py`: compares legacy and optimized solver performance
 - `algorithms/README.md`: notes on how each solver works and how to compare them
 - `screenshots/`: drop screenshots here for the `reg-settings` command
-- `randomPythonFiles/superTicTacGoSolver.py`: solver implementation
+- `randomPythonFiles/superTicTacGoSolver.py`: legacy solver implementation
 - `boardParsers/fallbackBoardParser.py`: Gemini screenshot parser
 - `boardParsers/openCVBoardParser.py`: experimental OpenCV parser
-- `gymnasium_register/`: local Gymnasium environment and DQN training script
+- `gymnasium_register/`: local Gymnasium environment, board data, training
+  scripts, and offline test utilities
 - `requirements.txt`: minimal install for solving with Gemini
 - `requirements-opencv.txt`: optional OpenCV parser dependencies
 - `requirements-autoplay.txt`: optional autoplay dependency
@@ -32,9 +41,10 @@ Boards use strings in a 2D array:
 - `"U"` means the user/player piece
 - `"B"` means blocked square
 
-For DQN training, the standard board representation is always `8x8`. If the
-visible puzzle is smaller, unused squares to the right and bottom are filled
-with `"B"` so the observation shape stays constant.
+API boards only need to be rectangular. For CNN training and Gymnasium data, the
+standard board representation is `8x8`; if the visible puzzle is smaller,
+unused squares to the right and bottom are filled with `"B"` so the observation
+shape stays constant.
 
 Example `3x3` puzzle padded to `8x8`:
 
@@ -90,8 +100,9 @@ python3 solve.py --quiet-progress --max-states 10000
 
 ## Try The Optimized Solver
 
-The API defaults to the legacy solver. Set these before starting FastAPI to use
-the optimized solver:
+The API routes boards `6x6` and larger to the heuristic-CNN beam solver. Smaller
+boards default to the legacy solver. Set these before starting FastAPI to use
+the optimized solver for smaller boards:
 
 ```bash
 SOLVER_IMPL=optimized
@@ -105,6 +116,28 @@ To compare both solvers on ranked boards:
 ```bash
 python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 ```
+
+## Heuristic-CNN Beam Solver
+
+File: `heuristicCNNSolver.py`
+
+This is the production path for larger boards. It first runs pure heuristic beam
+search. If that fails, it loads `small_cnn_policy.pt` and reruns beam search with
+CNN action logits mixed into the heuristic score.
+
+Current production settings:
+
+- beam width: `5000`
+- max depth: `200`
+- restarts: `5`
+- random tiebreak noise: `0.05`
+- random prefix steps: `[0, 0, 0, 5, 10]`
+- CNN restart weights: `[0.1, 0.5, 1.0]`
+- timeout: `300` seconds for pure heuristic, then another `300` seconds for
+  CNN+heuristic fallback
+
+`solve_board()` returns `solver_name` so API records show whether a board used
+`bfs`, `heuristic-CNN`, or an optimized mode.
 
 ## Solve From A Screenshot With Gemini
 
@@ -164,10 +197,10 @@ Install training dependencies:
 python3 -m pip install -r gymnasium_register/requirements-training.txt
 ```
 
-Run:
+Run DQN training:
 
 ```bash
-python3 gymnasium_register/train.py
+python3 gymnasium_register/train_DQN.py
 ```
 
 Training expects the constant `8x8` padded board format described above.

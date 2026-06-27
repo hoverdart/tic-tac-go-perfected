@@ -1,12 +1,13 @@
 # Tic Tac Go Perfected
 
-Fast Tic Tac Go solver with a web frontend and a planned FastAPI backend.
+Fast Tic Tac Go solver with a web frontend and FastAPI backend.
 
 ## Project Layout
 
 - `apps/web/`: Next.js frontend for showing the board, solve state, and steps.
 - `apps/api/`: FastAPI backend scaffold for exposing the solver over HTTP.
-- `solver/`: Python solver, screenshot parsers, and training experiments.
+- `solver/`: Python solvers, screenshot parsers, model-guided search, and
+  training experiments.
 
 ## Local Development
 
@@ -45,8 +46,9 @@ If the frontend is not running on `http://localhost:3000`, set
 The daily job also needs `DATABASE_URL`, `GEMINI_API_KEY`, `CRON_SECRET`, and
 `GOOGLE_TIC_TAC_GO_URL`.
 
-The API uses the legacy solver by default. To try the optimized pure-Python
-solver, set:
+The API chooses a solver per board. Boards that are at least `6x6` route to the
+heuristic-CNN beam solver. Smaller boards use the legacy solver by default, or
+the optimized pure-Python solver when configured with:
 
 ```bash
 SOLVER_IMPL=optimized
@@ -54,7 +56,11 @@ SOLVER_MODE=hybrid
 ```
 
 `SOLVER_MODE` can be `hybrid`, `fast`, or `exact`; `hybrid` is the default.
-Set `SOLVER_FALLBACK=none` to disable the legacy fallback.
+Set `SOLVER_FALLBACK=none` to disable the optimized solver's legacy fallback.
+
+`POST /solve` responses include `solver_name`, such as `bfs`,
+`heuristic-CNN`, or `optimized-hybrid`, so each board records which solver
+actually ran.
 
 ### Web
 
@@ -88,7 +94,8 @@ Set these environment variables on the Vercel project:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
-- `SOLVER_IMPL`: optional, set to `optimized` to use the new solver
+- `SOLVER_IMPL`: optional for small boards, set to `optimized` to use the
+  optimized solver instead of legacy BFS
 - `SOLVER_MODE`: optional, `hybrid`, `fast`, or `exact`
 - `REMOTE_BROWSER_PROVIDER`: `browserless`
 - `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead

@@ -24,6 +24,7 @@ def beamSearch(
     restart_model_action_weights=None,
     timeout_seconds=None,
 ):
+    """Run beam search with optional CNN action scores and randomized restarts."""
     HEURISTIC_WEIGHT = 1.0
     OPEN_BOARD_B_LIMIT = 7
     AGENT_O_CLOSE_DISTANCE = 3
@@ -36,9 +37,11 @@ def beamSearch(
     )
 
     def timed_out():
+        """Return True once the optional solve deadline has elapsed."""
         return deadline is not None and time.perf_counter() >= deadline
 
     def lostCheck(self, board):
+            """Return True if any three X pieces form a horizontal/vertical line."""
             for i in range(0, len(board)):
                 for j in range(0, len(board[i]) - 2):
                     if board[i][j] == "X" and board[i][j + 1] == "X" and board[i][j + 2] == "X":
@@ -52,6 +55,7 @@ def beamSearch(
             return False
     
     def solved(self, board):
+        """Return True if O/O/U occupy any horizontal or vertical line of 3."""
         for i in range(0, len(board)):
             for j in range(0, len(board[i]) - 2):
                 if board[i][j] in ("O", "U") and board[i][j + 1] in ("O", "U") and board[i][j + 2] in ("O", "U"):
@@ -65,6 +69,7 @@ def beamSearch(
         return False
 
     def find_user(self, board):
+        """Find the U piece position, or None if the board has no U."""
         for i in range(0, len(board)):
             for j in range(0, len(board[i])):
                 if board[i][j] == "U":
@@ -73,6 +78,7 @@ def beamSearch(
         return None
 
     def move(self, board, row_change, col_change):
+        """Move U one cell, optionally pushing one adjacent X/O into empty space."""
         userPos = self.find_user(board)
         if userPos is None:
             return board
@@ -109,24 +115,30 @@ def beamSearch(
         return tuple(tuple(row) for row in newBoard)
 
     def moveUp(self, board):
+        """Move U up one cell if legal."""
         return self.move(board, -1, 0)
 
     def moveDown(self, board):
+        """Move U down one cell if legal."""
         return self.move(board, 1, 0)
 
     def moveLeft(self, board):
+        """Move U left one cell if legal."""
         return self.move(board, 0, -1)
 
     def moveRight(self, board):
+        """Move U right one cell if legal."""
         return self.move(board, 0, 1)
 
     def board_config_key(board):
+        """Hash board layout without U position, for repeated-position memory."""
         return tuple(
             tuple("" if cell == "U" else cell for cell in row)
             for row in board
         )
 
     def user_position_for_board(board):
+        """Return the U position for repeat-memory bookkeeping."""
         for row_index, row in enumerate(board):
             for col_index, cell in enumerate(row):
                 if cell == "U":
@@ -134,6 +146,7 @@ def beamSearch(
         return None
 
     def remember_agent_position_for_config(board, visited_config_positions):
+        """Record where U has stood for the current non-U board layout."""
         user_position = user_position_for_board(board)
         if user_position is None:
             return
@@ -141,12 +154,14 @@ def beamSearch(
         visited_config_positions.setdefault(config_key, set()).add(user_position)
 
     def copy_visited_config_positions(visited_config_positions):
+        """Deep-copy layout-to-agent-position history for a branch."""
         return {
             config_key: set(positions)
             for config_key, positions in visited_config_positions.items()
         }
 
     def get_obs(board, visited_config_positions=None):
+        """Build the 6-channel DQN-style observation tensor for replay data."""
         mapping = {"":0, "X":1, "O":2, "U":3, "B":4}
         arr = [[mapping[cell] for cell in row] for row in board]
 
@@ -175,9 +190,11 @@ def beamSearch(
         return threeDArr
 
     def board_to_rows(board):
+        """Convert tuple board rows into the text rows expected by SmallCNN."""
         return [" ".join(cell if cell else "." for cell in row) for row in board]
 
     def model_action_scores(board):
+        """Return CNN logits for U/D/L/R, or None when no compatible model exists."""
         if model is None or not hasattr(model, "get_obs"):
             return None
 
@@ -192,6 +209,7 @@ def beamSearch(
             return model(obs)[0].detach().cpu()
 
     def valid_win_lines(board):
+        """List all non-barrier horizontal/vertical 3-cell target lines."""
         lines = []
         for row in range(len(board)):
             for col in range(len(board[row]) - 2):
@@ -208,6 +226,7 @@ def beamSearch(
         return lines
 
     def line_score(board, line, useful_positions):
+        """Score one target line; lower means easier to complete."""
         occupied = 0
         blockers = 0
         distance = 0
@@ -227,6 +246,7 @@ def beamSearch(
         return distance - (occupied * 3) + (blockers * 4)
 
     def l_path_cells(start, end, row_first):
+        """Return cells on an L-shaped path between two positions."""
         start_row, start_col = start
         end_row, end_col = end
         cells = []
@@ -251,6 +271,7 @@ def beamSearch(
         return cells[1:-1]
 
     def count_path_blockers(board, agent_position, o_positions):
+        """Count X blockers on the clearer L-path from U to each target O."""
         blockers = 0
         for o_position in o_positions:
             row_first_blockers = sum(
@@ -266,6 +287,7 @@ def beamSearch(
         return blockers
 
     def o_can_be_pushed_somewhere(board, row, col):
+        """Return True if an O has at least one non-wall push direction."""
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
         def in_bounds(check_row, check_col):
@@ -292,6 +314,7 @@ def beamSearch(
         return False
 
     def line_completion_heuristic(board):
+        """Score board promise from best target lines plus open-board penalties."""
         agent_position = None
         o_positions = []
         useful_positions = [
@@ -349,6 +372,7 @@ def beamSearch(
         return heuristic
 
     def softLocked(self, board):
+        """Cheaply reject obvious wall/barrier traps that cannot produce a win."""
         def in_bounds(row, col):
             return 0 <= row < len(board) and 0 <= col < len(board[row])
 
@@ -472,6 +496,7 @@ def beamSearch(
         return False
 
     def active_size(self, board):
+        """Return active non-barrier board extent used for replay reward scaling."""
         length = 0
         width = 0
 
@@ -499,6 +524,7 @@ def beamSearch(
         repeat_termination_limit=0,
         penalize_repeated_states=False,
     ):
+        """Replay a move string into transition dictionaries for compatibility."""
         board = tuple(tuple(row) for row in startBoard)
         data = []
         visited_states = {board: 1}
@@ -580,6 +606,7 @@ def beamSearch(
         return data
 
     class Helpers:
+        """Small namespace to attach helper methods used by legacy-style code."""
         pass
 
     helpers = Helpers()
@@ -611,6 +638,7 @@ def beamSearch(
         original_start_board=None,
         allow_random_prefix=True,
     ):
+        """Run one restart of beam search from an optional random prefix."""
         if current_model_action_weight is None:
             current_model_action_weight = model_action_weight
 
@@ -647,11 +675,13 @@ def beamSearch(
         rng = random.Random(restart_seed)
 
         def ranked_score(item):
+            """Apply optional random noise to near-tie candidate ordering."""
             if not random_tiebreak:
                 return item[0]
             return item[0] + rng.uniform(-tiebreak_noise, tiebreak_noise)
 
         def add_to_backup(candidate):
+            """Keep high-scoring pruned candidates for later frontier refills."""
             score = candidate[0]
             entry = (score, next(backup_counter), candidate)
             if len(backup_frontier) < backup_limit:
@@ -660,6 +690,7 @@ def beamSearch(
                 heapq.heapreplace(backup_frontier, entry)
 
         def refill_from_backup():
+            """Refill the active frontier from the best previously pruned states."""
             refilled = 0
             refill_count = min(beam_width, len(backup_frontier))
             refill_entries = heapq.nlargest(refill_count, backup_frontier)
@@ -700,6 +731,7 @@ def beamSearch(
             return refilled
 
         def random_prefix(prefix_board, max_prefix_steps):
+            """Take a short random legal prefix before starting guided search."""
             prefix_board = tuple(tuple(row) for row in prefix_board)
             prefix_moves = ""
             seen_prefix_boards = {prefix_board}
