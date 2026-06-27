@@ -1,9 +1,13 @@
 import numpy as np
 import heapq
 import itertools
+import logging
 import random
+import time
 import torch as th
 from collections import deque
+
+logger = logging.getLogger(__name__)
 
 def beamSearch(
     initial_board,
@@ -18,12 +22,21 @@ def beamSearch(
     random_prefix_steps=None,
     model_action_weight=1,
     restart_model_action_weights=None,
+    timeout_seconds=None,
 ):
     HEURISTIC_WEIGHT = 1.0
     OPEN_BOARD_B_LIMIT = 7
     AGENT_O_CLOSE_DISTANCE = 3
     AGENT_O_DISTANCE_WEIGHT = 0.4
     PATH_BLOCKER_WEIGHT = 0.5
+    deadline = (
+        time.perf_counter() + timeout_seconds
+        if timeout_seconds is not None
+        else None
+    )
+
+    def timed_out():
+        return deadline is not None and time.perf_counter() >= deadline
 
     def lostCheck(self, board):
             for i in range(0, len(board)):
@@ -729,9 +742,11 @@ def beamSearch(
         if allow_random_prefix and max_prefix_steps > 0:
             prefixed_board, prefix_moves = random_prefix(start_board, max_prefix_steps)
             if debug:
-                print(
-                    f"Restart {restart_index}: random_prefix_steps="
-                    f"{max_prefix_steps}, actual_prefix_moves={len(prefix_moves)}"
+                logger.debug(
+                    "Restart %s: random_prefix_steps=%s, actual_prefix_moves=%s",
+                    restart_index,
+                    max_prefix_steps,
+                    len(prefix_moves),
                 )
             return solve(
                 prefixed_board,
@@ -746,24 +761,42 @@ def beamSearch(
             )
     
         while currentBoards:
+            if timed_out():
+                logger.info(
+                    "beam_search.timeout restart=%s states_checked=%s",
+                    restart_index,
+                    statesChecked,
+                )
+                return "", []
+
             depth_size = len(currentBoards)
             candidates = []
             depth = currentBoards[0][2]
 
             for _ in range(depth_size):
+                if timed_out():
+                    logger.info(
+                        "beam_search.timeout restart=%s states_checked=%s",
+                        restart_index,
+                        statesChecked,
+                    )
+                    return "", []
+
                 currentBoard, moves, current_depth, visited_config_positions = currentBoards.popleft()
                 statesChecked += 1
 
-                if statesChecked % 100000 == 0:
-                    print(statesChecked)
+                if debug and statesChecked % 100000 == 0:
+                    logger.debug("beam_search.states_checked=%s", statesChecked)
 
                 if helpers.lostCheck(currentBoard):
                     continue
 
                 if helpers.solved(currentBoard):
-                    print("=== SOLVED ===")
-                    print("Moves:", moves)
-                    print("States checked: ", statesChecked)
+                    logger.info(
+                        "beam_search.solved moves=%s states_checked=%s",
+                        moves,
+                        statesChecked,
+                    )
                     return (
                         moves,
                         helpers.replayMoves(
@@ -846,15 +879,17 @@ def beamSearch(
             for candidate in pruned_candidates:
                 add_to_backup(candidate)
             if debug:
-                print(
-                    f"Depth {depth}: "
-                    f"frontier={depth_size}, "
-                    f"candidates={len(candidates)}, "
-                    f"kept={len(kept_candidates)}, "
-                    f"pruned_to_backup={len(pruned_candidates)}, "
-                    f"backup={len(backup_frontier)}, "
-                    f"seen={len(best_depth_seen)}, "
-                    f"states_checked={statesChecked}"
+                logger.debug(
+                    "Depth %s: frontier=%s, candidates=%s, kept=%s, "
+                    "pruned_to_backup=%s, backup=%s, seen=%s, states_checked=%s",
+                    depth,
+                    depth_size,
+                    len(candidates),
+                    len(kept_candidates),
+                    len(pruned_candidates),
+                    len(backup_frontier),
+                    len(best_depth_seen),
+                    statesChecked,
                 )
             currentBoards.extend(
                 (board, moves, depth, visited_config_positions)
@@ -864,14 +899,16 @@ def beamSearch(
             if not currentBoards:
                 refilled = refill_from_backup()
                 if debug and refilled:
-                    print(
-                        f"Refilled active frontier from backup: "
-                        f"{refilled}, backup_remaining={len(backup_frontier)}"
+                    logger.debug(
+                        "Refilled active frontier from backup: %s, backup_remaining=%s",
+                        refilled,
+                        len(backup_frontier),
                     )
     
-        print(
-            f"No solution found on restart {restart_index}. "
-            f"States checked: {statesChecked}"
+        logger.info(
+            "beam_search.restart_failed restart=%s states_checked=%s",
+            restart_index,
+            statesChecked,
         )
         return "", []
 
@@ -887,9 +924,10 @@ def beamSearch(
         else:
             current_model_action_weight = model_action_weight
         if debug:
-            print(
-                f"Restart {restart_index}: "
-                f"model_action_weight={current_model_action_weight}"
+            logger.debug(
+                "Restart %s: model_action_weight=%s",
+                restart_index,
+                current_model_action_weight,
             )
         result = solve(
             initial_board,

@@ -107,7 +107,7 @@ Files:
 
 - `solver/gymnasium_register/train.py`
 - `solver/gymnasium_register/trainGrad8.py`
-- `solver/randomPythonFiles/run_dqn_grad10_board.py`
+- `solver/gymnasium_register/run_dqn_grad10_board.py`
 
 The model path treats Tic Tac Go as a reinforcement-learning environment. A DQN
 policy chooses one of four movement actions at each step. This is not currently

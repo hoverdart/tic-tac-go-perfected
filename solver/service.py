@@ -2,8 +2,8 @@
 Public interface between the FastAPI layer and the underlying solver implementations.
 
 This module is the single entry point for solving a board. It handles:
-  - Solver selection: reads SOLVER_IMPL and SOLVER_MODE from environment variables
-    once at import time (see SOLVER_NAME below) and routes calls accordingly.
+  - Solver selection: routes larger boards to heuristic-CNN, otherwise reads
+    SOLVER_IMPL and SOLVER_MODE from environment variables.
   - Fallback logic: if the optimized A* solver gives up (returns None) and budget
     remains, the legacy BFS solver gets a second attempt as a safety net.
   - Result normalization: regardless of which solver ran, solve_board() always
@@ -16,6 +16,7 @@ import os
 import time
 from typing import Any
 
+from solver import heuristicCNNSolver as CNN_solver
 from solver import optimized_solver
 from solver.randomPythonFiles.superTicTacGoSolver import (
     apply_single_move,
@@ -24,20 +25,24 @@ from solver.randomPythonFiles.superTicTacGoSolver import (
 )
 
 
-def _solver_impl() -> str:
+def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
     """Return the solver implementation to use, read from SOLVER_IMPL env var.
 
     Valid values: "legacy" (BFS) or "optimized" (A*). Defaults to "legacy".
-    Note: this is called at module load time to set SOLVER_NAME — changing
-    SOLVER_IMPL after the server has started won't affect a running process.
+    For small boards, SOLVER_IMPL can force "legacy" or "optimized". Larger
+    boards route to heuristic-CNN.
     """
-    impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
-    if impl not in {"legacy", "optimized"}:
+
+    if board is not None and len(board) >= 6 and len(board[0]) >= 6:
+        impl = "heuristiccnn"
+    else:
+        impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
+    if impl not in {"legacy", "optimized", "heuristiccnn"}:
         return "legacy"
     return impl
 
 
-def _solver_mode() -> str:
+def _solver_mode(board: tuple[tuple[str, ...], ...] | None = None) -> str:
     """Return the search mode for the optimized solver, read from SOLVER_MODE.
 
     Valid values:
@@ -48,15 +53,30 @@ def _solver_mode() -> str:
 
     Like _solver_impl(), this is evaluated once at import time.
     """
-    mode = os.getenv("SOLVER_MODE", "hybrid").strip().lower()
-    if mode not in {"hybrid", "fast", "exact"}:
+    if board is not None and len(board) >= 6 and len(board[0]) >= 6:
+        mode = "N/A"
+    else:
+        mode = os.getenv("SOLVER_MODE", "hybrid").strip().lower()
+    if mode not in {"hybrid", "fast", "exact", "N/A"}:
         return "hybrid"
     return mode
 
 
-# Computed once at import time so the same string is used for logging and storage
-# throughout the server's lifetime, regardless of any later env-var changes.
-SOLVER_NAME = f"optimized-{_solver_mode()}" if _solver_impl() == "optimized" else "bfs"
+def _solver_name(
+    impl: str,
+    board: tuple[tuple[str, ...], ...],
+    used_fallback: bool = False,
+) -> str:
+    if impl == "heuristiccnn":
+        name = "heuristic-CNN"
+    elif impl == "optimized":
+        name = f"optimized-{_solver_mode(board)}"
+    else:
+        name = "bfs"
+
+    if used_fallback:
+        name = f"{name}+bfs-fallback"
+    return name
 
 
 class SolverError(ValueError):
@@ -124,8 +144,11 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
         raise SolverError(str(exc)) from exc
 
     start_time = time.perf_counter()
-    solver_impl = _solver_impl()
-    if solver_impl == "optimized":
+    solver_impl = _solver_impl(start_board)
+    used_fallback = False
+    if solver_impl == "heuristiccnn":
+        moves, final_board, states_checked = CNN_solver.solve(start_board)
+    elif solver_impl == "optimized":
         moves, final_board, states_checked = optimized_solver.solve(
             start_board,
             progress_every=0,
@@ -144,6 +167,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
                 progress_every=0,
                 max_states=remaining_states,
             )
+            used_fallback = True
             states_checked += fallback_states
             moves, final_board = fallback_moves, fallback_board
     else:
@@ -156,6 +180,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
 
     return {
         "solved": moves is not None,
+        "solver_name": _solver_name(solver_impl, start_board, used_fallback),
         "moves": moves,
         "states_checked": states_checked,
         "elapsed_ms": elapsed_ms,

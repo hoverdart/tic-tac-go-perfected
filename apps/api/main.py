@@ -60,6 +60,7 @@ class SolveStep(BaseModel):
 
 class SolveResponse(BaseModel):
     solved: bool
+    solver_name: str
     moves: str | None
     states_checked: int
     elapsed_ms: float
