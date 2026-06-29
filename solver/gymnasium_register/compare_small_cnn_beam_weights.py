@@ -69,7 +69,7 @@ def make_env(board, grad):
     return gym.make(
         "tic_tac_go_env/TicTacWorld-v0",
         length=len(board),
-        width=len(board[0]),
+        width=max((len(row) for row in board), default=0),
         board=board,
         render_mode=None,
         reset_option=grad,

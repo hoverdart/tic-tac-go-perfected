@@ -5,7 +5,7 @@ import time
 
 from solver import optimized_solver
 from solver.gymnasium_register import ranked_real_boards
-from solver.randomPythonFiles import superTicTacGoSolver as legacy_solver
+from solver import legacy_solver
 
 
 BOARD_GROUPS = {

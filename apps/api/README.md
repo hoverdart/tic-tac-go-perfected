@@ -2,6 +2,18 @@
 
 FastAPI scaffold for exposing the solver to the Next.js frontend.
 
+## Module Layout
+
+- `main.py`: FastAPI routes, request models, auth dependency, and response shaping.
+- `daily_solve.py`: daily capture → parse → solve → persist orchestration.
+- `board_capture.py`: browser/remote-browser screenshot capture.
+- `board_parser.py`: API adapter around the Gemini board parser.
+- `solution_storage.py`: Postgres persistence for daily solution records.
+- `puzzle_titles.py`: live and historical puzzle title lookup.
+
+The old module names (`acquisition.py`, `parser.py`, `storage.py`,
+`title_fetcher.py`, and `daily_job.py`) are compatibility wrappers.
+
 ## Run Locally
 
 From the repo root:

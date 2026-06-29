@@ -11,17 +11,18 @@ still being worked on.
 
 - `solve.py`: easiest way to run the legacy command-line solver
 - `service.py`: API-facing router that chooses the solver for each board
-- `heuristicCNNSolver.py`: production wrapper for heuristic beam search with
+- `board_utils.py`: shared board normalization and JSON conversion helpers
+- `heuristic_cnn_solver.py`: production wrapper for heuristic beam search with
   CNN fallback
-- `beamSearch.py`: beam search implementation used by the heuristic-CNN solver
-- `smallCNN.py`: small behavior-cloned CNN policy used as beam guidance
-- `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristicCNNSolver.py`
+- `beam_search.py`: beam search implementation used by the heuristic-CNN solver
+- `small_cnn.py`: small behavior-cloned CNN policy used as beam guidance
+- `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristic_cnn_solver.py`
 - `optimized_solver.py`: compact-state solver used by the API when
   `SOLVER_IMPL=optimized` on smaller boards
 - `benchmark_solvers.py`: compares legacy and optimized solver performance
 - `algorithms/README.md`: notes on how each solver works and how to compare them
 - `screenshots/`: drop screenshots here for the `reg-settings` command
-- `randomPythonFiles/superTicTacGoSolver.py`: legacy solver implementation
+- `legacy_solver.py`: legacy solver implementation
 - `boardParsers/fallbackBoardParser.py`: Gemini screenshot parser
 - `boardParsers/openCVBoardParser.py`: experimental OpenCV parser
 - `gymnasium_register/`: local Gymnasium environment, board data, training
@@ -41,7 +42,10 @@ Boards use strings in a 2D array:
 - `"U"` means the user/player piece
 - `"B"` means blocked square
 
-API boards only need to be rectangular. For CNN training and Gymnasium data, the
+API and solver inputs may be rectangular or ragged. `solver.board_utils`
+normalizes them into a rectangular immutable board before search; explicitly
+provided empty cells remain empty, while omitted cells at the end of shorter
+rows are filled with `"B"` barriers. For CNN training and Gymnasium data, the
 standard board representation is `8x8`; if the visible puzzle is smaller,
 unused squares to the right and bottom are filled with `"B"` so the observation
 shape stays constant.
@@ -119,7 +123,7 @@ python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 
 ## Heuristic-CNN Beam Solver
 
-File: `heuristicCNNSolver.py`
+File: `heuristic_cnn_solver.py`
 
 This is the production path for larger boards. It first runs pure heuristic beam
 search. If that fails, it loads `small_cnn_policy.pt` and reruns beam search with

@@ -49,7 +49,7 @@ def active_size(board):
                 active_rows = max(active_rows, row_index + 1)
                 active_cols = max(active_cols, col_index + 1)
 
-    return active_rows or len(board), active_cols or len(board[0])
+    return active_rows or len(board), active_cols or max((len(row) for row in board), default=0)
 
 
 def choose_boards(boards, count, rng):
@@ -105,7 +105,7 @@ def main():
 
         for run_number, (board_index, board) in enumerate(selected_boards, start=1):
             full_rows = len(board)
-            full_cols = len(board[0])
+            full_cols = max((len(row) for row in board), default=0)
             active_rows, active_cols = active_size(board)
 
             env = make_env(board, render_mode=None, grad=grad)

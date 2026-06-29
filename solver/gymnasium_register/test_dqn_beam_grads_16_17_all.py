@@ -98,7 +98,7 @@ def active_size(board):
                 active_rows = max(active_rows, row_index + 1)
                 active_cols = max(active_cols, col_index + 1)
 
-    return active_rows or len(board), active_cols or len(board[0])
+    return active_rows or len(board), active_cols or max((len(row) for row in board), default=0)
 
 
 def training_board_line_numbers():
@@ -218,7 +218,7 @@ def make_report_row(model, line_numbers, grad, board_index):
     board = tuple(tuple(row) for row in TRAINING_BOARDS[grad][board_index])
     board_line = line_numbers[grad][board_index]
     full_rows = len(board)
-    full_cols = len(board[0])
+    full_cols = max((len(row) for row in board), default=0)
     active_rows, active_cols = active_size(board)
     soft_locked = start_soft_locked(board, grad)
 
@@ -292,7 +292,7 @@ def make_report_row_worker(task):
         return make_report_row(model, line_numbers, grad, board_index)
     except BoardTimeout:
         full_rows = len(board)
-        full_cols = len(board[0])
+        full_cols = max((len(row) for row in board), default=0)
         active_rows, active_cols = active_size(board)
         return {
             "grad": grad,

@@ -16,12 +16,11 @@ import os
 import time
 from typing import Any
 
-from solver import heuristicCNNSolver as CNN_solver
+from solver.board_utils import board_dimensions, normalize_board, to_wire_board
 from solver import optimized_solver
-from solver.randomPythonFiles.superTicTacGoSolver import (
+from solver.legacy_solver import (
     apply_single_move,
     solve as legacy_solve,
-    normalize_board,
 )
 
 
@@ -33,7 +32,8 @@ def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
     boards route to heuristic-CNN.
     """
 
-    if board is not None and len(board) >= 6 and len(board[0]) >= 6:
+    rows, cols = board_dimensions(board) if board is not None else (0, 0)
+    if rows >= 6 and cols >= 6:
         impl = "heuristiccnn"
     else:
         impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
@@ -53,7 +53,8 @@ def _solver_mode(board: tuple[tuple[str, ...], ...] | None = None) -> str:
 
     Like _solver_impl(), this is evaluated once at import time.
     """
-    if board is not None and len(board) >= 6 and len(board[0]) >= 6:
+    rows, cols = board_dimensions(board) if board is not None else (0, 0)
+    if rows >= 6 and cols >= 6:
         mode = "N/A"
     else:
         mode = os.getenv("SOLVER_MODE", "hybrid").strip().lower()
@@ -83,11 +84,6 @@ class SolverError(ValueError):
     """Raised when the API receives a board the solver cannot accept."""
 
 
-def _to_wire_board(board: tuple[tuple[str, ...], ...]) -> list[list[str]]:
-    """Convert an internal tuple-of-tuples board to a JSON-serializable list of lists."""
-    return [list(row) for row in board]
-
-
 def _build_steps(
     start_board: tuple[tuple[str, ...], ...],
     moves: str | None,
@@ -107,7 +103,7 @@ def _build_steps(
     steps = []
     for move in moves:
         board = apply_single_move(board, move)
-        steps.append({"move": move, "board": _to_wire_board(board)})
+        steps.append({"move": move, "board": to_wire_board(board)})
 
     return steps
 
@@ -147,7 +143,9 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
     solver_impl = _solver_impl(start_board)
     used_fallback = False
     if solver_impl == "heuristiccnn":
-        moves, final_board, states_checked = CNN_solver.solve(start_board)
+        from solver import heuristic_cnn_solver
+
+        moves, final_board, states_checked = heuristic_cnn_solver.solve(start_board)
     elif solver_impl == "optimized":
         moves, final_board, states_checked = optimized_solver.solve(
             start_board,
@@ -184,7 +182,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
         "moves": moves,
         "states_checked": states_checked,
         "elapsed_ms": elapsed_ms,
-        "start_board": _to_wire_board(start_board),
-        "final_board": _to_wire_board(final_board) if final_board else None,
+        "start_board": to_wire_board(start_board),
+        "final_board": to_wire_board(final_board) if final_board else None,
         "steps": _build_steps(start_board, moves),
     }

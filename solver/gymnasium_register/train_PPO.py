@@ -495,7 +495,7 @@ run_grad(16)
 run_grad(17)
 
 
-env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=len(board[0]), board=board, render_mode="human")
+env = gym.make("tic_tac_go_env/TicTacWorld-v0", length=len(board), width=max((len(row) for row in board), default=0), board=board, render_mode="human")
 
 if model_path.exists():
     model = PPO.load(model_path, env=env)

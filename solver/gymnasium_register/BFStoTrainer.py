@@ -100,7 +100,7 @@ class BFStoTrainer:
         if length == 0:
             length = len(board)
         if width == 0:
-            width = len(board[0])
+            width = max((len(row) for row in board), default=0)
 
         return length, width
 

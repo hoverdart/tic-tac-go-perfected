@@ -22,10 +22,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from apps.api.acquisition import capture_google_board_screenshot, remote_browser_diagnostics
-from apps.api.daily_job import run_daily_solve, utc_puzzle_date
-from apps.api.storage import StorageError, get_solution, list_recent_solutions
-from apps.api.title_fetcher import title_from_past_days
+from apps.api.board_capture import capture_google_board_screenshot, remote_browser_diagnostics
+from apps.api.daily_solve import run_daily_solve, utc_puzzle_date
+from apps.api.solution_storage import StorageError, get_solution, list_recent_solutions
+from apps.api.puzzle_titles import title_from_past_days
 from solver.service import SolverError, solve_board
 
 
@@ -44,7 +44,10 @@ Cell = Literal["", "X", "O", "U", "B"]
 class SolveRequest(BaseModel):
     board: list[list[Cell]] = Field(
         ...,
-        description="Rectangular Tic Tac Go board. Must contain exactly one U.",
+        description=(
+            "Tic Tac Go board. May be rectangular or ragged; omitted cells in "
+            "short rows are normalized to barriers. Must contain exactly one U."
+        ),
     )
     max_states: int | None = Field(
         default=None,

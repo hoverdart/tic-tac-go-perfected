@@ -30,9 +30,9 @@ from collections import deque
 from dataclasses import dataclass
 from functools import lru_cache
 
-from solver.randomPythonFiles.superTicTacGoSolver import (
+from solver.board_utils import board_dimensions, normalize_board
+from solver.legacy_solver import (
     apply_single_move,
-    normalize_board,
 )
 
 
@@ -66,6 +66,7 @@ class Geometry:
     Attributes:
         rows, cols: board dimensions.
         barriers: flat indices of barrier cells (never changes during a solve).
+        coordinates: precomputed `(row, col)` coordinates for each flat index.
         lines: every possible 3-in-a-row triple (horizontal + vertical).
         valid_lines: subset of lines that contain no barrier cells. Barriers
             permanently block a line, so those triples can never be winning
@@ -79,6 +80,7 @@ class Geometry:
     rows: int
     cols: int
     barriers: frozenset[int]
+    coordinates: tuple[tuple[int, int], ...]
     lines: tuple[tuple[int, int, int], ...]
     valid_lines: tuple[tuple[int, int, int], ...]
     neighbors: tuple[tuple[tuple[str, int, int], ...], ...]
@@ -150,6 +152,7 @@ def _geometry(rows: int, cols: int, barriers: frozenset[int]) -> Geometry:
         rows=rows,
         cols=cols,
         barriers=barriers,
+        coordinates=tuple(divmod(idx, cols) for idx in range(rows * cols)),
         lines=tuple(lines),
         valid_lines=valid_lines,
         neighbors=tuple(neighbors),
@@ -168,8 +171,7 @@ def _to_key(board: tuple[tuple[str, ...], ...]) -> str:
 
 def _geometry_for_board(board: tuple[tuple[str, ...], ...]) -> Geometry:
     """Derive the Geometry for a board, using its barrier positions as the cache key."""
-    rows = len(board)
-    cols = len(board[0])
+    rows, cols = board_dimensions(board)
     barriers = frozenset(
         (row * cols) + col
         for row, cells in enumerate(board)
@@ -179,24 +181,27 @@ def _geometry_for_board(board: tuple[tuple[str, ...], ...]) -> Geometry:
     return _geometry(rows, cols, barriers)
 
 
+@lru_cache(maxsize=250_000)
 def _is_solved(key: str, geometry: Geometry) -> bool:
     """Return True if any valid (barrier-free) line is filled with three useful pieces."""
     return any(
         key[first] in USEFUL_PIECES
         and key[second] in USEFUL_PIECES
         and key[third] in USEFUL_PIECES
-        for first, second, third in geometry.lines
+        for first, second, third in geometry.valid_lines
     )
 
 
+@lru_cache(maxsize=250_000)
 def _is_lost(key: str, geometry: Geometry) -> bool:
     """Return True if three X pieces occupy any valid line — the opponent has won."""
     return any(
         key[first] == "X" and key[second] == "X" and key[third] == "X"
-        for first, second, third in geometry.lines
+        for first, second, third in geometry.valid_lines
     )
 
 
+@lru_cache(maxsize=250_000)
 def _piece_can_move(key: str, geometry: Geometry, idx: int) -> bool:
     """Return True if the piece at idx has at least one valid push direction.
 
@@ -226,6 +231,7 @@ def _spot_can_become_empty(key: str, geometry: Geometry, idx: int) -> bool:
     return cell == EMPTY or (cell == "X" and _piece_can_move(key, geometry, idx))
 
 
+@lru_cache(maxsize=250_000)
 def _useful_piece_can_move(key: str, geometry: Geometry, idx: int) -> bool:
     """Return True if the useful piece at idx can be pushed in at least one direction.
 
@@ -241,6 +247,7 @@ def _useful_piece_can_move(key: str, geometry: Geometry, idx: int) -> bool:
     return False
 
 
+@lru_cache(maxsize=250_000)
 def _soft_locked(key: str, geometry: Geometry) -> bool:
     """Detect a diagonal two-O deadlock: a heuristic pruning rule, not exhaustive.
 
@@ -267,6 +274,7 @@ def _soft_locked(key: str, geometry: Geometry) -> bool:
     return not any(_useful_piece_can_move(key, geometry, idx) for idx in o_locations)
 
 
+@lru_cache(maxsize=250_000)
 def _is_dead(key: str, geometry: Geometry) -> bool:
     """Return True if victory is structurally impossible regardless of future moves.
 
@@ -288,7 +296,12 @@ def _pruned(key: str, geometry: Geometry) -> bool:
     return _is_lost(key, geometry) or _is_dead(key, geometry) or _soft_locked(key, geometry)
 
 
-def _line_score(key: str, line: tuple[int, int, int], useful: tuple[int, ...], cols: int) -> int:
+def _line_score(
+    key: str,
+    line: tuple[int, int, int],
+    useful_coords: tuple[tuple[int, int], ...],
+    coordinates: tuple[tuple[int, int], ...],
+) -> int:
     """Compute a heuristic cost for completing a specific candidate winning line.
 
     Lower score = easier/closer to winning. Components:
@@ -310,10 +323,10 @@ def _line_score(key: str, line: tuple[int, int, int], useful: tuple[int, ...], c
         elif cell == "X":
             blockers += 1
 
-        target_row, target_col = divmod(target, cols)
+        target_row, target_col = coordinates[target]
         distance += min(
             abs(piece_row - target_row) + abs(piece_col - target_col)
-            for piece_row, piece_col in (divmod(piece, cols) for piece in useful)
+            for piece_row, piece_col in useful_coords
         )
 
     return distance - (occupied * 3) + (blockers * 4)
@@ -333,15 +346,19 @@ def _best_line_score(key: str, geometry: Geometry) -> int:
     if _is_solved(key, geometry):
         return 0
 
-    useful = tuple(idx for idx, cell in enumerate(key) if cell in USEFUL_PIECES)
-    if len(useful) < 3:
+    useful_coords = tuple(
+        geometry.coordinates[idx]
+        for idx, cell in enumerate(key)
+        if cell in USEFUL_PIECES
+    )
+    if len(useful_coords) < 3:
         return 1_000_000
 
     return max(
         0,
         min(
             (
-                _line_score(key, line, useful, geometry.cols)
+                _line_score(key, line, useful_coords, geometry.coordinates)
                 for line in geometry.valid_lines
             ),
             default=1_000_000,

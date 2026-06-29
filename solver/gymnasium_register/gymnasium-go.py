@@ -100,21 +100,22 @@ class TicTacWorldEnv(gym.Env):
 
     def moveRight(self, board):
         userPos = self._agent_location
+        row_width = len(board[userPos[0]])
         
-        if userPos[1]+1 < len(board[0]):
+        if userPos[1]+1 < row_width:
             if board[userPos[0]][userPos[1]+1] == "B":
                 return board, self._agent_location, self._o_one_location, self._o_two_location
             elif ((board[userPos[0]][userPos[1]+1] == "X" or 
                 board[userPos[0]][userPos[1]+1] == "O")
-                and (userPos[1]+2 >= len(board[0]) or board[userPos[0]][userPos[1]+2] != "")):
+                and (userPos[1]+2 >= row_width or board[userPos[0]][userPos[1]+2] != "")):
                 return board, self._agent_location, self._o_one_location, self._o_two_location
             else:
                 newBoard = [list(row) for row in board]
                 
-                if (userPos[1]+2 < len(board[0]) and board[userPos[0]][userPos[1]+1] == "X"):
+                if (userPos[1]+2 < row_width and board[userPos[0]][userPos[1]+1] == "X"):
                     newBoard[userPos[0]][userPos[1]+2] = newBoard[userPos[0]][userPos[1]+1]
 
-                elif (userPos[1]+2 < len(board[0]) and board[userPos[0]][userPos[1]+1] == "O"):
+                elif (userPos[1]+2 < row_width and board[userPos[0]][userPos[1]+1] == "O"):
                     if (userPos[0] == self._o_one_location[0] and userPos[1]+1 == self._o_one_location[1]):
                         self._o_one_location[1] = self._o_one_location[1] + 1
                     elif (userPos[0] == self._o_two_location[0] and userPos[1]+1 == self._o_two_location[1]):
@@ -280,7 +281,6 @@ class TicTacWorldEnv(gym.Env):
         
 
         
-
 
 
 

@@ -21,8 +21,8 @@ import time
 import traceback
 from typing import Any
 
-from apps.api.storage import get_solution, upsert_solution
-from solver.randomPythonFiles.superTicTacGoSolver import apply_single_move, normalize_board
+from apps.api.solution_storage import get_solution, upsert_solution
+from solver.legacy_solver import apply_single_move, normalize_board
 
 
 LOGGER = logging.getLogger("tic_tac_go.backfill")

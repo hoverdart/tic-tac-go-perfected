@@ -514,9 +514,12 @@ class BoardGenerator:
                         and any(p in reachable for p in line
                                 if board[p[0]][p[1]] != "O")):
                     return True
-        for c in range(len(board[0])):
+        max_cols = max((len(row) for row in board), default=0)
+        for c in range(max_cols):
             for r in range(rows - 2):
                 line = [(r+i, c) for i in range(3)]
+                if any(c >= len(board[line_row]) for line_row, _ in line):
+                    continue
                 if (sum(1 for p in line if p in o_set) == 2
                         and any(p in reachable for p in line
                                 if board[p[0]][p[1]] != "O")):
@@ -569,8 +572,11 @@ class BoardGenerator:
             for c in range(cols - 2):
                 if all(board[r][c+i] in piece_set for i in range(3)):
                     return True
-        for c in range(len(board[0])):
+        max_cols = max((len(row) for row in board), default=0)
+        for c in range(max_cols):
             for r in range(rows - 2):
+                if any(c >= len(board[r+i]) for i in range(3)):
+                    continue
                 if all(board[r+i][c] in piece_set for i in range(3)):
                     return True
         return False

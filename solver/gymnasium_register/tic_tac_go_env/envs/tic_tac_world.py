@@ -216,21 +216,22 @@ class TicTacWorldEnv(gym.Env):
         if board is None:
             board = self.board
         userPos = self.agent_location.copy()
+        row_width = len(board[userPos[0]])
         
-        if userPos[1]+1 < len(board[0]):
+        if userPos[1]+1 < row_width:
             if board[userPos[0]][userPos[1]+1] == "B":
                 return board, self.agent_location, self.o_one_location, self.o_two_location
             elif ((board[userPos[0]][userPos[1]+1] == "X" or 
                 board[userPos[0]][userPos[1]+1] == "O")
-                and (userPos[1]+2 >= len(board[0]) or board[userPos[0]][userPos[1]+2] != "")):
+                and (userPos[1]+2 >= row_width or board[userPos[0]][userPos[1]+2] != "")):
                 return board, self.agent_location, self.o_one_location, self.o_two_location
             else:
                 newBoard = [list(row) for row in board]
                 
-                if (userPos[1]+2 < len(board[0]) and board[userPos[0]][userPos[1]+1] == "X"):
+                if (userPos[1]+2 < row_width and board[userPos[0]][userPos[1]+1] == "X"):
                     newBoard[userPos[0]][userPos[1]+2] = newBoard[userPos[0]][userPos[1]+1]
 
-                elif (userPos[1]+2 < len(board[0]) and board[userPos[0]][userPos[1]+1] == "O"):
+                elif (userPos[1]+2 < row_width and board[userPos[0]][userPos[1]+1] == "O"):
                     if (userPos[0] == self.o_one_location[0] and userPos[1]+1 == self.o_one_location[1]):
                         self.o_one_location[1] = self.o_one_location[1] + 1
                     elif (userPos[0] == self.o_two_location[0] and userPos[1]+1 == self.o_two_location[1]):
@@ -580,7 +581,7 @@ class TicTacWorldEnv(gym.Env):
         if(length == 0):
             length = len(self.board)
         if(width == 0):
-            width = len(self.board[0])
+            width = max((len(row) for row in self.board), default=0)
 
         self.length = length
         self.width = width
@@ -726,7 +727,7 @@ class TicTacWorldEnv(gym.Env):
         canvas.fill((245, 245, 245))
 
         rows = len(self.board)
-        cols = len(self.board[0]) if rows > 0 else 0
+        cols = max((len(row) for row in self.board), default=0)
         if rows == 0 or cols == 0:
             if self.render_mode == "human":
                 self.window.blit(canvas, canvas.get_rect())

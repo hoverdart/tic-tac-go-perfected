@@ -5,7 +5,7 @@ baseline to compare against.
 
 ## Game Model
 
-The board is a rectangular grid with five cell values:
+Solver internals use a rectangular grid with five cell values:
 
 - `""`: empty square
 - `"U"`: player piece
@@ -17,9 +17,13 @@ A board is solved when any horizontal or vertical run of three squares contains
 only useful pieces, where `"U"` counts as useful. A board is lost when any run of
 three contains only `"X"`.
 
+External board inputs can be ragged. They should pass through
+`solver.board_utils.normalize_board`, which pads omitted cells at the end of
+shorter rows with `"B"` barriers before any solver runs.
+
 ## Legacy Solver
 
-File: `solver/randomPythonFiles/superTicTacGoSolver.py`
+File: `solver/legacy_solver.py`
 
 The legacy solver is the original production solver. It is called `bfs` by the
 API, but the current implementation is closer to A* over compressed states than
@@ -105,9 +109,9 @@ provide useful comparison data.
 
 Files:
 
-- `solver/heuristicCNNSolver.py`
-- `solver/beamSearch.py`
-- `solver/smallCNN.py`
+- `solver/heuristic_cnn_solver.py`
+- `solver/beam_search.py`
+- `solver/small_cnn.py`
 - `solver/small_cnn_policy.pt`
 
 This is the current production path for larger boards. `service.py` routes
