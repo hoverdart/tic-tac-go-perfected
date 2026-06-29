@@ -19,6 +19,7 @@ still being worked on.
 - `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristic_cnn_solver.py`
 - `optimized_solver.py`: compact-state solver used by the API when
   `SOLVER_IMPL=optimized` on smaller boards
+- `learned_search/`: experimental learned child-path ranking scaffold
 - `benchmark_solvers.py`: compares legacy and optimized solver performance
 - `algorithms/README.md`: notes on how each solver works and how to compare them
 - `screenshots/`: drop screenshots here for the `reg-settings` command
@@ -142,6 +143,36 @@ Current production settings:
 
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
+
+## Learned Search Scaffold
+
+Files: `learned_search/`
+
+This is the experimental path for training our model. It is not wired into the
+API by default. The package separates the workflow into small pieces:
+
+- `features.py`: turns one parent state and one legal child path into numeric
+  model features.
+- `training_data.py`: solves boards with `optimized_solver`, follows the expert
+  path, and labels which candidate child was chosen at each state.
+- `linear_ranker.py`: tiny runtime ranker interface and placeholder weights.
+- `solver.py`: weighted A* with an extra learned child-ranking term.
+- `export_training_data.py`: CLI for writing JSONL training rows.
+
+Export a small starter dataset:
+
+```bash
+python3 -m solver.learned_search.export_training_data \
+  /tmp/tic-tac-go-learned-rows.jsonl \
+  --groups five \
+  --limit 10
+```
+
+Each JSONL row describes one candidate child path from a parent board. `label=1`
+means the child was on the optimized solver's expert path; `label=0` means it
+was a legal alternative. A later training script can fit logistic regression,
+linear regression, random forest, or gradient boosting against these rows and
+export weights or a small model artifact.
 
 ## Solve From A Screenshot With Gemini
 
