@@ -222,10 +222,12 @@ def debug_screenshot() -> FileResponse:
 
 
 # ---------------------------------------------------------------------------
-# Solver endpoint (public)
+# Solver endpoint (not public)
 # ---------------------------------------------------------------------------
 
-@app.post("/solve", response_model=SolveResponse)
+@app.post("/solve", 
+          response_model=SolveResponse,
+          dependencies=[Depends(require_cron_secret)],)
 def solve(request: SolveRequest) -> SolveResponse:
     """Solve a board submitted directly in the request body."""
     try:
