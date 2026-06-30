@@ -1,5 +1,5 @@
 """
-Vercel Python runtime entry point :).
+Vercel Python runtime entry point :().
 
 Vercel expects a module-level `app` object when using the Python runtime.
 This file re-exports the FastAPI app defined in `apps/api/main.py` so
