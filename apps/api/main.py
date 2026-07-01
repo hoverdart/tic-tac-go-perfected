@@ -31,7 +31,7 @@ from apps.api.solution_storage import (
     get_solution,
     list_recent_solutions,
 )
-from apps.api.puzzle_titles import title_from_past_days
+from apps.api.puzzle_titles import clean_puzzle_title, title_from_past_days
 from solver.service import SolverError, solve_board
 
 
@@ -154,9 +154,12 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
 
 
 def with_title_fallback(record: dict) -> dict:
-    """Fill a missing DB title from the historical manifest without mutating storage."""
-    if record.get("puzzle_title"):
-        return record
+    """Clean a DB title and fall back to the historical manifest when unusable."""
+    title = clean_puzzle_title(record.get("puzzle_title"))
+    if title:
+        if title == record.get("puzzle_title"):
+            return record
+        return {**record, "puzzle_title": title}
     return {
         **record,
         "puzzle_title": title_from_past_days(record.get("puzzle_date")),

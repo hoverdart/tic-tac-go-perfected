@@ -54,10 +54,18 @@ _TITLE_PREFIX_RE = re.compile(r"^tic\s*tac\s*go(?:\s*[-:|]\s*|\s+)", re.IGNORECA
 _TITLE_SUFFIX_RE = re.compile(r"\s*(?:[-|]\s*)?(?:google\s*search|tic\s*tac\s*go)\s*$", re.IGNORECASE)
 
 _GENERIC_TITLES = {
+    "a google game",
     "tic tac go",
     "tic tac go daily solver",
     "tic tac go solution",
 }
+
+_SLASH_DATE_RE = re.compile(r"^\d{1,2}\s*/\s*\d{1,2}\s*/\s*(?:\d{2}|\d{4})$")
+
+
+def _normalize_title_text(text: str) -> str:
+    """Normalize case and punctuation before comparing generic title text."""
+    return re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
 
 
 def _date_key(value: date | datetime | str | None) -> str | None:
@@ -81,16 +89,18 @@ def is_generic_title(text: Any) -> bool:
     """Return whether text is a generic product heading, ignoring punctuation."""
     if not isinstance(text, str):
         return False
-    normalized = re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
-    return normalized in _GENERIC_TITLES
+    return _normalize_title_text(text) in _GENERIC_TITLES
 
 
-def _clean_title(text: Any) -> str | None:
+def clean_puzzle_title(text: Any) -> str | None:
+    """Return a usable puzzle title or None for generic/non-title text."""
     if not isinstance(text, str):
         return None
 
     cleaned = re.sub(r"\s+", " ", text).strip(" \t\r\n\"'")
     if is_generic_title(cleaned):
+        return None
+    if _SLASH_DATE_RE.fullmatch(cleaned):
         return None
     cleaned = _TITLE_PREFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
     cleaned = _TITLE_SUFFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
@@ -104,6 +114,10 @@ def _clean_title(text: Any) -> str | None:
         return None
 
     return cleaned
+
+
+# Retained for compatibility with existing callers and tests.
+_clean_title = clean_puzzle_title
 
 
 @lru_cache(maxsize=1)
@@ -175,6 +189,7 @@ def _title_from_dom_walk(page) -> str | None:
             """
             () => {
                 const skipExact = new Set([
+                    'a google game',
                     'back',
                     'close',
                     'google',
@@ -190,8 +205,10 @@ def _title_from_dom_walk(page) -> str | None:
                     if (!text) return null;
                     const value = String(text).replace(/\\s+/g, ' ').trim().replace(/^["']|["']$/g, '');
                     const lower = value.toLowerCase();
+                    const normalized = lower.replace(/[^a-z0-9]+/g, ' ').trim();
                     if (value.length < 3 || value.length > 60) return null;
-                    if (skipExact.has(lower)) return null;
+                    if (skipExact.has(normalized)) return null;
+                    if (/^\d{1,2}\s*\/\s*\d{1,2}\s*\/\s*(?:\d{2}|\d{4})$/.test(value)) return null;
                     if (lower.startsWith('tic tac go ')) return null;
                     if (skipPhrases.some((phrase) => lower.includes(phrase))) return null;
                     return value;
