@@ -76,12 +76,12 @@ async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: b
 
 // Returns an empty array on any failure — the carousel just doesn't render
 // rather than breaking the page.
-async function getRecentHistory(): Promise<HistoryEntry[]> {
+async function getFullHistory(): Promise<HistoryEntry[]> {
   const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) return [];
 
   try {
-    const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=30`, { cache: "no-store" });
+    const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=365`, { cache: "no-store" });
     if (!response.ok) return [];
     return await response.json();
   } catch {
@@ -108,7 +108,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   const [{ solution, isDemo }, history] = await Promise.all([
     getTodaySolution(),
-    getRecentHistory(),
+    getFullHistory(),
   ]);
 
   return (

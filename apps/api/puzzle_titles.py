@@ -53,6 +53,12 @@ _SKIP_PHRASES = (
 _TITLE_PREFIX_RE = re.compile(r"^tic\s*tac\s*go(?:\s*[-:|]\s*|\s+)", re.IGNORECASE)
 _TITLE_SUFFIX_RE = re.compile(r"\s*(?:[-|]\s*)?(?:google\s*search|tic\s*tac\s*go)\s*$", re.IGNORECASE)
 
+_GENERIC_TITLES = {
+    "tic tac go",
+    "tic tac go daily solver",
+    "tic tac go solution",
+}
+
 
 def _date_key(value: date | datetime | str | None) -> str | None:
     if value is None:
@@ -71,11 +77,21 @@ def _date_key(value: date | datetime | str | None) -> str | None:
         return None
 
 
+def is_generic_title(text: Any) -> bool:
+    """Return whether text is a generic product heading, ignoring punctuation."""
+    if not isinstance(text, str):
+        return False
+    normalized = re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
+    return normalized in _GENERIC_TITLES
+
+
 def _clean_title(text: Any) -> str | None:
     if not isinstance(text, str):
         return None
 
     cleaned = re.sub(r"\s+", " ", text).strip(" \t\r\n\"'")
+    if is_generic_title(cleaned):
+        return None
     cleaned = _TITLE_PREFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
     cleaned = _TITLE_SUFFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
     if not 3 <= len(cleaned) <= 60:
