@@ -19,9 +19,16 @@ export async function GET(
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/solutions/${date}`, { cache: "no-store" });
+    const response = await fetch(`${apiBaseUrl}/solutions/${date}`, {
+      next: { revalidate: 3600 },
+    });
     const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data, {
+      status: response.status,
+      headers: {
+        "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=3600",
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Could not reach backend." },

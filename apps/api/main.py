@@ -12,19 +12,25 @@ Routes:
   GET  /solutions/{puzzle_date} — fetch the stored solution for a specific date
 """
 
+from contextlib import asynccontextmanager
 import os
 import logging
 from datetime import date
 from typing import Literal
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from apps.api.board_capture import capture_google_board_screenshot, remote_browser_diagnostics
 from apps.api.daily_solve import run_daily_solve, utc_puzzle_date
-from apps.api.solution_storage import StorageError, get_solution, list_recent_solutions
+from apps.api.solution_storage import (
+    StorageError,
+    close_pool,
+    get_solution,
+    list_recent_solutions,
+)
 from apps.api.puzzle_titles import title_from_past_days
 from solver.service import SolverError, solve_board
 
@@ -161,8 +167,25 @@ def with_title_fallback(record: dict) -> dict:
 # App setup
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="Tic Tac Go Solver API")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Release process-local resources when a Cloud Run instance stops."""
+    try:
+        yield
+    finally:
+        close_pool()
+
+
+app = FastAPI(title="Tic Tac Go Solver API", lifespan=lifespan)
 logger = logging.getLogger("tic_tac_go.api")
+
+PUBLIC_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=300"
+
+
+def enable_public_cache(response: Response) -> None:
+    """Allow browsers and shared proxies to briefly cache public solution reads."""
+    response.headers["Cache-Control"] = PUBLIC_CACHE_CONTROL
 
 allowed_origins = [
     origin.strip()
@@ -265,8 +288,9 @@ def daily_solve_job() -> JobResponse:
 # ---------------------------------------------------------------------------
 
 @app.get("/solutions/today", response_model=SolutionRecord)
-def today_solution() -> SolutionRecord:
+def today_solution(response: Response) -> SolutionRecord:
     """Return today's stored solution, or a pending record if it hasn't run yet."""
+    enable_public_cache(response)
     puzzle_date = utc_puzzle_date()
     try:
         record = get_solution(puzzle_date)
@@ -279,8 +303,9 @@ def today_solution() -> SolutionRecord:
 
 
 @app.get("/solutions/recent", response_model=list[SolutionSummary])
-def recent_solutions(limit: int = 365) -> list[SolutionSummary]:
+def recent_solutions(response: Response, limit: int = 365) -> list[SolutionSummary]:
     """Return a summary list of recent solutions, capped at 365 entries."""
+    enable_public_cache(response)
     try:
         rows = list_recent_solutions(limit=min(max(limit, 1), 365))
     except StorageError as exc:
@@ -289,8 +314,9 @@ def recent_solutions(limit: int = 365) -> list[SolutionSummary]:
 
 
 @app.get("/solutions/{puzzle_date}", response_model=SolutionRecord)
-def solution_by_date(puzzle_date: date) -> SolutionRecord:
+def solution_by_date(puzzle_date: date, response: Response) -> SolutionRecord:
     """Return the stored solution for a specific date, or a pending record."""
+    enable_public_cache(response)
     try:
         record = get_solution(puzzle_date)
     except StorageError as exc:

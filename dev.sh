@@ -116,6 +116,10 @@ section "Starting services"
 API_PID=""
 WEB_PID=""
 
+step "Applying database migrations..."
+"$VENV/bin/python" -m apps.api.migrate
+ok "Database schema ready"
+
 cleanup() {
   printf '\n  %s▸%s  Shutting down...\n' "$YELLOW" "$RESET"
   [[ -n "$API_PID" ]] && kill "$API_PID" 2>/dev/null || true

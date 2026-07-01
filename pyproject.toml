@@ -6,5 +6,5 @@ dependencies = [
     "fastapi",
     "google-genai",
     "playwright",
-    "psycopg[binary]",
+    "psycopg[binary,pool]",
 ]

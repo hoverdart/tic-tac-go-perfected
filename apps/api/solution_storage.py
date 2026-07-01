@@ -5,17 +5,19 @@ All reads and writes go through a single `daily_solutions` table. The public
 API is `upsert_solution`, `get_solution`, and `list_recent_solutions`; the
 rest is internal plumbing.
 
-`psycopg` is imported lazily (inside `_connect`) rather than at module top so
-the API server stays importable in environments where the Postgres driver isn't
-installed — for example when running only the solver locally or during tests
-that mock the storage layer.
+The connection pool is created lazily so solver-only tools can import this
+module without configuring Postgres. Schema migrations are intentionally
+separate from request-time reads and writes.
 """
 
 from __future__ import annotations
 
-import os
-import logging
+from copy import deepcopy
 from datetime import date
+import logging
+import os
+from threading import Lock
+import time
 from typing import Any
 
 
@@ -24,6 +26,14 @@ class StorageError(RuntimeError):
 
 
 logger = logging.getLogger("tic_tac_go.daily_solve")
+
+_pool: Any | None = None
+_pool_lock = Lock()
+
+_cache: dict[tuple[Any, ...], tuple[float, Any]] = {}
+_cache_lock = Lock()
+_CACHE_MAX_ENTRIES = 1024
+_CACHE_MISS = object()
 
 
 def _database_url() -> str:
@@ -34,50 +44,143 @@ def _database_url() -> str:
     return database_url
 
 
-def _connect():
-    """Open a psycopg connection with dict-style row access.
-
-    psycopg is imported here rather than at module top — see module docstring.
-    """
+def _positive_int_env(name: str, default: int) -> int:
+    """Return a positive integer environment setting or its default."""
     try:
-        import psycopg
-        from psycopg.rows import dict_row
-    except ImportError as exc:
-        raise StorageError(
-            "Missing dependency: install Postgres support with "
-            "`python3 -m pip install psycopg[binary]`."
-        ) from exc
+        value = int(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+    return value if value > 0 else default
 
-    return psycopg.connect(_database_url(), row_factory=dict_row)
+
+def _positive_float_env(name: str, default: float) -> float:
+    """Return a positive floating-point environment setting or its default."""
+    try:
+        value = float(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+def open_pool():
+    """Create and open the process-local Postgres pool if needed."""
+    global _pool
+    if _pool is not None:
+        return _pool
+
+    with _pool_lock:
+        if _pool is not None:
+            return _pool
+        try:
+            from psycopg_pool import ConnectionPool
+            from psycopg.rows import dict_row
+        except ImportError as exc:
+            raise StorageError(
+                "Missing dependency: install Postgres support with "
+                "`python3 -m pip install 'psycopg[binary,pool]'`."
+            ) from exc
+
+        timeout = _positive_float_env("DB_POOL_TIMEOUT_SECONDS", 10.0)
+        pool = ConnectionPool(
+            conninfo=_database_url(),
+            min_size=0,
+            max_size=_positive_int_env("DB_POOL_MAX_SIZE", 5),
+            timeout=timeout,
+            max_idle=_positive_float_env("DB_POOL_MAX_IDLE_SECONDS", 60.0),
+            kwargs={"row_factory": dict_row},
+            open=False,
+            name="daily-solutions",
+        )
+        pool.open()
+        _pool = pool
+        logger.info("storage.pool.opened max_size=%s", pool.max_size)
+        return _pool
+
+
+def close_pool() -> None:
+    """Close the process-local pool during API shutdown."""
+    global _pool
+    with _pool_lock:
+        pool = _pool
+        _pool = None
+    if pool is not None:
+        pool.close()
+        logger.info("storage.pool.closed")
+
+
+def _connect():
+    """Borrow one dict-row connection from the process-local pool."""
+    return open_pool().connection()
+
+
+def _cache_ttl_seconds() -> float:
+    """Return the configured solution-read cache lifetime."""
+    try:
+        return max(0.0, float(os.getenv("SOLUTION_CACHE_TTL_SECONDS", "300")))
+    except ValueError:
+        return 300.0
+
+
+def _cache_get(key: tuple[Any, ...]) -> Any:
+    """Return a defensive copy of a live cached value or _CACHE_MISS."""
+    ttl = _cache_ttl_seconds()
+    if ttl <= 0:
+        return _CACHE_MISS
+
+    now = time.monotonic()
+    with _cache_lock:
+        item = _cache.get(key)
+        if item is None:
+            return _CACHE_MISS
+        expires_at, value = item
+        if expires_at <= now:
+            _cache.pop(key, None)
+            return _CACHE_MISS
+        return deepcopy(value)
+
+
+def _cache_set(key: tuple[Any, ...], value: Any) -> None:
+    """Cache a defensive copy while keeping memory usage bounded."""
+    ttl = _cache_ttl_seconds()
+    if ttl <= 0:
+        return
+
+    now = time.monotonic()
+    with _cache_lock:
+        if len(_cache) >= _CACHE_MAX_ENTRIES:
+            expired = [key for key, (expires_at, _) in _cache.items() if expires_at <= now]
+            for expired_key in expired:
+                _cache.pop(expired_key, None)
+            if len(_cache) >= _CACHE_MAX_ENTRIES:
+                _cache.clear()
+        _cache[key] = (now + ttl, deepcopy(value))
+
+
+def clear_solution_cache() -> None:
+    """Invalidate cached reads after a database write."""
+    with _cache_lock:
+        _cache.clear()
 
 
 def _json(value: Any):
-    """Wrap a Python value in a psycopg Jsonb object.
-
-    psycopg won't automatically serialise nested Python dicts/lists into
-    Postgres jsonb columns — we need to wrap them explicitly. Board state
-    is stored as jsonb so it's queryable; plain text serialisation wouldn't
-    be.
-    """
-    from psycopg.types.json import Jsonb
+    """Wrap a Python value in a psycopg Jsonb object."""
+    try:
+        from psycopg.types.json import Jsonb
+    except ImportError as exc:
+        raise StorageError(
+            "Missing dependency: install Postgres support with "
+            "`python3 -m pip install 'psycopg[binary,pool]'`."
+        ) from exc
 
     return Jsonb(value)
 
 
-def init_db() -> None:
-    """Ensure the daily_solutions table exists and is up to date.
-
-    Called at the top of every public storage function rather than once at
-    startup so the table is created on the first real request in a cold
-    environment (e.g. a fresh Vercel deployment) without needing a separate
-    migration step.
-
-    Column additions use `ADD COLUMN IF NOT EXISTS` so they're safe to re-run
-    on every call. This is intentionally lightweight — proper migrations would
-    be overkill for a single-table schema that evolves slowly.
-    """
-    logger.info("storage.init_db.start")
+def run_migrations() -> None:
+    """Apply idempotent schema changes outside normal request processing."""
+    logger.info("storage.migrate.start")
     with _connect() as conn:
+        # Serialize concurrent Cloud Run instance startups for this schema.
+        conn.execute("SELECT pg_advisory_xact_lock(%s)", (84736291,))
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS daily_solutions (
@@ -104,7 +207,12 @@ def init_db() -> None:
         conn.execute(
             "ALTER TABLE daily_solutions ADD COLUMN IF NOT EXISTS puzzle_title text"
         )
-    logger.info("storage.init_db.done")
+    logger.info("storage.migrate.done")
+
+
+def init_db() -> None:
+    """Compatibility alias for older scripts; prefer run_migrations()."""
+    run_migrations()
 
 
 def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
@@ -121,7 +229,6 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
         record.get("states_checked"),
         record.get("elapsed_ms"),
     )
-    init_db()
     with _connect() as conn:
         row = conn.execute(
             """
@@ -180,36 +287,52 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
             },
         ).fetchone()
         stored = dict(row)
-        logger.info(
-            "storage.upsert.done puzzle_date=%s status=%s updated_at=%s",
-            stored.get("puzzle_date"),
-            stored.get("status"),
-            stored.get("updated_at"),
-        )
-        return stored
+
+    clear_solution_cache()
+    logger.info(
+        "storage.upsert.done puzzle_date=%s status=%s updated_at=%s",
+        stored.get("puzzle_date"),
+        stored.get("status"),
+        stored.get("updated_at"),
+    )
+    return stored
 
 
 def get_solution(puzzle_date: date) -> dict[str, Any] | None:
     """Return the stored solution for a given date, or None if it doesn't exist."""
+    cache_key = ("solution", puzzle_date)
+    cached = _cache_get(cache_key)
+    if cached is not _CACHE_MISS:
+        logger.info("storage.get.cache_hit puzzle_date=%s", puzzle_date)
+        return cached
+
     logger.info("storage.get.start puzzle_date=%s", puzzle_date)
-    init_db()
     with _connect() as conn:
         row = conn.execute(
             "SELECT * FROM daily_solutions WHERE puzzle_date = %s",
             (puzzle_date,),
         ).fetchone()
-        logger.info("storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None)
-        return dict(row) if row else None
+        result = dict(row) if row else None
+    _cache_set(cache_key, result)
+    logger.info("storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None)
+    return result
 
 
 def list_recent_solutions(limit: int = 30) -> list[dict[str, Any]]:
     """Return a lightweight summary list of the most recent solutions."""
+    cache_key = ("recent", limit)
+    cached = _cache_get(cache_key)
+    if cached is not _CACHE_MISS:
+        logger.info("storage.list.cache_hit limit=%s", limit)
+        return cached
+
     logger.info("storage.list.start limit=%s", limit)
-    init_db()
     with _connect() as conn:
         rows = conn.execute(
             "SELECT puzzle_date, status, puzzle_title FROM daily_solutions ORDER BY puzzle_date DESC LIMIT %s",
             (limit,),
         ).fetchall()
-        logger.info("storage.list.done count=%s", len(rows))
-        return [dict(row) for row in rows]
+        result = [dict(row) for row in rows]
+    _cache_set(cache_key, result)
+    logger.info("storage.list.done count=%s", len(result))
+    return result

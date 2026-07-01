@@ -23,6 +23,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r apps/api/requirements.txt
 python3 -m playwright install chromium
+python3 -m apps.api.migrate
 uvicorn apps.api.main:app --reload
 ```
 
@@ -37,6 +38,16 @@ Set these variables before running the daily job:
 - `GEMINI_API_KEY`
 - `CRON_SECRET`
 - `GOOGLE_TIC_TAC_GO_URL`
+
+The Docker image and `dev.sh` apply the database migration before starting the
+API. For other deployment methods, run `python3 -m apps.api.migrate` once per
+release. Normal API requests never run schema changes.
+
+Database connections use a lazy process-local pool. Optional settings are
+`DB_POOL_MAX_SIZE` (default `5`), `DB_POOL_TIMEOUT_SECONDS` (default `10`), and
+`DB_POOL_MAX_IDLE_SECONDS` (default `60`). Public solution reads are cached in
+each API process for `SOLUTION_CACHE_TTL_SECONDS` (default `300` seconds), and
+writes invalidate that process's cache.
 
 The API chooses a solver per board. Boards that are at least `6x6` route to the
 heuristic-CNN beam solver. Smaller boards default to the legacy solver. To use

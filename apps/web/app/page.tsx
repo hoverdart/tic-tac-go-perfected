@@ -1,7 +1,7 @@
 // Next.js Server Component — fetches today's solution and recent history from
 // the FastAPI backend, then passes them to GameView for rendering. Static
-// caching is disabled so the board is always the current day's data on every
-// request (not a stale build-time snapshot).
+// Results are revalidated every five minutes so repeated page loads do not
+// repeatedly hit Cloud Run and Postgres.
 import type { Metadata } from "next";
 import { GameView, type SolutionRecord, type HistoryEntry } from "./game-view";
 import { getBackendBaseUrl } from "./backend-url";
@@ -61,7 +61,9 @@ async function getTodaySolution(): Promise<{ solution: SolutionRecord; isDemo: b
   }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/solutions/today`, { cache: "no-store" });
+    const response = await fetch(`${apiBaseUrl}/solutions/today`, {
+      next: { revalidate: 300 },
+    });
     if (!response.ok) {
       return { solution: unavailableSolution(`Backend returned ${response.status}.`), isDemo: false };
     }
@@ -81,7 +83,9 @@ async function getFullHistory(): Promise<HistoryEntry[]> {
   if (!apiBaseUrl) return [];
 
   try {
-    const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=365`, { cache: "no-store" });
+    const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=365`, {
+      next: { revalidate: 300 },
+    });
     if (!response.ok) return [];
     return await response.json();
   } catch {

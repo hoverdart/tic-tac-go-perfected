@@ -3,5 +3,5 @@ google-genai
 playwright
 numpy
 torch
-psycopg[binary]
+psycopg[binary,pool]
 uvicorn[standard]
