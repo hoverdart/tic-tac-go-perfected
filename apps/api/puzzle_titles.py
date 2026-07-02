@@ -50,7 +50,10 @@ _SKIP_PHRASES = (
     "sign in",
 )
 
-_TITLE_PREFIX_RE = re.compile(r"^tic\s*tac\s*go(?:\s*[-:|]\s*|\s+)", re.IGNORECASE)
+_TITLE_PREFIX_RE = re.compile(
+    r"^tic[^a-z0-9]*tac[^a-z0-9]*go(?:[^a-z0-9]+)?",
+    re.IGNORECASE,
+)
 _TITLE_SUFFIX_RE = re.compile(r"\s*(?:[-|]\s*)?(?:google\s*search|tic\s*tac\s*go)\s*$", re.IGNORECASE)
 
 _GENERIC_TITLES = {
@@ -61,6 +64,14 @@ _GENERIC_TITLES = {
 }
 
 _SLASH_DATE_RE = re.compile(r"^\d{1,2}\s*/\s*\d{1,2}\s*/\s*(?:\d{2}|\d{4})$")
+_EMBEDDED_SLASH_DATE_RE = re.compile(
+    r"(?<!\d)\d{1,2}\s*/\s*\d{1,2}\s*/\s*(?:\d{2}|\d{4})(?!\d)"
+)
+_GOOGLE_GAME_RE = re.compile(r"\ba\W+google\W+game\b", re.IGNORECASE)
+_CONTROL_SUFFIX_RE = re.compile(
+    r"(?:\s+(?:undo|reset|rules|how\s+to\s+play|play|back|close|skip))+$",
+    re.IGNORECASE,
+)
 
 
 def _normalize_title_text(text: str) -> str:
@@ -103,6 +114,10 @@ def clean_puzzle_title(text: Any) -> str | None:
     if _SLASH_DATE_RE.fullmatch(cleaned):
         return None
     cleaned = _TITLE_PREFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
+    cleaned = _GOOGLE_GAME_RE.sub(" ", cleaned)
+    cleaned = _EMBEDDED_SLASH_DATE_RE.sub(" ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" \t\r\n\"'-:|")
+    cleaned = _CONTROL_SUFFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
     cleaned = _TITLE_SUFFIX_RE.sub("", cleaned).strip(" \t\r\n\"'-:|")
     if not 3 <= len(cleaned) <= 60:
         return None

@@ -34,6 +34,10 @@ class TitleFetcherTest(unittest.TestCase):
     def test_clean_title_keeps_real_title_with_numbers(self):
         self.assertEqual(_clean_title("Route 66"), "Route 66")
 
+    def test_clean_title_extracts_title_from_combined_google_heading(self):
+        heading = "Tic-Tac-Go a Google game 7/2/2026 Equator Undo Reset Rules"
+        self.assertEqual(_clean_title(heading), "Equator")
+
 
 if __name__ == "__main__":
     unittest.main()
