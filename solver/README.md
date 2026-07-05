@@ -144,20 +144,25 @@ Current production settings:
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
 
-## Learned Search Scaffold
+## Linear Tree Solver V1
 
 Files: `learned_search/`
 
-This is the experimental path for training our model. It is not wired into the
-API by default. The package separates the workflow into small pieces:
+This is the experimental best-path alternative to the heuristic-CNN beam solver.
+It ranks legal compressed child paths from the current search node instead of
+predicting a single next move. It is opt-in through `SOLVER_IMPL=learned`; the
+production route for large boards still defaults to heuristic-CNN.
 
 - `features.py`: turns one parent state and one legal child path into numeric
   model features.
 - `training_data.py`: solves boards with `optimized_solver`, follows the expert
   path, and labels which candidate child was chosen at each state.
-- `linear_ranker.py`: tiny runtime ranker interface and placeholder weights.
+- `linear_ranker.py`: runtime ranker interface and trained artifact loader.
 - `solver.py`: weighted A* with an extra learned child-ranking term.
 - `export_training_data.py`: CLI for writing JSONL training rows.
+- `train_linear_tree_solver.py`: pure-Python pairwise trainer.
+- `benchmark_linear_tree_solver.py`: compares V1 against optimized A*.
+- `linear_tree_ranker_v1.json`: stored V1 model artifact.
 
 Export a small starter dataset:
 
@@ -170,9 +175,34 @@ python3 -m solver.learned_search.export_training_data \
 
 Each JSONL row describes one candidate child path from a parent board. `label=1`
 means the child was on the optimized solver's expert path; `label=0` means it
-was a legal alternative. A later training script can fit logistic regression,
-linear regression, random forest, or gradient boosting against these rows and
-export weights or a small model artifact.
+was a legal alternative.
+
+Train and store V1:
+
+```bash
+python3 -m solver.learned_search.train_linear_tree_solver \
+  --groups five six \
+  --max-states 100000 \
+  --epochs 35 \
+  --learning-rate 0.04 \
+  --l2 0.0005 \
+  --seed 11
+```
+
+Run it directly:
+
+```bash
+python3 -m solver.learned_search.benchmark_linear_tree_solver \
+  --groups five six seven \
+  --limit-per-group 5 \
+  --max-states 50000
+```
+
+Use it through the API/service router for non-large boards:
+
+```bash
+SOLVER_IMPL=learned SOLVER_MODE=hybrid
+```
 
 ## Solve From A Screenshot With Gemini
 

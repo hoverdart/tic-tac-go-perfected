@@ -1,0 +1,93 @@
+{
+  "feature_names": [
+    "parent_heuristic",
+    "child_heuristic",
+    "heuristic_delta",
+    "segment_length",
+    "pushed_o",
+    "pushed_x",
+    "walk_only",
+    "child_solved",
+    "child_lost",
+    "child_pruned",
+    "useful_line_occupancy",
+    "x_threat_lines"
+  ],
+  "intercept": 0.0,
+  "means": {
+    "child_heuristic": 0.0,
+    "child_lost": 0.11925465838509317,
+    "child_pruned": 0.12173913043478261,
+    "child_solved": 0.03850931677018633,
+    "heuristic_delta": 0.0,
+    "parent_heuristic": 0.0,
+    "pushed_o": 0.2186335403726708,
+    "pushed_x": 0.7590062111801242,
+    "segment_length": 4.115527950310559,
+    "useful_line_occupancy": 1.7055900621118012,
+    "walk_only": 0.02236024844720497,
+    "x_threat_lines": 5.926708074534162
+  },
+  "metadata": {
+    "created_at": "2026-07-05T10:23:44.543289+00:00",
+    "epochs": 35,
+    "expert_mode": "hybrid",
+    "export_stats": {
+      "rows": 1021,
+      "skipped": 1,
+      "solved": 32
+    },
+    "groups": [
+      "five",
+      "six"
+    ],
+    "l2": 0.0005,
+    "learning_rate": 0.04,
+    "limit_per_group": null,
+    "max_states": 100000,
+    "metrics": {
+      "holdout": {
+        "groups": 42.0,
+        "mean_reciprocal_rank": 0.8202380952380953,
+        "top1_accuracy": 0.6904761904761905
+      },
+      "train": {
+        "groups": 166.0,
+        "mean_reciprocal_rank": 0.8208405048766495,
+        "top1_accuracy": 0.6987951807228916
+      }
+    },
+    "seed": 11,
+    "trainer": "pairwise_logistic_sgd"
+  },
+  "model_type": "linear_tree_ranker",
+  "scales": {
+    "child_heuristic": 1.0,
+    "child_lost": 0.32408792763468974,
+    "child_pruned": 0.3269842726428377,
+    "child_solved": 0.1924223201504435,
+    "heuristic_delta": 1.0,
+    "parent_heuristic": 1.0,
+    "pushed_o": 0.41331938666941637,
+    "pushed_x": 0.4276865470997619,
+    "segment_length": 2.779305937002043,
+    "useful_line_occupancy": 0.5336209889999065,
+    "walk_only": 0.14785218204877545,
+    "x_threat_lines": 4.1100808921022765
+  },
+  "version": 1,
+  "weights": {
+    "child_heuristic": 0.0,
+    "child_lost": -1.1812637965827886,
+    "child_pruned": -1.344704908435498,
+    "child_solved": 0.5307459008929657,
+    "heuristic_delta": 0.0,
+    "parent_heuristic": 0.0,
+    "pushed_o": 0.2774285304614071,
+    "pushed_x": -0.10734322596688041,
+    "segment_length": -1.5100581945634672,
+    "useful_line_occupancy": 0.5926374958845253,
+    "walk_only": -0.4650410662447898,
+    "x_threat_lines": -0.15668300079889033
+  }
+}

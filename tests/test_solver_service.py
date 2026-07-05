@@ -152,6 +152,21 @@ class SolverServiceTest(unittest.TestCase):
         self.assertEqual(result["moves"], "")
         self.assertEqual(result["states_checked"], 1)
 
+    def test_service_can_select_learned_solver(self):
+        with patch.dict("os.environ", {"SOLVER_IMPL": "learned"}, clear=False):
+            result = solve_board(
+                [
+                    ["U", "O", "O"],
+                    ["", "", ""],
+                    ["", "", ""],
+                ]
+            )
+
+        self.assertTrue(result["solved"])
+        self.assertEqual(result["solver_name"], "linear-tree-v1-hybrid")
+        self.assertEqual(result["moves"], "")
+        self.assertEqual(result["states_checked"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

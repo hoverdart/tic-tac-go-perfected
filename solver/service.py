@@ -27,9 +27,9 @@ from solver.legacy_solver import (
 def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
     """Return the solver implementation to use, read from SOLVER_IMPL env var.
 
-    Valid values: "legacy" (BFS) or "optimized" (A*). Defaults to "legacy".
-    For small boards, SOLVER_IMPL can force "legacy" or "optimized". Larger
-    boards route to heuristic-CNN.
+    Valid values: "legacy" (BFS), "optimized" (A*), or "learned" (linear
+    child-path ranked A*). Defaults to "legacy". For small boards, SOLVER_IMPL
+    can force one of those values. Larger boards route to heuristic-CNN.
     """
 
     rows, cols = board_dimensions(board) if board is not None else (0, 0)
@@ -37,7 +37,7 @@ def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
         impl = "heuristiccnn"
     else:
         impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
-    if impl not in {"legacy", "optimized", "heuristiccnn"}:
+    if impl not in {"legacy", "optimized", "learned", "heuristiccnn"}:
         return "legacy"
     return impl
 
@@ -70,6 +70,8 @@ def _solver_name(
 ) -> str:
     if impl == "heuristiccnn":
         name = "heuristic-CNN"
+    elif impl == "learned":
+        name = f"linear-tree-v1-{_solver_mode(board)}"
     elif impl == "optimized":
         name = f"optimized-{_solver_mode(board)}"
     else:
@@ -113,6 +115,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
 
     Routing logic:
       - If SOLVER_IMPL=optimized, runs the A* solver first.
+      - If SOLVER_IMPL=learned, runs the Linear Tree Solver first.
       - If the A* solver returns None (no solution found within budget) AND there
         are still states left in the budget AND SOLVER_FALLBACK=legacy, the legacy
         BFS solver gets to try with whatever budget remains. This acts as a safety
@@ -146,8 +149,15 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
         from solver import heuristic_cnn_solver
 
         moves, final_board, states_checked = heuristic_cnn_solver.solve(start_board)
-    elif solver_impl == "optimized":
-        moves, final_board, states_checked = optimized_solver.solve(
+    elif solver_impl in {"optimized", "learned"}:
+        if solver_impl == "learned":
+            from solver.learned_search import solver as learned_solver
+
+            solve_fn = learned_solver.solve
+        else:
+            solve_fn = optimized_solver.solve
+
+        moves, final_board, states_checked = solve_fn(
             start_board,
             progress_every=0,
             max_states=max_states,
