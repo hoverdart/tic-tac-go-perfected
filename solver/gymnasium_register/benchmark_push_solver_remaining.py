@@ -1,8 +1,8 @@
-"""Benchmark missing historical boards with the push solver.
+"""Benchmark historical boards with the push solver.
 
-The existing CSV is treated as resumable state. Boards already represented by
-their ID are skipped, while each newly completed result is written atomically
-back to the same file in release order.
+Normal mode reruns every board. ``--only-failed`` retries only rows currently
+marked unsolved. Each completed result replaces its prior row and is written
+atomically back to the same file in release order.
 """
 
 from __future__ import annotations
@@ -24,6 +24,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 INPUT_PATH = SCRIPT_DIR / "allBoards.json"
 OUTPUT_PATH = SCRIPT_DIR / "push_solver_on_heuristic_cnn_failures.csv"
+
+# Set True to rerun only rows currently marked failed in OUTPUT_PATH.
+# Set False to rerun every board in allBoards.json.
+ONLY_FAILED = False
 
 FIELDNAMES = [
     "board_id",
@@ -103,6 +107,27 @@ def load_existing_rows() -> dict[str, dict[str, str]]:
             for row in csv.DictReader(handle)
             if row.get("board_id")
         }
+
+
+def row_is_solved(row: dict[str, Any]) -> bool:
+    return str(row.get("solved", "")).strip().lower() == "true"
+
+
+def select_pending_entries(
+    entries: list[dict[str, Any]],
+    rows_by_id: dict[str, dict[str, Any]],
+    *,
+    only_failed: bool,
+) -> list[dict[str, Any]]:
+    """Select failed existing rows for retry, or every board in normal mode."""
+    if only_failed:
+        return [
+            entry
+            for entry in entries
+            if str(entry["id"]) in rows_by_id
+            and not row_is_solved(rows_by_id[str(entry["id"])])
+        ]
+    return entries
 
 
 def write_rows(
@@ -197,12 +222,18 @@ def solve_entry_worker(
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run the push solver on boards missing from its benchmark CSV."
+        description="Run the push solver benchmark on all boards or failed CSV rows."
     )
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
     parser.add_argument("--max-nodes", type=int, default=500_000)
     parser.add_argument("--weight", type=float, default=2.0)
     parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument(
+        "--only-failed",
+        action=argparse.BooleanOptionalAction,
+        default=ONLY_FAILED,
+        help="Rerun and replace failed CSV rows instead of processing missing boards.",
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("--workers must be at least 1")
@@ -210,10 +241,15 @@ def main() -> int:
     entries = load_entries()
     ordered_ids = [str(entry["id"]) for entry in entries]
     rows_by_id = load_existing_rows()
-    pending = [entry for entry in entries if str(entry["id"]) not in rows_by_id]
+    pending = select_pending_entries(
+        entries,
+        rows_by_id,
+        only_failed=args.only_failed,
+    )
+    mode = "failed rows" if args.only_failed else "all boards"
     print(
         f"Boards={len(entries)} existing={len(rows_by_id)} pending={len(pending)} "
-        f"timeout={args.timeout_seconds}s workers={args.workers}",
+        f"mode={mode} timeout={args.timeout_seconds}s workers={args.workers}",
         flush=True,
     )
 
@@ -245,7 +281,7 @@ def main() -> int:
                 flush=True,
             )
 
-    solved_count = sum(str(row["solved"]).lower() == "true" for row in rows_by_id.values())
+    solved_count = sum(row_is_solved(row) for row in rows_by_id.values())
     print(
         f"Finished solved={solved_count}/{len(rows_by_id)} output={OUTPUT_PATH}",
         flush=True,
