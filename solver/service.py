@@ -27,17 +27,21 @@ from solver.legacy_solver import (
 def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
     """Return the solver implementation to use, read from SOLVER_IMPL env var.
 
-    Valid values: "legacy" (BFS), "optimized" (A*), or "learned" (linear
-    child-path ranked A*). Defaults to "legacy". For small boards, SOLVER_IMPL
-    can force one of those values. Larger boards route to heuristic-CNN.
+    Valid values: "legacy" (BFS), "optimized" (A*), "learned" (linear
+    child-path ranked A*), or "push" (classical push-level A*). Defaults to
+    "legacy". SOLVER_IMPL=push is explicitly opt-in for all board sizes;
+    otherwise larger boards route to heuristic-CNN.
     """
 
     rows, cols = board_dimensions(board) if board is not None else (0, 0)
-    if rows >= 6 and cols >= 6:
+    requested_impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
+    if requested_impl == "push":
+        impl = "push"
+    elif rows >= 6 and cols >= 6:
         impl = "heuristiccnn"
     else:
-        impl = os.getenv("SOLVER_IMPL", "legacy").strip().lower()
-    if impl not in {"legacy", "optimized", "learned", "heuristiccnn"}:
+        impl = requested_impl
+    if impl not in {"legacy", "optimized", "learned", "push", "heuristiccnn"}:
         return "legacy"
     return impl
 
@@ -70,6 +74,8 @@ def _solver_name(
 ) -> str:
     if impl == "heuristiccnn":
         name = "heuristic-CNN"
+    elif impl == "push":
+        name = "push-v1"
     elif impl == "learned":
         name = f"linear-tree-v1-{_solver_mode(board)}"
     elif impl == "optimized":
@@ -116,6 +122,7 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
     Routing logic:
       - If SOLVER_IMPL=optimized, runs the A* solver first.
       - If SOLVER_IMPL=learned, runs the Linear Tree Solver first.
+      - If SOLVER_IMPL=push, runs the classical push-level solver first.
       - If the A* solver returns None (no solution found within budget) AND there
         are still states left in the budget AND SOLVER_FALLBACK=legacy, the legacy
         BFS solver gets to try with whatever budget remains. This acts as a safety
@@ -149,24 +156,38 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
         from solver import heuristic_cnn_solver
 
         moves, final_board, states_checked = heuristic_cnn_solver.solve(start_board)
-    elif solver_impl in {"optimized", "learned"}:
-        if solver_impl == "learned":
+    elif solver_impl in {"optimized", "learned", "push"}:
+        if solver_impl == "push":
+            from solver.push_solver import solve as push_solve
+
+            push_result = push_solve(
+                start_board,
+                max_nodes=500_000 if max_states is None else max_states,
+            )
+            moves = push_result.moves
+            final_board = push_result.final_board
+            states_checked = push_result.nodes_expanded
+        elif solver_impl == "learned":
             from solver.learned_search import solver as learned_solver
 
             solve_fn = learned_solver.solve
+            moves, final_board, states_checked = solve_fn(
+                start_board,
+                progress_every=0,
+                max_states=max_states,
+            )
         else:
-            solve_fn = optimized_solver.solve
-
-        moves, final_board, states_checked = solve_fn(
-            start_board,
-            progress_every=0,
-            max_states=max_states,
-        )
+            moves, final_board, states_checked = optimized_solver.solve(
+                start_board,
+                progress_every=0,
+                max_states=max_states,
+            )
         # Only fall back to legacy if budget wasn't fully consumed by the A* run.
         remaining_states = None if max_states is None else max_states - states_checked
         can_fallback = remaining_states is None or remaining_states > 0
         if (
             moves is None
+            and solver_impl != "push"
             and can_fallback
             and os.getenv("SOLVER_FALLBACK", "legacy").strip().lower() == "legacy"
         ):

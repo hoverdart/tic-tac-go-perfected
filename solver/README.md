@@ -19,6 +19,7 @@ still being worked on.
 - `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristic_cnn_solver.py`
 - `optimized_solver.py`: compact-state solver used by the API when
   `SOLVER_IMPL=optimized` on smaller boards
+- `push_solver/`: classical Sokoban-style push-level weighted-A* solver
 - `learned_search/`: experimental learned child-path ranking scaffold
 - `benchmark_solvers.py`: compares legacy and optimized solver performance
 - `algorithms/README.md`: notes on how each solver works and how to compare them
@@ -105,9 +106,10 @@ python3 solve.py --quiet-progress --max-states 10000
 
 ## Try The Optimized Solver
 
-The API routes boards `6x6` and larger to the heuristic-CNN beam solver. Smaller
-boards default to the legacy solver. Set these before starting FastAPI to use
-the optimized solver for smaller boards:
+The API routes boards `6x6` and larger to the heuristic-CNN beam solver unless
+`SOLVER_IMPL=push` is explicitly set. Smaller boards default to the legacy
+solver. Set these before starting FastAPI to use the optimized solver for
+smaller boards:
 
 ```bash
 SOLVER_IMPL=optimized
@@ -121,6 +123,41 @@ To compare both solvers on ranked boards:
 ```bash
 python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 ```
+
+## Classical Push Solver
+
+File: `push_solver/`
+
+This is the opt-in Sokoban-style solver. It searches over pushes instead of
+individual walking moves, normalizes the player to its reachable region, uses
+weighted A*, prunes immediate X-loss states, and verifies the reconstructed
+keystroke solution independently.
+
+Enable it through the API/service router:
+
+```bash
+SOLVER_IMPL=push
+```
+
+Run a historical-board benchmark:
+
+```bash
+python3 -m solver.push_solver.bench \
+  --limit 20 \
+  --weight 2.0 \
+  --max-nodes 500000 \
+  --timeout-seconds 10
+```
+
+The benchmark emits:
+
+```text
+board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,weight,failure_reason,verified
+```
+
+The heuristic uses precomputed wall-aware reverse-push distances from candidate
+win cells to O positions. This stays classical and dependency-free while being
+much tighter than plain Manhattan distance on real boards.
 
 ## Heuristic-CNN Beam Solver
 

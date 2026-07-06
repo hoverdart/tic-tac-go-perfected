@@ -60,6 +60,8 @@ Set `SOLVER_IMPL=learned` to try the Linear Tree Solver V1 on non-large boards.
 It loads `solver/learned_search/linear_tree_ranker_v1.json` and ranks candidate
 child paths during A* search. Large `6x6+` boards still route to heuristic-CNN by
 default.
+Set `SOLVER_IMPL=push` to try the classical Sokoban-style push-level solver on
+any board size. This is opt-in and bypasses the large-board heuristic-CNN route.
 Set `SOLVER_FALLBACK=none` to disable the optimized solver's legacy fallback.
 
 `POST /solve` responses include `solver_name`, such as `bfs`,
@@ -98,8 +100,9 @@ Set these environment variables on the Vercel project:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
-- `SOLVER_IMPL`: optional for small boards, set to `optimized` or `learned` to
-  use one of the A* solvers instead of legacy BFS
+- `SOLVER_IMPL`: optional, set to `optimized`, `learned`, or `push` to use an
+  alternate solver instead of legacy BFS; `push` is explicitly allowed for large
+  boards too
 - `SOLVER_MODE`: optional, `hybrid`, `fast`, or `exact`
 - `REMOTE_BROWSER_PROVIDER`: `browserless`
 - `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead
