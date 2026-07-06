@@ -40,6 +40,9 @@ class StaticBoard:
     push_predecessors: Mapping[int, Mapping[int, int]]
     push_stand_cells: Mapping[int, Mapping[int, int]]
     push_routes: Mapping[int, Mapping[int, tuple[int, ...]]]
+    adjacency: tuple[tuple[int, ...], ...]
+    push_transitions: tuple[tuple[tuple[str, int, int], ...], ...]
+    push_route_sets: Mapping[int, Mapping[int, frozenset[int]]]
 
     def in_bounds(self, row: int, col: int) -> bool:
         return 0 <= row < self.rows and 0 <= col < self.cols
@@ -139,7 +142,39 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         raise ValueError("Board must contain a U player piece.")
 
     win_lines = _build_win_lines(rows, cols, frozenset(walls))
-    static = StaticBoard(
+    
+    # Precompute structural invariants for fast inner-loop generation
+    adjacency_list = []
+    transitions_list = []
+    for i in range(rows * cols):
+        if i in walls:
+            adjacency_list.append(())
+            transitions_list.append(())
+            continue
+            
+        r, c = divmod(i, cols)
+        
+        valid_neighbors = []
+        for _, dr, dc in DIRECTIONS:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols:
+                ni = nr * cols + nc
+                if ni not in walls:
+                    valid_neighbors.append(ni)
+        adjacency_list.append(tuple(valid_neighbors))
+        
+        cell_transitions = []
+        for move, dr, dc in DIRECTIONS:
+            sr, sc = r - dr, c - dc
+            dr_dest, dc_dest = r + dr, c + dc
+            if 0 <= sr < rows and 0 <= sc < cols and 0 <= dr_dest < rows and 0 <= dc_dest < cols:
+                stand = sr * cols + sc
+                dest = dr_dest * cols + dc_dest
+                if dest not in walls and stand not in walls:
+                    cell_transitions.append((move, stand, dest))
+        transitions_list.append(tuple(cell_transitions))
+
+    static_temp = StaticBoard(
         rows=rows,
         cols=cols,
         walls=frozenset(walls),
@@ -150,25 +185,35 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         push_predecessors=MappingProxyType({}),
         push_stand_cells=MappingProxyType({}),
         push_routes=MappingProxyType({}),
+        adjacency=tuple(adjacency_list),
+        push_transitions=tuple(transitions_list),
+        push_route_sets=MappingProxyType({}),
     )
+    
     (
         push_distances,
         push_predecessors,
         push_stand_cells,
         push_routes,
-    ) = _compute_push_distance_maps(static)
+        push_route_sets,
+    ) = _compute_push_distance_maps(static_temp)
+    
     static = StaticBoard(
-        rows=static.rows,
-        cols=static.cols,
-        walls=static.walls,
-        floor=static.floor,
-        win_lines=static.win_lines,
-        dead_cells_for_o=_compute_dead_cells_for_o(static, push_distances),
+        rows=static_temp.rows,
+        cols=static_temp.cols,
+        walls=static_temp.walls,
+        floor=static_temp.floor,
+        win_lines=static_temp.win_lines,
+        dead_cells_for_o=_compute_dead_cells_for_o(static_temp, push_distances),
         push_distances=push_distances,
         push_predecessors=push_predecessors,
         push_stand_cells=push_stand_cells,
         push_routes=push_routes,
+        adjacency=static_temp.adjacency,
+        push_transitions=static_temp.push_transitions,
+        push_route_sets=push_route_sets,
     )
+    
     state = normalize_state(player, frozenset(os), frozenset(xs), static)
     return static, state, normalized, player
 
@@ -206,17 +251,15 @@ def reachable(
     xs: frozenset[int],
     board: StaticBoard,
 ) -> frozenset[int]:
-    blocked = board.walls | os | xs
-    queue = deque([player])
+    blocked = os | xs
+    queue = [player]
     seen = {player}
-    while queue:
-        current = queue.popleft()
-        for move, _dr, _dc in DIRECTIONS:
-            nxt = board.neighbor(current, move)
-            if nxt is None or nxt in blocked or nxt in seen:
-                continue
-            seen.add(nxt)
-            queue.append(nxt)
+    adj = board.adjacency
+    for current in queue:
+        for nxt in adj[current]:
+            if nxt not in blocked and nxt not in seen:
+                seen.add(nxt)
+                queue.append(nxt)
     return frozenset(seen)
 
 
@@ -251,12 +294,15 @@ def _compute_push_distance_maps(
     Mapping[int, Mapping[int, int]],
     Mapping[int, Mapping[int, int]],
     Mapping[int, Mapping[int, tuple[int, ...]]],
+    Mapping[int, Mapping[int, frozenset[int]]],
 ]:
     targets = {cell for line in board.win_lines for cell in line}
     distance_maps: dict[int, Mapping[int, int]] = {}
     predecessor_maps: dict[int, Mapping[int, int]] = {}
     stand_maps: dict[int, Mapping[int, int]] = {}
     route_maps: dict[int, Mapping[int, tuple[int, ...]]] = {}
+    route_sets_maps: dict[int, Mapping[int, frozenset[int]]] = {}
+    
     for target in targets:
         distances = {target: 0}
         predecessors: dict[int, int] = {}
@@ -284,21 +330,27 @@ def _compute_push_distance_maps(
                     predecessors[previous] = current
                     stand_cells[previous] = stand
                     queue.append(previous)
+                    
         distance_maps[target] = MappingProxyType(distances)
         predecessor_maps[target] = MappingProxyType(predecessors)
         stand_maps[target] = MappingProxyType(stand_cells)
-        route_maps[target] = MappingProxyType(
-            {
-                cell: _build_route_cells(cell, target, predecessors, stand_cells)
-                for cell in distances
-            }
-        )
+        
+        target_routes = {}
+        target_route_sets = {}
+        for cell in distances:
+            r_tuple = _build_route_cells(cell, target, predecessors, stand_cells)
+            target_routes[cell] = r_tuple
+            target_route_sets[cell] = frozenset(r_tuple)
+            
+        route_maps[target] = MappingProxyType(target_routes)
+        route_sets_maps[target] = MappingProxyType(target_route_sets)
 
     return (
         MappingProxyType(distance_maps),
         MappingProxyType(predecessor_maps),
         MappingProxyType(stand_maps),
         MappingProxyType(route_maps),
+        MappingProxyType(route_sets_maps),
     )
 
 
@@ -356,7 +408,8 @@ PLAYER_TARGET_UNREACHABLE_PENALTY: float = 0.0
 X_ON_LINE_PENALTY: float = 0.5
 X_PUSH_BASE_BIAS: float = 0.35
 O_PUSH_BASE_BIAS: float = -0.10
-REACH_GAIN_BIAS: float = 0.08
+REACH_GAIN_BIAS: float = 1.80 
+TARGET_ACCESS_UNBLOCK_BIAS: float = 9.0 
 O_PUSH_ACCESS_GAIN_BIAS: float = 0.80
 HEURISTIC_PROGRESS_BIAS: float = 1.00
 PLAN_X_CLEAR_BIAS: float = 2.00
@@ -376,11 +429,11 @@ def _occupancy_penalty(
     blockers: frozenset[int],
     board: StaticBoard,
 ) -> float:
-    base = _push_distance(cell, target, board)
+    base = board.push_distances.get(target, {}).get(cell, math.inf)
     if base == math.inf:
         return math.inf
-    route = _route_cells(cell, target, board)
-    blocking = sum(1 for route_cell in route if route_cell in blockers)
+    route_set = board.push_route_sets.get(target, {}).get(cell, frozenset())
+    blocking = len(blockers & route_set)
     return base + (PENALTY_PER_BLOCKING_X * blocking)
 
 
@@ -460,6 +513,31 @@ def heuristic(
     return plan.score
 
 
+def _line_plan_for(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int],
+    target_access_penalty: float,
+    plan_cache: dict[State, LinePlan | None] | None = None,
+) -> LinePlan | None:
+    if plan_cache is None:
+        return _best_line_plan(
+            state,
+            board,
+            region=region,
+            target_access_penalty=target_access_penalty,
+        )
+    if state not in plan_cache:
+        plan_cache[state] = _best_line_plan(
+            state,
+            board,
+            region=region,
+            target_access_penalty=target_access_penalty,
+        )
+    return plan_cache[state]
+
+
 def _push_distance(cell: int, target: int, board: StaticBoard) -> float:
     return board.push_distances.get(target, {}).get(cell, math.inf)
 
@@ -472,21 +550,23 @@ def _legal_o_push_count(
     occupied = state.os | state.xs
     count = 0
     for cell in state.os:
-        for _move, dr, dc in DIRECTIONS:
-            row, col = board.coord(cell)
-            stand_row = row - dr
-            stand_col = col - dc
-            dest_row = row + dr
-            dest_col = col + dc
-            if not board.in_bounds(stand_row, stand_col):
-                continue
-            if not board.in_bounds(dest_row, dest_col):
-                continue
-            stand = board.index(stand_row, stand_col)
-            dest = board.index(dest_row, dest_col)
-            if stand in region and dest not in board.walls and dest not in occupied:
+        for _move, stand, dest in board.push_transitions[cell]:
+            if stand in region and dest not in occupied:
                 count += 1
     return count
+
+
+def _legal_o_push_count_for(
+    state: State,
+    board: StaticBoard,
+    region: frozenset[int],
+    o_push_count_cache: dict[State, int] | None = None,
+) -> int:
+    if o_push_count_cache is None:
+        return _legal_o_push_count(state, board, region)
+    if state not in o_push_count_cache:
+        o_push_count_cache[state] = _legal_o_push_count(state, board, region)
+    return o_push_count_cache[state]
 
 
 def _priority_bias(
@@ -496,6 +576,7 @@ def _priority_bias(
     parent_h: float,
     parent_plan: LinePlan | None,
     parent_o_push_count: int,
+    child_o_push_count: int,
     push: Push,
     child_state: State,
     child_region: frozenset[int],
@@ -510,13 +591,12 @@ def _priority_bias(
     elif child_h > parent_h:
         bias += 0.25
 
-    reach_gain = max(0, len(child_region) - len(parent_region))
-    if reach_gain:
+    reach_gain = len(child_region) - len(parent_region)
+    if reach_gain > 0:
         bias -= min(reach_gain, 10) * REACH_GAIN_BIAS
 
-    child_o_push_count = _legal_o_push_count(child_state, board, child_region)
-    o_push_gain = max(0, child_o_push_count - parent_o_push_count)
-    if o_push_gain:
+    o_push_gain = child_o_push_count - parent_o_push_count
+    if o_push_gain > 0:
         bias -= min(o_push_gain, 4) * O_PUSH_ACCESS_GAIN_BIAS
 
     if push.piece == "X" and parent_plan is not None:
@@ -524,10 +604,12 @@ def _priority_bias(
         row, col = board.coord(push.cell)
         dest = board.index(row + dr, col + dc)
         important_cells = set(parent_plan.line) | set(parent_plan.route_cells)
+        
         if push.cell == parent_plan.player_target:
             bias -= PLAN_X_CLEAR_BIAS
         elif push.cell in important_cells:
             bias -= PLAN_X_CLEAR_BIAS * 0.5
+            
         if dest == parent_plan.player_target:
             bias += PLAN_X_CLEAR_BIAS
         elif dest in important_cells:
@@ -543,47 +625,48 @@ def _priority_bias(
             and child_plan.player_target_reachable
         ):
             bias -= PLAN_TARGET_REACHABLE_BIAS
+            bias -= TARGET_ACCESS_UNBLOCK_BIAS
 
     return bias
-
+    
 
 def successors(
     state: State,
     board: StaticBoard,
     *,
     region: frozenset[int] | None = None,
+    parent_h: float | None = None,
     target_access_penalty: float = 0.0,
-) -> list[tuple[Push, State, float, float]]:
+    plan_cache: dict[State, LinePlan | None] | None = None,
+    o_push_count_cache: dict[State, int] | None = None,
+) -> list[tuple[Push, State, frozenset[int], float, float]]:
     if region is None:
         region = reachable(state.player, state.os, state.xs, board)
     occupied = state.os | state.xs
-    parent_plan = _best_line_plan(
+    parent_plan = _line_plan_for(
         state,
         board,
         region=region,
         target_access_penalty=target_access_penalty,
+        plan_cache=plan_cache,
     )
-    parent_h = math.inf if parent_plan is None else parent_plan.score
-    parent_o_push_count = _legal_o_push_count(state, board, region)
-    results: list[tuple[Push, State, float, float]] = []
+    if parent_h is None:
+        parent_h = math.inf if parent_plan is None else parent_plan.score
+    parent_o_push_count = _legal_o_push_count_for(
+        state,
+        board,
+        region,
+        o_push_count_cache,
+    )
+    
+    results: list[tuple[Push, State, frozenset[int], float, float]] = []
 
     for piece, cells in (("O", state.os), ("X", state.xs)):
         for cell in sorted(cells):
-            for move, dr, dc in DIRECTIONS:
-                row, col = board.coord(cell)
-                stand_row = row - dr
-                stand_col = col - dc
-                dest_row = row + dr
-                dest_col = col + dc
-                if not board.in_bounds(stand_row, stand_col):
-                    continue
-                if not board.in_bounds(dest_row, dest_col):
-                    continue
-                stand = board.index(stand_row, stand_col)
-                dest = board.index(dest_row, dest_col)
+            for move, stand, dest in board.push_transitions[cell]:
                 if stand not in region:
                     continue
-                if dest in board.walls or dest in occupied:
+                if dest in occupied:
                     continue
 
                 if piece == "O":
@@ -597,21 +680,37 @@ def successors(
 
                 if is_deadlock(new_os, new_xs, board):
                     continue
+                
                 next_state, next_region = _normalize_with_region(cell, new_os, new_xs, board)
-                child_plan = _best_line_plan(
+                
+                child_o_push_count = _legal_o_push_count_for(
                     next_state,
                     board,
-                    region=next_region,
-                    target_access_penalty=target_access_penalty,
+                    next_region,
+                    o_push_count_cache,
                 )
-                h = math.inf if child_plan is None else child_plan.score
+
+                if goal_info(next_state, board, region=next_region) is not None:
+                    child_plan = None
+                    h = 0.0
+                else:
+                    child_plan = _line_plan_for(
+                        next_state,
+                        board,
+                        region=next_region,
+                        target_access_penalty=target_access_penalty,
+                        plan_cache=plan_cache,
+                    )
+                    h = math.inf if child_plan is None else child_plan.score
                 push = Push(piece=piece, cell=cell, move=move)
+                
                 bias = _priority_bias(
                     parent_state=state,
                     parent_region=region,
                     parent_h=parent_h,
                     parent_plan=parent_plan,
                     parent_o_push_count=parent_o_push_count,
+                    child_o_push_count=child_o_push_count,
                     push=push,
                     child_state=next_state,
                     child_region=next_region,
@@ -619,9 +718,9 @@ def successors(
                     child_plan=child_plan,
                     board=board,
                 )
-                results.append((push, next_state, h, bias))
+                results.append((push, next_state, next_region, h, bias))
 
-    results.sort(key=lambda item: (item[2] + item[3], item[2]))
+    results.sort(key=lambda item: (item[3] + item[4], item[3]))
     return results
 
 
@@ -785,18 +884,30 @@ def solve(
     g_cost = {start_state: 0}
     parents: dict[State, Parent] = {}
     start_region = reachable(start_state.player, start_state.os, start_state.xs, static)
+    plan_cache: dict[State, LinePlan | None] = {}
+    o_push_count_cache: dict[State, int] = {}
+    start_o_push_count = _legal_o_push_count_for(
+        start_state,
+        static,
+        start_region,
+        o_push_count_cache,
+    )
     target_access_penalty = (
         3.0
         if len(start_region) <= 2
-        and _legal_o_push_count(start_state, static, start_region) > 0
+        and start_o_push_count > 0
         else 0.0
     )
-    start_h = heuristic(
+    start_plan = _line_plan_for(
         start_state,
         static,
         region=start_region,
         target_access_penalty=target_access_penalty,
+        plan_cache=plan_cache,
     )
+    start_h = math.inf if start_plan is None else start_plan.score
+    region_cache: dict[State, frozenset[int]] = {start_state: start_region}
+    h_cache: dict[State, float] = {start_state: start_h}
     heapq.heappush(queue, (start_h * weight, 0, next(counter), start_state))
 
     while queue:
@@ -828,7 +939,8 @@ def solve(
             continue
         nodes_expanded += 1
 
-        region = reachable(current.player, current.os, current.xs, static)
+        region = region_cache[current]
+        current_h = h_cache[current]
         current_goal = goal_info(current, static, region=region)
         if current_goal is not None:
             pushes = _reconstruct_pushes(parents, current)
@@ -850,18 +962,24 @@ def solve(
                 failure_reason=None,
             )
 
-        for push, nxt, h, bias in successors(
+        for push, nxt, child_region, child_h, bias in successors(
             current,
             static,
             region=region,
+            parent_h=current_h,
             target_access_penalty=target_access_penalty,
+            plan_cache=plan_cache,
+            o_push_count_cache=o_push_count_cache,
         ):
+            if nxt not in region_cache:
+                region_cache[nxt] = child_region
+                h_cache[nxt] = child_h
             next_cost = cost + 1
             if next_cost >= g_cost.get(nxt, 1_000_000_000):
                 continue
             g_cost[nxt] = next_cost
             parents[nxt] = Parent(previous=current, push=push)
-            next_priority = next_cost + (weight * h) + bias
+            next_priority = next_cost + (weight * child_h) + bias
             heapq.heappush(queue, (next_priority, next_cost, next(counter), nxt))
 
         peak_closed_size = max(peak_closed_size, len(g_cost))
