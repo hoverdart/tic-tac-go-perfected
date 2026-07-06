@@ -27,7 +27,7 @@ def solve(
     legality, pruning, parent tracking, and final replay validation still come
     from the optimized solver.
     """
-    ranker = ranker or LinearRanker.default()
+    ranker = ranker or LinearRanker.v1()
     start_board = normalize_board(start_board)
     geometry = optimized_solver._geometry_for_board(start_board)
     start_key = optimized_solver._to_key(start_board)

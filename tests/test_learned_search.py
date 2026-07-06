@@ -1,7 +1,10 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from solver.gymnasium_register import ranked_real_boards
 from solver.learned_search.features import candidate_features
+from solver.learned_search.linear_ranker import FEATURE_NAMES, LinearRanker
 from solver.learned_search.solver import solve as learned_solve
 from solver.learned_search.training_data import expert_rows_for_solution
 from solver import optimized_solver
@@ -52,6 +55,23 @@ class LearnedSearchTest(unittest.TestCase):
         self.assertIsNotNone(moves)
         self.assertIsNotNone(final_board)
         self.assertGreaterEqual(states_checked, 1)
+
+    def test_linear_ranker_loads_trained_artifact_shape(self):
+        with TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "ranker.json"
+            payload = {
+                "weights": {name: 0.1 for name in FEATURE_NAMES},
+                "intercept": 0.0,
+                "means": {name: 0.0 for name in FEATURE_NAMES},
+                "scales": {name: 1.0 for name in FEATURE_NAMES},
+                "metadata": {"trainer": "test"},
+            }
+            path.write_text(__import__("json").dumps(payload), encoding="utf-8")
+
+            ranker = LinearRanker.from_json(path)
+
+        self.assertEqual(ranker.metadata["trainer"], "test")
+        self.assertEqual(set(ranker.weights), set(FEATURE_NAMES))
 
 
 if __name__ == "__main__":

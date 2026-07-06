@@ -19,6 +19,7 @@ still being worked on.
 - `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristic_cnn_solver.py`
 - `optimized_solver.py`: compact-state solver used by the API when
   `SOLVER_IMPL=optimized` on smaller boards
+- `push_solver/`: classical Sokoban-style push-level weighted-A* solver
 - `learned_search/`: experimental learned child-path ranking scaffold
 - `benchmark_solvers.py`: compares legacy and optimized solver performance
 - `algorithms/README.md`: notes on how each solver works and how to compare them
@@ -105,9 +106,10 @@ python3 solve.py --quiet-progress --max-states 10000
 
 ## Try The Optimized Solver
 
-The API routes boards `6x6` and larger to the heuristic-CNN beam solver. Smaller
-boards default to the legacy solver. Set these before starting FastAPI to use
-the optimized solver for smaller boards:
+The API routes boards `6x6` and larger to the heuristic-CNN beam solver unless
+`SOLVER_IMPL=push` is explicitly set. Smaller boards default to the legacy
+solver. Set these before starting FastAPI to use the optimized solver for
+smaller boards:
 
 ```bash
 SOLVER_IMPL=optimized
@@ -121,6 +123,46 @@ To compare both solvers on ranked boards:
 ```bash
 python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 ```
+
+## Classical Push Solver
+
+File: `push_solver/`
+
+This is the opt-in Sokoban-style solver. It searches over pushes instead of
+individual walking moves, normalizes the player to its reachable region, uses
+weighted A*, prunes immediate X-loss states, and verifies the reconstructed
+keystroke solution independently.
+
+Enable it through the API/service router:
+
+```bash
+SOLVER_IMPL=push
+```
+
+Run a historical-board benchmark:
+
+```bash
+python3 -m solver.push_solver.bench \
+  --limit 20 \
+  --weight 2.0 \
+  --max-nodes 500000 \
+  --timeout-seconds 10
+```
+
+The benchmark emits:
+
+```text
+board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,weight,failure_reason,verified
+```
+
+The heuristic uses precomputed wall-aware reverse-push distances from candidate
+win cells to O positions. This stays classical and dependency-free while being
+much tighter than plain Manhattan distance on real boards. On top of the
+wall-only distance, it adds a bounded penalty for every current X (or the
+sibling O) sitting on the precomputed shortest route's box-landing or
+player-stand cells, so the search can tell a push that actually clears a
+blocking piece apart from one that doesn't -- without ever turning a finite
+estimate into an infinite one from occupancy alone.
 
 ## Heuristic-CNN Beam Solver
 
@@ -144,20 +186,25 @@ Current production settings:
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
 
-## Learned Search Scaffold
+## Linear Tree Solver V1
 
 Files: `learned_search/`
 
-This is the experimental path for training our model. It is not wired into the
-API by default. The package separates the workflow into small pieces:
+This is the experimental best-path alternative to the heuristic-CNN beam solver.
+It ranks legal compressed child paths from the current search node instead of
+predicting a single next move. It is opt-in through `SOLVER_IMPL=learned`; the
+production route for large boards still defaults to heuristic-CNN.
 
 - `features.py`: turns one parent state and one legal child path into numeric
   model features.
 - `training_data.py`: solves boards with `optimized_solver`, follows the expert
   path, and labels which candidate child was chosen at each state.
-- `linear_ranker.py`: tiny runtime ranker interface and placeholder weights.
+- `linear_ranker.py`: runtime ranker interface and trained artifact loader.
 - `solver.py`: weighted A* with an extra learned child-ranking term.
 - `export_training_data.py`: CLI for writing JSONL training rows.
+- `train_linear_tree_solver.py`: pure-Python pairwise trainer.
+- `benchmark_linear_tree_solver.py`: compares V1 against optimized A*.
+- `linear_tree_ranker_v1.json`: stored V1 model artifact.
 
 Export a small starter dataset:
 
@@ -170,9 +217,34 @@ python3 -m solver.learned_search.export_training_data \
 
 Each JSONL row describes one candidate child path from a parent board. `label=1`
 means the child was on the optimized solver's expert path; `label=0` means it
-was a legal alternative. A later training script can fit logistic regression,
-linear regression, random forest, or gradient boosting against these rows and
-export weights or a small model artifact.
+was a legal alternative.
+
+Train and store V1:
+
+```bash
+python3 -m solver.learned_search.train_linear_tree_solver \
+  --groups five six \
+  --max-states 100000 \
+  --epochs 35 \
+  --learning-rate 0.04 \
+  --l2 0.0005 \
+  --seed 11
+```
+
+Run it directly:
+
+```bash
+python3 -m solver.learned_search.benchmark_linear_tree_solver \
+  --groups five six seven \
+  --limit-per-group 5 \
+  --max-states 50000
+```
+
+Use it through the API/service router for non-large boards:
+
+```bash
+SOLVER_IMPL=learned SOLVER_MODE=hybrid
+```
 
 ## Solve From A Screenshot With Gemini
 

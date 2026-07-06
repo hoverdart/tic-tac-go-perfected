@@ -76,6 +76,19 @@ class SolverServiceTest(unittest.TestCase):
 
         self.assertEqual(_solver_impl(board), "heuristiccnn")
 
+    def test_push_solver_env_overrides_large_board_routing(self):
+        board = (
+            ("U",),
+            ("", "", "", "", "", "O"),
+            ("O", "", "", "", "", ""),
+            ("",),
+            ("",),
+            ("",),
+        )
+
+        with patch.dict("os.environ", {"SOLVER_IMPL": "push"}, clear=False):
+            self.assertEqual(_solver_impl(board), "push")
+
     def test_service_accepts_irregular_board(self):
         result = solve_board(
             [
@@ -150,6 +163,52 @@ class SolverServiceTest(unittest.TestCase):
 
         self.assertTrue(result["solved"])
         self.assertEqual(result["moves"], "")
+        self.assertEqual(result["states_checked"], 1)
+
+    def test_service_can_select_learned_solver(self):
+        with patch.dict("os.environ", {"SOLVER_IMPL": "learned"}, clear=False):
+            result = solve_board(
+                [
+                    ["U", "O", "O"],
+                    ["", "", ""],
+                    ["", "", ""],
+                ]
+            )
+
+        self.assertTrue(result["solved"])
+        self.assertEqual(result["solver_name"], "linear-tree-v1-hybrid")
+        self.assertEqual(result["moves"], "")
+        self.assertEqual(result["states_checked"], 1)
+
+    def test_service_can_select_push_solver(self):
+        with patch.dict("os.environ", {"SOLVER_IMPL": "push"}, clear=False):
+            result = solve_board(
+                [
+                    ["U", "O", "O"],
+                    ["", "", ""],
+                    ["", "", ""],
+                ]
+            )
+
+        self.assertTrue(result["solved"])
+        self.assertEqual(result["solver_name"], "push-v1")
+        self.assertEqual(result["moves"], "")
+        self.assertEqual(result["states_checked"], 1)
+
+    def test_push_solver_failure_does_not_use_bfs_fallback(self):
+        with patch.dict("os.environ", {"SOLVER_IMPL": "push"}, clear=False):
+            result = solve_board(
+                [
+                    ["U", "", "", ""],
+                    ["X", "X", "X", ""],
+                    ["O", "", "O", ""],
+                ],
+                max_states=10,
+            )
+
+        self.assertFalse(result["solved"])
+        self.assertEqual(result["solver_name"], "push-v1")
+        self.assertIsNone(result["moves"])
         self.assertEqual(result["states_checked"], 1)
 
 

@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 //   1. Local development when no backend URL is configured (isDemo: true)
 //   2. As a structural template for unavailableSolution() — its board shape
 //      keeps the UI intact even when real data is missing.
+
 const demoSolution: SolutionRecord = {
   puzzle_date: new Date().toISOString().slice(0, 10),
   source_url: "",
