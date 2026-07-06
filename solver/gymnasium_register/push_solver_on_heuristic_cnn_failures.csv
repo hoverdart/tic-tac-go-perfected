@@ -1,0 +1,342 @@
+board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,failure_reason,verified
+20250101,Tutorial,True,1,6,2,3,0.4,,True
+20250925,Cornered,True,14,52,117,252,28.1,,True
+20250926,Stairsteps,True,15,49,81,564,121.8,,True
+20250927,Do Not Pass,True,26,78,9591,24505,6415.1,,True
+20250928,Jailbreak,False,,,38625,129298,30000.1,timeout,False
+20250929,In Time Out,True,6,16,20,58,3.1,,True
+20250930,Counter Intuitive,True,11,48,53,95,18.2,,True
+20251001,Do Naught,True,18,68,6937,8208,1594.7,,True
+20251002,Smirk,True,9,46,138,328,35.7,,True
+20251003,Pick a Side,True,23,60,149,449,104.5,,True
+20251004,Play Outside,True,21,125,147,868,185.9,,True
+20251005,Strange Fit,False,,,29971,129553,30000.5,timeout,False
+20251006,One Off,True,5,21,13,32,2.3,,True
+20251007,Bendable,True,8,47,37,96,15.2,,True
+20251008,Step Aside,True,3,34,5,24,5.4,,True
+20251009,U Can Do It!,True,9,23,28,73,9.8,,True
+20251010,Brackets,True,6,64,153,667,122.7,,True
+20251011,Once Around,True,14,104,42,225,61.8,,True
+20251012,Escape Route,True,18,90,1331,6404,1311.8,,True
+20251013,In Passing,True,5,15,11,24,1.3,,True
+20251014,Keystone,True,21,73,5700,12100,1424.0,,True
+20251015,Ravine,True,13,32,67,129,18.5,,True
+20251016,Peekaboo,True,7,61,19,86,14.9,,True
+20251017,Nine Lives,True,18,72,1026,2903,594.3,,True
+20251018,Plot Twist,True,19,74,90,672,174.2,,True
+20251019,Save the Princess,True,18,61,196,2219,785.9,,True
+20251020,Sew Close,True,3,18,4,13,0.9,,True
+20251021,Wrong Way,True,6,38,31,75,10.4,,True
+20251022,Upended,True,12,27,45,80,8.3,,True
+20251023,Water Water Everywhere,True,4,12,13,41,13.7,,True
+20251024,The Long Haul,True,15,126,103,801,194.2,,True
+20251025,Block Breaker,True,10,37,341,1815,406.5,,True
+20251026,Lock In,True,21,127,9210,36704,8705.2,,True
+20251027,Tip Toe,True,6,33,21,49,3.6,,True
+20251028,Monkey Business,True,13,56,1121,2353,269.6,,True
+20251029,Let Sleeping Dogs Lie,True,6,21,12,27,4.9,,True
+20251030,Bee In Your Bonnet,True,15,57,323,646,57.4,,True
+20251031,Safety Training,True,10,57,143,1588,313.7,,True
+20251101,Food Court,True,23,146,328,2023,350.4,,True
+20251102,O Brother...,True,14,56,120,467,89.9,,True
+20251103,No Sweat,True,4,18,5,24,1.5,,True
+20251104,And A Cherry On Top,True,12,63,586,2273,328.3,,True
+20251105,Team Meeting,True,13,62,5991,22888,3351.8,,True
+20251106,False Walls,True,13,59,177,327,32.9,,True
+20251107,Minefield,True,24,85,3778,12283,4350.3,,True
+20251108,Herding Cats,True,20,97,99,611,125.6,,True
+20251109,Antechamber,True,19,83,78,418,95.4,,True
+20251110,So Close,True,3,15,8,13,0.7,,True
+20251111,Ledge Leap,True,7,30,63,246,34.7,,True
+20251112,Desk Setup,True,9,32,30,140,14.3,,True
+20251113,Peas In A Pod,True,16,62,2290,3306,390.1,,True
+20251114,Only Way Out,True,8,26,27,132,27.9,,True
+20251115,Platforms,True,16,75,278,1585,314.4,,True
+20251116,Minefields,False,,,,,30001.8,hard_timeout,False
+20251117,Cornered,True,5,12,10,18,1.6,,True
+20251118,Corridor Chaos,True,9,31,28,81,16.3,,True
+20251119,Triple Pairs,True,16,64,2700,5380,745.1,,True
+20251120,Boxed In,True,13,59,348,701,93.1,,True
+20251121,Checkers,True,14,38,355,1237,402.0,,True
+20251122,Missing Piece,True,9,32,248,1878,504.7,,True
+20251123,Connecting the Dots,True,7,49,17,232,74.5,,True
+20251124,Lost Sheep,True,4,15,8,27,4.3,,True
+20251125,Security System,True,7,20,10,67,14.9,,True
+20251126,In The Doghouse,True,9,48,45,283,61.4,,True
+20251127,Flywheel,True,15,43,215,470,74.1,,True
+20251128,Lake in the Woods,True,20,62,1605,5133,1257.1,,True
+20251129,Downstream Effects,True,20,74,2038,7623,2634.2,,True
+20251130,Neutral State,True,21,102,74,560,174.8,,True
+20251201,No Diagonals,True,4,9,5,10,0.8,,True
+20251202,Dead End,True,16,72,109,235,29.2,,True
+20251203,Neighbors,True,14,42,283,655,114.3,,True
+20251204,Catty Corner,True,8,29,42,136,19.5,,True
+20251205,Line of Sight,True,10,54,76,404,153.5,,True
+20251206,Face to Face,True,12,101,2163,5818,2029.9,,True
+20251207,Thread the Needle,False,,,,,30055.0,hard_timeout,False
+20251208,Watch Your Step,True,4,22,10,24,3.8,,True
+20251209,U-Turn,True,12,45,283,1268,257.7,,True
+20251210,Rounded Corners,True,12,53,119,719,181.0,,True
+20251211,Tight Spaces,True,9,36,30,117,13.1,,True
+20251212,-_-,False,,,,,30072.4,hard_timeout,False
+20251213,The Pits,True,18,67,12148,44858,18255.1,,True
+20251214,Unboxing,False,,,26437,69701,30001.1,timeout,False
+20251215,Loopy,True,15,91,1312,2228,394.6,,True
+20251216,Centrally Located,True,4,24,6,33,5.7,,True
+20251217,Ups and Down,True,15,75,952,2140,348.8,,True
+20251218,Spotted You Across The Room,True,14,43,241,325,72.9,,True
+20251219,Cross Worlds,True,15,98,55,328,120.5,,True
+20251220,All Things Equal,True,8,18,10640,16827,5409.2,,True
+20251221,Imposter,False,,,22214,79982,30000.9,timeout,False
+20251222,Leapfrog,True,3,11,4,5,0.5,,True
+20251223,Alcove,True,12,73,313,1100,199.9,,True
+20251224,Blocked,True,8,26,128,779,172.8,,True
+20251225,Back Pain,True,9,48,117,409,70.3,,True
+20251226,Skull & Crossbones,True,16,47,225,766,207.8,,True
+20251227,Marathon,True,12,172,223,1816,401.2,,True
+20251228,Cornered,False,,,,,30073.1,hard_timeout,False
+20251229,Out of Place,True,6,30,26,36,2.9,,True
+20251230,Stuck in the Middle,True,11,40,313,840,140.2,,True
+20251231,Exile,True,8,29,11,45,5.3,,True
+20260101,Everything in its Place,True,18,59,2264,3800,967.4,,True
+20260102,Roundabout Way,True,8,47,18,204,62.9,,True
+20260103,Pushups,True,14,61,979,4785,1642.3,,True
+20260104,A Bridge Too Far,True,15,138,12798,19408,5612.1,,True
+20260105,Naught So Easy,True,7,22,29,72,7.0,,True
+20260106,Barricade,True,10,23,210,748,118.0,,True
+20260107,A Fine Line,True,16,85,868,1776,295.4,,True
+20260108,Surprise Party,True,10,25,53,120,19.7,,True
+20260109,The Tail Wags The Dog,True,13,46,468,2914,755.2,,True
+20260110,Throne Room,True,11,51,46,286,96.7,,True
+20260111,Corn Maze,True,16,98,258,1244,346.3,,True
+20260112,Two at a Time,True,4,12,12,21,1.5,,True
+20260113,Blind Corners,True,7,16,35,45,12.3,,True
+20260114,Cup o' Joe,True,7,22,75,227,34.9,,True
+20260115,Waterworks,True,7,106,172,480,54.4,,True
+20260116,Wrong Angle,True,9,83,11,125,42.3,,True
+20260117,Plugged Up,False,,,,,30060.6,hard_timeout,False
+20260118,Summoning Circle,True,16,121,2554,13951,8373.8,,True
+20260119,Waffling,True,4,19,7,12,2.3,,True
+20260120,Fish And Chips,True,9,18,25,67,13.5,,True
+20260121,Lucky Horseshoe,True,11,53,517,2925,583.0,,True
+20260122,Tidy Up,True,10,58,25,138,30.0,,True
+20260123,Walking Gingerly,True,17,74,842,6856,3404.2,,True
+20260124,In the Goal,False,,,,,30073.8,hard_timeout,False
+20260125,Harmonic Progression,True,16,44,6783,34442,10188.6,,True
+20260126,Playground,True,6,27,50,172,24.0,,True
+20260127,Starry Sky,True,7,14,18,95,19.8,,True
+20260128,Workaround,True,12,55,56,358,87.8,,True
+20260129,Blockade,True,7,21,171,1381,309.9,,True
+20260130,Eureka!,False,,,9927,57977,30000.1,timeout,False
+20260131,The Stacks,True,14,72,60,790,427.3,,True
+20260201,Dance Floor,True,22,81,652,5720,2917.2,,True
+20260202,Shoveling Snow,True,8,29,18,65,11.7,,True
+20260203,Across the Universe,True,5,23,28,159,37.3,,True
+20260204,Maypole,True,6,29,80,572,163.9,,True
+20260205,Untangled,True,10,70,48,301,96.8,,True
+20260206,Halfway Home,True,13,44,53,296,162.1,,True
+20260207,Primordial Soup,True,15,62,348,1893,719.0,,True
+20260208,Toric Lens,False,,,8329,55717,30002.1,timeout,False
+20260209,Piece of Cake,True,4,12,9,14,1.1,,True
+20260210,Dungeon,True,12,34,417,1791,448.1,,True
+20260211,Slot Machine,True,16,48,366,1788,410.0,,True
+20260212,Cautionary Tale,True,12,54,24220,63381,22809.0,,True
+20260213,I Spy,True,15,97,64,886,416.8,,True
+20260214,Database,True,8,21,38,435,263.6,,True
+20260215,Full Steam Ahead,True,27,59,3523,12318,5614.0,,True
+20260216,Outside In,True,6,30,24,97,27.8,,True
+20260217,Palate Cleanser,True,9,54,107,677,187.0,,True
+20260218,Knotty By Nature,True,15,47,42,106,32.9,,True
+20260219,Untangled,True,16,53,30746,65167,23740.5,,True
+20260220,Laser Tag,False,,,8748,59867,30002.1,timeout,False
+20260221,Teahouse,True,13,109,190,2037,1061.8,,True
+20260222,House of Cards,True,18,55,4546,19130,10623.0,,True
+20260223,Candyland,True,5,16,9,53,10.8,,True
+20260224,Sweet Relief,True,8,19,32,194,62.8,,True
+20260225,Pinched Nerve,True,8,41,30,164,44.3,,True
+20260226,Bouquet of Flowers,True,11,49,113,289,75.7,,True
+20260227,Orion's Belt,True,18,78,727,4450,2388.5,,True
+20260228,Elbow Room,True,10,63,456,4306,2246.6,,True
+20260301,Immovable Objects,False,,,8702,57026,30001.5,timeout,False
+20260302,Boom Gate,True,3,6,5,18,2.8,,True
+20260303,Good Rally,True,11,33,103,648,160.2,,True
+20260304,Spiraling,True,8,40,21,184,40.6,,True
+20260305,Balance Beam,True,8,28,157,804,214.1,,True
+20260306,Chaos Board,True,22,54,10996,55476,26296.3,,True
+20260307,Train Tracks,True,16,57,516,4233,2057.3,,True
+20260308,Locked In,True,22,85,338,2991,1503.7,,True
+20260309,Lighthouse,True,8,30,52,132,22.3,,True
+20260310,Six Feet Under,True,10,51,129,768,209.2,,True
+20260311,Bank Teller,True,12,37,240,728,212.9,,True
+20260312,Tried and True,True,13,51,32648,43579,15594.3,,True
+20260313,Quilts and Quibbles,True,10,37,195,2502,1359.5,,True
+20260314,Tee Off,False,,,,,30054.1,hard_timeout,False
+20260315,Four Corners,True,12,51,234,2460,1175.0,,True
+20260316,One Small Step,True,6,16,17,52,5.1,,True
+20260317,Handshake,True,10,32,60,172,55.8,,True
+20260318,Helpful Advice,True,8,38,44,330,97.2,,True
+20260319,Sideways,True,16,31,280,797,204.2,,True
+20260320,All Mixed Up,True,15,69,53,705,311.7,,True
+20260321,Friends In High Places,True,18,95,186,2812,1177.2,,True
+20260322,Stairstep,True,12,36,53,639,294.3,,True
+20260323,Poker Face,True,11,52,21,37,4.9,,True
+20260324,Elbow Joint,True,13,44,683,3316,932.0,,True
+20260325,Treasure Trove,True,16,34,124,257,69.1,,True
+20260326,Runway,True,17,44,646,2150,434.6,,True
+20260327,Simplicity,True,14,53,120,1606,706.5,,True
+20260328,Platforms,True,11,92,32,568,248.3,,True
+20260329,Neutrality,True,17,62,876,6645,3118.0,,True
+20260330,S Curve,True,8,17,22,65,9.2,,True
+20260331,Defusion,True,10,24,14,31,9.1,,True
+20260401,Circling the Drain,True,14,38,245,1224,286.6,,True
+20260402,Greeting Card,True,16,65,539,2012,598.8,,True
+20260403,Line Dance,True,11,78,105,1417,677.1,,True
+20260404,Four Angles,True,10,52,56,1003,484.8,,True
+20260405,Test Your Strength,True,20,85,947,12146,5696.4,,True
+20260406,Escargot,True,12,33,134,422,94.1,,True
+20260407,Mindreader,True,12,37,119,416,114.8,,True
+20260408,Full Stack,True,7,16,19,62,19.8,,True
+20260409,Tiles and Grout,True,12,50,155,893,218.8,,True
+20260410,Around the Corner,True,15,145,1174,12861,5689.6,,True
+20260411,False Alarm,True,16,68,38,375,154.5,,True
+20260412,Gated Community,True,14,31,42,546,245.6,,True
+20260413,Under the Weather,True,6,25,15,79,15.2,,True
+20260414,Pressure Valve,True,14,65,350,2876,667.4,,True
+20260415,Push and Pull,True,14,57,56,157,37.5,,True
+20260416,Play the Fool,True,12,49,46,299,81.2,,True
+20260417,Braided River,False,,,,,30056.4,hard_timeout,False
+20260418,Hop the Fence,False,,,,,30002.7,hard_timeout,False
+20260419,Skip A Beat,True,27,106,7201,79353,29661.3,,True
+20260420,Sourdough,True,8,21,21,92,17.4,,True
+20260421,Cut Your Teeth,True,9,51,33,166,48.4,,True
+20260422,Dark Forest,True,13,66,240,1130,313.9,,True
+20260423,Now You See Me,True,8,37,87,573,180.6,,True
+20260424,First Time Caller,True,12,55,25,381,205.1,,True
+20260425,Stick It Out,True,14,61,541,9601,4589.5,,True
+20260426,Throwback,True,15,56,80,1609,781.6,,True
+20260427,Cruise Control,True,20,69,3060,5736,1121.8,,True
+20260428,Polygon,True,13,42,386,1502,387.4,,True
+20260429,Nova,True,12,68,324,1627,397.1,,True
+20260430,One Way,True,9,17,72,513,140.2,,True
+20260501,Rotate,True,15,55,1423,21464,11209.6,,True
+20260502,Hexagon,True,20,146,1756,34324,17261.9,,True
+20260503,Zen Garden,True,17,94,517,5681,2382.8,,True
+20260504,Supernova,True,7,26,26,54,9.8,,True
+20260505,Ricochet,True,14,31,127,568,127.9,,True
+20260506,Pendulum,True,12,30,35,257,59.8,,True
+20260507,Rush Hour,True,12,61,396,2296,603.3,,True
+20260508,Star Cluster,True,15,137,114,1792,726.6,,True
+20260509,Paving,True,12,66,51,814,393.1,,True
+20260510,Roundabout,True,10,50,75,1252,567.5,,True
+20260511,Scale,True,9,36,218,693,109.5,,True
+20260512,Avalanche,True,13,102,101,987,234.3,,True
+20260513,Lightyear,True,12,52,406,1894,630.6,,True
+20260514,Expressway,False,,,50026,134339,30000.8,timeout,False
+20260515,Geyser,True,19,82,164,1739,802.0,,True
+20260516,Space Station,True,14,55,340,4184,1936.2,,True
+20260517,Zig Zag,True,17,57,812,9970,3044.0,,True
+20260518,Speed Bump,True,13,53,797,2058,336.0,,True
+20260519,Carpool Lane,True,8,51,15,113,29.3,,True
+20260520,Asymmetry,True,11,44,174,1102,321.0,,True
+20260521,Joyride,True,13,61,2692,4501,1358.6,,True
+20260522,Merge,True,17,63,413,5977,2861.5,,True
+20260523,Anchor,True,19,207,4033,39141,14772.3,,True
+20260524,Gears,False,,,6480,57663,30001.5,timeout,False
+20260525,Pyramid,True,8,19,20,53,10.2,,True
+20260526,Zipper Merge,True,11,50,52,200,71.4,,True
+20260527,Sphere,True,16,108,6829,25213,4160.8,,True
+20260528,Parallel Parking,True,7,13,44,308,84.6,,True
+20260529,Mirror,True,11,81,64,1144,528.6,,True
+20260530,Tight Squeeze,False,,,5164,61006,30002.4,timeout,False
+20260531,Short Cut,True,22,95,271,3993,1612.9,,True
+20260601,Jungle,True,9,36,130,218,26.0,,True
+20260602,Narrow Margin,True,8,18,54,305,85.1,,True
+20260603,Sandstorm,True,13,61,170,739,181.2,,True
+20260604,Earthquake,True,6,20,25,117,31.8,,True
+20260605,Oasis,True,19,118,692,8409,3473.3,,True
+20260606,Tidal Wave,True,15,60,624,7136,2644.6,,True
+20260607,Quasar,True,14,78,200,2391,1081.7,,True
+20260608,Green Light,True,6,19,13,48,5.7,,True
+20260609,Gear Shift,True,9,46,99,649,176.3,,True
+20260610,Split,True,15,84,517,1007,247.5,,True
+20260611,Bypass,True,11,38,45,373,94.4,,True
+20260612,Tailgate,True,13,42,355,4450,1918.0,,True
+20260613,Spiral,False,,,10896,63760,30000.4,timeout,False
+20260614,Yellow Light,False,,,6850,65328,30000.1,timeout,False
+20260615,Monsoon,True,10,34,102,294,48.6,,True
+20260616,Kaleidoscope,True,13,42,523,1881,526.2,,True
+20260617,Lagoon,True,13,29,446,1704,444.1,,True
+20260618,Teleport,True,8,43,27,230,69.0,,True
+20260619,Quicksand,True,17,74,121,2588,1209.9,,True
+20260620,Constellation,True,15,66,957,6127,2565.1,,True
+20260621,Overpass,True,15,67,1988,21295,9672.2,,True
+20260622,Crosswalk,True,9,41,122,359,55.7,,True
+20260623,Pulsar,True,13,48,121,445,93.0,,True
+20260624,Red Light,True,14,68,3518,14979,2773.0,,True
+20260625,Pit Stop,True,15,118,7737,28720,6690.7,,True
+20260626,Freeway,True,19,99,1074,14192,6470.4,,True
+20260627,Blueprint,False,,,,,30004.5,hard_timeout,False
+20260628,Blizzard,True,14,73,1542,10299,4516.4,,True
+20260629,Orbit,True,8,44,129,420,46.8,,True
+20260630,Labyrinth,True,9,20,21,107,26.3,,True
+20260701,Intersection,True,15,59,1878,4875,1394.1,,True
+20260702,Equator,True,7,50,15,157,49.4,,True
+20260703,Tundra,True,17,77,50,469,204.8,,True
+20260704,Cube,True,17,60,4205,32820,14833.4,,True
+20260705,High Speed,True,19,93,471,5788,2790.1,,True
+20260706,Easy Stroll,True,14,73,125,343,61.0,,True
+20260707,Tessellation,True,11,74,72,464,115.3,,True
+20260708,Prism,True,13,40,322,1215,297.8,,True
+20260709,Black Hole,True,15,90,15060,53522,12016.5,,True
+20260710,Traffic Circle,True,14,51,255,3926,1790.8,,True
+20260711,Toll Booth,True,16,52,1399,16997,8364.1,,True
+20260712,Nebula,True,23,41,2669,17615,6732.7,,True
+20260713,Yield,True,6,12,12,35,4.2,,True
+20260714,Flip,True,10,31,944,3777,791.5,,True
+20260715,Clone,True,17,72,188,1007,198.4,,True
+20260716,Hourglass,True,10,34,75,651,182.1,,True
+20260717,Cylinder,True,13,66,41,805,408.2,,True
+20260718,Volcano,True,16,81,93,813,326.9,,True
+20260719,Mars Rover,True,12,76,57,1119,535.0,,True
+20260720,Coffee Table,True,4,8,6,20,2.3,,True
+20260721,Back to Basics,True,9,56,274,2126,455.8,,True
+20260722,Symmetry,True,7,28,9,56,9.9,,True
+20260723,Coral Reef,True,5,37,6,43,12.7,,True
+20260724,Half Measures,True,19,61,43,268,112.1,,True
+20260725,Gridlock,True,8,56,29,376,156.2,,True
+20260726,Bookshelf,True,13,122,10615,87340,28564.6,,True
+20260727,Bite the Bullet,True,2,21,3,19,1.8,,True
+20260728,Equilibrium,True,8,49,61,296,66.2,,True
+20260729,Desert Mirage,True,10,40,846,3983,1269.1,,True
+20260730,Solar Eclipse,True,12,40,8745,22597,6490.9,,True
+20260731,Underpass,True,21,93,4392,29640,7656.5,,True
+20260801,Attic Storage,True,12,41,741,13596,4544.3,,True
+20260802,Cold Feet,False,,,6062,69402,30000.4,timeout,False
+20260803,Synchronicity,True,8,23,16,68,6.8,,True
+20260804,Thunderstorm,True,11,49,94,640,161.1,,True
+20260805,Galaxy Cluster,True,8,58,92,700,206.2,,True
+20260806,Switchback,False,,,34818,112249,30000.1,timeout,False
+20260807,Subway Station,True,8,35,22,333,168.2,,True
+20260808,Down to Earth,True,13,55,46,489,229.3,,True
+20260809,Crossword,True,8,64,77,1492,490.6,,True
+20260810,Autumn Leaves,True,7,21,27,53,9.1,,True
+20260811,Choke Point,True,9,51,40,362,81.9,,True
+20260812,Botanical Garden,True,8,61,26,164,40.3,,True
+20260813,On the Fence,True,13,51,139,428,94.4,,True
+20260814,Domino Effect,True,11,22,2181,20909,9488.3,,True
+20260815,Migrating Birds,True,21,66,2592,22718,9232.5,,True
+20260816,Perimeter,True,12,41,182,2643,1101.7,,True
+20260817,Flea Market,True,7,26,48,108,11.7,,True
+20260818,Out of the Blue,True,8,55,30,283,65.7,,True
+20260819,Tipping Point,True,8,46,51,210,55.9,,True
+20260820,Hidden Valley,True,10,49,7145,20222,4611.8,,True
+20260821,Diagonal Alley,True,10,39,17,388,229.7,,True
+20260822,Clock Tower,True,9,59,44,657,359.6,,True
+20260823,Spill the Beans,True,12,42,4429,58096,25501.1,,True
+20260824,Vanishing Act,True,5,35,8,42,8.1,,True
+20260825,Deep Ocean,True,3,9,4,21,5.9,,True
+20260826,Man in the Moon,True,13,36,22,80,18.3,,True
+20260827,Touch and Go,True,9,36,29,123,26.8,,True
+20260828,Up in the Air,True,14,42,180,1155,599.9,,True
+20260829,Word of Mouth,True,17,165,4899,54915,24437.6,,True
+20260830,Time Capsule,False,,,,,30002.8,hard_timeout,False
