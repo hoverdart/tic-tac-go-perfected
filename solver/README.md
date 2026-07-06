@@ -157,7 +157,12 @@ board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elap
 
 The heuristic uses precomputed wall-aware reverse-push distances from candidate
 win cells to O positions. This stays classical and dependency-free while being
-much tighter than plain Manhattan distance on real boards.
+much tighter than plain Manhattan distance on real boards. On top of the
+wall-only distance, it adds a bounded penalty for every current X (or the
+sibling O) sitting on the precomputed shortest route's box-landing or
+player-stand cells, so the search can tell a push that actually clears a
+blocking piece apart from one that doesn't -- without ever turning a finite
+estimate into an infinite one from occupancy alone.
 
 ## Heuristic-CNN Beam Solver
 

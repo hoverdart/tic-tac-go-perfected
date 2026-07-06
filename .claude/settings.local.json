@@ -17,7 +17,16 @@
       "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --screenshot=/tmp/tic-tac-go-bottom.png --window-size=1280,1800 http://localhost:3000/)",
       "Bash(npm install *)",
       "Bash(python3 -c \"import ast, sys; ast.parse\\(open\\('apps/api/acquisition.py'\\).read\\(\\)\\); print\\('AST OK'\\)\")",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m solver.push_solver.bench --limit 20 --weight 2.0 --max-nodes 500000 --timeout-seconds 20)",
+      "Bash(echo \"EXIT:$?\")",
+      "Read(//tmp/**)",
+      "Bash(python3 -m unittest tests.test_push_solver -v)",
+      "Bash(python3 -m unittest discover tests)",
+      "Bash(python3 -m solver.push_solver.bench --limit 20 --weight 2.0 --max-nodes 500000 --timeout-seconds 20 > /tmp/phaseB.csv 2>&1; echo \"EXIT:$?\"; cat /tmp/phaseB.csv)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }

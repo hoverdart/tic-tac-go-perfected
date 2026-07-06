@@ -37,6 +37,9 @@ class StaticBoard:
     win_lines: tuple[tuple[int, int, int], ...]
     dead_cells_for_o: frozenset[int]
     push_distances: Mapping[int, Mapping[int, int]]
+    push_predecessors: Mapping[int, Mapping[int, int]]
+    push_stand_cells: Mapping[int, Mapping[int, int]]
+    push_routes: Mapping[int, Mapping[int, tuple[int, ...]]]
 
     def in_bounds(self, row: int, col: int) -> bool:
         return 0 <= row < self.rows and 0 <= col < self.cols
@@ -87,6 +90,16 @@ class GoalInfo:
 
 
 @dataclass(frozen=True)
+class LinePlan:
+    score: float
+    line: tuple[int, int, int]
+    player_target: int
+    route_cells: frozenset[int]
+    player_target_has_x: bool
+    player_target_reachable: bool
+
+
+@dataclass(frozen=True)
 class PushSolveResult:
     solved: bool
     moves: str | None
@@ -134,8 +147,16 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         win_lines=win_lines,
         dead_cells_for_o=frozenset(),
         push_distances=MappingProxyType({}),
+        push_predecessors=MappingProxyType({}),
+        push_stand_cells=MappingProxyType({}),
+        push_routes=MappingProxyType({}),
     )
-    push_distances = _compute_push_distance_maps(static)
+    (
+        push_distances,
+        push_predecessors,
+        push_stand_cells,
+        push_routes,
+    ) = _compute_push_distance_maps(static)
     static = StaticBoard(
         rows=static.rows,
         cols=static.cols,
@@ -144,6 +165,9 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         win_lines=static.win_lines,
         dead_cells_for_o=_compute_dead_cells_for_o(static, push_distances),
         push_distances=push_distances,
+        push_predecessors=push_predecessors,
+        push_stand_cells=push_stand_cells,
+        push_routes=push_routes,
     )
     state = normalize_state(player, frozenset(os), frozenset(xs), static)
     return static, state, normalized, player
@@ -196,14 +220,24 @@ def reachable(
     return frozenset(seen)
 
 
+def _normalize_with_region(
+    player: int,
+    os: frozenset[int],
+    xs: frozenset[int],
+    board: StaticBoard,
+) -> tuple[State, frozenset[int]]:
+    region = reachable(player, os, xs, board)
+    return State(player=min(region), os=os, xs=xs), region
+
+
 def normalize_state(
     player: int,
     os: frozenset[int],
     xs: frozenset[int],
     board: StaticBoard,
 ) -> State:
-    region = reachable(player, os, xs, board)
-    return State(player=min(region), os=os, xs=xs)
+    state, _region = _normalize_with_region(player, os, xs, board)
+    return state
 
 
 def is_x_loss(xs: frozenset[int], board: StaticBoard) -> bool:
@@ -212,11 +246,21 @@ def is_x_loss(xs: frozenset[int], board: StaticBoard) -> bool:
 
 def _compute_push_distance_maps(
     board: StaticBoard,
-) -> Mapping[int, Mapping[int, int]]:
+) -> tuple[
+    Mapping[int, Mapping[int, int]],
+    Mapping[int, Mapping[int, int]],
+    Mapping[int, Mapping[int, int]],
+    Mapping[int, Mapping[int, tuple[int, ...]]],
+]:
     targets = {cell for line in board.win_lines for cell in line}
-    maps: dict[int, Mapping[int, int]] = {}
+    distance_maps: dict[int, Mapping[int, int]] = {}
+    predecessor_maps: dict[int, Mapping[int, int]] = {}
+    stand_maps: dict[int, Mapping[int, int]] = {}
+    route_maps: dict[int, Mapping[int, tuple[int, ...]]] = {}
     for target in targets:
         distances = {target: 0}
+        predecessors: dict[int, int] = {}
+        stand_cells: dict[int, int] = {}
         queue = deque([target])
 
         while queue:
@@ -237,10 +281,40 @@ def _compute_push_distance_maps(
                     continue
                 if previous not in distances:
                     distances[previous] = distances[current] + 1
+                    predecessors[previous] = current
+                    stand_cells[previous] = stand
                     queue.append(previous)
-        maps[target] = MappingProxyType(distances)
+        distance_maps[target] = MappingProxyType(distances)
+        predecessor_maps[target] = MappingProxyType(predecessors)
+        stand_maps[target] = MappingProxyType(stand_cells)
+        route_maps[target] = MappingProxyType(
+            {
+                cell: _build_route_cells(cell, target, predecessors, stand_cells)
+                for cell in distances
+            }
+        )
 
-    return MappingProxyType(maps)
+    return (
+        MappingProxyType(distance_maps),
+        MappingProxyType(predecessor_maps),
+        MappingProxyType(stand_maps),
+        MappingProxyType(route_maps),
+    )
+
+
+def _build_route_cells(
+    cell: int,
+    target: int,
+    predecessors: Mapping[int, int],
+    stand_cells: Mapping[int, int],
+) -> tuple[int, ...]:
+    route: list[int] = [cell]
+    node = cell
+    while node != target:
+        route.append(stand_cells[node])
+        node = predecessors[node]
+        route.append(node)
+    return tuple(route)
 
 
 def _compute_dead_cells_for_o(
@@ -276,37 +350,222 @@ def goal_info(
     return None
 
 
-def heuristic(state: State, board: StaticBoard) -> float:
-    if goal_info(state, board) is not None:
-        return 0.0
-    if len(state.os) < 2:
+PENALTY_PER_BLOCKING_X: float = 1.0
+PLAYER_TARGET_X_PENALTY: float = 2.0
+PLAYER_TARGET_UNREACHABLE_PENALTY: float = 0.0
+X_ON_LINE_PENALTY: float = 0.5
+X_PUSH_BASE_BIAS: float = 0.35
+O_PUSH_BASE_BIAS: float = -0.10
+REACH_GAIN_BIAS: float = 0.08
+O_PUSH_ACCESS_GAIN_BIAS: float = 0.80
+HEURISTIC_PROGRESS_BIAS: float = 1.00
+PLAN_X_CLEAR_BIAS: float = 2.00
+PLAN_TARGET_REACHABLE_BIAS: float = 2.50
+PLAN_TARGET_UNREACHABLE_BIAS: float = 2.00
+
+
+def _route_cells(cell: int, target: int, board: StaticBoard) -> tuple[int, ...]:
+    """Box-landing cells and player-stand cells along the canonical shortest
+    wall-only push route from `cell` to `target` (both endpoints included)."""
+    return board.push_routes.get(target, {}).get(cell, ())
+
+
+def _occupancy_penalty(
+    cell: int,
+    target: int,
+    blockers: frozenset[int],
+    board: StaticBoard,
+) -> float:
+    base = _push_distance(cell, target, board)
+    if base == math.inf:
         return math.inf
+    route = _route_cells(cell, target, board)
+    blocking = sum(1 for route_cell in route if route_cell in blockers)
+    return base + (PENALTY_PER_BLOCKING_X * blocking)
+
+
+def _best_line_plan(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int] | None = None,
+    target_access_penalty: float = 0.0,
+) -> LinePlan | None:
+    region = region or reachable(state.player, state.os, state.xs, board)
+    if len(state.os) < 2:
+        return None
 
     o_cells = tuple(state.os)
-    best = math.inf
+    blockers0 = state.xs | {o_cells[1]}
+    blockers1 = state.xs | {o_cells[0]}
+    best_plan: LinePlan | None = None
     for line in board.win_lines:
         for player_target in line:
             targets = tuple(cell for cell in line if cell != player_target)
             if len(targets) != 2:
                 continue
-            cost_a = _push_distance(o_cells[0], targets[0], board) + _push_distance(
-                o_cells[1], targets[1], board
+
+            plan_penalty = 0.0
+            if player_target in state.xs:
+                plan_penalty += PLAYER_TARGET_X_PENALTY
+            if player_target not in region:
+                plan_penalty += target_access_penalty
+            plan_penalty += X_ON_LINE_PENALTY * sum(
+                1 for cell in line if cell in state.xs
             )
-            cost_b = _push_distance(o_cells[0], targets[1], board) + _push_distance(
-                o_cells[1], targets[0], board
+
+            assignments = (
+                (o_cells[0], targets[0], blockers0, o_cells[1], targets[1], blockers1),
+                (o_cells[0], targets[1], blockers0, o_cells[1], targets[0], blockers1),
             )
-            best = min(best, cost_a, cost_b)
-    return best
+            for o_a, target_a, blockers_a, o_b, target_b, blockers_b in assignments:
+                cost_a = _occupancy_penalty(o_a, target_a, blockers_a, board)
+                cost_b = _occupancy_penalty(o_b, target_b, blockers_b, board)
+                score = cost_a + cost_b + plan_penalty
+                if best_plan is not None and score >= best_plan.score:
+                    continue
+
+                route_cells = frozenset(
+                    _route_cells(o_a, target_a, board)
+                    + _route_cells(o_b, target_b, board)
+                )
+                best_plan = LinePlan(
+                    score=score,
+                    line=line,
+                    player_target=player_target,
+                    route_cells=route_cells,
+                    player_target_has_x=player_target in state.xs,
+                    player_target_reachable=player_target in region,
+                )
+    return best_plan
+
+
+def heuristic(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int] | None = None,
+    target_access_penalty: float = 0.0,
+) -> float:
+    if goal_info(state, board, region=region) is not None:
+        return 0.0
+    plan = _best_line_plan(
+        state,
+        board,
+        region=region,
+        target_access_penalty=target_access_penalty,
+    )
+    if plan is None:
+        return math.inf
+    return plan.score
 
 
 def _push_distance(cell: int, target: int, board: StaticBoard) -> float:
     return board.push_distances.get(target, {}).get(cell, math.inf)
 
 
-def successors(state: State, board: StaticBoard) -> list[tuple[Push, State]]:
-    region = reachable(state.player, state.os, state.xs, board)
+def _legal_o_push_count(
+    state: State,
+    board: StaticBoard,
+    region: frozenset[int],
+) -> int:
     occupied = state.os | state.xs
-    results: list[tuple[Push, State]] = []
+    count = 0
+    for cell in state.os:
+        for _move, dr, dc in DIRECTIONS:
+            row, col = board.coord(cell)
+            stand_row = row - dr
+            stand_col = col - dc
+            dest_row = row + dr
+            dest_col = col + dc
+            if not board.in_bounds(stand_row, stand_col):
+                continue
+            if not board.in_bounds(dest_row, dest_col):
+                continue
+            stand = board.index(stand_row, stand_col)
+            dest = board.index(dest_row, dest_col)
+            if stand in region and dest not in board.walls and dest not in occupied:
+                count += 1
+    return count
+
+
+def _priority_bias(
+    *,
+    parent_state: State,
+    parent_region: frozenset[int],
+    parent_h: float,
+    parent_plan: LinePlan | None,
+    parent_o_push_count: int,
+    push: Push,
+    child_state: State,
+    child_region: frozenset[int],
+    child_h: float,
+    child_plan: LinePlan | None,
+    board: StaticBoard,
+) -> float:
+    del parent_state
+    bias = X_PUSH_BASE_BIAS if push.piece == "X" else O_PUSH_BASE_BIAS
+    if child_h < parent_h:
+        bias -= HEURISTIC_PROGRESS_BIAS
+    elif child_h > parent_h:
+        bias += 0.25
+
+    reach_gain = max(0, len(child_region) - len(parent_region))
+    if reach_gain:
+        bias -= min(reach_gain, 10) * REACH_GAIN_BIAS
+
+    child_o_push_count = _legal_o_push_count(child_state, board, child_region)
+    o_push_gain = max(0, child_o_push_count - parent_o_push_count)
+    if o_push_gain:
+        bias -= min(o_push_gain, 4) * O_PUSH_ACCESS_GAIN_BIAS
+
+    if push.piece == "X" and parent_plan is not None:
+        dr, dc = DIRECTION_BY_MOVE[push.move]
+        row, col = board.coord(push.cell)
+        dest = board.index(row + dr, col + dc)
+        important_cells = set(parent_plan.line) | set(parent_plan.route_cells)
+        if push.cell == parent_plan.player_target:
+            bias -= PLAN_X_CLEAR_BIAS
+        elif push.cell in important_cells:
+            bias -= PLAN_X_CLEAR_BIAS * 0.5
+        if dest == parent_plan.player_target:
+            bias += PLAN_X_CLEAR_BIAS
+        elif dest in important_cells:
+            bias += PLAN_X_CLEAR_BIAS * 0.5
+
+    if parent_plan is not None and child_plan is not None:
+        if not child_plan.player_target_reachable:
+            bias += PLAN_TARGET_UNREACHABLE_BIAS
+        if parent_plan.player_target_has_x and not child_plan.player_target_has_x:
+            bias -= PLAN_X_CLEAR_BIAS
+        if (
+            not parent_plan.player_target_reachable
+            and child_plan.player_target_reachable
+        ):
+            bias -= PLAN_TARGET_REACHABLE_BIAS
+
+    return bias
+
+
+def successors(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int] | None = None,
+    target_access_penalty: float = 0.0,
+) -> list[tuple[Push, State, float, float]]:
+    if region is None:
+        region = reachable(state.player, state.os, state.xs, board)
+    occupied = state.os | state.xs
+    parent_plan = _best_line_plan(
+        state,
+        board,
+        region=region,
+        target_access_penalty=target_access_penalty,
+    )
+    parent_h = math.inf if parent_plan is None else parent_plan.score
+    parent_o_push_count = _legal_o_push_count(state, board, region)
+    results: list[tuple[Push, State, float, float]] = []
 
     for piece, cells in (("O", state.os), ("X", state.xs)):
         for cell in sorted(cells):
@@ -338,10 +597,31 @@ def successors(state: State, board: StaticBoard) -> list[tuple[Push, State]]:
 
                 if is_deadlock(new_os, new_xs, board):
                     continue
-                next_state = normalize_state(cell, new_os, new_xs, board)
-                results.append((Push(piece=piece, cell=cell, move=move), next_state))
+                next_state, next_region = _normalize_with_region(cell, new_os, new_xs, board)
+                child_plan = _best_line_plan(
+                    next_state,
+                    board,
+                    region=next_region,
+                    target_access_penalty=target_access_penalty,
+                )
+                h = math.inf if child_plan is None else child_plan.score
+                push = Push(piece=piece, cell=cell, move=move)
+                bias = _priority_bias(
+                    parent_state=state,
+                    parent_region=region,
+                    parent_h=parent_h,
+                    parent_plan=parent_plan,
+                    parent_o_push_count=parent_o_push_count,
+                    push=push,
+                    child_state=next_state,
+                    child_region=next_region,
+                    child_h=h,
+                    child_plan=child_plan,
+                    board=board,
+                )
+                results.append((push, next_state, h, bias))
 
-    results.sort(key=lambda item: heuristic(item[1], board))
+    results.sort(key=lambda item: (item[2] + item[3], item[2]))
     return results
 
 
@@ -504,7 +784,20 @@ def solve(
     counter = itertools.count()
     g_cost = {start_state: 0}
     parents: dict[State, Parent] = {}
-    heapq.heappush(queue, (heuristic(start_state, static) * weight, 0, next(counter), start_state))
+    start_region = reachable(start_state.player, start_state.os, start_state.xs, static)
+    target_access_penalty = (
+        3.0
+        if len(start_region) <= 2
+        and _legal_o_push_count(start_state, static, start_region) > 0
+        else 0.0
+    )
+    start_h = heuristic(
+        start_state,
+        static,
+        region=start_region,
+        target_access_penalty=target_access_penalty,
+    )
+    heapq.heappush(queue, (start_h * weight, 0, next(counter), start_state))
 
     while queue:
         if timeout_seconds is not None and (time.perf_counter() - started) >= timeout_seconds:
@@ -557,13 +850,18 @@ def solve(
                 failure_reason=None,
             )
 
-        for push, nxt in successors(current, static):
+        for push, nxt, h, bias in successors(
+            current,
+            static,
+            region=region,
+            target_access_penalty=target_access_penalty,
+        ):
             next_cost = cost + 1
             if next_cost >= g_cost.get(nxt, 1_000_000_000):
                 continue
             g_cost[nxt] = next_cost
             parents[nxt] = Parent(previous=current, push=push)
-            next_priority = next_cost + (weight * heuristic(nxt, static))
+            next_priority = next_cost + (weight * h) + bias
             heapq.heappush(queue, (next_priority, next_cost, next(counter), nxt))
 
         peak_closed_size = max(peak_closed_size, len(g_cost))
