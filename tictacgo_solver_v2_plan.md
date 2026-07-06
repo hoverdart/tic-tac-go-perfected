@@ -27,6 +27,10 @@ verification.
 
 V1 has become a strong baseline:
 
+- Abdullah's latest reported broader board-corpus test puts standalone
+  `push_solver` accuracy at **93.8%**.
+- The reported combined `push_solver` plus `beam_search_and_cnn` approach
+  reaches **98%** total board accuracy.
 - On the original 20-board historical benchmark, the known hard failures are
   `20250928 Jailbreak` and `20251005 Strange Fit`.
 - On the expanded 100-board benchmark, the current hard-tail failures are:
@@ -45,22 +49,28 @@ V1 has become a strong baseline:
 Interpretation:
 
 - The push abstraction is correct and worth keeping.
+- The push solver is now strong enough to be the default first solver in a
+  portfolio, assuming the 93.8% result is reproduced by a checked-in benchmark.
+- Beam/CNN still matters because it appears to cover different failures and
+  raises combined coverage to 98%.
 - Local successor ordering is no longer the only problem.
 - The remaining problem is heavy-tail search: long phases where many X pushes
   look equally plausible before any O-distance score improves.
-- V2 needs portfolio search, macro moves, and learned/global ordering rather
-  than more single-queue hand-tuning.
+- V2 needs reproducible portfolio benchmarking, rank-discrepancy search, macro
+  moves, and learned/global ordering rather than more single-queue hand-tuning.
 
 ## V2 Goals
 
-1. Solve every board in the expanded 100-board benchmark within the production
+1. Reproduce and check in the benchmark configuration for the reported 93.8%
+   standalone push accuracy and 98% combined push plus beam/CNN accuracy.
+2. Solve every board in the expanded 100-board benchmark within the production
    time budget, or clearly classify unsolved boards by missing-known-solution
    status and search exhaustion.
-2. Beat the current beam/CNN system on solved count first, then on median time.
-3. Preserve deterministic, verifier-backed solutions.
-4. Keep easy-board speed close to V1. V2 should not slow down boards that V1
+3. Beat the current beam/CNN system on solved count first, then on median time.
+4. Preserve deterministic, verifier-backed solutions.
+5. Keep easy-board speed close to V1. V2 should not slow down boards that V1
    already solves in a few milliseconds.
-5. Produce reusable training and debugging artifacts so the hard tail gets
+6. Produce reusable training and debugging artifacts so the hard tail gets
    smaller over time.
 
 ## Non-Goals
@@ -714,9 +724,11 @@ V2 is ready to replace the current production default when:
 1. `python3 -m unittest tests.test_push_solver -q` passes.
 2. Every returned solution verifies by replay.
 3. The original 20-board benchmark is 20/20 under the production timeout.
-4. The expanded 100-board benchmark beats the current 91/100 baseline.
+4. The checked-in benchmark reproduces or improves the reported 93.8%
+   standalone push accuracy.
 5. The hard-tail benchmark reports which strategy won each solved board.
-6. Full-corpus comparison against beam/CNN known data is generated.
+6. Full-corpus comparison against beam/CNN known data is generated and the
+   combined portfolio reproduces or improves the reported 98% accuracy.
 7. There is a documented fallback path for every remaining unsolved board:
    timeout, node cap, exhausted, missing known solution, or suspected invalid
    board data.

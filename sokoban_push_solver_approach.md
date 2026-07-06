@@ -158,24 +158,34 @@ Best long-term framing:
 
 ## Is The Push Solver Better?
 
-Current answer: **promising, but not proven better yet.**
+Current answer: **yes as a solver core, but it should remain part of a
+portfolio for production.**
 
-On the first 20 historical boards with a 10s timeout:
+The earlier progress snapshot is now stale. At that point the push solver was
+solving 16/20 historical boards and timing out on four. After the current
+line-plan and ordering work, the first 20-board benchmark is down to two known
+timeouts:
 
-- Push solver solved and verified 16/20.
-- Four boards timed out: `Jailbreak`, `Do Not Pass`, `Strange Fit`, `Escape Route`.
+- `20250928 Jailbreak`
+- `20251005 Strange Fit`
 
-At 20s:
+Abdullah's latest reported broader board-corpus run puts the standalone
+`push_solver` at **93.8% accuracy**. Combined with the existing
+`beam_search_and_cnn` path as a fallback/partner, the total reported board
+coverage is now **98%**.
 
-- Still 16/20.
-- The same four boards timed out.
+Those numbers should be treated as reported benchmark results until reproduced
+from a checked-in benchmark command, but they change the engineering conclusion:
+the push solver is no longer just a research prototype. It is a high-performing
+classical solver that should be used as a primary verified path, with beam/CNN
+kept for complementary hard-tail coverage.
 
-That tells us the core is valid, but V1 is not done as a replacement. The
-failures are not "almost solved but needed a few more seconds." They are wide
-search cases where the heuristic is blind through long X-clearing phases.
-
-The push solver is probably the right architecture, but it needs stronger
-classical ordering/pruning before it can replace the current production approach.
+The remaining failures still look like wide search cases rather than invalid
+state modeling. The solver often needs long X-clearing phases before O progress
+appears, and many frontier states have similar line-plan scores. That is why the
+next step is not another single heuristic constant. The next step is a measured
+portfolio: push solver first, alternate push-search schedules next, and beam/CNN
+fallback where it demonstrably covers different boards.
 
 ## V1 Status
 
@@ -186,58 +196,62 @@ V1 currently includes:
 - player-region normalization,
 - horizontal/vertical win and X-loss geometry,
 - static O dead-cell pruning,
-- reverse wall-aware push-distance heuristic,
+- reverse wall-aware push-distance maps,
+- precomputed floor adjacency and legal push transitions,
+- push predecessors, stand cells, canonical routes, and route-cell sets,
+- top-K target-line planning over O-to-target assignments,
+- line-plan scoring with X blockers, player-target reachability, route cells,
+  and stand cells,
+- plan-specific O and X push ordering bias,
+- access-gain ordering from player-region growth and legal-O-push-count growth,
 - keystroke reconstruction,
 - independent verifier,
-- historical benchmark CLI.
+- historical benchmark CLI,
+- oracle-rank diagnostics for comparing successor ordering against known
+  solution paths.
 
 The most important implementation choice in V1 is that it verifies every
 returned keystroke solution independently. This matters because push-level search
 and keystroke reconstruction are separate systems. A solver that finds a good
 push path but emits illegal keystrokes is not useful.
 
-## What V1 Is Missing
+## Remaining Gaps
 
-### 1. Obstacle-Aware X Push Ordering
+### 1. Hard-Tail Search Control
 
-The biggest missing piece is knowing which X pushes are useful.
+The biggest remaining problem is no longer basic X-push awareness. The current
+solver already scores X pushes against target lines, O routes, stand cells, and
+player targets. The remaining problem is that some boards have long plateaus
+where many X pushes are plausible and none immediately improves the best O
+line-plan score.
 
-On the timeout boards, the solver often must push X pieces many times before the
-O heuristic improves. During that phase, many states have the same O-distance
-score. A* then spreads across a large plateau.
+On those boards, weighted A* can still spread across too many equivalent-looking
+states before it commits deeply enough to one clearing sequence.
 
-V1 should add an obstacle-aware priority bias:
+V2 should add portfolio search rather than keep tuning one queue:
 
 ```text
-priority = g + weight * o_heuristic + obstacle_bias
+baseline weighted A*
+greedy weighted A*
+rank-discrepancy search
+macro-enabled weighted A*
+policy-guided weighted A*
 ```
 
-Useful bias features:
+### 2. More Complete Dynamic Heuristics
 
-- Did the push increase the player's reachable region?
-- Did it create more legal O pushes?
-- Did it move an X off a candidate win line?
-- Did it move an X off an important O push stand cell?
-- Did it reduce blockers near the currently best line plan?
-- Did it just shuffle an X without improving access?
+The current heuristic now includes dynamic line-plan information, but it is
+still mostly a local estimate. It scores a target line and its routes; it does
+not fully understand multi-step clearing commitments or temporary sacrifices
+where `h` gets worse before the solution becomes available.
 
-This should be used only for ordering, not pruning.
+Future scoring should track:
 
-### 2. Better Dynamic Heuristics
-
-The current push-distance heuristic respects walls but mostly ignores dynamic
-blockers. It knows an O could theoretically reach a line cell, but not whether
-current X clusters make that path painful.
-
-V2 should add a dynamic line-plan score:
-
-- candidate target line,
-- O-to-target assignment,
-- current X blockers on target cells,
-- blocked stand cells,
-- unreachable stand cells,
-- player-region access,
-- number of useful O pushes currently available.
+- whether a sequence is consistently clearing the same plan,
+- whether the same X is being productively moved along a corridor,
+- whether a temporary O move opens a better final line,
+- whether a push improves several top-K plans at once,
+- whether the solver is cycling among equally scored X shuffles.
 
 This score does not need to be admissible if used only in `fast` mode. For
 `optimal` mode, keep a separate admissible lower bound.
@@ -258,7 +272,7 @@ Future deadlock work should focus on provably safe patterns:
 Deadlock pruning is powerful, but unsafe deadlock pruning is worse than no
 deadlock pruning.
 
-### 4. Better Benchmark Instrumentation
+### 4. Benchmark Reproducibility
 
 The benchmark should log more than solved/timeout:
 
@@ -280,19 +294,23 @@ This tells us whether a failure is:
 - bad target-line selection,
 - or reconstruction/verification issue.
 
+The reported 93.8% standalone and 98% combined accuracy should be backed by a
+checked-in command and output artifact. The docs should say which board corpus,
+timeout, node cap, and solver order produced those numbers.
+
 ## V2 Plan
 
-V2 should make the push solver competitive on the four timeout boards without
-giving up correctness.
+V2 should turn the current high-performing push solver into a production-grade
+portfolio member without giving up correctness.
 
 Recommended V2 order:
 
-1. Add obstacle-aware priority bias.
-2. Benchmark first 20 boards at 10s and 20s.
-3. Confirm no regression on the existing 16 solved boards.
-4. Add detailed plateau instrumentation.
-5. Add top-K line-plan scoring.
-6. Add optional beam fallback over push states.
+1. Check in the benchmark artifact that reproduces the 93.8% and 98% numbers.
+2. Add a hard-tail benchmark with every board not solved by push alone.
+3. Add a portfolio wrapper that can run push first and beam/CNN fallback second.
+4. Add rank-discrepancy search as the next push-only fallback.
+5. Add macro successors for forced corridors and target-X clearing.
+6. Add a learned push ranker only after the non-ML portfolio is measurable.
 
 ### V2 Fast Mode
 
@@ -368,8 +386,8 @@ states, or replace verification.
 The fastest practical system may be a portfolio:
 
 1. Push solver fast mode.
-2. Push solver with alternate weights.
-3. Classical push beam fallback.
+2. Push solver with alternate weights or rank-discrepancy search.
+3. Macro-enabled push solver.
 4. Current heuristic-CNN beam fallback.
 5. Exact push-optimal mode for offline/storage when time allows.
 
@@ -382,14 +400,16 @@ The push solver should remain the main research direction because it matches the
 actual structure of the game. It is explainable, verifiable, and gives us a real
 path to optimality.
 
-The current production model should not be removed yet. V1 has not beaten it on
-the hard tail. But V1 has already shown that a pure classical solver can solve
-many real boards quickly and produce verified solutions.
+The current production model should not be removed yet. The reported combined
+accuracy is now 98%, which means the best system today is the portfolio, not a
+single solver. The push solver should be the first verified path, and
+beam/CNN should remain available for boards where its learned prior covers a
+different part of the hard tail.
 
-The immediate next step is not more timeout. The 20s run did not change solve
-rate. The immediate next step is **better X-push ordering**.
+The immediate next step is not more timeout. The immediate next step is
+**reproducible portfolio benchmarking**: record which boards push solves, which
+boards beam/CNN solves, and which boards remain unsolved by both.
 
-If that succeeds, the push solver becomes a strong candidate for the default
-solver. If it fails, the benchmark will tell us exactly where ML or beam search
-still earns its place.
-
+If the portfolio data holds, the push solver becomes the default first attempt
+and the beam/CNN solver becomes a targeted fallback. If it does not hold, the
+benchmark will tell us exactly where ML or beam search still earns its place.
