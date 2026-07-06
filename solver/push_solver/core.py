@@ -97,9 +97,14 @@ class LinePlan:
     score: float
     line: tuple[int, int, int]
     player_target: int
+    o_targets: tuple[int, int]
+    o_assignment: tuple[tuple[int, int], tuple[int, int]]
     route_cells: frozenset[int]
+    stand_cells: frozenset[int]
     player_target_has_x: bool
     player_target_reachable: bool
+    x_on_line_count: int
+    blocked_route_count: int
 
 
 @dataclass(frozen=True)
@@ -423,6 +428,23 @@ def _route_cells(cell: int, target: int, board: StaticBoard) -> tuple[int, ...]:
     return board.push_routes.get(target, {}).get(cell, ())
 
 
+def _stand_cells(cell: int, target: int, board: StaticBoard) -> tuple[int, ...]:
+    stand_cells = board.push_stand_cells.get(target, {})
+    predecessors = board.push_predecessors.get(target, {})
+    if cell == target or cell not in board.push_distances.get(target, {}):
+        return ()
+
+    stands: list[int] = []
+    node = cell
+    while node != target:
+        stand = stand_cells.get(node)
+        if stand is None:
+            break
+        stands.append(stand)
+        node = predecessors[node]
+    return tuple(stands)
+
+
 def _occupancy_penalty(
     cell: int,
     target: int,
@@ -437,21 +459,29 @@ def _occupancy_penalty(
     return base + (PENALTY_PER_BLOCKING_X * blocking)
 
 
-def _best_line_plan(
+def _top_line_plans(
     state: State,
     board: StaticBoard,
     *,
-    region: frozenset[int] | None = None,
+    region: frozenset[int],
     target_access_penalty: float = 0.0,
-) -> LinePlan | None:
-    region = region or reachable(state.player, state.os, state.xs, board)
+    limit: int = 8,
+) -> tuple[LinePlan, ...]:
     if len(state.os) < 2:
-        return None
+        return ()
 
     o_cells = tuple(state.os)
     blockers0 = state.xs | {o_cells[1]}
     blockers1 = state.xs | {o_cells[0]}
-    best_plan: LinePlan | None = None
+    plans: list[LinePlan] = []
+    seen: set[
+        tuple[
+            tuple[int, int, int],
+            int,
+            tuple[int, int],
+            tuple[tuple[int, int], tuple[int, int]],
+        ]
+    ] = set()
     for line in board.win_lines:
         for player_target in line:
             targets = tuple(cell for cell in line if cell != player_target)
@@ -463,9 +493,8 @@ def _best_line_plan(
                 plan_penalty += PLAYER_TARGET_X_PENALTY
             if player_target not in region:
                 plan_penalty += target_access_penalty
-            plan_penalty += X_ON_LINE_PENALTY * sum(
-                1 for cell in line if cell in state.xs
-            )
+            x_on_line_count = sum(1 for cell in line if cell in state.xs)
+            plan_penalty += X_ON_LINE_PENALTY * x_on_line_count
 
             assignments = (
                 (o_cells[0], targets[0], blockers0, o_cells[1], targets[1], blockers1),
@@ -474,23 +503,63 @@ def _best_line_plan(
             for o_a, target_a, blockers_a, o_b, target_b, blockers_b in assignments:
                 cost_a = _occupancy_penalty(o_a, target_a, blockers_a, board)
                 cost_b = _occupancy_penalty(o_b, target_b, blockers_b, board)
-                score = cost_a + cost_b + plan_penalty
-                if best_plan is not None and score >= best_plan.score:
+                if not math.isfinite(cost_a + cost_b):
                     continue
 
-                route_cells = frozenset(
-                    _route_cells(o_a, target_a, board)
-                    + _route_cells(o_b, target_b, board)
+                o_assignment = ((o_a, target_a), (o_b, target_b))
+                key = (line, player_target, targets, o_assignment)
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                route_a = _route_cells(o_a, target_a, board)
+                route_b = _route_cells(o_b, target_b, board)
+                route_cells = frozenset(route_a + route_b)
+                stand_cells = frozenset(
+                    _stand_cells(o_a, target_a, board)
+                    + _stand_cells(o_b, target_b, board)
                 )
-                best_plan = LinePlan(
-                    score=score,
-                    line=line,
-                    player_target=player_target,
-                    route_cells=route_cells,
-                    player_target_has_x=player_target in state.xs,
-                    player_target_reachable=player_target in region,
+                blocked_route_count = len(state.xs & route_cells)
+                score = cost_a + cost_b + plan_penalty
+
+                plans.append(
+                    LinePlan(
+                        score=score,
+                        line=line,
+                        player_target=player_target,
+                        o_targets=targets,
+                        o_assignment=o_assignment,
+                        route_cells=route_cells,
+                        stand_cells=stand_cells,
+                        player_target_has_x=player_target in state.xs,
+                        player_target_reachable=player_target in region,
+                        x_on_line_count=x_on_line_count,
+                        blocked_route_count=blocked_route_count,
+                    )
                 )
-    return best_plan
+
+    plans.sort(key=lambda plan: plan.score)
+    return tuple(plans[:limit])
+
+
+def _best_line_plan(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int] | None = None,
+    target_access_penalty: float = 0.0,
+) -> LinePlan | None:
+    region = region or reachable(state.player, state.os, state.xs, board)
+    plans = _top_line_plans(
+        state,
+        board,
+        region=region,
+        target_access_penalty=target_access_penalty,
+        limit=1,
+    )
+    if not plans:
+        return None
+    return plans[0]
 
 
 def heuristic(
@@ -538,6 +607,34 @@ def _line_plan_for(
     return plan_cache[state]
 
 
+def _top_line_plans_for(
+    state: State,
+    board: StaticBoard,
+    *,
+    region: frozenset[int],
+    target_access_penalty: float,
+    top_plan_cache: dict[State, tuple[LinePlan, ...]] | None = None,
+    limit: int = 8,
+) -> tuple[LinePlan, ...]:
+    if top_plan_cache is None:
+        return _top_line_plans(
+            state,
+            board,
+            region=region,
+            target_access_penalty=target_access_penalty,
+            limit=limit,
+        )
+    if state not in top_plan_cache:
+        top_plan_cache[state] = _top_line_plans(
+            state,
+            board,
+            region=region,
+            target_access_penalty=target_access_penalty,
+            limit=limit,
+        )
+    return top_plan_cache[state]
+
+
 def _push_distance(cell: int, target: int, board: StaticBoard) -> float:
     return board.push_distances.get(target, {}).get(cell, math.inf)
 
@@ -567,6 +664,68 @@ def _legal_o_push_count_for(
     if state not in o_push_count_cache:
         o_push_count_cache[state] = _legal_o_push_count(state, board, region)
     return o_push_count_cache[state]
+
+
+def _push_destination(push: Push, board: StaticBoard) -> int:
+    dr, dc = DIRECTION_BY_MOVE[push.move]
+    row, col = board.coord(push.cell)
+    return board.index(row + dr, col + dc)
+
+
+def _plan_specific_push_bias(
+    *,
+    plan: LinePlan,
+    push: Push,
+    parent_region: frozenset[int],
+    child_region: frozenset[int],
+    board: StaticBoard,
+) -> float:
+    bias = 0.0
+    dest = _push_destination(push, board)
+    important_cells = set(plan.line) | set(plan.route_cells) | set(plan.stand_cells)
+
+    if push.piece == "X":
+        if push.cell == plan.player_target:
+            bias -= PLAN_X_CLEAR_BIAS * 2.0
+        elif push.cell in plan.line:
+            bias -= PLAN_X_CLEAR_BIAS * 1.25
+        elif push.cell in plan.route_cells:
+            bias -= PLAN_X_CLEAR_BIAS
+        elif push.cell in plan.stand_cells:
+            bias -= PLAN_X_CLEAR_BIAS * 0.75
+
+        if dest == plan.player_target:
+            bias += PLAN_X_CLEAR_BIAS * 2.0
+        elif dest in plan.line:
+            bias += PLAN_X_CLEAR_BIAS * 1.25
+        elif dest in plan.route_cells:
+            bias += PLAN_X_CLEAR_BIAS
+        elif dest in plan.stand_cells:
+            bias += PLAN_X_CLEAR_BIAS * 0.75
+    elif push.piece == "O":
+        assigned_targets = {
+            o_cell: target for o_cell, target in plan.o_assignment
+        }
+        target = assigned_targets.get(push.cell)
+        if target is not None:
+            before = _push_distance(push.cell, target, board)
+            after = _push_distance(dest, target, board)
+            if after < before:
+                bias -= min(before - after, 3) * 0.5
+            elif after > before:
+                bias += min(after - before, 3) * 0.35
+            if dest == target:
+                bias -= PLAN_X_CLEAR_BIAS
+        elif push.cell in important_cells:
+            bias += 0.4
+
+    if plan.player_target not in parent_region and plan.player_target in child_region:
+        bias -= PLAN_TARGET_REACHABLE_BIAS
+        bias -= TARGET_ACCESS_UNBLOCK_BIAS * 0.5
+    elif plan.player_target not in child_region:
+        bias += PLAN_TARGET_UNREACHABLE_BIAS * 0.25
+
+    return bias
 
 
 def _priority_bias(
@@ -638,18 +797,22 @@ def successors(
     parent_h: float | None = None,
     target_access_penalty: float = 0.0,
     plan_cache: dict[State, LinePlan | None] | None = None,
+    top_plan_cache: dict[State, tuple[LinePlan, ...]] | None = None,
     o_push_count_cache: dict[State, int] | None = None,
 ) -> list[tuple[Push, State, frozenset[int], float, float]]:
     if region is None:
         region = reachable(state.player, state.os, state.xs, board)
     occupied = state.os | state.xs
-    parent_plan = _line_plan_for(
+    parent_top_plans = _top_line_plans_for(
         state,
         board,
         region=region,
         target_access_penalty=target_access_penalty,
-        plan_cache=plan_cache,
+        top_plan_cache=top_plan_cache,
     )
+    parent_plan = parent_top_plans[0] if parent_top_plans else None
+    if plan_cache is not None and state not in plan_cache:
+        plan_cache[state] = parent_plan
     if parent_h is None:
         parent_h = math.inf if parent_plan is None else parent_plan.score
     parent_o_push_count = _legal_o_push_count_for(
@@ -694,13 +857,16 @@ def successors(
                     child_plan = None
                     h = 0.0
                 else:
-                    child_plan = _line_plan_for(
+                    child_top_plans = _top_line_plans_for(
                         next_state,
                         board,
                         region=next_region,
                         target_access_penalty=target_access_penalty,
-                        plan_cache=plan_cache,
+                        top_plan_cache=top_plan_cache,
                     )
+                    child_plan = child_top_plans[0] if child_top_plans else None
+                    if plan_cache is not None and next_state not in plan_cache:
+                        plan_cache[next_state] = child_plan
                     h = math.inf if child_plan is None else child_plan.score
                 push = Push(piece=piece, cell=cell, move=move)
                 
@@ -718,6 +884,17 @@ def successors(
                     child_plan=child_plan,
                     board=board,
                 )
+                if parent_top_plans:
+                    bias += min(
+                        _plan_specific_push_bias(
+                            plan=plan,
+                            push=push,
+                            parent_region=region,
+                            child_region=next_region,
+                            board=board,
+                        )
+                        for plan in parent_top_plans
+                    )
                 results.append((push, next_state, next_region, h, bias))
 
     results.sort(key=lambda item: (item[3] + item[4], item[3]))
@@ -885,6 +1062,7 @@ def solve(
     parents: dict[State, Parent] = {}
     start_region = reachable(start_state.player, start_state.os, start_state.xs, static)
     plan_cache: dict[State, LinePlan | None] = {}
+    top_plan_cache: dict[State, tuple[LinePlan, ...]] = {}
     o_push_count_cache: dict[State, int] = {}
     start_o_push_count = _legal_o_push_count_for(
         start_state,
@@ -898,13 +1076,15 @@ def solve(
         and start_o_push_count > 0
         else 0.0
     )
-    start_plan = _line_plan_for(
+    start_top_plans = _top_line_plans_for(
         start_state,
         static,
         region=start_region,
         target_access_penalty=target_access_penalty,
-        plan_cache=plan_cache,
+        top_plan_cache=top_plan_cache,
     )
+    start_plan = start_top_plans[0] if start_top_plans else None
+    plan_cache[start_state] = start_plan
     start_h = math.inf if start_plan is None else start_plan.score
     region_cache: dict[State, frozenset[int]] = {start_state: start_region}
     h_cache: dict[State, float] = {start_state: start_h}
@@ -969,6 +1149,7 @@ def solve(
             parent_h=current_h,
             target_access_penalty=target_access_penalty,
             plan_cache=plan_cache,
+            top_plan_cache=top_plan_cache,
             o_push_count_cache=o_push_count_cache,
         ):
             if nxt not in region_cache:
