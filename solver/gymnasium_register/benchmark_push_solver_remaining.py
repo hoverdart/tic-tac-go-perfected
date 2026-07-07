@@ -40,6 +40,8 @@ FIELDNAMES = [
     "elapsed_ms",
     "failure_reason",
     "verified",
+    "strategy",
+    "attempts",
 ]
 
 CELL_MAP = {
@@ -57,7 +59,7 @@ CELL_MAP = {
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from solver.push_solver import solve, verify_solution  # noqa: E402
+from solver.push_solver import SearchAttempt, solve, verify_solution  # noqa: E402
 
 
 class HardTimeout(Exception):
@@ -152,19 +154,121 @@ def solve_entry(
     weight: float,
     max_nodes: int,
     timeout_seconds: float,
+    beam_fallback: bool,
+    beam_timeout_seconds: float,
 ) -> dict[str, Any]:
     global _timeout_active
     board = decode_board(entry)
     started = time.perf_counter()
+    solver_timeout_seconds = max(0.01, timeout_seconds - 0.75)
+    hard_timeout_seconds = (
+        timeout_seconds + beam_timeout_seconds + 1.0
+        if beam_fallback
+        else timeout_seconds + 1.0
+    )
     try:
         _timeout_active = True
-        signal.setitimer(signal.ITIMER_REAL, timeout_seconds)
+        signal.setitimer(signal.ITIMER_REAL, hard_timeout_seconds)
         result = solve(
             board,
             weight=weight,
             max_nodes=max_nodes,
-            timeout_seconds=timeout_seconds,
+            timeout_seconds=solver_timeout_seconds,
         )
+        if not result.solved and beam_fallback:
+            beam_started = time.perf_counter()
+            try:
+                from solver.heuristic_cnn_solver import solve as beam_solve
+            except ModuleNotFoundError as exc:
+                if exc.name != "torch":
+                    raise
+                moves = None
+                final_board = None
+                states_checked = 0
+                result = type(result)(
+                    solved=False,
+                    moves=None,
+                    final_board=None,
+                    pushes=(),
+                    nodes_expanded=result.nodes_expanded,
+                    peak_closed_size=result.peak_closed_size,
+                    elapsed_ms=(time.perf_counter() - started) * 1000,
+                    failure_reason="beam_unavailable:torch",
+                    strategy=result.strategy,
+                    attempts=tuple(
+                        list(result.attempts)
+                        + [
+                            SearchAttempt(
+                                strategy="heuristic_cnn_fallback",
+                                solved=False,
+                                nodes_expanded=0,
+                                peak_closed_size=0,
+                                elapsed_ms=(time.perf_counter() - beam_started) * 1000,
+                                failure_reason="beam_unavailable:torch",
+                            )
+                        ]
+                    ),
+                )
+            else:
+                moves, final_board, states_checked = beam_solve(
+                    board,
+                    attempt_timeout_seconds=int(beam_timeout_seconds),
+                )
+            if moves is not None:
+                verification = verify_solution(board, moves)
+                if not verification.ok:
+                    raise RuntimeError(
+                        f"{entry['id']} beam fallback returned invalid solution: "
+                        f"{verification.error}"
+                    )
+                attempts = list(result.attempts)
+                attempts.append(
+                    SearchAttempt(
+                        strategy="heuristic_cnn_fallback",
+                        solved=True,
+                        nodes_expanded=states_checked,
+                        peak_closed_size=states_checked,
+                        elapsed_ms=(time.perf_counter() - beam_started) * 1000,
+                        failure_reason=None,
+                    )
+                )
+                result = type(result)(
+                    solved=True,
+                    moves=moves,
+                    final_board=final_board,
+                    pushes=(),
+                    nodes_expanded=result.nodes_expanded + states_checked,
+                    peak_closed_size=max(result.peak_closed_size, states_checked),
+                    elapsed_ms=(time.perf_counter() - started) * 1000,
+                    failure_reason=None,
+                    strategy="heuristic_cnn_fallback",
+                    attempts=tuple(attempts),
+                )
+            elif result.failure_reason != "beam_unavailable:torch":
+                result = type(result)(
+                    solved=False,
+                    moves=None,
+                    final_board=None,
+                    pushes=(),
+                    nodes_expanded=result.nodes_expanded + states_checked,
+                    peak_closed_size=max(result.peak_closed_size, states_checked),
+                    elapsed_ms=(time.perf_counter() - started) * 1000,
+                    failure_reason=result.failure_reason,
+                    strategy=result.strategy,
+                    attempts=tuple(
+                        list(result.attempts)
+                        + [
+                            SearchAttempt(
+                                strategy="heuristic_cnn_fallback",
+                                solved=False,
+                                nodes_expanded=states_checked,
+                                peak_closed_size=states_checked,
+                                elapsed_ms=(time.perf_counter() - beam_started) * 1000,
+                                failure_reason="beam_no_solution",
+                            )
+                        ]
+                    ),
+                )
     except HardTimeout:
         return {
             "board_id": entry["id"],
@@ -177,6 +281,8 @@ def solve_entry(
             "elapsed_ms": f"{(time.perf_counter() - started) * 1000:.1f}",
             "failure_reason": "hard_timeout",
             "verified": False,
+            "strategy": "",
+            "attempts": "",
         }
     finally:
         _timeout_active = False
@@ -201,6 +307,21 @@ def solve_entry(
         "elapsed_ms": f"{result.elapsed_ms:.1f}",
         "failure_reason": result.failure_reason or "",
         "verified": verified,
+        "strategy": result.strategy or "",
+        "attempts": json.dumps(
+            [
+                {
+                    "strategy": attempt.strategy,
+                    "solved": attempt.solved,
+                    "nodes_expanded": attempt.nodes_expanded,
+                    "peak_closed_size": attempt.peak_closed_size,
+                    "elapsed_ms": round(attempt.elapsed_ms, 1),
+                    "failure_reason": attempt.failure_reason,
+                }
+                for attempt in result.attempts
+            ],
+            separators=(",", ":"),
+        ),
     }
 
 
@@ -209,6 +330,8 @@ def solve_entry_worker(
     weight: float,
     max_nodes: int,
     timeout_seconds: float,
+    beam_fallback: bool,
+    beam_timeout_seconds: float,
 ) -> dict[str, Any]:
     """Initialize worker-local timeout handling and solve one board."""
     signal.signal(signal.SIGALRM, _timeout_handler)
@@ -217,6 +340,8 @@ def solve_entry_worker(
         weight=weight,
         max_nodes=max_nodes,
         timeout_seconds=timeout_seconds,
+        beam_fallback=beam_fallback,
+        beam_timeout_seconds=beam_timeout_seconds,
     )
 
 
@@ -228,6 +353,12 @@ def main() -> int:
     parser.add_argument("--max-nodes", type=int, default=500_000)
     parser.add_argument("--weight", type=float, default=2.0)
     parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument(
+        "--beam-fallback",
+        action="store_true",
+        help="After push timeout, try the heuristic-CNN beam solver before marking failed.",
+    )
+    parser.add_argument("--beam-timeout-seconds", type=float, default=30.0)
     parser.add_argument(
         "--only-failed",
         action=argparse.BooleanOptionalAction,
@@ -265,6 +396,8 @@ def main() -> int:
                 args.weight,
                 args.max_nodes,
                 args.timeout_seconds,
+                args.beam_fallback,
+                args.beam_timeout_seconds,
             ): entry
             for entry in pending
         }

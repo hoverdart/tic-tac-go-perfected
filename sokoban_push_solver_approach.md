@@ -1,5 +1,32 @@
 # Sokoban-Style Push Solver Approach
 
+## Current V2 Notes
+
+The current implementation keeps the Sokoban-style push abstraction as the
+correctness core and adds a deterministic portfolio around it.
+
+Important practical details:
+
+- normal one-push successors remain complete and are always available,
+- macro successors are optional strategy children and are stored as ordinary
+  push tuples, so final move reconstruction and independent verification are
+  unchanged,
+- the portfolio shares expensive state facts across strategies instead of
+  recomputing line plans and reachability from scratch,
+- pair deadlock pruning is conservative: it only rejects an O-pair when both
+  O pieces cannot reach any possible line assignment even under wall-only
+  over-approximation,
+- batch oracle diagnostics now separate local-ordering problems from global
+  search-commitment problems.
+
+The most recent pure-push hard-tail run still leaves 17 of 341 benchmark rows
+unsolved under 30 seconds. Oracle diagnostics show many known-solution pushes
+remain locally near the top, so the next classical work is not another single
+priority constant; it is stronger global commitment, better macros, and/or a
+learned push ranker. The production coverage path remains a verified portfolio
+with optional heuristic-CNN beam fallback where the dependency stack is
+available.
+
 ## Executive Summary
 
 Tic Tac Go is best treated as a small Sokoban variant: one controllable player

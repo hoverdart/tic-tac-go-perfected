@@ -12,7 +12,7 @@ import itertools
 import math
 import time
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from types import MappingProxyType
 from typing import Mapping
 
@@ -43,6 +43,7 @@ class StaticBoard:
     adjacency: tuple[tuple[int, ...], ...]
     push_transitions: tuple[tuple[tuple[str, int, int], ...], ...]
     push_route_sets: Mapping[int, Mapping[int, frozenset[int]]]
+    reachable_o_pairs: frozenset[tuple[int, int]]
 
     def in_bounds(self, row: int, col: int) -> bool:
         return 0 <= row < self.rows and 0 <= col < self.cols
@@ -83,7 +84,15 @@ class Push:
 @dataclass(frozen=True)
 class Parent:
     previous: State
-    push: Push
+    push: Push | None = None
+    pushes: tuple[Push, ...] = ()
+
+    def push_tuple(self) -> tuple[Push, ...]:
+        if self.pushes:
+            return self.pushes
+        if self.push is not None:
+            return (self.push,)
+        return ()
 
 
 @dataclass(frozen=True)
@@ -108,6 +117,16 @@ class LinePlan:
 
 
 @dataclass(frozen=True)
+class SearchAttempt:
+    strategy: str
+    solved: bool
+    nodes_expanded: int
+    peak_closed_size: int
+    elapsed_ms: float
+    failure_reason: str | None
+
+
+@dataclass(frozen=True)
 class PushSolveResult:
     solved: bool
     moves: str | None
@@ -117,6 +136,35 @@ class PushSolveResult:
     peak_closed_size: int
     elapsed_ms: float
     failure_reason: str | None
+    strategy: str | None = None
+    attempts: tuple[SearchAttempt, ...] = ()
+
+
+@dataclass(frozen=True)
+class SearchStrategyConfig:
+    name: str
+    kind: str = "weighted"
+    weight: float = 2.0
+    g_weight: float = 1.0
+    bias_scale: float = 1.0
+    use_macros: bool = False
+
+
+@dataclass
+class SearchContext:
+    static: StaticBoard
+    start_state: State
+    initial_player: int
+    target_access_penalty: float
+    region_cache: dict[State, frozenset[int]]
+    h_cache: dict[State, float]
+    plan_cache: dict[State, LinePlan | None]
+    top_plan_cache: dict[State, tuple[LinePlan, ...]]
+    o_push_count_cache: dict[State, int]
+    successor_cache: dict[State, tuple[tuple[Push, State, frozenset[int], float, float], ...]]
+
+
+StrategyChild = tuple[tuple[Push, ...], State, frozenset[int], float, float, int]
 
 
 def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...], int]:
@@ -193,6 +241,7 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         adjacency=tuple(adjacency_list),
         push_transitions=tuple(transitions_list),
         push_route_sets=MappingProxyType({}),
+        reachable_o_pairs=frozenset(),
     )
     
     (
@@ -217,6 +266,7 @@ def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...],
         adjacency=static_temp.adjacency,
         push_transitions=static_temp.push_transitions,
         push_route_sets=push_route_sets,
+        reachable_o_pairs=_compute_reachable_o_pairs(static_temp, push_distances),
     )
     
     state = normalize_state(player, frozenset(os), frozenset(xs), static)
@@ -384,8 +434,38 @@ def _compute_dead_cells_for_o(
     return frozenset(board.floor - reachable_cells)
 
 
+def _compute_reachable_o_pairs(
+    board: StaticBoard,
+    push_distances: Mapping[int, Mapping[int, int]],
+) -> frozenset[tuple[int, int]]:
+    reachable_pairs: set[tuple[int, int]] = set()
+    for first, second in itertools.combinations(sorted(board.floor), 2):
+        for line in board.win_lines:
+            for player_target in line:
+                targets = tuple(cell for cell in line if cell != player_target)
+                if len(targets) != 2:
+                    continue
+                if (
+                    first in push_distances.get(targets[0], {})
+                    and second in push_distances.get(targets[1], {})
+                ) or (
+                    first in push_distances.get(targets[1], {})
+                    and second in push_distances.get(targets[0], {})
+                ):
+                    reachable_pairs.add((first, second))
+                    break
+            if (first, second) in reachable_pairs:
+                break
+    return frozenset(reachable_pairs)
+
+
 def is_deadlock(os: frozenset[int], _xs: frozenset[int], board: StaticBoard) -> bool:
-    return any(cell in board.dead_cells_for_o for cell in os)
+    if any(cell in board.dead_cells_for_o for cell in os):
+        return True
+    if len(os) == 2:
+        pair = tuple(sorted(os))
+        return pair not in board.reachable_o_pairs
+    return False
 
 
 def goal_info(
@@ -905,13 +985,17 @@ def _reconstruct_pushes(
     parents: dict[State, Parent],
     goal_state: State,
 ) -> tuple[Push, ...]:
-    pushes = []
+    chunks: list[tuple[Push, ...]] = []
     current = goal_state
     while current in parents:
         parent = parents[current]
-        pushes.append(parent.push)
+        chunks.append(parent.push_tuple())
         current = parent.previous
-    return tuple(reversed(pushes))
+    return tuple(
+        push
+        for chunk in reversed(chunks)
+        for push in chunk
+    )
 
 
 def _shortest_walk(
@@ -1006,60 +1090,109 @@ def reconstruct_moves(
     return "".join(moves), _state_to_board(final_state, final_player, board)
 
 
-def solve(
-    board,
-    *,
-    weight: float = 2.0,
-    max_nodes: int | None = 500_000,
-    timeout_seconds: float | None = 10.0,
-) -> PushSolveResult:
-    started = time.perf_counter()
-    static, start_state, _normalized, initial_player = parse_board(board)
-    nodes_expanded = 0
-    peak_closed_size = 1
+def _attempt_from_result(result: PushSolveResult) -> SearchAttempt:
+    return SearchAttempt(
+        strategy=result.strategy or "unknown",
+        solved=result.solved,
+        nodes_expanded=result.nodes_expanded,
+        peak_closed_size=result.peak_closed_size,
+        elapsed_ms=result.elapsed_ms,
+        failure_reason=result.failure_reason,
+    )
 
+
+def _result(
+    *,
+    solved: bool,
+    moves: str | None,
+    final_board: tuple[tuple[str, ...], ...] | None,
+    pushes: tuple[Push, ...],
+    nodes_expanded: int,
+    peak_closed_size: int,
+    started: float,
+    failure_reason: str | None,
+    strategy: str | None,
+    attempts: tuple[SearchAttempt, ...] = (),
+) -> PushSolveResult:
+    return PushSolveResult(
+        solved=solved,
+        moves=moves,
+        final_board=final_board,
+        pushes=pushes,
+        nodes_expanded=nodes_expanded,
+        peak_closed_size=peak_closed_size,
+        elapsed_ms=(time.perf_counter() - started) * 1000,
+        failure_reason=failure_reason,
+        strategy=strategy,
+        attempts=attempts,
+    )
+
+
+def _precheck_result(
+    static: StaticBoard,
+    start_state: State,
+    initial_player: int,
+    *,
+    started: float,
+) -> PushSolveResult | None:
     if is_x_loss(start_state.xs, static):
-        return PushSolveResult(
+        return _result(
             solved=False,
             moves=None,
             final_board=None,
             pushes=(),
             nodes_expanded=1,
             peak_closed_size=1,
-            elapsed_ms=(time.perf_counter() - started) * 1000,
+            started=started,
             failure_reason="x_loss",
+            strategy="precheck",
         )
 
     start_goal = goal_info(start_state, static)
     if start_goal is not None:
-        moves, final_board = reconstruct_moves((), start_goal, static, start_state, initial_player)
-        return PushSolveResult(
+        moves, final_board = reconstruct_moves(
+            (),
+            start_goal,
+            static,
+            start_state,
+            initial_player,
+        )
+        return _result(
             solved=True,
             moves=moves,
             final_board=final_board,
             pushes=(),
             nodes_expanded=1,
             peak_closed_size=1,
-            elapsed_ms=(time.perf_counter() - started) * 1000,
+            started=started,
             failure_reason=None,
+            strategy="precheck",
         )
 
     if is_deadlock(start_state.os, start_state.xs, static):
-        return PushSolveResult(
+        return _result(
             solved=False,
             moves=None,
             final_board=None,
             pushes=(),
             nodes_expanded=1,
             peak_closed_size=1,
-            elapsed_ms=(time.perf_counter() - started) * 1000,
+            started=started,
             failure_reason="deadlock",
+            strategy="precheck",
         )
+    return None
 
-    queue: list[tuple[float, int, int, State]] = []
-    counter = itertools.count()
-    g_cost = {start_state: 0}
-    parents: dict[State, Parent] = {}
+
+def _timed_out(deadline: float | None) -> bool:
+    return deadline is not None and time.perf_counter() >= deadline
+
+
+def _build_search_context(
+    static: StaticBoard,
+    start_state: State,
+    initial_player: int,
+) -> SearchContext:
     start_region = reachable(start_state.player, start_state.os, start_state.xs, static)
     plan_cache: dict[State, LinePlan | None] = {}
     top_plan_cache: dict[State, tuple[LinePlan, ...]] = {}
@@ -1086,41 +1219,191 @@ def solve(
     start_plan = start_top_plans[0] if start_top_plans else None
     plan_cache[start_state] = start_plan
     start_h = math.inf if start_plan is None else start_plan.score
-    region_cache: dict[State, frozenset[int]] = {start_state: start_region}
-    h_cache: dict[State, float] = {start_state: start_h}
-    heapq.heappush(queue, (start_h * weight, 0, next(counter), start_state))
+    return SearchContext(
+        static=static,
+        start_state=start_state,
+        initial_player=initial_player,
+        target_access_penalty=target_access_penalty,
+        region_cache={start_state: start_region},
+        h_cache={start_state: start_h},
+        plan_cache=plan_cache,
+        top_plan_cache=top_plan_cache,
+        o_push_count_cache=o_push_count_cache,
+        successor_cache={},
+    )
+
+
+def _successors_for(
+    context: SearchContext,
+    state: State,
+) -> tuple[tuple[Push, State, frozenset[int], float, float], ...]:
+    if state not in context.successor_cache:
+        region = context.region_cache[state]
+        current_h = context.h_cache[state]
+        items = tuple(
+            successors(
+                state,
+                context.static,
+                region=region,
+                parent_h=current_h,
+                target_access_penalty=context.target_access_penalty,
+                plan_cache=context.plan_cache,
+                top_plan_cache=context.top_plan_cache,
+                o_push_count_cache=context.o_push_count_cache,
+            )
+        )
+        context.successor_cache[state] = items
+        for _push, nxt, child_region, child_h, _bias in items:
+            context.region_cache.setdefault(nxt, child_region)
+            context.h_cache.setdefault(nxt, child_h)
+    return context.successor_cache[state]
+
+
+def _same_piece_continuation(
+    context: SearchContext,
+    state: State,
+    *,
+    piece: str,
+    cell: int,
+    move: str,
+) -> tuple[Push, State, frozenset[int], float, float] | None:
+    piece_pushes = [
+        item
+        for item in _successors_for(context, state)
+        if item[0].piece == piece and item[0].cell == cell
+    ]
+    if len(piece_pushes) != 1:
+        return None
+    item = piece_pushes[0]
+    if item[0].move != move:
+        return None
+    return item
+
+
+def _macro_children_for(
+    context: SearchContext,
+    base_items: tuple[tuple[Push, State, frozenset[int], float, float], ...],
+    *,
+    max_extra_pushes: int = 4,
+) -> list[StrategyChild]:
+    macros: list[StrategyChild] = []
+    static = context.static
+    for push, child, _child_region, _child_h, bias in base_items:
+        chain = [push]
+        total_bias = bias
+        current_state = child
+        current_cell = _push_destination(push, static)
+
+        for _ in range(max_extra_pushes):
+            continuation = _same_piece_continuation(
+                context,
+                current_state,
+                piece=push.piece,
+                cell=current_cell,
+                move=push.move,
+            )
+            if continuation is None:
+                break
+            next_push, next_state, _next_region, _next_h, next_bias = continuation
+            chain.append(next_push)
+            total_bias += next_bias
+            current_state = next_state
+            current_cell = _push_destination(next_push, static)
+
+        if len(chain) <= 1:
+            continue
+        region = context.region_cache[current_state]
+        h = context.h_cache[current_state]
+        # Macros reduce queue granularity, but their real cost remains push count.
+        macro_bias = (total_bias / len(chain)) - (0.20 * (len(chain) - 1))
+        macros.append((tuple(chain), current_state, region, h, macro_bias, len(chain)))
+    return macros
+
+
+def _strategy_children_for(
+    context: SearchContext,
+    state: State,
+    *,
+    use_macros: bool,
+    bias_scale: float,
+) -> list[StrategyChild]:
+    base_items = _successors_for(context, state)
+    children: list[StrategyChild] = [
+        ((push,), nxt, child_region, child_h, bias, 1)
+        for push, nxt, child_region, child_h, bias in base_items
+    ]
+    if use_macros:
+        children.extend(_macro_children_for(context, base_items))
+    children.sort(key=lambda item: (item[3] + (bias_scale * item[4]), item[3], item[5]))
+    return children
+
+
+def _run_strategy(
+    context: SearchContext,
+    *,
+    config: SearchStrategyConfig,
+    max_nodes: int | None,
+    deadline: float | None,
+) -> PushSolveResult:
+    started = time.perf_counter()
+    static = context.static
+    start_state = context.start_state
+    initial_player = context.initial_player
+    nodes_expanded = 0
+    peak_closed_size = 1
+    counter = itertools.count()
+    parents: dict[State, Parent] = {}
+    start_h = context.h_cache[start_state]
+
+    if config.kind == "rank_discrepancy":
+        queue: list[tuple[float, int, int, int, State]] = []
+        best_rank_cost: dict[State, tuple[int, int]] = {start_state: (0, 0)}
+        heapq.heappush(queue, (0.25 * start_h, 0, 0, next(counter), start_state))
+    else:
+        weighted_queue: list[tuple[float, int, int, State]] = []
+        g_cost = {start_state: 0}
+        start_priority = (config.g_weight * 0) + (config.weight * start_h)
+        heapq.heappush(weighted_queue, (start_priority, 0, next(counter), start_state))
+        queue = weighted_queue
 
     while queue:
-        if timeout_seconds is not None and (time.perf_counter() - started) >= timeout_seconds:
-            return PushSolveResult(
+        if _timed_out(deadline):
+            return _result(
                 solved=False,
                 moves=None,
                 final_board=None,
                 pushes=(),
                 nodes_expanded=nodes_expanded,
                 peak_closed_size=peak_closed_size,
-                elapsed_ms=(time.perf_counter() - started) * 1000,
+                started=started,
                 failure_reason="timeout",
+                strategy=config.name,
             )
         if max_nodes is not None and nodes_expanded >= max_nodes:
-            return PushSolveResult(
+            return _result(
                 solved=False,
                 moves=None,
                 final_board=None,
                 pushes=(),
                 nodes_expanded=nodes_expanded,
                 peak_closed_size=peak_closed_size,
-                elapsed_ms=(time.perf_counter() - started) * 1000,
+                started=started,
                 failure_reason="node_cap",
+                strategy=config.name,
             )
 
-        _priority, cost, _tie, current = heapq.heappop(queue)
-        if cost != g_cost.get(current):
-            continue
+        if config.kind == "rank_discrepancy":
+            _priority, discrepancy, cost, _tie, current = heapq.heappop(queue)
+            if (discrepancy, cost) != best_rank_cost.get(current):
+                continue
+        else:
+            _priority, cost, _tie, current = heapq.heappop(queue)
+            if cost != g_cost.get(current):
+                continue
+            discrepancy = 0
         nodes_expanded += 1
 
-        region = region_cache[current]
-        current_h = h_cache[current]
+        region = context.region_cache[current]
         current_goal = goal_info(current, static, region=region)
         if current_goal is not None:
             pushes = _reconstruct_pushes(parents, current)
@@ -1131,47 +1414,285 @@ def solve(
                 start_state,
                 initial_player,
             )
-            return PushSolveResult(
+            return _result(
                 solved=True,
                 moves=moves,
                 final_board=final_board,
                 pushes=pushes,
                 nodes_expanded=nodes_expanded,
                 peak_closed_size=peak_closed_size,
-                elapsed_ms=(time.perf_counter() - started) * 1000,
+                started=started,
                 failure_reason=None,
+                strategy=config.name,
             )
 
-        for push, nxt, child_region, child_h, bias in successors(
+        child_items = _strategy_children_for(
+            context,
             current,
-            static,
-            region=region,
-            parent_h=current_h,
-            target_access_penalty=target_access_penalty,
-            plan_cache=plan_cache,
-            top_plan_cache=top_plan_cache,
-            o_push_count_cache=o_push_count_cache,
-        ):
-            if nxt not in region_cache:
-                region_cache[nxt] = child_region
-                h_cache[nxt] = child_h
-            next_cost = cost + 1
-            if next_cost >= g_cost.get(nxt, 1_000_000_000):
-                continue
-            g_cost[nxt] = next_cost
-            parents[nxt] = Parent(previous=current, push=push)
-            next_priority = next_cost + (weight * child_h) + bias
-            heapq.heappush(queue, (next_priority, next_cost, next(counter), nxt))
+            use_macros=config.use_macros,
+            bias_scale=config.bias_scale,
+        )
 
-        peak_closed_size = max(peak_closed_size, len(g_cost))
+        if config.kind == "rank_discrepancy":
+            for local_rank, (pushes, nxt, child_region, child_h, _bias, push_cost) in enumerate(child_items):
+                if nxt not in context.region_cache:
+                    context.region_cache[nxt] = child_region
+                    context.h_cache[nxt] = child_h
+                next_cost = cost + push_cost
+                next_discrepancy = discrepancy + local_rank
+                next_key = (next_discrepancy, next_cost)
+                if next_key >= best_rank_cost.get(nxt, (1_000_000_000, 1_000_000_000)):
+                    continue
+                best_rank_cost[nxt] = next_key
+                parents[nxt] = Parent(previous=current, pushes=pushes)
+                next_priority = next_discrepancy + (0.10 * next_cost) + (0.25 * child_h)
+                heapq.heappush(
+                    queue,
+                    (next_priority, next_discrepancy, next_cost, next(counter), nxt),
+                )
+            peak_closed_size = max(peak_closed_size, len(best_rank_cost))
+        else:
+            for pushes, nxt, child_region, child_h, bias, push_cost in child_items:
+                if nxt not in context.region_cache:
+                    context.region_cache[nxt] = child_region
+                    context.h_cache[nxt] = child_h
+                next_cost = cost + push_cost
+                if next_cost >= g_cost.get(nxt, 1_000_000_000):
+                    continue
+                g_cost[nxt] = next_cost
+                parents[nxt] = Parent(previous=current, pushes=pushes)
+                next_priority = (
+                    (config.g_weight * next_cost)
+                    + (config.weight * child_h)
+                    + (config.bias_scale * bias)
+                )
+                heapq.heappush(queue, (next_priority, next_cost, next(counter), nxt))
+            peak_closed_size = max(peak_closed_size, len(g_cost))
 
-    return PushSolveResult(
+    return _result(
         solved=False,
         moves=None,
         final_board=None,
         pushes=(),
         nodes_expanded=nodes_expanded,
         peak_closed_size=peak_closed_size,
-        elapsed_ms=(time.perf_counter() - started) * 1000,
+        started=started,
         failure_reason="exhausted",
+        strategy=config.name,
+    )
+
+
+def _portfolio_configs(weight: float) -> tuple[tuple[SearchStrategyConfig, float], ...]:
+    return (
+        (
+            SearchStrategyConfig(
+                name="v1_weighted",
+                kind="weighted",
+                weight=weight,
+                g_weight=1.0,
+                bias_scale=1.0,
+            ),
+            0.30,
+        ),
+        (
+            SearchStrategyConfig(
+                name="greedy_low_g",
+                kind="weighted",
+                weight=max(weight, 2.2),
+                g_weight=0.25,
+                bias_scale=1.0,
+            ),
+            0.15,
+        ),
+        (
+            SearchStrategyConfig(
+                name="greedy_bias",
+                kind="weighted",
+                weight=max(weight, 2.5),
+                g_weight=0.15,
+                bias_scale=1.75,
+            ),
+            0.15,
+        ),
+        (
+            SearchStrategyConfig(
+                name="macro_greedy",
+                kind="weighted",
+                weight=max(weight, 2.5),
+                g_weight=0.20,
+                bias_scale=1.50,
+                use_macros=True,
+            ),
+            0.20,
+        ),
+        (
+            SearchStrategyConfig(
+                name="rank_discrepancy",
+                kind="rank_discrepancy",
+                weight=weight,
+                g_weight=1.0,
+                bias_scale=1.25,
+            ),
+            1.00,
+        ),
+    )
+
+
+def _attempt_budget(
+    *,
+    remaining: int | None,
+    fraction: float,
+    is_last: bool,
+) -> int | None:
+    if remaining is None:
+        return None
+    if is_last:
+        return remaining
+    return max(1, min(remaining, math.ceil(remaining * fraction)))
+
+
+def solve_v1(
+    board,
+    *,
+    weight: float = 2.0,
+    max_nodes: int | None = 500_000,
+    timeout_seconds: float | None = 10.0,
+) -> PushSolveResult:
+    started = time.perf_counter()
+    static, start_state, _normalized, initial_player = parse_board(board)
+    precheck = _precheck_result(
+        static,
+        start_state,
+        initial_player,
+        started=started,
+    )
+    if precheck is not None:
+        return replace(precheck, strategy="v1_weighted")
+
+    deadline = (
+        started + timeout_seconds
+        if timeout_seconds is not None
+        else None
+    )
+    context = _build_search_context(static, start_state, initial_player)
+    return _run_strategy(
+        context,
+        config=SearchStrategyConfig(
+            name="v1_weighted",
+            kind="weighted",
+            weight=weight,
+            g_weight=1.0,
+            bias_scale=1.0,
+        ),
+        max_nodes=max_nodes,
+        deadline=deadline,
+    )
+
+
+def solve(
+    board,
+    *,
+    weight: float = 2.0,
+    max_nodes: int | None = 500_000,
+    timeout_seconds: float | None = 10.0,
+) -> PushSolveResult:
+    started = time.perf_counter()
+    static, start_state, _normalized, initial_player = parse_board(board)
+    precheck = _precheck_result(
+        static,
+        start_state,
+        initial_player,
+        started=started,
+    )
+    if precheck is not None:
+        return precheck
+
+    deadline = (
+        started + timeout_seconds
+        if timeout_seconds is not None
+        else None
+    )
+    attempts: list[SearchAttempt] = []
+    total_nodes = 0
+    peak_closed_size = 1
+    configs = _portfolio_configs(weight)
+    context = _build_search_context(static, start_state, initial_player)
+
+    for index, (config, fraction) in enumerate(configs):
+        if _timed_out(deadline):
+            break
+        remaining_nodes = None if max_nodes is None else max_nodes - total_nodes
+        if remaining_nodes is not None and remaining_nodes <= 0:
+            break
+
+        is_last = index == len(configs) - 1
+        strategy_max_nodes = _attempt_budget(
+            remaining=remaining_nodes,
+            fraction=fraction,
+            is_last=is_last,
+        )
+        if deadline is None:
+            strategy_deadline = None
+        elif is_last:
+            strategy_deadline = deadline
+        else:
+            remaining_seconds = max(0.0, deadline - time.perf_counter())
+            strategy_deadline = time.perf_counter() + (remaining_seconds * fraction)
+
+        result = _run_strategy(
+            context,
+            config=config,
+            max_nodes=strategy_max_nodes,
+            deadline=strategy_deadline,
+        )
+        attempts.append(_attempt_from_result(result))
+        total_nodes += result.nodes_expanded
+        peak_closed_size = max(peak_closed_size, result.peak_closed_size)
+
+        if result.solved:
+            from solver.push_solver.verify import verify_solution
+
+            verification = verify_solution(board, result.moves)
+            if verification.ok:
+                return PushSolveResult(
+                    solved=True,
+                    moves=result.moves,
+                    final_board=result.final_board,
+                    pushes=result.pushes,
+                    nodes_expanded=total_nodes,
+                    peak_closed_size=peak_closed_size,
+                    elapsed_ms=(time.perf_counter() - started) * 1000,
+                    failure_reason=None,
+                    strategy=config.name,
+                    attempts=tuple(attempts),
+                )
+            attempts[-1] = SearchAttempt(
+                strategy=config.name,
+                solved=False,
+                nodes_expanded=result.nodes_expanded,
+                peak_closed_size=result.peak_closed_size,
+                elapsed_ms=result.elapsed_ms,
+                failure_reason=f"invalid_solution:{verification.error}",
+            )
+
+    if _timed_out(deadline):
+        failure_reason = "timeout"
+    elif max_nodes is not None and total_nodes >= max_nodes:
+        failure_reason = "node_cap"
+    elif attempts:
+        failure_reason = attempts[-1].failure_reason or "portfolio_exhausted"
+    else:
+        failure_reason = "portfolio_exhausted"
+
+    return PushSolveResult(
+        solved=False,
+        moves=None,
+        final_board=None,
+        pushes=(),
+        nodes_expanded=total_nodes,
+        peak_closed_size=peak_closed_size,
+        elapsed_ms=(time.perf_counter() - started) * 1000,
+        failure_reason=failure_reason,
+        strategy=None,
+        attempts=tuple(attempts),
     )

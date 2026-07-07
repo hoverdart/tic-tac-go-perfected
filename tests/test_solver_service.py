@@ -191,7 +191,7 @@ class SolverServiceTest(unittest.TestCase):
             )
 
         self.assertTrue(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v1")
+        self.assertEqual(result["solver_name"], "push-v2")
         self.assertEqual(result["moves"], "")
         self.assertEqual(result["states_checked"], 1)
 
@@ -207,7 +207,7 @@ class SolverServiceTest(unittest.TestCase):
             )
 
         self.assertFalse(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v1")
+        self.assertEqual(result["solver_name"], "push-v2")
         self.assertIsNone(result["moves"])
         self.assertEqual(result["states_checked"], 1)
 

@@ -75,7 +75,7 @@ def _solver_name(
     if impl == "heuristiccnn":
         name = "heuristic-CNN"
     elif impl == "push":
-        name = "push-v1"
+        name = "push-v2"
     elif impl == "learned":
         name = f"linear-tree-v1-{_solver_mode(board)}"
     elif impl == "optimized":

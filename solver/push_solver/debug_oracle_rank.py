@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import statistics
 from pathlib import Path
@@ -15,6 +16,12 @@ KNOWN_SOLUTIONS_PATH = (
     Path(__file__).parents[1]
     / "gymnasium_register"
     / "all_boards_heuristic_cnn_solutions.jsonl"
+)
+
+FAILED_CSV_PATH = (
+    Path(__file__).parents[1]
+    / "gymnasium_register"
+    / "push_solver_on_heuristic_cnn_failures.csv"
 )
 
 
@@ -73,7 +80,27 @@ def _plan_coords(plan: core.LinePlan, static: core.StaticBoard) -> str:
     )
 
 
-def inspect_board(board_id: str) -> None:
+def _solution_by_id() -> dict[str, str | None]:
+    result: dict[str, str | None] = {}
+    for line in KNOWN_SOLUTIONS_PATH.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        result[str(row.get("id"))] = row.get("solution")
+    return result
+
+
+def _failed_board_ids(path: Path = FAILED_CSV_PATH) -> list[str]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        return [
+            row["board_id"]
+            for row in csv.DictReader(handle)
+            if row.get("board_id")
+            and str(row.get("solved", "")).strip().lower() != "true"
+        ]
+
+
+def analyze_board(board_id: str, *, verbose: bool = False) -> dict[str, object]:
     entry = _board_entry(board_id)
     board = board_from_entry(entry)
     moves = _known_solution(board_id)
@@ -96,7 +123,8 @@ def inspect_board(board_id: str) -> None:
     first_rank_gt_10: tuple[int, int] | None = None
     first_rank_gt_25: tuple[int, int] | None = None
 
-    print(f"{board_id} {entry.get('name', '')}: pushes={len(path)} moves={len(moves)}")
+    if verbose:
+        print(f"{board_id} {entry.get('name', '')}: pushes={len(path)} moves={len(moves)}")
     for depth, (step, state, oracle_push) in enumerate(path, start=1):
         region = core.reachable(state.player, state.os, state.xs, static)
         top_plans = core._top_line_plans_for(
@@ -164,7 +192,7 @@ def inspect_board(board_id: str) -> None:
         if not helps_plan:
             not_top_plan_helpful += 1
 
-        if rank > 10:
+        if verbose and rank > 10:
             best_plan = top_plans[0] if top_plans else None
             print(
                 f"depth={depth} step={step} h={h:.1f} rank={rank} "
@@ -178,18 +206,72 @@ def inspect_board(board_id: str) -> None:
                 for plan_index, plan in enumerate(top_plans[:4], start=1):
                     print(f"  top{plan_index} {_plan_coords(plan, static)}")
 
-    print(f"median_rank={statistics.median(ranks):.1f}")
-    print(f"max_rank={max(ranks)}")
-    print(f"first_rank_gt_10={first_rank_gt_10}")
-    print(f"first_rank_gt_25={first_rank_gt_25}")
-    print(f"not_top_plan_helpful={not_top_plan_helpful}")
+    summary = {
+        "board_id": board_id,
+        "title": entry.get("name", ""),
+        "moves": len(moves),
+        "pushes": len(path),
+        "median_rank": float(statistics.median(ranks)) if ranks else 0.0,
+        "max_rank": max(ranks) if ranks else 0,
+        "first_rank_gt_10": first_rank_gt_10,
+        "first_rank_gt_25": first_rank_gt_25,
+        "not_top_plan_helpful": not_top_plan_helpful,
+    }
+    if verbose:
+        print(f"median_rank={summary['median_rank']:.1f}")
+        print(f"max_rank={summary['max_rank']}")
+        print(f"first_rank_gt_10={first_rank_gt_10}")
+        print(f"first_rank_gt_25={first_rank_gt_25}")
+        print(f"not_top_plan_helpful={not_top_plan_helpful}")
+    return summary
+
+
+def inspect_board(board_id: str) -> None:
+    analyze_board(board_id, verbose=True)
+
+
+def inspect_many(board_ids: list[str]) -> None:
+    solutions = _solution_by_id()
+    print(
+        "board_id,title,pushes,moves,median_rank,max_rank,"
+        "first_rank_gt_10,first_rank_gt_25,not_top_plan_helpful,status"
+    )
+    for board_id in board_ids:
+        solution = solutions.get(board_id)
+        if not solution:
+            entry = _board_entry(board_id)
+            print(
+                f"{board_id},{entry.get('name', '')},,,,,,,,no_known_solution"
+            )
+            continue
+        summary = analyze_board(board_id, verbose=False)
+        print(
+            f"{summary['board_id']},{summary['title']},"
+            f"{summary['pushes']},{summary['moves']},"
+            f"{summary['median_rank']:.1f},{summary['max_rank']},"
+            f"{summary['first_rank_gt_10']},{summary['first_rank_gt_25']},"
+            f"{summary['not_top_plan_helpful']},ok"
+        )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--board-id", required=True)
+    parser.add_argument("--board-id", action="append", default=[])
+    parser.add_argument(
+        "--failed-only",
+        action="store_true",
+        help="Analyze currently unsolved rows from the push benchmark CSV.",
+    )
     args = parser.parse_args()
-    inspect_board(args.board_id)
+    board_ids = list(args.board_id)
+    if args.failed_only:
+        board_ids.extend(_failed_board_ids())
+    if not board_ids:
+        parser.error("Provide --board-id or --failed-only.")
+    if len(board_ids) == 1 and not args.failed_only:
+        inspect_board(board_ids[0])
+    else:
+        inspect_many(board_ids)
 
 
 if __name__ == "__main__":

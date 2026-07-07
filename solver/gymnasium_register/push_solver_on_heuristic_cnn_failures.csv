@@ -1,342 +1,342 @@
-board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,failure_reason,verified
-20250101,Tutorial,True,1,6,2,3,0.4,,True
-20250925,Cornered,True,14,52,117,252,28.1,,True
-20250926,Stairsteps,True,15,49,81,564,121.8,,True
-20250927,Do Not Pass,True,26,78,9591,24505,6415.1,,True
-20250928,Jailbreak,False,,,38625,129298,30000.1,timeout,False
-20250929,In Time Out,True,6,16,20,58,3.1,,True
-20250930,Counter Intuitive,True,11,48,53,95,18.2,,True
-20251001,Do Naught,True,18,68,6937,8208,1594.7,,True
-20251002,Smirk,True,9,46,138,328,35.7,,True
-20251003,Pick a Side,True,23,60,149,449,104.5,,True
-20251004,Play Outside,True,21,125,147,868,185.9,,True
-20251005,Strange Fit,False,,,29971,129553,30000.5,timeout,False
-20251006,One Off,True,5,21,13,32,2.3,,True
-20251007,Bendable,True,8,47,37,96,15.2,,True
-20251008,Step Aside,True,3,34,5,24,5.4,,True
-20251009,U Can Do It!,True,9,23,28,73,9.8,,True
-20251010,Brackets,True,6,64,153,667,122.7,,True
-20251011,Once Around,True,14,104,42,225,61.8,,True
-20251012,Escape Route,True,18,90,1331,6404,1311.8,,True
-20251013,In Passing,True,5,15,11,24,1.3,,True
-20251014,Keystone,True,21,73,5700,12100,1424.0,,True
-20251015,Ravine,True,13,32,67,129,18.5,,True
-20251016,Peekaboo,True,7,61,19,86,14.9,,True
-20251017,Nine Lives,True,18,72,1026,2903,594.3,,True
-20251018,Plot Twist,True,19,74,90,672,174.2,,True
-20251019,Save the Princess,True,18,61,196,2219,785.9,,True
-20251020,Sew Close,True,3,18,4,13,0.9,,True
-20251021,Wrong Way,True,6,38,31,75,10.4,,True
-20251022,Upended,True,12,27,45,80,8.3,,True
-20251023,Water Water Everywhere,True,4,12,13,41,13.7,,True
-20251024,The Long Haul,True,15,126,103,801,194.2,,True
-20251025,Block Breaker,True,10,37,341,1815,406.5,,True
-20251026,Lock In,True,21,127,9210,36704,8705.2,,True
-20251027,Tip Toe,True,6,33,21,49,3.6,,True
-20251028,Monkey Business,True,13,56,1121,2353,269.6,,True
-20251029,Let Sleeping Dogs Lie,True,6,21,12,27,4.9,,True
-20251030,Bee In Your Bonnet,True,15,57,323,646,57.4,,True
-20251031,Safety Training,True,10,57,143,1588,313.7,,True
-20251101,Food Court,True,23,146,328,2023,350.4,,True
-20251102,O Brother...,True,14,56,120,467,89.9,,True
-20251103,No Sweat,True,4,18,5,24,1.5,,True
-20251104,And A Cherry On Top,True,12,63,586,2273,328.3,,True
-20251105,Team Meeting,True,13,62,5991,22888,3351.8,,True
-20251106,False Walls,True,13,59,177,327,32.9,,True
-20251107,Minefield,True,24,85,3778,12283,4350.3,,True
-20251108,Herding Cats,True,20,97,99,611,125.6,,True
-20251109,Antechamber,True,19,83,78,418,95.4,,True
-20251110,So Close,True,3,15,8,13,0.7,,True
-20251111,Ledge Leap,True,7,30,63,246,34.7,,True
-20251112,Desk Setup,True,9,32,30,140,14.3,,True
-20251113,Peas In A Pod,True,16,62,2290,3306,390.1,,True
-20251114,Only Way Out,True,8,26,27,132,27.9,,True
-20251115,Platforms,True,16,75,278,1585,314.4,,True
-20251116,Minefields,False,,,,,30001.8,hard_timeout,False
-20251117,Cornered,True,5,12,10,18,1.6,,True
-20251118,Corridor Chaos,True,9,31,28,81,16.3,,True
-20251119,Triple Pairs,True,16,64,2700,5380,745.1,,True
-20251120,Boxed In,True,13,59,348,701,93.1,,True
-20251121,Checkers,True,14,38,355,1237,402.0,,True
-20251122,Missing Piece,True,9,32,248,1878,504.7,,True
-20251123,Connecting the Dots,True,7,49,17,232,74.5,,True
-20251124,Lost Sheep,True,4,15,8,27,4.3,,True
-20251125,Security System,True,7,20,10,67,14.9,,True
-20251126,In The Doghouse,True,9,48,45,283,61.4,,True
-20251127,Flywheel,True,15,43,215,470,74.1,,True
-20251128,Lake in the Woods,True,20,62,1605,5133,1257.1,,True
-20251129,Downstream Effects,True,20,74,2038,7623,2634.2,,True
-20251130,Neutral State,True,21,102,74,560,174.8,,True
-20251201,No Diagonals,True,4,9,5,10,0.8,,True
-20251202,Dead End,True,16,72,109,235,29.2,,True
-20251203,Neighbors,True,14,42,283,655,114.3,,True
-20251204,Catty Corner,True,8,29,42,136,19.5,,True
-20251205,Line of Sight,True,10,54,76,404,153.5,,True
-20251206,Face to Face,True,12,101,2163,5818,2029.9,,True
-20251207,Thread the Needle,False,,,,,30055.0,hard_timeout,False
-20251208,Watch Your Step,True,4,22,10,24,3.8,,True
-20251209,U-Turn,True,12,45,283,1268,257.7,,True
-20251210,Rounded Corners,True,12,53,119,719,181.0,,True
-20251211,Tight Spaces,True,9,36,30,117,13.1,,True
-20251212,-_-,False,,,,,30072.4,hard_timeout,False
-20251213,The Pits,True,18,67,12148,44858,18255.1,,True
-20251214,Unboxing,False,,,26437,69701,30001.1,timeout,False
-20251215,Loopy,True,15,91,1312,2228,394.6,,True
-20251216,Centrally Located,True,4,24,6,33,5.7,,True
-20251217,Ups and Down,True,15,75,952,2140,348.8,,True
-20251218,Spotted You Across The Room,True,14,43,241,325,72.9,,True
-20251219,Cross Worlds,True,15,98,55,328,120.5,,True
-20251220,All Things Equal,True,8,18,10640,16827,5409.2,,True
-20251221,Imposter,False,,,22214,79982,30000.9,timeout,False
-20251222,Leapfrog,True,3,11,4,5,0.5,,True
-20251223,Alcove,True,12,73,313,1100,199.9,,True
-20251224,Blocked,True,8,26,128,779,172.8,,True
-20251225,Back Pain,True,9,48,117,409,70.3,,True
-20251226,Skull & Crossbones,True,16,47,225,766,207.8,,True
-20251227,Marathon,True,12,172,223,1816,401.2,,True
-20251228,Cornered,False,,,,,30073.1,hard_timeout,False
-20251229,Out of Place,True,6,30,26,36,2.9,,True
-20251230,Stuck in the Middle,True,11,40,313,840,140.2,,True
-20251231,Exile,True,8,29,11,45,5.3,,True
-20260101,Everything in its Place,True,18,59,2264,3800,967.4,,True
-20260102,Roundabout Way,True,8,47,18,204,62.9,,True
-20260103,Pushups,True,14,61,979,4785,1642.3,,True
-20260104,A Bridge Too Far,True,15,138,12798,19408,5612.1,,True
-20260105,Naught So Easy,True,7,22,29,72,7.0,,True
-20260106,Barricade,True,10,23,210,748,118.0,,True
-20260107,A Fine Line,True,16,85,868,1776,295.4,,True
-20260108,Surprise Party,True,10,25,53,120,19.7,,True
-20260109,The Tail Wags The Dog,True,13,46,468,2914,755.2,,True
-20260110,Throne Room,True,11,51,46,286,96.7,,True
-20260111,Corn Maze,True,16,98,258,1244,346.3,,True
-20260112,Two at a Time,True,4,12,12,21,1.5,,True
-20260113,Blind Corners,True,7,16,35,45,12.3,,True
-20260114,Cup o' Joe,True,7,22,75,227,34.9,,True
-20260115,Waterworks,True,7,106,172,480,54.4,,True
-20260116,Wrong Angle,True,9,83,11,125,42.3,,True
-20260117,Plugged Up,False,,,,,30060.6,hard_timeout,False
-20260118,Summoning Circle,True,16,121,2554,13951,8373.8,,True
-20260119,Waffling,True,4,19,7,12,2.3,,True
-20260120,Fish And Chips,True,9,18,25,67,13.5,,True
-20260121,Lucky Horseshoe,True,11,53,517,2925,583.0,,True
-20260122,Tidy Up,True,10,58,25,138,30.0,,True
-20260123,Walking Gingerly,True,17,74,842,6856,3404.2,,True
-20260124,In the Goal,False,,,,,30073.8,hard_timeout,False
-20260125,Harmonic Progression,True,16,44,6783,34442,10188.6,,True
-20260126,Playground,True,6,27,50,172,24.0,,True
-20260127,Starry Sky,True,7,14,18,95,19.8,,True
-20260128,Workaround,True,12,55,56,358,87.8,,True
-20260129,Blockade,True,7,21,171,1381,309.9,,True
-20260130,Eureka!,False,,,9927,57977,30000.1,timeout,False
-20260131,The Stacks,True,14,72,60,790,427.3,,True
-20260201,Dance Floor,True,22,81,652,5720,2917.2,,True
-20260202,Shoveling Snow,True,8,29,18,65,11.7,,True
-20260203,Across the Universe,True,5,23,28,159,37.3,,True
-20260204,Maypole,True,6,29,80,572,163.9,,True
-20260205,Untangled,True,10,70,48,301,96.8,,True
-20260206,Halfway Home,True,13,44,53,296,162.1,,True
-20260207,Primordial Soup,True,15,62,348,1893,719.0,,True
-20260208,Toric Lens,False,,,8329,55717,30002.1,timeout,False
-20260209,Piece of Cake,True,4,12,9,14,1.1,,True
-20260210,Dungeon,True,12,34,417,1791,448.1,,True
-20260211,Slot Machine,True,16,48,366,1788,410.0,,True
-20260212,Cautionary Tale,True,12,54,24220,63381,22809.0,,True
-20260213,I Spy,True,15,97,64,886,416.8,,True
-20260214,Database,True,8,21,38,435,263.6,,True
-20260215,Full Steam Ahead,True,27,59,3523,12318,5614.0,,True
-20260216,Outside In,True,6,30,24,97,27.8,,True
-20260217,Palate Cleanser,True,9,54,107,677,187.0,,True
-20260218,Knotty By Nature,True,15,47,42,106,32.9,,True
-20260219,Untangled,True,16,53,30746,65167,23740.5,,True
-20260220,Laser Tag,False,,,8748,59867,30002.1,timeout,False
-20260221,Teahouse,True,13,109,190,2037,1061.8,,True
-20260222,House of Cards,True,18,55,4546,19130,10623.0,,True
-20260223,Candyland,True,5,16,9,53,10.8,,True
-20260224,Sweet Relief,True,8,19,32,194,62.8,,True
-20260225,Pinched Nerve,True,8,41,30,164,44.3,,True
-20260226,Bouquet of Flowers,True,11,49,113,289,75.7,,True
-20260227,Orion's Belt,True,18,78,727,4450,2388.5,,True
-20260228,Elbow Room,True,10,63,456,4306,2246.6,,True
-20260301,Immovable Objects,False,,,8702,57026,30001.5,timeout,False
-20260302,Boom Gate,True,3,6,5,18,2.8,,True
-20260303,Good Rally,True,11,33,103,648,160.2,,True
-20260304,Spiraling,True,8,40,21,184,40.6,,True
-20260305,Balance Beam,True,8,28,157,804,214.1,,True
-20260306,Chaos Board,True,22,54,10996,55476,26296.3,,True
-20260307,Train Tracks,True,16,57,516,4233,2057.3,,True
-20260308,Locked In,True,22,85,338,2991,1503.7,,True
-20260309,Lighthouse,True,8,30,52,132,22.3,,True
-20260310,Six Feet Under,True,10,51,129,768,209.2,,True
-20260311,Bank Teller,True,12,37,240,728,212.9,,True
-20260312,Tried and True,True,13,51,32648,43579,15594.3,,True
-20260313,Quilts and Quibbles,True,10,37,195,2502,1359.5,,True
-20260314,Tee Off,False,,,,,30054.1,hard_timeout,False
-20260315,Four Corners,True,12,51,234,2460,1175.0,,True
-20260316,One Small Step,True,6,16,17,52,5.1,,True
-20260317,Handshake,True,10,32,60,172,55.8,,True
-20260318,Helpful Advice,True,8,38,44,330,97.2,,True
-20260319,Sideways,True,16,31,280,797,204.2,,True
-20260320,All Mixed Up,True,15,69,53,705,311.7,,True
-20260321,Friends In High Places,True,18,95,186,2812,1177.2,,True
-20260322,Stairstep,True,12,36,53,639,294.3,,True
-20260323,Poker Face,True,11,52,21,37,4.9,,True
-20260324,Elbow Joint,True,13,44,683,3316,932.0,,True
-20260325,Treasure Trove,True,16,34,124,257,69.1,,True
-20260326,Runway,True,17,44,646,2150,434.6,,True
-20260327,Simplicity,True,14,53,120,1606,706.5,,True
-20260328,Platforms,True,11,92,32,568,248.3,,True
-20260329,Neutrality,True,17,62,876,6645,3118.0,,True
-20260330,S Curve,True,8,17,22,65,9.2,,True
-20260331,Defusion,True,10,24,14,31,9.1,,True
-20260401,Circling the Drain,True,14,38,245,1224,286.6,,True
-20260402,Greeting Card,True,16,65,539,2012,598.8,,True
-20260403,Line Dance,True,11,78,105,1417,677.1,,True
-20260404,Four Angles,True,10,52,56,1003,484.8,,True
-20260405,Test Your Strength,True,20,85,947,12146,5696.4,,True
-20260406,Escargot,True,12,33,134,422,94.1,,True
-20260407,Mindreader,True,12,37,119,416,114.8,,True
-20260408,Full Stack,True,7,16,19,62,19.8,,True
-20260409,Tiles and Grout,True,12,50,155,893,218.8,,True
-20260410,Around the Corner,True,15,145,1174,12861,5689.6,,True
-20260411,False Alarm,True,16,68,38,375,154.5,,True
-20260412,Gated Community,True,14,31,42,546,245.6,,True
-20260413,Under the Weather,True,6,25,15,79,15.2,,True
-20260414,Pressure Valve,True,14,65,350,2876,667.4,,True
-20260415,Push and Pull,True,14,57,56,157,37.5,,True
-20260416,Play the Fool,True,12,49,46,299,81.2,,True
-20260417,Braided River,False,,,,,30056.4,hard_timeout,False
-20260418,Hop the Fence,False,,,,,30002.7,hard_timeout,False
-20260419,Skip A Beat,True,27,106,7201,79353,29661.3,,True
-20260420,Sourdough,True,8,21,21,92,17.4,,True
-20260421,Cut Your Teeth,True,9,51,33,166,48.4,,True
-20260422,Dark Forest,True,13,66,240,1130,313.9,,True
-20260423,Now You See Me,True,8,37,87,573,180.6,,True
-20260424,First Time Caller,True,12,55,25,381,205.1,,True
-20260425,Stick It Out,True,14,61,541,9601,4589.5,,True
-20260426,Throwback,True,15,56,80,1609,781.6,,True
-20260427,Cruise Control,True,20,69,3060,5736,1121.8,,True
-20260428,Polygon,True,13,42,386,1502,387.4,,True
-20260429,Nova,True,12,68,324,1627,397.1,,True
-20260430,One Way,True,9,17,72,513,140.2,,True
-20260501,Rotate,True,15,55,1423,21464,11209.6,,True
-20260502,Hexagon,True,20,146,1756,34324,17261.9,,True
-20260503,Zen Garden,True,17,94,517,5681,2382.8,,True
-20260504,Supernova,True,7,26,26,54,9.8,,True
-20260505,Ricochet,True,14,31,127,568,127.9,,True
-20260506,Pendulum,True,12,30,35,257,59.8,,True
-20260507,Rush Hour,True,12,61,396,2296,603.3,,True
-20260508,Star Cluster,True,15,137,114,1792,726.6,,True
-20260509,Paving,True,12,66,51,814,393.1,,True
-20260510,Roundabout,True,10,50,75,1252,567.5,,True
-20260511,Scale,True,9,36,218,693,109.5,,True
-20260512,Avalanche,True,13,102,101,987,234.3,,True
-20260513,Lightyear,True,12,52,406,1894,630.6,,True
-20260514,Expressway,False,,,50026,134339,30000.8,timeout,False
-20260515,Geyser,True,19,82,164,1739,802.0,,True
-20260516,Space Station,True,14,55,340,4184,1936.2,,True
-20260517,Zig Zag,True,17,57,812,9970,3044.0,,True
-20260518,Speed Bump,True,13,53,797,2058,336.0,,True
-20260519,Carpool Lane,True,8,51,15,113,29.3,,True
-20260520,Asymmetry,True,11,44,174,1102,321.0,,True
-20260521,Joyride,True,13,61,2692,4501,1358.6,,True
-20260522,Merge,True,17,63,413,5977,2861.5,,True
-20260523,Anchor,True,19,207,4033,39141,14772.3,,True
-20260524,Gears,False,,,6480,57663,30001.5,timeout,False
-20260525,Pyramid,True,8,19,20,53,10.2,,True
-20260526,Zipper Merge,True,11,50,52,200,71.4,,True
-20260527,Sphere,True,16,108,6829,25213,4160.8,,True
-20260528,Parallel Parking,True,7,13,44,308,84.6,,True
-20260529,Mirror,True,11,81,64,1144,528.6,,True
-20260530,Tight Squeeze,False,,,5164,61006,30002.4,timeout,False
-20260531,Short Cut,True,22,95,271,3993,1612.9,,True
-20260601,Jungle,True,9,36,130,218,26.0,,True
-20260602,Narrow Margin,True,8,18,54,305,85.1,,True
-20260603,Sandstorm,True,13,61,170,739,181.2,,True
-20260604,Earthquake,True,6,20,25,117,31.8,,True
-20260605,Oasis,True,19,118,692,8409,3473.3,,True
-20260606,Tidal Wave,True,15,60,624,7136,2644.6,,True
-20260607,Quasar,True,14,78,200,2391,1081.7,,True
-20260608,Green Light,True,6,19,13,48,5.7,,True
-20260609,Gear Shift,True,9,46,99,649,176.3,,True
-20260610,Split,True,15,84,517,1007,247.5,,True
-20260611,Bypass,True,11,38,45,373,94.4,,True
-20260612,Tailgate,True,13,42,355,4450,1918.0,,True
-20260613,Spiral,False,,,10896,63760,30000.4,timeout,False
-20260614,Yellow Light,False,,,6850,65328,30000.1,timeout,False
-20260615,Monsoon,True,10,34,102,294,48.6,,True
-20260616,Kaleidoscope,True,13,42,523,1881,526.2,,True
-20260617,Lagoon,True,13,29,446,1704,444.1,,True
-20260618,Teleport,True,8,43,27,230,69.0,,True
-20260619,Quicksand,True,17,74,121,2588,1209.9,,True
-20260620,Constellation,True,15,66,957,6127,2565.1,,True
-20260621,Overpass,True,15,67,1988,21295,9672.2,,True
-20260622,Crosswalk,True,9,41,122,359,55.7,,True
-20260623,Pulsar,True,13,48,121,445,93.0,,True
-20260624,Red Light,True,14,68,3518,14979,2773.0,,True
-20260625,Pit Stop,True,15,118,7737,28720,6690.7,,True
-20260626,Freeway,True,19,99,1074,14192,6470.4,,True
-20260627,Blueprint,False,,,,,30004.5,hard_timeout,False
-20260628,Blizzard,True,14,73,1542,10299,4516.4,,True
-20260629,Orbit,True,8,44,129,420,46.8,,True
-20260630,Labyrinth,True,9,20,21,107,26.3,,True
-20260701,Intersection,True,15,59,1878,4875,1394.1,,True
-20260702,Equator,True,7,50,15,157,49.4,,True
-20260703,Tundra,True,17,77,50,469,204.8,,True
-20260704,Cube,True,17,60,4205,32820,14833.4,,True
-20260705,High Speed,True,19,93,471,5788,2790.1,,True
-20260706,Easy Stroll,True,14,73,125,343,61.0,,True
-20260707,Tessellation,True,11,74,72,464,115.3,,True
-20260708,Prism,True,13,40,322,1215,297.8,,True
-20260709,Black Hole,True,15,90,15060,53522,12016.5,,True
-20260710,Traffic Circle,True,14,51,255,3926,1790.8,,True
-20260711,Toll Booth,True,16,52,1399,16997,8364.1,,True
-20260712,Nebula,True,23,41,2669,17615,6732.7,,True
-20260713,Yield,True,6,12,12,35,4.2,,True
-20260714,Flip,True,10,31,944,3777,791.5,,True
-20260715,Clone,True,17,72,188,1007,198.4,,True
-20260716,Hourglass,True,10,34,75,651,182.1,,True
-20260717,Cylinder,True,13,66,41,805,408.2,,True
-20260718,Volcano,True,16,81,93,813,326.9,,True
-20260719,Mars Rover,True,12,76,57,1119,535.0,,True
-20260720,Coffee Table,True,4,8,6,20,2.3,,True
-20260721,Back to Basics,True,9,56,274,2126,455.8,,True
-20260722,Symmetry,True,7,28,9,56,9.9,,True
-20260723,Coral Reef,True,5,37,6,43,12.7,,True
-20260724,Half Measures,True,19,61,43,268,112.1,,True
-20260725,Gridlock,True,8,56,29,376,156.2,,True
-20260726,Bookshelf,True,13,122,10615,87340,28564.6,,True
-20260727,Bite the Bullet,True,2,21,3,19,1.8,,True
-20260728,Equilibrium,True,8,49,61,296,66.2,,True
-20260729,Desert Mirage,True,10,40,846,3983,1269.1,,True
-20260730,Solar Eclipse,True,12,40,8745,22597,6490.9,,True
-20260731,Underpass,True,21,93,4392,29640,7656.5,,True
-20260801,Attic Storage,True,12,41,741,13596,4544.3,,True
-20260802,Cold Feet,False,,,6062,69402,30000.4,timeout,False
-20260803,Synchronicity,True,8,23,16,68,6.8,,True
-20260804,Thunderstorm,True,11,49,94,640,161.1,,True
-20260805,Galaxy Cluster,True,8,58,92,700,206.2,,True
-20260806,Switchback,False,,,34818,112249,30000.1,timeout,False
-20260807,Subway Station,True,8,35,22,333,168.2,,True
-20260808,Down to Earth,True,13,55,46,489,229.3,,True
-20260809,Crossword,True,8,64,77,1492,490.6,,True
-20260810,Autumn Leaves,True,7,21,27,53,9.1,,True
-20260811,Choke Point,True,9,51,40,362,81.9,,True
-20260812,Botanical Garden,True,8,61,26,164,40.3,,True
-20260813,On the Fence,True,13,51,139,428,94.4,,True
-20260814,Domino Effect,True,11,22,2181,20909,9488.3,,True
-20260815,Migrating Birds,True,21,66,2592,22718,9232.5,,True
-20260816,Perimeter,True,12,41,182,2643,1101.7,,True
-20260817,Flea Market,True,7,26,48,108,11.7,,True
-20260818,Out of the Blue,True,8,55,30,283,65.7,,True
-20260819,Tipping Point,True,8,46,51,210,55.9,,True
-20260820,Hidden Valley,True,10,49,7145,20222,4611.8,,True
-20260821,Diagonal Alley,True,10,39,17,388,229.7,,True
-20260822,Clock Tower,True,9,59,44,657,359.6,,True
-20260823,Spill the Beans,True,12,42,4429,58096,25501.1,,True
-20260824,Vanishing Act,True,5,35,8,42,8.1,,True
-20260825,Deep Ocean,True,3,9,4,21,5.9,,True
-20260826,Man in the Moon,True,13,36,22,80,18.3,,True
-20260827,Touch and Go,True,9,36,29,123,26.8,,True
-20260828,Up in the Air,True,14,42,180,1155,599.9,,True
-20260829,Word of Mouth,True,17,165,4899,54915,24437.6,,True
-20260830,Time Capsule,False,,,,,30002.8,hard_timeout,False
+board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,failure_reason,verified,strategy,attempts
+20250101,Tutorial,True,1,6,2,3,0.4,,True,,
+20250925,Cornered,True,14,52,117,252,28.1,,True,,
+20250926,Stairsteps,True,15,49,81,564,121.8,,True,,
+20250927,Do Not Pass,True,26,78,9591,24505,6415.1,,True,,
+20250928,Jailbreak,False,,,35383,35428,29762.9,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":4749,""peak_closed_size"":20088,""elapsed_ms"":8918.6,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":6534,""peak_closed_size"":8156,""elapsed_ms"":3123.3,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":10725,""peak_closed_size"":13702,""elapsed_ms"":2654.3,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":3924,""peak_closed_size"":5541,""elapsed_ms"":3005.7,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":9451,""peak_closed_size"":35428,""elapsed_ms"":12020.6,""failure_reason"":""timeout""}]"
+20250929,In Time Out,True,6,16,20,58,3.1,,True,,
+20250930,Counter Intuitive,True,11,48,53,95,18.2,,True,,
+20251001,Do Naught,True,18,68,6937,8208,1594.7,,True,,
+20251002,Smirk,True,9,46,138,328,35.7,,True,,
+20251003,Pick a Side,True,23,60,149,449,104.5,,True,,
+20251004,Play Outside,True,21,125,147,868,185.9,,True,,
+20251005,Strange Fit,False,,,18418,31193,29758.0,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":3580,""peak_closed_size"":14751,""elapsed_ms"":8921.2,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":2177,""peak_closed_size"":8450,""elapsed_ms"":3122.0,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":3203,""peak_closed_size"":13983,""elapsed_ms"":2653.2,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":487,""peak_closed_size"":2476,""elapsed_ms"":3006.0,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":8971,""peak_closed_size"":31193,""elapsed_ms"":12021.3,""failure_reason"":""timeout""}]"
+20251006,One Off,True,5,21,13,32,2.3,,True,,
+20251007,Bendable,True,8,47,37,96,15.2,,True,,
+20251008,Step Aside,True,3,34,5,24,5.4,,True,,
+20251009,U Can Do It!,True,9,23,28,73,9.8,,True,,
+20251010,Brackets,True,6,64,153,667,122.7,,True,,
+20251011,Once Around,True,14,104,42,225,61.8,,True,,
+20251012,Escape Route,True,18,90,1331,6404,1311.8,,True,,
+20251013,In Passing,True,5,15,11,24,1.3,,True,,
+20251014,Keystone,True,21,73,5700,12100,1424.0,,True,,
+20251015,Ravine,True,13,32,67,129,18.5,,True,,
+20251016,Peekaboo,True,7,61,19,86,14.9,,True,,
+20251017,Nine Lives,True,18,72,1026,2903,594.3,,True,,
+20251018,Plot Twist,True,19,74,90,672,174.2,,True,,
+20251019,Save the Princess,True,18,61,196,2219,785.9,,True,,
+20251020,Sew Close,True,3,18,4,13,0.9,,True,,
+20251021,Wrong Way,True,6,38,31,75,10.4,,True,,
+20251022,Upended,True,12,27,45,80,8.3,,True,,
+20251023,Water Water Everywhere,True,4,12,13,41,13.7,,True,,
+20251024,The Long Haul,True,15,126,103,801,194.2,,True,,
+20251025,Block Breaker,True,10,37,341,1815,406.5,,True,,
+20251026,Lock In,True,21,127,9210,36704,8705.2,,True,,
+20251027,Tip Toe,True,6,33,21,49,3.6,,True,,
+20251028,Monkey Business,True,13,56,1121,2353,269.6,,True,,
+20251029,Let Sleeping Dogs Lie,True,6,21,12,27,4.9,,True,,
+20251030,Bee In Your Bonnet,True,15,57,323,646,57.4,,True,,
+20251031,Safety Training,True,10,57,143,1588,313.7,,True,,
+20251101,Food Court,True,23,146,328,2023,350.4,,True,,
+20251102,O Brother...,True,14,56,120,467,89.9,,True,,
+20251103,No Sweat,True,4,18,5,24,1.5,,True,,
+20251104,And A Cherry On Top,True,12,63,586,2273,328.3,,True,,
+20251105,Team Meeting,True,13,62,5991,22888,3351.8,,True,,
+20251106,False Walls,True,13,59,177,327,32.9,,True,,
+20251107,Minefield,True,24,85,3778,12283,4350.3,,True,,
+20251108,Herding Cats,True,20,97,99,611,125.6,,True,,
+20251109,Antechamber,True,19,83,78,418,95.4,,True,,
+20251110,So Close,True,3,15,8,13,0.7,,True,,
+20251111,Ledge Leap,True,7,30,63,246,34.7,,True,,
+20251112,Desk Setup,True,9,32,30,140,14.3,,True,,
+20251113,Peas In A Pod,True,16,62,2290,3306,390.1,,True,,
+20251114,Only Way Out,True,8,26,27,132,27.9,,True,,
+20251115,Platforms,True,16,75,278,1585,314.4,,True,,
+20251116,Minefields,False,,,6732,13846,29753.8,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":966,""peak_closed_size"":7090,""elapsed_ms"":8922.8,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1087,""peak_closed_size"":2663,""elapsed_ms"":3124.4,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":2415,""peak_closed_size"":4072,""elapsed_ms"":2652.5,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":21,""peak_closed_size"":386,""elapsed_ms"":3167.5,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":2243,""peak_closed_size"":13846,""elapsed_ms"":11856.4,""failure_reason"":""timeout""}]"
+20251117,Cornered,True,5,12,10,18,1.6,,True,,
+20251118,Corridor Chaos,True,9,31,28,81,16.3,,True,,
+20251119,Triple Pairs,True,16,64,2700,5380,745.1,,True,,
+20251120,Boxed In,True,13,59,348,701,93.1,,True,,
+20251121,Checkers,True,14,38,355,1237,402.0,,True,,
+20251122,Missing Piece,True,9,32,248,1878,504.7,,True,,
+20251123,Connecting the Dots,True,7,49,17,232,74.5,,True,,
+20251124,Lost Sheep,True,4,15,8,27,4.3,,True,,
+20251125,Security System,True,7,20,10,67,14.9,,True,,
+20251126,In The Doghouse,True,9,48,45,283,61.4,,True,,
+20251127,Flywheel,True,15,43,215,470,74.1,,True,,
+20251128,Lake in the Woods,True,20,62,1605,5133,1257.1,,True,,
+20251129,Downstream Effects,True,20,74,2038,7623,2634.2,,True,,
+20251130,Neutral State,True,21,102,74,560,174.8,,True,,
+20251201,No Diagonals,True,4,9,5,10,0.8,,True,,
+20251202,Dead End,True,16,72,109,235,29.2,,True,,
+20251203,Neighbors,True,14,42,283,655,114.3,,True,,
+20251204,Catty Corner,True,8,29,42,136,19.5,,True,,
+20251205,Line of Sight,True,10,54,76,404,153.5,,True,,
+20251206,Face to Face,True,12,101,2163,5818,2029.9,,True,,
+20251207,Thread the Needle,False,,,14646,27466,29761.6,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":3651,""peak_closed_size"":17469,""elapsed_ms"":8913.7,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1561,""peak_closed_size"":6941,""elapsed_ms"":3119.0,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":2530,""peak_closed_size"":9163,""elapsed_ms"":2653.8,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":151,""peak_closed_size"":1305,""elapsed_ms"":3013.2,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":6753,""peak_closed_size"":27466,""elapsed_ms"":12008.3,""failure_reason"":""timeout""}]"
+20251208,Watch Your Step,True,4,22,10,24,3.8,,True,,
+20251209,U-Turn,True,12,45,283,1268,257.7,,True,,
+20251210,Rounded Corners,True,12,53,119,719,181.0,,True,,
+20251211,Tight Spaces,True,9,36,30,117,13.1,,True,,
+20251212,-_-,False,,,15764,34806,29763.2,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":3160,""peak_closed_size"":21925,""elapsed_ms"":8919.8,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1686,""peak_closed_size"":9914,""elapsed_ms"":3120.6,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":3301,""peak_closed_size"":17592,""elapsed_ms"":2654.0,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":347,""peak_closed_size"":1879,""elapsed_ms"":3027.1,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":7270,""peak_closed_size"":34806,""elapsed_ms"":11995.9,""failure_reason"":""timeout""}]"
+20251213,The Pits,True,18,67,12148,44858,18255.1,,True,,
+20251214,Unboxing,True,16,129,1754,6472,10915.1,,True,v1_weighted,"[{""strategy"":""v1_weighted"",""solved"":true,""nodes_expanded"":1754,""peak_closed_size"":6472,""elapsed_ms"":6477.1,""failure_reason"":null}]"
+20251215,Loopy,True,15,91,1312,2228,394.6,,True,,
+20251216,Centrally Located,True,4,24,6,33,5.7,,True,,
+20251217,Ups and Down,True,15,75,952,2140,348.8,,True,,
+20251218,Spotted You Across The Room,True,14,43,241,325,72.9,,True,,
+20251219,Cross Worlds,True,15,98,55,328,120.5,,True,,
+20251220,All Things Equal,True,8,18,10640,16827,5409.2,,True,,
+20251221,Imposter,False,,,11817,18731,29757.3,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":1512,""peak_closed_size"":9120,""elapsed_ms"":8922.3,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1678,""peak_closed_size"":10245,""elapsed_ms"":3123.3,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":2651,""peak_closed_size"":8756,""elapsed_ms"":2652.8,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":1347,""peak_closed_size"":2921,""elapsed_ms"":3041.0,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":4629,""peak_closed_size"":18731,""elapsed_ms"":11989.4,""failure_reason"":""timeout""}]"
+20251222,Leapfrog,True,3,11,4,5,0.5,,True,,
+20251223,Alcove,True,12,73,313,1100,199.9,,True,,
+20251224,Blocked,True,8,26,128,779,172.8,,True,,
+20251225,Back Pain,True,9,48,117,409,70.3,,True,,
+20251226,Skull & Crossbones,True,16,47,225,766,207.8,,True,,
+20251227,Marathon,True,12,172,223,1816,401.2,,True,,
+20251228,Cornered,False,,,55395,46064,29259.9,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":7655,""peak_closed_size"":33942,""elapsed_ms"":8769.9,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":9953,""peak_closed_size"":13562,""elapsed_ms"":3069.4,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":18034,""peak_closed_size"":21811,""elapsed_ms"":2608.3,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":8372,""peak_closed_size"":11235,""elapsed_ms"":2955.4,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":11381,""peak_closed_size"":46064,""elapsed_ms"":11821.2,""failure_reason"":""timeout""}]"
+20251229,Out of Place,True,6,30,26,36,2.9,,True,,
+20251230,Stuck in the Middle,True,11,40,313,840,140.2,,True,,
+20251231,Exile,True,8,29,11,45,5.3,,True,,
+20260101,Everything in its Place,True,18,59,2264,3800,967.4,,True,,
+20260102,Roundabout Way,True,8,47,18,204,62.9,,True,,
+20260103,Pushups,True,14,61,979,4785,1642.3,,True,,
+20260104,A Bridge Too Far,True,15,138,12798,19408,5612.1,,True,,
+20260105,Naught So Easy,True,7,22,29,72,7.0,,True,,
+20260106,Barricade,True,10,23,210,748,118.0,,True,,
+20260107,A Fine Line,True,16,85,868,1776,295.4,,True,,
+20260108,Surprise Party,True,10,25,53,120,19.7,,True,,
+20260109,The Tail Wags The Dog,True,13,46,468,2914,755.2,,True,,
+20260110,Throne Room,True,11,51,46,286,96.7,,True,,
+20260111,Corn Maze,True,16,98,258,1244,346.3,,True,,
+20260112,Two at a Time,True,4,12,12,21,1.5,,True,,
+20260113,Blind Corners,True,7,16,35,45,12.3,,True,,
+20260114,Cup o' Joe,True,7,22,75,227,34.9,,True,,
+20260115,Waterworks,True,7,106,172,480,54.4,,True,,
+20260116,Wrong Angle,True,9,83,11,125,42.3,,True,,
+20260117,Plugged Up,True,32,155,15868,29675,26727.2,,True,rank_discrepancy,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":8589,""peak_closed_size"":29675,""elapsed_ms"":11990.2,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":2906,""peak_closed_size"":11626,""elapsed_ms"":3583.7,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":1826,""peak_closed_size"":9297,""elapsed_ms"":2863.2,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":true,""nodes_expanded"":2547,""peak_closed_size"":10733,""elapsed_ms"":3923.2,""failure_reason"":null}]"
+20260118,Summoning Circle,True,16,121,2554,13951,8373.8,,True,,
+20260119,Waffling,True,4,19,7,12,2.3,,True,,
+20260120,Fish And Chips,True,9,18,25,67,13.5,,True,,
+20260121,Lucky Horseshoe,True,11,53,517,2925,583.0,,True,,
+20260122,Tidy Up,True,10,58,25,138,30.0,,True,,
+20260123,Walking Gingerly,True,17,74,842,6856,3404.2,,True,,
+20260124,In the Goal,False,,,22218,45293,29760.0,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":7493,""peak_closed_size"":32771,""elapsed_ms"":8921.3,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":2848,""peak_closed_size"":11810,""elapsed_ms"":3120.3,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":2424,""peak_closed_size"":10245,""elapsed_ms"":2652.5,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":425,""peak_closed_size"":3245,""elapsed_ms"":3013.7,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":9028,""peak_closed_size"":45293,""elapsed_ms"":12012.2,""failure_reason"":""timeout""}]"
+20260125,Harmonic Progression,True,16,44,6783,34442,10188.6,,True,,
+20260126,Playground,True,6,27,50,172,24.0,,True,,
+20260127,Starry Sky,True,7,14,18,95,19.8,,True,,
+20260128,Workaround,True,12,55,56,358,87.8,,True,,
+20260129,Blockade,True,7,21,171,1381,309.9,,True,,
+20260130,Eureka!,True,21,73,1461,6797,22723.4,,True,rank_discrepancy,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":881,""peak_closed_size"":6797,""elapsed_ms"":12003.8,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":249,""peak_closed_size"":2040,""elapsed_ms"":3595.8,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":177,""peak_closed_size"":1588,""elapsed_ms"":2875.5,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":true,""nodes_expanded"":154,""peak_closed_size"":1250,""elapsed_ms"":2228.3,""failure_reason"":null}]"
+20260131,The Stacks,True,14,72,60,790,427.3,,True,,
+20260201,Dance Floor,True,22,81,652,5720,2917.2,,True,,
+20260202,Shoveling Snow,True,8,29,18,65,11.7,,True,,
+20260203,Across the Universe,True,5,23,28,159,37.3,,True,,
+20260204,Maypole,True,6,29,80,572,163.9,,True,,
+20260205,Untangled,True,10,70,48,301,96.8,,True,,
+20260206,Halfway Home,True,13,44,53,296,162.1,,True,,
+20260207,Primordial Soup,True,15,62,348,1893,719.0,,True,,
+20260208,Toric Lens,False,,,2440,8397,29757.4,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":465,""peak_closed_size"":5263,""elapsed_ms"":8926.1,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":360,""peak_closed_size"":2392,""elapsed_ms"":3119.7,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":683,""peak_closed_size"":4260,""elapsed_ms"":2659.0,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":21,""peak_closed_size"":307,""elapsed_ms"":3263.8,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":911,""peak_closed_size"":8397,""elapsed_ms"":11753.5,""failure_reason"":""timeout""}]"
+20260209,Piece of Cake,True,4,12,9,14,1.1,,True,,
+20260210,Dungeon,True,12,34,417,1791,448.1,,True,,
+20260211,Slot Machine,True,16,48,366,1788,410.0,,True,,
+20260212,Cautionary Tale,True,12,54,24220,63381,22809.0,,True,,
+20260213,I Spy,True,15,97,64,886,416.8,,True,,
+20260214,Database,True,8,21,38,435,263.6,,True,,
+20260215,Full Steam Ahead,True,27,59,3523,12318,5614.0,,True,,
+20260216,Outside In,True,6,30,24,97,27.8,,True,,
+20260217,Palate Cleanser,True,9,54,107,677,187.0,,True,,
+20260218,Knotty By Nature,True,15,47,42,106,32.9,,True,,
+20260219,Untangled,True,16,53,30746,65167,23740.5,,True,,
+20260220,Laser Tag,False,,,3032,10196,29757.4,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":550,""peak_closed_size"":5219,""elapsed_ms"":8925.9,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":287,""peak_closed_size"":2056,""elapsed_ms"":3120.9,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":417,""peak_closed_size"":1865,""elapsed_ms"":2655.2,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":27,""peak_closed_size"":391,""elapsed_ms"":3076.7,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":1751,""peak_closed_size"":10196,""elapsed_ms"":11943.7,""failure_reason"":""timeout""}]"
+20260221,Teahouse,True,13,109,190,2037,1061.8,,True,,
+20260222,House of Cards,True,18,55,4546,19130,10623.0,,True,,
+20260223,Candyland,True,5,16,9,53,10.8,,True,,
+20260224,Sweet Relief,True,8,19,32,194,62.8,,True,,
+20260225,Pinched Nerve,True,8,41,30,164,44.3,,True,,
+20260226,Bouquet of Flowers,True,11,49,113,289,75.7,,True,,
+20260227,Orion's Belt,True,18,78,727,4450,2388.5,,True,,
+20260228,Elbow Room,True,10,63,456,4306,2246.6,,True,,
+20260301,Immovable Objects,False,,,3094,8950,29757.3,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":779,""peak_closed_size"":5760,""elapsed_ms"":8941.3,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":350,""peak_closed_size"":2593,""elapsed_ms"":3117.2,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":650,""peak_closed_size"":4800,""elapsed_ms"":2651.0,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":35,""peak_closed_size"":431,""elapsed_ms"":3176.2,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":1280,""peak_closed_size"":8950,""elapsed_ms"":11835.8,""failure_reason"":""timeout""}]"
+20260302,Boom Gate,True,3,6,5,18,2.8,,True,,
+20260303,Good Rally,True,11,33,103,648,160.2,,True,,
+20260304,Spiraling,True,8,40,21,184,40.6,,True,,
+20260305,Balance Beam,True,8,28,157,804,214.1,,True,,
+20260306,Chaos Board,True,22,54,10996,55476,26296.3,,True,,
+20260307,Train Tracks,True,16,57,516,4233,2057.3,,True,,
+20260308,Locked In,True,22,85,338,2991,1503.7,,True,,
+20260309,Lighthouse,True,8,30,52,132,22.3,,True,,
+20260310,Six Feet Under,True,10,51,129,768,209.2,,True,,
+20260311,Bank Teller,True,12,37,240,728,212.9,,True,,
+20260312,Tried and True,True,13,51,32648,43579,15594.3,,True,,
+20260313,Quilts and Quibbles,True,10,37,195,2502,1359.5,,True,,
+20260314,Tee Off,False,,,3511,8114,29756.1,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":722,""peak_closed_size"":4958,""elapsed_ms"":8937.9,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":632,""peak_closed_size"":3736,""elapsed_ms"":3118.5,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":921,""peak_closed_size"":5326,""elapsed_ms"":2658.4,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":21,""peak_closed_size"":260,""elapsed_ms"":3081.8,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":1215,""peak_closed_size"":8114,""elapsed_ms"":11924.2,""failure_reason"":""timeout""}]"
+20260315,Four Corners,True,12,51,234,2460,1175.0,,True,,
+20260316,One Small Step,True,6,16,17,52,5.1,,True,,
+20260317,Handshake,True,10,32,60,172,55.8,,True,,
+20260318,Helpful Advice,True,8,38,44,330,97.2,,True,,
+20260319,Sideways,True,16,31,280,797,204.2,,True,,
+20260320,All Mixed Up,True,15,69,53,705,311.7,,True,,
+20260321,Friends In High Places,True,18,95,186,2812,1177.2,,True,,
+20260322,Stairstep,True,12,36,53,639,294.3,,True,,
+20260323,Poker Face,True,11,52,21,37,4.9,,True,,
+20260324,Elbow Joint,True,13,44,683,3316,932.0,,True,,
+20260325,Treasure Trove,True,16,34,124,257,69.1,,True,,
+20260326,Runway,True,17,44,646,2150,434.6,,True,,
+20260327,Simplicity,True,14,53,120,1606,706.5,,True,,
+20260328,Platforms,True,11,92,32,568,248.3,,True,,
+20260329,Neutrality,True,17,62,876,6645,3118.0,,True,,
+20260330,S Curve,True,8,17,22,65,9.2,,True,,
+20260331,Defusion,True,10,24,14,31,9.1,,True,,
+20260401,Circling the Drain,True,14,38,245,1224,286.6,,True,,
+20260402,Greeting Card,True,16,65,539,2012,598.8,,True,,
+20260403,Line Dance,True,11,78,105,1417,677.1,,True,,
+20260404,Four Angles,True,10,52,56,1003,484.8,,True,,
+20260405,Test Your Strength,True,20,85,947,12146,5696.4,,True,,
+20260406,Escargot,True,12,33,134,422,94.1,,True,,
+20260407,Mindreader,True,12,37,119,416,114.8,,True,,
+20260408,Full Stack,True,7,16,19,62,19.8,,True,,
+20260409,Tiles and Grout,True,12,50,155,893,218.8,,True,,
+20260410,Around the Corner,True,15,145,1174,12861,5689.6,,True,,
+20260411,False Alarm,True,16,68,38,375,154.5,,True,,
+20260412,Gated Community,True,14,31,42,546,245.6,,True,,
+20260413,Under the Weather,True,6,25,15,79,15.2,,True,,
+20260414,Pressure Valve,True,14,65,350,2876,667.4,,True,,
+20260415,Push and Pull,True,14,57,56,157,37.5,,True,,
+20260416,Play the Fool,True,12,49,46,299,81.2,,True,,
+20260417,Braided River,True,24,108,5690,34864,23072.2,,True,rank_discrepancy,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":3499,""peak_closed_size"":34864,""elapsed_ms"":11987.6,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1072,""peak_closed_size"":10977,""elapsed_ms"":3586.0,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":766,""peak_closed_size"":8772,""elapsed_ms"":2865.2,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":true,""nodes_expanded"":353,""peak_closed_size"":3018,""elapsed_ms"":982.8,""failure_reason"":null}]"
+20260418,Hop the Fence,True,16,96,44,583,4443.4,,True,v1_weighted,"[{""strategy"":""v1_weighted"",""solved"":true,""nodes_expanded"":44,""peak_closed_size"":583,""elapsed_ms"":525.3,""failure_reason"":null}]"
+20260419,Skip A Beat,True,27,106,7201,79353,29661.3,,True,,
+20260420,Sourdough,True,8,21,21,92,17.4,,True,,
+20260421,Cut Your Teeth,True,9,51,33,166,48.4,,True,,
+20260422,Dark Forest,True,13,66,240,1130,313.9,,True,,
+20260423,Now You See Me,True,8,37,87,573,180.6,,True,,
+20260424,First Time Caller,True,12,55,25,381,205.1,,True,,
+20260425,Stick It Out,True,14,61,541,9601,4589.5,,True,,
+20260426,Throwback,True,15,56,80,1609,781.6,,True,,
+20260427,Cruise Control,True,20,69,3060,5736,1121.8,,True,,
+20260428,Polygon,True,13,42,386,1502,387.4,,True,,
+20260429,Nova,True,12,68,324,1627,397.1,,True,,
+20260430,One Way,True,9,17,72,513,140.2,,True,,
+20260501,Rotate,True,15,55,1423,21464,11209.6,,True,,
+20260502,Hexagon,True,20,146,1756,34324,17261.9,,True,,
+20260503,Zen Garden,True,17,94,517,5681,2382.8,,True,,
+20260504,Supernova,True,7,26,26,54,9.8,,True,,
+20260505,Ricochet,True,14,31,127,568,127.9,,True,,
+20260506,Pendulum,True,12,30,35,257,59.8,,True,,
+20260507,Rush Hour,True,12,61,396,2296,603.3,,True,,
+20260508,Star Cluster,True,15,137,114,1792,726.6,,True,,
+20260509,Paving,True,12,66,51,814,393.1,,True,,
+20260510,Roundabout,True,10,50,75,1252,567.5,,True,,
+20260511,Scale,True,9,36,218,693,109.5,,True,,
+20260512,Avalanche,True,13,102,101,987,234.3,,True,,
+20260513,Lightyear,True,12,52,406,1894,630.6,,True,,
+20260514,Expressway,True,19,160,31047,44225,20930.4,,True,rank_discrepancy,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":15256,""peak_closed_size"":44225,""elapsed_ms"":11997.4,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":7630,""peak_closed_size"":12149,""elapsed_ms"":3582.0,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":6333,""peak_closed_size"":8748,""elapsed_ms"":2860.5,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":true,""nodes_expanded"":1828,""peak_closed_size"":5629,""elapsed_ms"":1153.5,""failure_reason"":null}]"
+20260515,Geyser,True,19,82,164,1739,802.0,,True,,
+20260516,Space Station,True,14,55,340,4184,1936.2,,True,,
+20260517,Zig Zag,True,17,57,812,9970,3044.0,,True,,
+20260518,Speed Bump,True,13,53,797,2058,336.0,,True,,
+20260519,Carpool Lane,True,8,51,15,113,29.3,,True,,
+20260520,Asymmetry,True,11,44,174,1102,321.0,,True,,
+20260521,Joyride,True,13,61,2692,4501,1358.6,,True,,
+20260522,Merge,True,17,63,413,5977,2861.5,,True,,
+20260523,Anchor,True,19,207,4033,39141,14772.3,,True,,
+20260524,Gears,False,,,2174,15758,29757.4,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":346,""peak_closed_size"":5352,""elapsed_ms"":8926.8,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":187,""peak_closed_size"":2290,""elapsed_ms"":3119.9,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":406,""peak_closed_size"":4475,""elapsed_ms"":2656.5,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":5,""peak_closed_size"":150,""elapsed_ms"":3616.9,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":1230,""peak_closed_size"":15758,""elapsed_ms"":11393.8,""failure_reason"":""timeout""}]"
+20260525,Pyramid,True,8,19,20,53,10.2,,True,,
+20260526,Zipper Merge,True,11,50,52,200,71.4,,True,,
+20260527,Sphere,True,16,108,6829,25213,4160.8,,True,,
+20260528,Parallel Parking,True,7,13,44,308,84.6,,True,,
+20260529,Mirror,True,11,81,64,1144,528.6,,True,,
+20260530,Tight Squeeze,True,19,171,270,4941,12650.4,,True,v1_weighted,"[{""strategy"":""v1_weighted"",""solved"":true,""nodes_expanded"":270,""peak_closed_size"":4941,""elapsed_ms"":8058.2,""failure_reason"":null}]"
+20260531,Short Cut,True,22,95,271,3993,1612.9,,True,,
+20260601,Jungle,True,9,36,130,218,26.0,,True,,
+20260602,Narrow Margin,True,8,18,54,305,85.1,,True,,
+20260603,Sandstorm,True,13,61,170,739,181.2,,True,,
+20260604,Earthquake,True,6,20,25,117,31.8,,True,,
+20260605,Oasis,True,19,118,692,8409,3473.3,,True,,
+20260606,Tidal Wave,True,15,60,624,7136,2644.6,,True,,
+20260607,Quasar,True,14,78,200,2391,1081.7,,True,,
+20260608,Green Light,True,6,19,13,48,5.7,,True,,
+20260609,Gear Shift,True,9,46,99,649,176.3,,True,,
+20260610,Split,True,15,84,517,1007,247.5,,True,,
+20260611,Bypass,True,11,38,45,373,94.4,,True,,
+20260612,Tailgate,True,13,42,355,4450,1918.0,,True,,
+20260613,Spiral,True,24,77,1348,8207,16541.8,,True,greedy_low_g,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":1105,""peak_closed_size"":8207,""elapsed_ms"":12005.7,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":true,""nodes_expanded"":243,""peak_closed_size"":1660,""elapsed_ms"":1924.8,""failure_reason"":null}]"
+20260614,Yellow Light,False,,,3547,19699,29754.9,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":392,""peak_closed_size"":5652,""elapsed_ms"":8939.3,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":632,""peak_closed_size"":9292,""elapsed_ms"":3119.0,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":528,""peak_closed_size"":7670,""elapsed_ms"":2654.9,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":7,""peak_closed_size"":161,""elapsed_ms"":3223.0,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":1988,""peak_closed_size"":19699,""elapsed_ms"":11779.3,""failure_reason"":""timeout""}]"
+20260615,Monsoon,True,10,34,102,294,48.6,,True,,
+20260616,Kaleidoscope,True,13,42,523,1881,526.2,,True,,
+20260617,Lagoon,True,13,29,446,1704,444.1,,True,,
+20260618,Teleport,True,8,43,27,230,69.0,,True,,
+20260619,Quicksand,True,17,74,121,2588,1209.9,,True,,
+20260620,Constellation,True,15,66,957,6127,2565.1,,True,,
+20260621,Overpass,True,15,67,1988,21295,9672.2,,True,,
+20260622,Crosswalk,True,9,41,122,359,55.7,,True,,
+20260623,Pulsar,True,13,48,121,445,93.0,,True,,
+20260624,Red Light,True,14,68,3518,14979,2773.0,,True,,
+20260625,Pit Stop,True,15,118,7737,28720,6690.7,,True,,
+20260626,Freeway,True,19,99,1074,14192,6470.4,,True,,
+20260627,Blueprint,False,,,1954,9001,29754.3,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":415,""peak_closed_size"":5259,""elapsed_ms"":8923.2,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":224,""peak_closed_size"":2297,""elapsed_ms"":3131.9,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":384,""peak_closed_size"":3878,""elapsed_ms"":2657.8,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":17,""peak_closed_size"":213,""elapsed_ms"":3141.9,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":914,""peak_closed_size"":9001,""elapsed_ms"":11871.4,""failure_reason"":""timeout""}]"
+20260628,Blizzard,True,14,73,1542,10299,4516.4,,True,,
+20260629,Orbit,True,8,44,129,420,46.8,,True,,
+20260630,Labyrinth,True,9,20,21,107,26.3,,True,,
+20260701,Intersection,True,15,59,1878,4875,1394.1,,True,,
+20260702,Equator,True,7,50,15,157,49.4,,True,,
+20260703,Tundra,True,17,77,50,469,204.8,,True,,
+20260704,Cube,True,17,60,4205,32820,14833.4,,True,,
+20260705,High Speed,True,19,93,471,5788,2790.1,,True,,
+20260706,Easy Stroll,True,14,73,125,343,61.0,,True,,
+20260707,Tessellation,True,11,74,72,464,115.3,,True,,
+20260708,Prism,True,13,40,322,1215,297.8,,True,,
+20260709,Black Hole,True,15,90,15060,53522,12016.5,,True,,
+20260710,Traffic Circle,True,14,51,255,3926,1790.8,,True,,
+20260711,Toll Booth,True,16,52,1399,16997,8364.1,,True,,
+20260712,Nebula,True,23,41,2669,17615,6732.7,,True,,
+20260713,Yield,True,6,12,12,35,4.2,,True,,
+20260714,Flip,True,10,31,944,3777,791.5,,True,,
+20260715,Clone,True,17,72,188,1007,198.4,,True,,
+20260716,Hourglass,True,10,34,75,651,182.1,,True,,
+20260717,Cylinder,True,13,66,41,805,408.2,,True,,
+20260718,Volcano,True,16,81,93,813,326.9,,True,,
+20260719,Mars Rover,True,12,76,57,1119,535.0,,True,,
+20260720,Coffee Table,True,4,8,6,20,2.3,,True,,
+20260721,Back to Basics,True,9,56,274,2126,455.8,,True,,
+20260722,Symmetry,True,7,28,9,56,9.9,,True,,
+20260723,Coral Reef,True,5,37,6,43,12.7,,True,,
+20260724,Half Measures,True,19,61,43,268,112.1,,True,,
+20260725,Gridlock,True,8,56,29,376,156.2,,True,,
+20260726,Bookshelf,True,13,122,10615,87340,28564.6,,True,,
+20260727,Bite the Bullet,True,2,21,3,19,1.8,,True,,
+20260728,Equilibrium,True,8,49,61,296,66.2,,True,,
+20260729,Desert Mirage,True,10,40,846,3983,1269.1,,True,,
+20260730,Solar Eclipse,True,12,40,8745,22597,6490.9,,True,,
+20260731,Underpass,True,21,93,4392,29640,7656.5,,True,,
+20260801,Attic Storage,True,12,41,741,13596,4544.3,,True,,
+20260802,Cold Feet,False,,,1876,10218,29757.1,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":507,""peak_closed_size"":7434,""elapsed_ms"":8919.2,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":245,""peak_closed_size"":4196,""elapsed_ms"":3138.2,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":375,""peak_closed_size"":6312,""elapsed_ms"":2664.4,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":20,""peak_closed_size"":276,""elapsed_ms"":3131.3,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":729,""peak_closed_size"":10218,""elapsed_ms"":11870.7,""failure_reason"":""timeout""}]"
+20260803,Synchronicity,True,8,23,16,68,6.8,,True,,
+20260804,Thunderstorm,True,11,49,94,640,161.1,,True,,
+20260805,Galaxy Cluster,True,8,58,92,700,206.2,,True,,
+20260806,Switchback,True,20,88,5668,17856,18131.7,,True,greedy_bias,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":4139,""peak_closed_size"":17856,""elapsed_ms"":12005.0,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":1024,""peak_closed_size"":5390,""elapsed_ms"":3594.1,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":true,""nodes_expanded"":505,""peak_closed_size"":2793,""elapsed_ms"":1866.4,""failure_reason"":null}]"
+20260807,Subway Station,True,8,35,22,333,168.2,,True,,
+20260808,Down to Earth,True,13,55,46,489,229.3,,True,,
+20260809,Crossword,True,8,64,77,1492,490.6,,True,,
+20260810,Autumn Leaves,True,7,21,27,53,9.1,,True,,
+20260811,Choke Point,True,9,51,40,362,81.9,,True,,
+20260812,Botanical Garden,True,8,61,26,164,40.3,,True,,
+20260813,On the Fence,True,13,51,139,428,94.4,,True,,
+20260814,Domino Effect,True,11,22,2181,20909,9488.3,,True,,
+20260815,Migrating Birds,True,21,66,2592,22718,9232.5,,True,,
+20260816,Perimeter,True,12,41,182,2643,1101.7,,True,,
+20260817,Flea Market,True,7,26,48,108,11.7,,True,,
+20260818,Out of the Blue,True,8,55,30,283,65.7,,True,,
+20260819,Tipping Point,True,8,46,51,210,55.9,,True,,
+20260820,Hidden Valley,True,10,49,7145,20222,4611.8,,True,,
+20260821,Diagonal Alley,True,10,39,17,388,229.7,,True,,
+20260822,Clock Tower,True,9,59,44,657,359.6,,True,,
+20260823,Spill the Beans,True,12,42,4429,58096,25501.1,,True,,
+20260824,Vanishing Act,True,5,35,8,42,8.1,,True,,
+20260825,Deep Ocean,True,3,9,4,21,5.9,,True,,
+20260826,Man in the Moon,True,13,36,22,80,18.3,,True,,
+20260827,Touch and Go,True,9,36,29,123,26.8,,True,,
+20260828,Up in the Air,True,14,42,180,1155,599.9,,True,,
+20260829,Word of Mouth,True,17,165,4899,54915,24437.6,,True,,
+20260830,Time Capsule,False,,,2450,10887,29757.8,timeout,False,,"[{""strategy"":""v1_weighted"",""solved"":false,""nodes_expanded"":580,""peak_closed_size"":6368,""elapsed_ms"":8929.6,""failure_reason"":""timeout""},{""strategy"":""greedy_low_g"",""solved"":false,""nodes_expanded"":340,""peak_closed_size"":2533,""elapsed_ms"":3119.1,""failure_reason"":""timeout""},{""strategy"":""greedy_bias"",""solved"":false,""nodes_expanded"":545,""peak_closed_size"":4129,""elapsed_ms"":2660.2,""failure_reason"":""timeout""},{""strategy"":""macro_greedy"",""solved"":false,""nodes_expanded"":18,""peak_closed_size"":270,""elapsed_ms"":3098.2,""failure_reason"":""timeout""},{""strategy"":""rank_discrepancy"",""solved"":false,""nodes_expanded"":967,""peak_closed_size"":10887,""elapsed_ms"":11920.4,""failure_reason"":""timeout""}]"

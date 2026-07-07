@@ -1,5 +1,48 @@
 # Tic Tac Go Push Solver V2 Implementation Plan
 
+## Implementation Status
+
+V2 is now the default `solver.push_solver.solve` path. `solve_v1` remains
+available for baseline comparisons.
+
+Implemented:
+
+- deterministic classical portfolio: `v1_weighted`, `greedy_low_g`,
+  `greedy_bias`, `macro_greedy`, and `rank_discrepancy`,
+- shared portfolio search context for region, heuristic, line-plan,
+  O-push-count, and successor caches,
+- safe O-pair deadlock pruning using wall-only push reachability,
+- forced same-piece/same-direction macro successors that expand back into
+  ordinary verified pushes,
+- per-attempt result metadata in `PushSolveResult`,
+- batch oracle-rank diagnostics through
+  `python3 -m solver.push_solver.debug_oracle_rank --failed-only`,
+- benchmark diagnostics columns for strategy and attempt summaries,
+- opt-in benchmark beam/CNN fallback through
+  `--beam-fallback --beam-timeout-seconds N`.
+
+Measured after the initial V2 portfolio pass:
+
+- pure push benchmark improved from `315/341` to `324/341`,
+- 9 of the 26 previously failed rows were solved by V2,
+- the remaining 17 pure-push rows still time out under a 30s board budget,
+- shared context and macros increased node throughput on the remaining failures,
+  but did not solve additional rows in the latest pure-push run,
+- beam fallback is wired in the benchmark but cannot run in the current local
+  environment until `torch` is installed.
+
+Current command set:
+
+```bash
+python3 -m unittest tests.test_push_solver tests.test_solver_service
+python3 -m solver.push_solver.debug_oracle_rank --failed-only
+python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
+  --only-failed --timeout-seconds 30 --max-nodes 500000 --workers 6
+python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
+  --only-failed --timeout-seconds 30 --max-nodes 500000 --workers 6 \
+  --beam-fallback --beam-timeout-seconds 30
+```
+
 ## Executive Summary
 
 V2 should keep the push-level Sokoban solver as the correctness core and add a
