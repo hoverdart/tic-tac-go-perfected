@@ -18,6 +18,8 @@ from solver.push_solver.core import (
     successors,
 )
 from solver.push_solver.verify import verify_solution
+from solver.push_solver.policy_features import features_for_child
+from solver.push_solver.rank_policy import default_policy
 
 
 class PushSolverTest(unittest.TestCase):
@@ -232,6 +234,84 @@ class PushSolverTest(unittest.TestCase):
         self.assertFalse(any(cell in static.dead_cells_for_o for cell in state.os))
         self.assertTrue(is_deadlock(state.os, state.xs, static))
 
+    def test_frozen_pieces_detects_wall_locked_x(self):
+        static, state, _board, _player = parse_board(
+            [
+                ["B", "B", "B", "B"],
+                ["B", "U", "X", "B"],
+                ["B", "B", "B", "B"],
+            ]
+        )
+
+        frozen_os, frozen_xs = core.frozen_pieces(state.os, state.xs, static)
+
+        self.assertEqual(frozen_os, frozenset())
+        self.assertEqual(frozen_xs, frozenset({static.index(1, 2)}))
+
+    def test_frozen_o_on_viable_line_is_not_deadlock(self):
+        static, state, _board, _player = parse_board(
+            [
+                ["B", "B", "B", "B", "B"],
+                ["B", "U", "O", "O", "B"],
+                ["B", "B", "B", "B", "B"],
+            ]
+        )
+
+        frozen_os, _frozen_xs = core.frozen_pieces(state.os, state.xs, static)
+
+        self.assertIn(static.index(1, 3), frozen_os)
+        self.assertFalse(
+            is_deadlock(
+                state.os,
+                state.xs,
+                static,
+                player=state.player,
+            )
+        )
+
+    def test_frozen_x_constraints_can_eliminate_all_lines(self):
+        static, state, _board, _player = parse_board([["U", "O", "X", "O", ""]])
+
+        self.assertFalse(
+            core._has_viable_line_under_frozen_constraints(
+                state.os,
+                frozenset(),
+                frozenset({static.index(0, 2)}),
+                static,
+                player=state.player,
+            )
+        )
+
+    def test_x_aware_deadlock_does_not_prune_known_hard_solution_paths(self):
+        from solver.push_solver.training_export import (
+            decode_board,
+            load_boards,
+            load_solutions,
+            push_path,
+        )
+
+        board_ids = {"20250928", "20251005", "20251116", "20251221"}
+        boards = load_boards()
+        solutions = {
+            str(row["id"]): row.get("solution")
+            for row in load_solutions()
+            if str(row.get("id")) in board_ids
+        }
+
+        for board_id in sorted(board_ids):
+            board = decode_board(boards[board_id])
+            static, _state, _normalized, _player = parse_board(board)
+            for state, _push in push_path(board, str(solutions[board_id])):
+                self.assertFalse(
+                    is_deadlock(
+                        state.os,
+                        state.xs,
+                        static,
+                        player=state.player,
+                    ),
+                    board_id,
+                )
+
     def _corridor_heuristic(self, xs_cells):
         static, state, _board, _player = parse_board([["U", "O", "", "", "", "O"]])
         blocked_state = State(player=state.player, os=state.os, xs=frozenset(xs_cells))
@@ -343,7 +423,7 @@ class PushSolverTest(unittest.TestCase):
         self.assertEqual(result.strategy, "rank_discrepancy")
 
     def test_macro_children_expand_to_normal_push_sequence(self):
-        board = [["U", "X", "", "", "O", "O"]]
+        board = [["U", "O", "", "", "O", ""]]
         static, state, _normalized, initial_player = parse_board(board)
         context = core._build_search_context(static, state, initial_player)
         children = core._strategy_children_for(
@@ -351,6 +431,7 @@ class PushSolverTest(unittest.TestCase):
             state,
             use_macros=True,
             bias_scale=1.0,
+            policy_weight=0.0,
         )
 
         self.assertTrue(any(len(pushes) > 1 for pushes, *_rest in children))
@@ -377,6 +458,30 @@ class PushSolverTest(unittest.TestCase):
 
         self.assertTrue(result.solved)
         self.assertTrue(verification.ok, verification.error)
+
+    def test_default_rank_policy_scores_legal_child_features(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+        push, child, child_region, child_h, bias = core._successors_for(context, state)[0]
+        features = features_for_child(
+            context,
+            state,
+            (push,),
+            child,
+            child_region,
+            child_h,
+            bias,
+            1,
+        )
+        policy = default_policy()
+
+        self.assertIsNotNone(policy)
+        self.assertIsInstance(policy.score(features), float)
 
     def test_portfolio_short_circuits_initial_x_loss(self):
         result = solve(

@@ -148,6 +148,7 @@ class SearchStrategyConfig:
     g_weight: float = 1.0
     bias_scale: float = 1.0
     use_macros: bool = False
+    policy_weight: float = 0.0
 
 
 @dataclass
@@ -162,9 +163,10 @@ class SearchContext:
     top_plan_cache: dict[State, tuple[LinePlan, ...]]
     o_push_count_cache: dict[State, int]
     successor_cache: dict[State, tuple[tuple[Push, State, frozenset[int], float, float], ...]]
+    policy_score_cache: dict[tuple[State, tuple[Push, ...], State], float]
 
 
-StrategyChild = tuple[tuple[Push, ...], State, frozenset[int], float, float, int]
+StrategyChild = tuple[tuple[Push, ...], State, frozenset[int], float, float, int, float]
 
 
 def parse_board(board) -> tuple[StaticBoard, State, tuple[tuple[str, ...], ...], int]:
@@ -459,13 +461,238 @@ def _compute_reachable_o_pairs(
     return frozenset(reachable_pairs)
 
 
-def is_deadlock(os: frozenset[int], _xs: frozenset[int], board: StaticBoard) -> bool:
+def _direction_permanently_blocked(
+    cell: int,
+    move: str,
+    board: StaticBoard,
+    permanent_blockers: frozenset[int],
+) -> bool:
+    row, col = board.coord(cell)
+    dr, dc = DIRECTION_BY_MOVE[move]
+    dest_row = row + dr
+    dest_col = col + dc
+    stand_row = row - dr
+    stand_col = col - dc
+    if not board.in_bounds(dest_row, dest_col):
+        return True
+    if not board.in_bounds(stand_row, stand_col):
+        return True
+    dest = board.index(dest_row, dest_col)
+    stand = board.index(stand_row, stand_col)
+    return dest in permanent_blockers or stand in permanent_blockers
+
+
+def _piece_permanently_frozen(
+    cell: int,
+    board: StaticBoard,
+    permanent_blockers: frozenset[int],
+) -> bool:
+    horizontal = _direction_permanently_blocked(
+        cell,
+        "L",
+        board,
+        permanent_blockers,
+    ) and _direction_permanently_blocked(cell, "R", board, permanent_blockers)
+    vertical = _direction_permanently_blocked(
+        cell,
+        "U",
+        board,
+        permanent_blockers,
+    ) and _direction_permanently_blocked(cell, "D", board, permanent_blockers)
+    return horizontal and vertical
+
+
+def frozen_pieces(
+    os: frozenset[int],
+    xs: frozenset[int],
+    board: StaticBoard,
+) -> tuple[frozenset[int], frozenset[int]]:
+    """Return pieces proven immovable by walls/edges/proven-frozen pieces.
+
+    This intentionally under-approximates Sokoban freeze detection. It only
+    adds a movable piece to the permanent blocker set after that piece is
+    already frozen using the current permanent set.
+    """
+    pieces = os | xs
+    frozen: set[int] = set()
+    changed = True
+    while changed:
+        changed = False
+        permanent_blockers = frozenset(board.walls | frozen)
+        for cell in sorted(pieces - frozen):
+            if _piece_permanently_frozen(cell, board, permanent_blockers):
+                frozen.add(cell)
+                changed = True
+    frozen_set = frozenset(frozen)
+    return frozen_set & os, frozen_set & xs
+
+
+def _cell_is_on_win_line(cell: int, board: StaticBoard) -> bool:
+    return any(cell in line for line in board.win_lines)
+
+
+def _floor_reachable_with_permanent_blockers(
+    start: int,
+    target: int,
+    board: StaticBoard,
+    permanent_blockers: frozenset[int],
+) -> bool:
+    if start == target:
+        return True
+    if start in permanent_blockers or target in permanent_blockers:
+        return False
+    queue = [start]
+    seen = {start}
+    for current in queue:
+        for nxt in board.adjacency[current]:
+            if nxt in permanent_blockers or nxt in seen:
+                continue
+            if nxt == target:
+                return True
+            seen.add(nxt)
+            queue.append(nxt)
+    return False
+
+
+def _push_reachable_with_permanent_blockers(
+    start: int,
+    target: int,
+    board: StaticBoard,
+    permanent_blockers: frozenset[int],
+) -> bool:
+    if start == target:
+        return True
+    if start in permanent_blockers or target in permanent_blockers:
+        return False
+    distances = {target}
+    queue = deque([target])
+    while queue:
+        current = queue.popleft()
+        for _move, dr, dc in DIRECTIONS:
+            row, col = board.coord(current)
+            previous_row = row - dr
+            previous_col = col - dc
+            stand_row = row - (2 * dr)
+            stand_col = col - (2 * dc)
+            if not board.in_bounds(previous_row, previous_col):
+                continue
+            if not board.in_bounds(stand_row, stand_col):
+                continue
+            previous = board.index(previous_row, previous_col)
+            stand = board.index(stand_row, stand_col)
+            if previous in permanent_blockers or stand in permanent_blockers:
+                continue
+            if previous == start:
+                return True
+            if previous not in distances:
+                distances.add(previous)
+                queue.append(previous)
+    return False
+
+
+def _assignment_survives_frozen_constraints(
+    *,
+    o_cells: tuple[int, ...],
+    targets: tuple[int, int],
+    frozen_os: frozenset[int],
+    frozen_xs: frozenset[int],
+    board: StaticBoard,
+) -> bool:
+    permanent_blockers = frozenset(board.walls | frozen_xs | frozen_os)
+    for assigned in (
+        ((o_cells[0], targets[0]), (o_cells[1], targets[1])),
+        ((o_cells[0], targets[1]), (o_cells[1], targets[0])),
+    ):
+        valid = True
+        for o_cell, target in assigned:
+            if o_cell in frozen_os:
+                if target != o_cell:
+                    valid = False
+                    break
+                continue
+            if target in permanent_blockers:
+                valid = False
+                break
+            if not _push_reachable_with_permanent_blockers(
+                o_cell,
+                target,
+                board,
+                permanent_blockers,
+            ):
+                valid = False
+                break
+        if valid:
+            return True
+    return False
+
+
+def _has_viable_line_under_frozen_constraints(
+    os: frozenset[int],
+    frozen_os: frozenset[int],
+    frozen_xs: frozenset[int],
+    board: StaticBoard,
+    *,
+    player: int | None,
+) -> bool:
+    if len(os) != 2:
+        return True
+    o_cells = tuple(os)
+    permanent_blockers = frozenset(board.walls | frozen_xs | frozen_os)
+    for line in board.win_lines:
+        if frozen_xs & set(line):
+            continue
+        if not frozen_os.issubset(line):
+            continue
+        for player_target in line:
+            if player_target in permanent_blockers:
+                continue
+            if player is not None and not _floor_reachable_with_permanent_blockers(
+                player,
+                player_target,
+                board,
+                permanent_blockers,
+            ):
+                continue
+            targets = tuple(cell for cell in line if cell != player_target)
+            if len(targets) != 2:
+                continue
+            if _assignment_survives_frozen_constraints(
+                o_cells=o_cells,
+                targets=targets,
+                frozen_os=frozen_os,
+                frozen_xs=frozen_xs,
+                board=board,
+            ):
+                return True
+    return False
+
+
+def is_deadlock(
+    os: frozenset[int],
+    xs: frozenset[int],
+    board: StaticBoard,
+    *,
+    player: int | None = None,
+) -> bool:
     if any(cell in board.dead_cells_for_o for cell in os):
         return True
     if len(os) == 2:
         pair = tuple(sorted(os))
-        return pair not in board.reachable_o_pairs
-    return False
+        if pair not in board.reachable_o_pairs:
+            return True
+
+    frozen_os, frozen_xs = frozen_pieces(os, xs, board)
+    if not frozen_os and not frozen_xs:
+        return False
+    if any(not _cell_is_on_win_line(cell, board) for cell in frozen_os):
+        return True
+    return not _has_viable_line_under_frozen_constraints(
+        os,
+        frozen_os,
+        frozen_xs,
+        board,
+        player=player,
+    )
 
 
 def goal_info(
@@ -921,7 +1148,7 @@ def successors(
                     if is_x_loss(new_xs, board):
                         continue
 
-                if is_deadlock(new_os, new_xs, board):
+                if is_deadlock(new_os, new_xs, board, player=cell):
                     continue
                 
                 next_state, next_region = _normalize_with_region(cell, new_os, new_xs, board)
@@ -1169,7 +1396,7 @@ def _precheck_result(
             strategy="precheck",
         )
 
-    if is_deadlock(start_state.os, start_state.xs, static):
+    if is_deadlock(start_state.os, start_state.xs, static, player=start_state.player):
         return _result(
             solved=False,
             moves=None,
@@ -1230,6 +1457,7 @@ def _build_search_context(
         top_plan_cache=top_plan_cache,
         o_push_count_cache=o_push_count_cache,
         successor_cache={},
+        policy_score_cache={},
     )
 
 
@@ -1316,8 +1544,45 @@ def _macro_children_for(
         h = context.h_cache[current_state]
         # Macros reduce queue granularity, but their real cost remains push count.
         macro_bias = (total_bias / len(chain)) - (0.20 * (len(chain) - 1))
-        macros.append((tuple(chain), current_state, region, h, macro_bias, len(chain)))
+        macros.append((tuple(chain), current_state, region, h, macro_bias, len(chain), 0.0))
     return macros
+
+
+def _policy_score_for(
+    context: SearchContext,
+    parent: State,
+    pushes: tuple[Push, ...],
+    child: State,
+    child_region: frozenset[int],
+    child_h: float,
+    hand_bias: float,
+    push_cost: int,
+) -> float:
+    key = (parent, pushes, child)
+    if key in context.policy_score_cache:
+        return context.policy_score_cache[key]
+    try:
+        from solver.push_solver.policy_features import features_for_child
+        from solver.push_solver.rank_policy import default_policy
+    except Exception:
+        return 0.0
+    policy = default_policy()
+    if policy is None:
+        context.policy_score_cache[key] = 0.0
+        return 0.0
+    features = features_for_child(
+        context,
+        parent,
+        pushes,
+        child,
+        child_region,
+        child_h,
+        hand_bias,
+        push_cost,
+    )
+    score = policy.score(features)
+    context.policy_score_cache[key] = score
+    return score
 
 
 def _strategy_children_for(
@@ -1326,15 +1591,44 @@ def _strategy_children_for(
     *,
     use_macros: bool,
     bias_scale: float,
+    policy_weight: float,
 ) -> list[StrategyChild]:
     base_items = _successors_for(context, state)
     children: list[StrategyChild] = [
-        ((push,), nxt, child_region, child_h, bias, 1)
+        ((push,), nxt, child_region, child_h, bias, 1, 0.0)
         for push, nxt, child_region, child_h, bias in base_items
     ]
     if use_macros:
         children.extend(_macro_children_for(context, base_items))
-    children.sort(key=lambda item: (item[3] + (bias_scale * item[4]), item[3], item[5]))
+    if policy_weight:
+        children = [
+            (
+                pushes,
+                nxt,
+                child_region,
+                child_h,
+                bias,
+                push_cost,
+                _policy_score_for(
+                    context,
+                    state,
+                    pushes,
+                    nxt,
+                    child_region,
+                    child_h,
+                    bias,
+                    push_cost,
+                ),
+            )
+            for pushes, nxt, child_region, child_h, bias, push_cost, _policy_score in children
+        ]
+    children.sort(
+        key=lambda item: (
+            item[3] + (bias_scale * item[4]) - (policy_weight * item[6]),
+            item[3],
+            item[5],
+        )
+    )
     return children
 
 
@@ -1431,10 +1725,11 @@ def _run_strategy(
             current,
             use_macros=config.use_macros,
             bias_scale=config.bias_scale,
+            policy_weight=config.policy_weight,
         )
 
         if config.kind == "rank_discrepancy":
-            for local_rank, (pushes, nxt, child_region, child_h, _bias, push_cost) in enumerate(child_items):
+            for local_rank, (pushes, nxt, child_region, child_h, _bias, push_cost, _policy_score) in enumerate(child_items):
                 if nxt not in context.region_cache:
                     context.region_cache[nxt] = child_region
                     context.h_cache[nxt] = child_h
@@ -1452,7 +1747,7 @@ def _run_strategy(
                 )
             peak_closed_size = max(peak_closed_size, len(best_rank_cost))
         else:
-            for pushes, nxt, child_region, child_h, bias, push_cost in child_items:
+            for pushes, nxt, child_region, child_h, bias, push_cost, policy_score in child_items:
                 if nxt not in context.region_cache:
                     context.region_cache[nxt] = child_region
                     context.h_cache[nxt] = child_h
@@ -1465,6 +1760,7 @@ def _run_strategy(
                     (config.g_weight * next_cost)
                     + (config.weight * child_h)
                     + (config.bias_scale * bias)
+                    - (config.policy_weight * policy_score)
                 )
                 heapq.heappush(queue, (next_priority, next_cost, next(counter), nxt))
             peak_closed_size = max(peak_closed_size, len(g_cost))
@@ -1532,6 +1828,18 @@ def _portfolio_configs(weight: float) -> tuple[tuple[SearchStrategyConfig, float
                 weight=weight,
                 g_weight=1.0,
                 bias_scale=1.25,
+            ),
+            0.45,
+        ),
+        (
+            SearchStrategyConfig(
+                name="policy_rank_discrepancy",
+                kind="rank_discrepancy",
+                weight=weight,
+                g_weight=1.0,
+                bias_scale=1.0,
+                use_macros=True,
+                policy_weight=2.00,
             ),
             1.00,
         ),

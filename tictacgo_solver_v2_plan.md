@@ -8,12 +8,23 @@ available for baseline comparisons.
 Implemented:
 
 - deterministic classical portfolio: `v1_weighted`, `greedy_low_g`,
-  `greedy_bias`, `macro_greedy`, and `rank_discrepancy`,
+  `greedy_bias`, `macro_greedy`, `rank_discrepancy`, and
+  `policy_rank_discrepancy`,
 - shared portfolio search context for region, heuristic, line-plan,
   O-push-count, and successor caches,
 - safe O-pair deadlock pruning using wall-only push reachability,
+- conservative X-aware frozen-piece deadlock constraints:
+  frozen Xs are treated as permanent blockers, frozen Os must remain compatible
+  with at least one possible final line, and known solution paths are checked
+  against over-pruning,
 - forced same-piece/same-direction macro successors that expand back into
   ordinary verified pushes,
+- dependency-free V2.5 linear push ranker:
+  `solver/push_solver/linear_push_ranker_v1.json`,
+- policy feature extraction and rank-policy inference through
+  `policy_features.py` and `rank_policy.py`,
+- training/export command:
+  `python3 -m solver.push_solver.training_export`,
 - per-attempt result metadata in `PushSolveResult`,
 - batch oracle-rank diagnostics through
   `python3 -m solver.push_solver.debug_oracle_rank --failed-only`,
@@ -28,6 +39,10 @@ Measured after the initial V2 portfolio pass:
 - the remaining 17 pure-push rows still time out under a 30s board budget,
 - shared context and macros increased node throughput on the remaining failures,
   but did not solve additional rows in the latest pure-push run,
+- V2.5 policy ranking then solved `20260830 Time Capsule` with
+  `policy_rank_discrepancy`, bringing pure push to `325/341`,
+- the X-aware frozen-piece pruning pass is active and reduces some remaining
+  search trees, but the benchmark remains `325/341` under the same 30s workflow,
 - beam fallback is wired in the benchmark but cannot run in the current local
   environment until `torch` is installed.
 
@@ -36,6 +51,13 @@ Current command set:
 ```bash
 python3 -m unittest tests.test_push_solver tests.test_solver_service
 python3 -m solver.push_solver.debug_oracle_rank --failed-only
+python3 -m solver.push_solver.training_export \
+  --model-out solver/push_solver/linear_push_ranker_v1.json \
+  --epochs 20 --learning-rate 0.12 \
+  --board-id 20250928 --board-id 20251005 --board-id 20251116 \
+  --board-id 20251221 --board-id 20260208 --board-id 20260220 \
+  --board-id 20260301 --board-id 20260524 --board-id 20260614 \
+  --board-id 20260627 --board-id 20260802 --board-id 20260830
 python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
   --only-failed --timeout-seconds 30 --max-nodes 500000 --workers 6
 python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \

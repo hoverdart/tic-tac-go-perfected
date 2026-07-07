@@ -16,16 +16,26 @@ Important practical details:
 - pair deadlock pruning is conservative: it only rejects an O-pair when both
   O pieces cannot reach any possible line assignment even under wall-only
   over-approximation,
+- the deadlock layer is now X-aware in a conservative way: only pieces proven
+  frozen by walls, edges, and already-proven frozen pieces become permanent
+  blockers; frozen Os are allowed when they can still serve as final line
+  anchors,
 - batch oracle diagnostics now separate local-ordering problems from global
   search-commitment problems.
+- V2.5 adds a small JSON linear ranker trained from known push-solution paths.
+  The ranker scores already-legal successors only; it cannot create moves,
+  prune states, or bypass verification.
 
-The most recent pure-push hard-tail run still leaves 17 of 341 benchmark rows
-unsolved under 30 seconds. Oracle diagnostics show many known-solution pushes
-remain locally near the top, so the next classical work is not another single
-priority constant; it is stronger global commitment, better macros, and/or a
-learned push ranker. The production coverage path remains a verified portfolio
-with optional heuristic-CNN beam fallback where the dependency stack is
-available.
+The most recent pure-push hard-tail run solves 325 of 341 benchmark rows under
+the current 30-second benchmark workflow. V2.5 policy ranking solved
+`20260830 Time Capsule`; the first X-aware frozen-piece pruning pass reduced
+some remaining search trees but did not solve another row under 30 seconds.
+Oracle diagnostics still show many known-solution pushes are locally near the
+top, so the next classical work is stronger global commitment, deeper safe
+deadlock patterns, and better multi-step clearing macros rather than another
+single priority constant. The production coverage path remains a verified
+portfolio with optional heuristic-CNN beam fallback where the dependency stack
+is available.
 
 ## Executive Summary
 
