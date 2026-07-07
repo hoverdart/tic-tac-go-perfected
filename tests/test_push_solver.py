@@ -459,6 +459,25 @@ class PushSolverTest(unittest.TestCase):
         self.assertTrue(result.solved)
         self.assertTrue(verification.ok, verification.error)
 
+    def test_portfolio_includes_line_committed_strategies(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+        configs = core._portfolio_configs(2.0, context=context)
+        line_configs = [
+            config
+            for config, _fraction in configs
+            if config.name.startswith("line_commit_")
+        ]
+
+        self.assertGreaterEqual(len(line_configs), 1)
+        self.assertTrue(all(config.committed_plan is not None for config in line_configs))
+        self.assertTrue(all(config.relevance_filter for config in line_configs))
+
     def test_default_rank_policy_scores_legal_child_features(self):
         board = [
             ["", "", "", ""],
@@ -482,6 +501,8 @@ class PushSolverTest(unittest.TestCase):
 
         self.assertIsNotNone(policy)
         self.assertIsInstance(policy.score(features), float)
+        self.assertIsInstance(policy.raw_score(features), float)
+        self.assertIsInstance(policy.value(features), float)
 
     def test_portfolio_short_circuits_initial_x_loss(self):
         result = solve(

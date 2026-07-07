@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import sys
 from collections import defaultdict
@@ -125,7 +126,9 @@ def examples_for_solution(
     static, start_state, _normalized, initial_player = core.parse_board(board)
     context = core._build_search_context(static, start_state, initial_player)
     examples: list[dict[str, Any]] = []
-    for depth, (state, oracle_push) in enumerate(push_path(board, moves)):
+    path = push_path(board, moves)
+    path_length = len(path)
+    for depth, (state, oracle_push) in enumerate(path):
         ensure_context_state(context, state)
         siblings = list(core._successors_for(context, state))
         oracle_key = (oracle_push.piece, oracle_push.cell, oracle_push.move)
@@ -145,11 +148,13 @@ def examples_for_solution(
             features["sibling_rank"] = rank / max(1, len(siblings))
             features["sibling_count"] = len(siblings) / 32.0
             label = 1 if (push.piece, push.cell, push.move) == oracle_key else 0
+            remaining_pushes = path_length - depth - 1 if label else None
             examples.append(
                 {
                     "board_id": board_id,
                     "depth": depth,
                     "label": label,
+                    "remaining_pushes": remaining_pushes,
                     "push": {
                         "piece": push.piece,
                         "cell": push.cell,
@@ -172,6 +177,14 @@ def grouped_examples(examples: list[dict[str, Any]]) -> list[list[dict[str, Any]
 
 def dot(weights: dict[str, float], features: dict[str, float]) -> float:
     return sum(weights.get(name, 0.0) * value for name, value in features.items())
+
+
+def finite_features(features: dict[str, float]) -> dict[str, float]:
+    return {
+        name: float(value)
+        for name, value in features.items()
+        if math.isfinite(float(value))
+    }
 
 
 def train_pairwise_ranker(
@@ -206,6 +219,42 @@ def train_pairwise_ranker(
                 if update:
                     weights[name] = weights.get(name, 0.0) + update
     return weights
+
+
+def train_value_head(
+    examples: list[dict[str, Any]],
+    *,
+    epochs: int,
+    learning_rate: float,
+    seed: int,
+) -> tuple[dict[str, float], float, float]:
+    rng = random.Random(seed)
+    positives = [
+        example
+        for example in examples
+        if example.get("label") and example.get("remaining_pushes") is not None
+    ]
+    if not positives:
+        return {}, 0.0, 1.0
+    target_scale = max(1.0, max(float(example["remaining_pushes"]) for example in positives))
+    weights: dict[str, float] = {}
+    intercept = 0.0
+    for _epoch in range(epochs):
+        rng.shuffle(positives)
+        for example in positives:
+            features = finite_features(example["features"])
+            target = float(example["remaining_pushes"]) / target_scale
+            prediction = intercept + dot(weights, features)
+            error = max(-2.0, min(2.0, prediction - target))
+            intercept -= learning_rate * error * 0.05
+            for name, value in features.items():
+                update = learning_rate * error * value
+                if update:
+                    weights[name] = max(
+                        -5.0,
+                        min(5.0, (weights.get(name, 0.0) * 0.999) - update),
+                    )
+    return weights, intercept, target_scale
 
 
 def build_examples(
@@ -277,13 +326,24 @@ def main() -> int:
         learning_rate=args.learning_rate,
         seed=args.seed,
     )
+    value_weights, value_intercept, value_target_scale = train_value_head(
+        examples,
+        epochs=args.epochs,
+        learning_rate=args.learning_rate * 0.25,
+        seed=args.seed + 17,
+    )
     payload = {
-        "name": "linear_push_ranker_v1",
+        "name": "linear_push_policy_value_v1",
         "intercept": 0.0,
+        "value_intercept": value_intercept,
+        "value_target_scale": value_target_scale,
+        "value_weight": 1.25,
         "feature_count": len(weights),
+        "value_feature_count": len(value_weights),
         "example_count": len(examples),
         "group_count": len(grouped_examples(examples)),
         "weights": dict(sorted(weights.items())),
+        "value_weights": dict(sorted(value_weights.items())),
     }
     args.model_out.parent.mkdir(parents=True, exist_ok=True)
     args.model_out.write_text(
