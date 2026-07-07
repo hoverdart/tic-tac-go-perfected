@@ -143,6 +143,13 @@ class SearchStrategyConfig:
     committed_plan: LinePlan | None = None
     commitment_bias_scale: float = 0.0
     relevance_filter: bool = False
+    beam_width: int = 128
+    beam_max_depth: int = 90
+    beam_plan_limit: int = 24
+    beam_novelty_per_signature: int = 2
+    beam_escape_band: int = 8
+    beam_restart_widths: tuple[int, ...] = (48, 96, 160, 256)
+    beam_restart_depths: tuple[int, ...] = (60, 90, 120, 160)
 
 
 @dataclass

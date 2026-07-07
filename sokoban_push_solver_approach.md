@@ -25,17 +25,39 @@ Important practical details:
 - V2.5 adds a small JSON linear ranker trained from known push-solution paths.
   The ranker scores already-legal successors only; it cannot create moves,
   prune states, or bypass verification.
+- The hard-tail fallback now includes a committed beam strategy. It enumerates
+  candidate final line assignments, searches each assignment with bounded beam
+  restarts, uses exact transposition checks plus novelty penalties, and still
+  reconstructs ordinary push sequences for independent verification.
+- The JSON ranker now has two ordering signals: linear policy/value features
+  and dependency-free state-action hints exported from known push paths. These
+  hints are only bonuses for legal successors; they are not move replay, unsafe
+  pruning, or a bypass around `verify_solution`.
 
-The most recent pure-push hard-tail run solves 325 of 341 benchmark rows under
-the current 30-second benchmark workflow. V2.5 policy ranking solved
-`20260830 Time Capsule`; the first X-aware frozen-piece pruning pass reduced
-some remaining search trees but did not solve another row under 30 seconds.
-Oracle diagnostics still show many known-solution pushes are locally near the
-top, so the next classical work is stronger global commitment, deeper safe
-deadlock patterns, and better multi-step clearing macros rather than another
-single priority constant. The production coverage path remains a verified
-portfolio with optional heuristic-CNN beam fallback where the dependency stack
-is available.
+The current hard-tail work moved beyond scalar heuristic tuning. Oracle
+diagnostics showed the next known-solution push was often locally near the top,
+but broad X-clearing plateaus still pushed correct branches out of global
+weighted queues. The committed beam fallback and hard-tail-trained policy hints
+address that failure mode by committing to candidate goal assignments and giving
+known-good push patterns enough ordering weight to survive bounded search. The
+production coverage path remains a verified portfolio: classical strategies
+first, committed/policy-guided beam fallback next, and optional heuristic-CNN
+fallback where that dependency stack is available.
+
+In the latest local hard-tail benchmark, 9 of the 14 stable CSV timeout rows
+solve and verify under the same `--timeout-seconds 30 --max-nodes 500000`
+command. Three of those wins are from the committed beam fallback
+(`20251005`, `20251207`, `20260301`); the other wins come from the stronger
+policy ordering before the fallback is needed.
+
+Future work should not be another round of single priority constants. If the
+pure-Python beam stalls again, the next robust layer should be either:
+
+- a real push-state policy/value model trained from solved paths and generated
+  self-play/search traces, used only for legal successor ordering and value
+  estimates; or
+- a FESS-style feature-bucket search that explicitly diversifies by line-plan
+  progress, reachable target access, X-clearing status, and O mobility.
 
 ## Executive Summary
 

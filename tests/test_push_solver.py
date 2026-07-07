@@ -20,6 +20,7 @@ from solver.push_solver.core import (
 from solver.push_solver.verify import verify_solution
 from solver.push_solver.policy_features import features_for_child
 from solver.push_solver.rank_policy import default_policy
+from solver.push_solver.verify import VerificationResult
 
 
 class PushSolverTest(unittest.TestCase):
@@ -459,6 +460,71 @@ class PushSolverTest(unittest.TestCase):
         self.assertTrue(result.solved)
         self.assertTrue(verification.ok, verification.error)
 
+    def test_committed_beam_strategy_returns_verified_moves(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+
+        result = core._run_strategy(
+            context,
+            config=SearchStrategyConfig(
+                name="committed_beam",
+                kind="committed_beam",
+                beam_restart_widths=(8,),
+                beam_restart_depths=(8,),
+                beam_plan_limit=4,
+            ),
+            max_nodes=1_000,
+            deadline=None,
+        )
+        verification = verify_solution(board, result.moves)
+
+        self.assertTrue(result.solved)
+        self.assertEqual(result.strategy, "committed_beam")
+        self.assertTrue(verification.ok, verification.error)
+
+    def test_committed_beam_honors_node_cap(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+
+        result = core._run_strategy(
+            context,
+            config=SearchStrategyConfig(name="committed_beam", kind="committed_beam"),
+            max_nodes=0,
+            deadline=None,
+        )
+
+        self.assertFalse(result.solved)
+        self.assertEqual(result.failure_reason, "node_cap")
+
+    def test_committed_beam_honors_timeout(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+
+        result = core._run_strategy(
+            context,
+            config=SearchStrategyConfig(name="committed_beam", kind="committed_beam"),
+            max_nodes=1_000,
+            deadline=0.0,
+        )
+
+        self.assertFalse(result.solved)
+        self.assertEqual(result.failure_reason, "timeout")
+
     def test_portfolio_includes_line_committed_strategies(self):
         board = [
             ["", "", "", ""],
@@ -477,6 +543,50 @@ class PushSolverTest(unittest.TestCase):
         self.assertGreaterEqual(len(line_configs), 1)
         self.assertTrue(all(config.committed_plan is not None for config in line_configs))
         self.assertTrue(all(config.relevance_filter for config in line_configs))
+
+    def test_portfolio_ends_with_committed_beam_fallback(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+        configs = core._portfolio_configs(2.0, context=context)
+
+        self.assertEqual(configs[-1][0].name, "committed_beam")
+        self.assertEqual(configs[-1][0].kind, "committed_beam")
+
+    def test_portfolio_rejects_invalid_verified_solution(self):
+        from solver.push_solver import portfolio
+
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+
+        def invalid_strategy(*_args, **_kwargs):
+            return core.PushSolveResult(
+                solved=True,
+                moves="",
+                final_board=None,
+                pushes=(),
+                nodes_expanded=1,
+                peak_closed_size=1,
+                elapsed_ms=0.0,
+                failure_reason=None,
+                strategy="fake",
+            )
+
+        with patch.object(portfolio, "_run_strategy", side_effect=invalid_strategy), patch(
+            "solver.push_solver.verify.verify_solution",
+            return_value=VerificationResult(ok=False, final_board=None, error="bad"),
+        ):
+            result = solve(board, max_nodes=20, timeout_seconds=1.0)
+
+        self.assertFalse(result.solved)
+        self.assertIn("invalid_solution", result.attempts[-1].failure_reason)
 
     def test_default_rank_policy_scores_legal_child_features(self):
         board = [

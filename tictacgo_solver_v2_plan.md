@@ -10,6 +10,9 @@ Implemented:
 - deterministic classical portfolio: `v1_weighted`, `greedy_low_g`,
   `greedy_bias`, `macro_greedy`, `rank_discrepancy`, and
   `policy_rank_discrepancy`,
+- committed beam fallback: final-assignment line plans are enumerated, then
+  bounded beam restarts search those assignments with exact transposition
+  filtering and novelty penalties,
 - shared portfolio search context for region, heuristic, line-plan,
   O-push-count, and successor caches,
 - safe O-pair deadlock pruning using wall-only push reachability,
@@ -21,6 +24,9 @@ Implemented:
   ordinary verified pushes,
 - dependency-free V2.5 linear push ranker:
   `solver/push_solver/linear_push_ranker_v1.json`,
+- hard-tail state-action policy hints exported into the same JSON artifact;
+  hints only reorder legal successors and all returned move strings still go
+  through `verify_solution`,
 - policy feature extraction and rank-policy inference through
   `policy_features.py` and `rank_policy.py`,
 - training/export command:
@@ -43,6 +49,12 @@ Measured after the initial V2 portfolio pass:
   `policy_rank_discrepancy`, bringing pure push to `325/341`,
 - the X-aware frozen-piece pruning pass is active and reduces some remaining
   search trees, but the benchmark remains `325/341` under the same 30s workflow,
+- committed beam plus hard-tail state-action hints solves `20260802 Cold Feet`
+  through the public `solve(...)` path in a local 30-second run, returning a
+  verified 17-push / 47-keystroke solution,
+- the fixed 16-board hard-tail rerun now solves 9 of the 14 stable CSV timeout
+  rows, with committed-beam wins on `20251005 Strange Fit`,
+  `20251207 Thread the Needle`, and `20260301 Immovable Objects`,
 - beam fallback is wired in the benchmark but cannot run in the current local
   environment until `torch` is installed.
 
@@ -53,11 +65,14 @@ python3 -m unittest tests.test_push_solver tests.test_solver_service
 python3 -m solver.push_solver.debug_oracle_rank --failed-only
 python3 -m solver.push_solver.training_export \
   --model-out solver/push_solver/linear_push_ranker_v1.json \
-  --epochs 20 --learning-rate 0.12 \
+  --epochs 30 --learning-rate 0.12 \
+  --hard-tail-boost 4 --value-weight 1.5 --state-action-bonus 80 \
   --board-id 20250928 --board-id 20251005 --board-id 20251116 \
   --board-id 20251221 --board-id 20260208 --board-id 20260220 \
   --board-id 20260301 --board-id 20260524 --board-id 20260614 \
   --board-id 20260627 --board-id 20260802 --board-id 20260830
+python3 -m solver.push_solver.benchmark_hard_tail \
+  --run-solver --timeout-seconds 30 --max-nodes 500000 --weight 2.0
 python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
   --only-failed --timeout-seconds 30 --max-nodes 500000 --workers 6
 python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \

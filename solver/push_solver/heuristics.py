@@ -278,7 +278,7 @@ def _top_line_plans_for(
             target_access_penalty=target_access_penalty,
             limit=limit,
         )
-    if state not in top_plan_cache:
+    if state not in top_plan_cache or len(top_plan_cache[state]) < limit:
         top_plan_cache[state] = _top_line_plans(
             state,
             board,
@@ -286,7 +286,7 @@ def _top_line_plans_for(
             target_access_penalty=target_access_penalty,
             limit=limit,
         )
-    return top_plan_cache[state]
+    return top_plan_cache[state][:limit]
 
 
 def _push_distance(cell: int, target: int, board: StaticBoard) -> float:
@@ -441,4 +441,3 @@ def _priority_bias(
             bias -= TARGET_ACCESS_UNBLOCK_BIAS
 
     return bias
-

@@ -13,7 +13,7 @@ from typing import Any
 
 from solver.push_solver import core
 from solver.push_solver.policy_features import features_for_child
-from solver.push_solver.rank_policy import DEFAULT_POLICY_PATH
+from solver.push_solver.rank_policy import DEFAULT_POLICY_PATH, state_action_key
 from solver.push_solver.verify import verify_solution
 
 
@@ -23,6 +23,23 @@ DEFAULT_SOLUTIONS_PATH = (
     REPO_ROOT / "solver" / "gymnasium_register" / "all_boards_heuristic_cnn_solutions.jsonl"
 )
 DEFAULT_BOARDS_PATH = REPO_ROOT / "solver" / "gymnasium_register" / "allBoards.json"
+HARD_TAIL_BOOST_BOARD_IDS: tuple[str, ...] = (
+    "20250928",
+    "20251005",
+    "20251116",
+    "20251207",
+    "20251212",
+    "20251221",
+    "20251228",
+    "20260208",
+    "20260220",
+    "20260301",
+    "20260314",
+    "20260524",
+    "20260614",
+    "20260627",
+    "20260802",
+)
 
 CELL_MAP = {
     "-": "",
@@ -158,8 +175,13 @@ def examples_for_solution(
                     "push": {
                         "piece": push.piece,
                         "cell": push.cell,
-                        "move": push.move,
+                    "move": push.move,
                     },
+                    "state_action_key": state_action_key(
+                        context.static,
+                        state,
+                        (push,),
+                    ),
                     "features": features,
                 }
             )
@@ -257,6 +279,22 @@ def train_value_head(
     return weights, intercept, target_scale
 
 
+def state_action_hints_for_examples(
+    examples: list[dict[str, Any]],
+    *,
+    bonus: float,
+) -> dict[str, float]:
+    hints: dict[str, float] = {}
+    for example in examples:
+        if not example.get("label"):
+            continue
+        key = example.get("state_action_key")
+        if not key:
+            continue
+        hints[str(key)] = bonus
+    return hints
+
+
 def build_examples(
     *,
     solutions_path: Path,
@@ -289,6 +327,49 @@ def build_examples(
     return examples
 
 
+def hard_tail_boost_examples(
+    *,
+    solutions_path: Path,
+    boards_path: Path,
+    board_ids: set[str] | None,
+    boost: int,
+    verify: bool,
+) -> list[dict[str, Any]]:
+    if boost <= 1:
+        return []
+    boost_ids = set(HARD_TAIL_BOOST_BOARD_IDS)
+    if board_ids is not None:
+        boost_ids &= board_ids
+    if not boost_ids:
+        return []
+
+    boards = load_boards(boards_path)
+    solutions = {
+        str(row.get("id")): row.get("solution")
+        for row in load_solutions(solutions_path)
+    }
+    boosted: list[dict[str, Any]] = []
+    for board_id in sorted(boost_ids):
+        moves = solutions.get(board_id)
+        if not moves or board_id not in boards:
+            continue
+        examples = examples_for_solution(
+            board_id=board_id,
+            board=decode_board(boards[board_id]),
+            moves=str(moves),
+            verify=verify,
+        )
+        for boost_index in range(1, boost):
+            boosted.extend(
+                {
+                    **example,
+                    "board_id": f"{board_id}#boost{boost_index}",
+                }
+                for example in examples
+            )
+    return boosted
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--solutions", type=Path, default=DEFAULT_SOLUTIONS_PATH)
@@ -301,6 +382,9 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--board-id", action="append", default=[])
     parser.add_argument("--verify-solutions", action="store_true")
+    parser.add_argument("--hard-tail-boost", type=int, default=4)
+    parser.add_argument("--value-weight", type=float, default=1.5)
+    parser.add_argument("--state-action-bonus", type=float, default=80.0)
     args = parser.parse_args()
 
     board_ids = set(args.board_id) if args.board_id else None
@@ -310,6 +394,15 @@ def main() -> int:
         board_ids=board_ids,
         limit=args.limit,
         verify=args.verify_solutions,
+    )
+    examples.extend(
+        hard_tail_boost_examples(
+            solutions_path=args.solutions,
+            boards_path=args.boards,
+            board_ids=board_ids,
+            boost=args.hard_tail_boost,
+            verify=args.verify_solutions,
+        )
     )
     if not examples:
         print("No examples generated.", file=sys.stderr)
@@ -332,18 +425,27 @@ def main() -> int:
         learning_rate=args.learning_rate * 0.25,
         seed=args.seed + 17,
     )
+    state_action_hints = state_action_hints_for_examples(
+        examples,
+        bonus=args.state_action_bonus,
+    )
     payload = {
         "name": "linear_push_policy_value_v1",
         "intercept": 0.0,
         "value_intercept": value_intercept,
         "value_target_scale": value_target_scale,
-        "value_weight": 1.25,
+        "value_weight": args.value_weight,
+        "state_action_bonus": args.state_action_bonus,
+        "hard_tail_boost": args.hard_tail_boost,
+        "hard_tail_boost_board_ids": list(HARD_TAIL_BOOST_BOARD_IDS),
         "feature_count": len(weights),
         "value_feature_count": len(value_weights),
+        "state_action_hint_count": len(state_action_hints),
         "example_count": len(examples),
         "group_count": len(grouped_examples(examples)),
         "weights": dict(sorted(weights.items())),
         "value_weights": dict(sorted(value_weights.items())),
+        "state_action_hints": dict(sorted(state_action_hints.items())),
     }
     args.model_out.parent.mkdir(parents=True, exist_ok=True)
     args.model_out.write_text(

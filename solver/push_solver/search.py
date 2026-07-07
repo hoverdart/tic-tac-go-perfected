@@ -6,6 +6,7 @@ import heapq
 import itertools
 import math
 import time
+from collections import defaultdict
 
 from solver.push_solver.deadlocks import is_deadlock, is_x_loss
 from solver.push_solver.heuristics import (
@@ -331,7 +332,7 @@ def _policy_score_for(
         hand_bias,
         push_cost,
     )
-    score = policy.score(features)
+    score = policy.score(features) + policy.action_bonus(context.static, parent, pushes)
     context.policy_score_cache[key] = score
     return score
 
@@ -449,6 +450,35 @@ def _is_relevant_to_commitment(
     if child_h <= parent_h:
         return True
     return False
+
+
+def _important_cells_for_plan(plan: LinePlan) -> frozenset[int]:
+    return frozenset(
+        set(plan.line)
+        | set(plan.route_cells)
+        | set(plan.stand_cells)
+        | {plan.player_target}
+    )
+
+
+def _beam_signature(
+    *,
+    plan: LinePlan,
+    important_cells: frozenset[int],
+    child: State,
+    child_region: frozenset[int],
+    child_h: float,
+) -> tuple[frozenset[int], frozenset[int], bool, int]:
+    if math.isfinite(child_h):
+        h_bucket = int(child_h // 2)
+    else:
+        h_bucket = 1_000_000
+    return (
+        child.os,
+        frozenset(child.xs & important_cells),
+        plan.player_target in child_region,
+        h_bucket,
+    )
 
 
 def _strategy_children_for(
@@ -577,6 +607,14 @@ def _run_strategy(
     max_nodes: int | None,
     deadline: float | None,
 ) -> PushSolveResult:
+    if config.kind == "committed_beam":
+        return _run_committed_beam_strategy(
+            context,
+            config=config,
+            max_nodes=max_nodes,
+            deadline=deadline,
+        )
+
     started = time.perf_counter()
     static = context.static
     start_state = context.start_state
@@ -715,5 +753,248 @@ def _run_strategy(
         peak_closed_size=peak_closed_size,
         started=started,
         failure_reason="exhausted",
+        strategy=config.name,
+    )
+
+
+def _run_committed_beam_strategy(
+    context: SearchContext,
+    *,
+    config: SearchStrategyConfig,
+    max_nodes: int | None,
+    deadline: float | None,
+) -> PushSolveResult:
+    started = time.perf_counter()
+    static = context.static
+    start_state = context.start_state
+    initial_player = context.initial_player
+    start_region = context.region_cache[start_state]
+    plans = _top_line_plans_for(
+        start_state,
+        static,
+        region=start_region,
+        target_access_penalty=context.target_access_penalty,
+        top_plan_cache=context.top_plan_cache,
+        limit=config.beam_plan_limit,
+    )
+    if not plans:
+        return _result(
+            solved=False,
+            moves=None,
+            final_board=None,
+            pushes=(),
+            nodes_expanded=0,
+            peak_closed_size=1,
+            started=started,
+            failure_reason="no_line_plans",
+            strategy=config.name,
+        )
+
+    nodes_expanded = 0
+    peak_closed_size = 1
+    counter = itertools.count()
+    schedules = tuple(
+        zip(config.beam_restart_widths, config.beam_restart_depths, strict=False)
+    )
+    if not schedules:
+        schedules = ((config.beam_width, config.beam_max_depth),)
+
+    for width, depth_limit in schedules:
+        width = max(1, width)
+        depth_limit = max(1, depth_limit)
+        for plan in plans:
+            parents: dict[State, Parent] = {}
+            best_cost_by_state: dict[State, int] = {start_state: 0}
+            important_cells = _important_cells_for_plan(plan)
+            frontier: list[tuple[float, int, State]] = [(0.0, 0, start_state)]
+            for _depth in range(depth_limit):
+                if _timed_out(deadline):
+                    return _result(
+                        solved=False,
+                        moves=None,
+                        final_board=None,
+                        pushes=(),
+                        nodes_expanded=nodes_expanded,
+                        peak_closed_size=peak_closed_size,
+                        started=started,
+                        failure_reason="timeout",
+                        strategy=config.name,
+                    )
+                if max_nodes is not None and nodes_expanded >= max_nodes:
+                    return _result(
+                        solved=False,
+                        moves=None,
+                        final_board=None,
+                        pushes=(),
+                        nodes_expanded=nodes_expanded,
+                        peak_closed_size=peak_closed_size,
+                        started=started,
+                        failure_reason="node_cap",
+                        strategy=config.name,
+                    )
+                if not frontier:
+                    break
+
+                raw_candidates: list[
+                    tuple[
+                        float,
+                        int,
+                        tuple[frozenset[int], frozenset[int], bool, int],
+                        State,
+                        tuple[Push, ...],
+                        State,
+                        frozenset[int],
+                        float,
+                        int,
+                    ]
+                ] = []
+                for _score, cost, current in frontier:
+                    if max_nodes is not None and nodes_expanded >= max_nodes:
+                        break
+                    nodes_expanded += 1
+                    region = context.region_cache[current]
+                    current_goal = goal_info(current, static, region=region)
+                    if current_goal is not None:
+                        pushes = _reconstruct_pushes(parents, current)
+                        moves, final_board = reconstruct_moves(
+                            pushes,
+                            current_goal,
+                            static,
+                            start_state,
+                            initial_player,
+                        )
+                        return _result(
+                            solved=True,
+                            moves=moves,
+                            final_board=final_board,
+                            pushes=pushes,
+                            nodes_expanded=nodes_expanded,
+                            peak_closed_size=peak_closed_size,
+                            started=started,
+                            failure_reason=None,
+                            strategy=config.name,
+                        )
+
+                    child_items = _strategy_children_for(
+                        context,
+                        current,
+                        use_macros=True,
+                        bias_scale=config.bias_scale,
+                        policy_weight=config.policy_weight,
+                        committed_plan=plan,
+                        commitment_bias_scale=config.commitment_bias_scale,
+                        relevance_filter=True,
+                    )
+                    for pushes, nxt, child_region, child_h, bias, push_cost, policy_score in child_items:
+                        next_cost = cost + push_cost
+                        if next_cost >= best_cost_by_state.get(nxt, 1_000_000_000):
+                            continue
+                        if nxt not in context.region_cache:
+                            context.region_cache[nxt] = child_region
+                            context.h_cache[nxt] = child_h
+                        signature = _beam_signature(
+                            plan=plan,
+                            important_cells=important_cells,
+                            child=nxt,
+                            child_region=child_region,
+                            child_h=child_h,
+                        )
+                        base_score = (
+                            child_h
+                            + (1.20 * bias)
+                            - (2.00 * policy_score)
+                            + (0.08 * push_cost)
+                        )
+                        raw_candidates.append(
+                            (
+                                base_score,
+                                next(counter),
+                                signature,
+                                current,
+                                pushes,
+                                nxt,
+                                child_region,
+                                child_h,
+                                next_cost,
+                            )
+                        )
+
+                raw_candidates.sort(key=lambda item: (item[0], item[1]))
+                generated_novelty_counts: dict[
+                    tuple[frozenset[int], frozenset[int], bool, int],
+                    int,
+                ] = defaultdict(int)
+                scored_candidates: list[
+                    tuple[float, int, State, tuple[Push, ...], State, frozenset[int], int]
+                ] = []
+                for _candidate_index, (
+                    base_score,
+                    tie,
+                    signature,
+                    current,
+                    pushes,
+                    nxt,
+                    child_region,
+                    _child_h,
+                    next_cost,
+                ) in enumerate(raw_candidates):
+                    if next_cost >= best_cost_by_state.get(nxt, 1_000_000_000):
+                        continue
+                    novelty_count = generated_novelty_counts[signature]
+                    generated_novelty_counts[signature] += 1
+                    novelty_overflow = max(
+                        0,
+                        novelty_count - config.beam_novelty_per_signature + 1,
+                    )
+                    score = base_score + (0.25 * novelty_count) + (0.75 * novelty_overflow)
+                    scored_candidates.append(
+                        (score, tie, current, pushes, nxt, child_region, next_cost)
+                    )
+
+                scored_candidates.sort(key=lambda item: (item[0], item[1]))
+                next_frontier: list[tuple[float, int, State]] = []
+                for score, _tie, current, pushes, nxt, child_region, next_cost in scored_candidates:
+                    if len(next_frontier) >= width:
+                        break
+                    if next_cost >= best_cost_by_state.get(nxt, 1_000_000_000):
+                        continue
+                    best_cost_by_state[nxt] = next_cost
+                    parents[nxt] = Parent(previous=current, pushes=pushes)
+                    child_goal = goal_info(nxt, static, region=child_region)
+                    if child_goal is not None:
+                        reconstructed_pushes = _reconstruct_pushes(parents, nxt)
+                        moves, final_board = reconstruct_moves(
+                            reconstructed_pushes,
+                            child_goal,
+                            static,
+                            start_state,
+                            initial_player,
+                        )
+                        return _result(
+                            solved=True,
+                            moves=moves,
+                            final_board=final_board,
+                            pushes=reconstructed_pushes,
+                            nodes_expanded=nodes_expanded,
+                            peak_closed_size=max(peak_closed_size, len(best_cost_by_state)),
+                            started=started,
+                            failure_reason=None,
+                            strategy=config.name,
+                        )
+                    next_frontier.append((score, next_cost, nxt))
+
+                peak_closed_size = max(peak_closed_size, len(best_cost_by_state))
+                next_frontier.sort(key=lambda item: item[0])
+                frontier = next_frontier[:width]
+
+    return _result(
+        solved=False,
+        moves=None,
+        final_board=None,
+        pushes=(),
+        nodes_expanded=nodes_expanded,
+        peak_closed_size=peak_closed_size,
+        started=started,
+        failure_reason="beam_exhausted",
         strategy=config.name,
     )

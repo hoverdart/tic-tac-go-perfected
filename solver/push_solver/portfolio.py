@@ -143,7 +143,7 @@ def _line_committed_configs(
                 commitment_bias_scale=1.0,
                 relevance_filter=True,
             ),
-            0.07,
+            0.03,
         )
         for index, plan in enumerate(plans, start=1)
     )
@@ -167,7 +167,7 @@ def _portfolio_configs(
                 g_weight=1.0,
                 bias_scale=1.0,
             ),
-            0.30,
+            0.18,
         ),
         (
             SearchStrategyConfig(
@@ -177,7 +177,7 @@ def _portfolio_configs(
                 g_weight=0.25,
                 bias_scale=1.0,
             ),
-            0.15,
+            0.08,
         ),
         (
             SearchStrategyConfig(
@@ -187,7 +187,7 @@ def _portfolio_configs(
                 g_weight=0.15,
                 bias_scale=1.75,
             ),
-            0.15,
+            0.08,
         ),
         *committed,
         (
@@ -199,7 +199,7 @@ def _portfolio_configs(
                 bias_scale=1.50,
                 use_macros=True,
             ),
-            0.20,
+            0.08,
         ),
         (
             SearchStrategyConfig(
@@ -209,7 +209,7 @@ def _portfolio_configs(
                 g_weight=1.0,
                 bias_scale=1.25,
             ),
-            0.45,
+            0.15,
         ),
         (
             SearchStrategyConfig(
@@ -220,6 +220,17 @@ def _portfolio_configs(
                 bias_scale=1.0,
                 use_macros=True,
                 policy_weight=2.00,
+            ),
+            0.15,
+        ),
+        (
+            SearchStrategyConfig(
+                name="committed_beam",
+                kind="committed_beam",
+                bias_scale=1.20,
+                policy_weight=2.00,
+                commitment_bias_scale=1.50,
+                relevance_filter=True,
             ),
             1.00,
         ),
