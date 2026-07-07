@@ -25,15 +25,15 @@ class StaticBoard:
     floor: frozenset[int]
     win_lines: tuple[tuple[int, int, int], ...]
     dead_cells_for_o: frozenset[int]
-    push_distances: Mapping[int, Mapping[int, int]]
+    push_distances: Mapping[tuple[int, int], int]
     push_predecessors: Mapping[int, Mapping[int, int]]
     push_stand_cells: Mapping[int, Mapping[int, int]]
     push_routes: Mapping[int, Mapping[int, tuple[int, ...]]]
     push_stand_routes: Mapping[int, Mapping[int, tuple[int, ...]]]
     adjacency: tuple[tuple[int, ...], ...]
     push_transitions: tuple[tuple[tuple[str, int, int], ...], ...]
-    push_route_sets: Mapping[int, Mapping[int, frozenset[int]]]
-    push_stand_route_sets: Mapping[int, Mapping[int, frozenset[int]]]
+    push_route_sets: Mapping[tuple[int, int], frozenset[int]]
+    push_stand_route_sets: Mapping[tuple[int, int], frozenset[int]]
     reachable_o_pairs: frozenset[tuple[int, int]]
 
     def in_bounds(self, row: int, col: int) -> bool:
@@ -158,6 +158,9 @@ class SearchContext:
     o_push_count_cache: dict[State, int]
     successor_cache: dict[State, tuple[tuple[Push, State, frozenset[int], float, float], ...]]
     policy_score_cache: dict[tuple[State, tuple[Push, ...], State], float]
+    line_candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple]
+    push_reach_cache: dict[tuple[int, int, frozenset[int]], bool]
+    floor_reach_cache: dict[tuple[int, int, frozenset[int]], bool]
 
 
 StrategyChild = tuple[tuple[Push, ...], State, frozenset[int], float, float, int, float]

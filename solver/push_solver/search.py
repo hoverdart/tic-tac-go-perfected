@@ -71,6 +71,9 @@ def _build_search_context(
     plan_cache: dict[State, LinePlan | None] = {}
     top_plan_cache: dict[State, tuple[LinePlan, ...]] = {}
     o_push_count_cache: dict[State, int] = {}
+    line_candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple] = {}
+    push_reach_cache: dict[tuple[int, int, frozenset[int]], bool] = {}
+    floor_reach_cache: dict[tuple[int, int, frozenset[int]], bool] = {}
     start_o_push_count = _legal_o_push_count_for(
         start_state,
         static,
@@ -89,6 +92,7 @@ def _build_search_context(
         region=start_region,
         target_access_penalty=target_access_penalty,
         top_plan_cache=top_plan_cache,
+        candidate_cache=line_candidate_cache,
     )
     start_plan = start_top_plans[0] if start_top_plans else None
     plan_cache[start_state] = start_plan
@@ -105,6 +109,9 @@ def _build_search_context(
         o_push_count_cache=o_push_count_cache,
         successor_cache={},
         policy_score_cache={},
+        line_candidate_cache=line_candidate_cache,
+        push_reach_cache=push_reach_cache,
+        floor_reach_cache=floor_reach_cache,
     )
 
 
@@ -125,6 +132,9 @@ def _successors_for(
                 plan_cache=context.plan_cache,
                 top_plan_cache=context.top_plan_cache,
                 o_push_count_cache=context.o_push_count_cache,
+                candidate_cache=context.line_candidate_cache,
+                push_reach_cache=context.push_reach_cache,
+                floor_reach_cache=context.floor_reach_cache,
             )
         )
         context.successor_cache[state] = items
@@ -151,6 +161,7 @@ def _push_items_for_piece_cell(
         region=region,
         target_access_penalty=context.target_access_penalty,
         top_plan_cache=context.top_plan_cache,
+        candidate_cache=context.line_candidate_cache,
     )
     parent_plan = parent_top_plans[0] if parent_top_plans else None
     if state not in context.plan_cache:
@@ -176,7 +187,14 @@ def _push_items_for_piece_cell(
             if is_x_loss(new_xs, static):
                 continue
 
-        if is_deadlock(new_os, new_xs, static, player=cell):
+        if is_deadlock(
+            new_os,
+            new_xs,
+            static,
+            player=cell,
+            push_reach_cache=context.push_reach_cache,
+            floor_reach_cache=context.floor_reach_cache,
+        ):
             continue
 
         next_state, next_region = _normalize_with_region(cell, new_os, new_xs, static)
@@ -197,6 +215,7 @@ def _push_items_for_piece_cell(
                 region=next_region,
                 target_access_penalty=context.target_access_penalty,
                 top_plan_cache=context.top_plan_cache,
+                candidate_cache=context.line_candidate_cache,
             )
             child_plan = child_top_plans[0] if child_top_plans else None
             if next_state not in context.plan_cache:

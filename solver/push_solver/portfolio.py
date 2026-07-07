@@ -129,6 +129,7 @@ def _line_committed_configs(
         target_access_penalty=context.target_access_penalty,
         top_plan_cache=context.top_plan_cache,
         limit=limit,
+        candidate_cache=context.line_candidate_cache,
     )[:limit]
     return tuple(
         (

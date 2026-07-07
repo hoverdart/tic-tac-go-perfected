@@ -67,6 +67,7 @@ def features_for_child(
         region=parent_region,
         target_access_penalty=context.target_access_penalty,
         top_plan_cache=context.top_plan_cache,
+        candidate_cache=context.line_candidate_cache,
     )
     child_plans = core._top_line_plans_for(
         child,
@@ -74,6 +75,7 @@ def features_for_child(
         region=child_region,
         target_access_penalty=context.target_access_penalty,
         top_plan_cache=context.top_plan_cache,
+        candidate_cache=context.line_candidate_cache,
     )
 
     parent_best = parent_plans[0] if parent_plans else None

@@ -67,12 +67,115 @@ def _occupancy_penalty(
     blockers: frozenset[int],
     board: StaticBoard,
 ) -> float:
-    base = board.push_distances.get(target, {}).get(cell, math.inf)
+    base = board.push_distances.get((target, cell), math.inf)
     if base == math.inf:
         return math.inf
-    route_set = board.push_route_sets.get(target, {}).get(cell, EMPTY_CELL_SET)
+    route_set = board.push_route_sets.get((target, cell), EMPTY_CELL_SET)
     blocking = len(blockers & route_set)
     return base + (PENALTY_PER_BLOCKING_X * blocking)
+
+
+RawLineCandidate = tuple[
+    float,
+    tuple[int, int, int],
+    int,
+    tuple[int, int],
+    tuple[tuple[int, int], tuple[int, int]],
+    int,
+    bool,
+]
+
+
+def _raw_line_candidates(
+    os: frozenset[int],
+    xs: frozenset[int],
+    board: StaticBoard,
+) -> tuple[RawLineCandidate, ...]:
+    """Region-independent line-plan candidates for a fixed (os, xs) layout.
+
+    Excludes the ``target_access_penalty`` term, which depends on the
+    player's current reachable region rather than piece positions alone.
+    """
+    if len(os) < 2:
+        return ()
+
+    o_a_cell, o_b_cell = tuple(os)[:2]
+    distances = board.push_distances
+    route_sets = board.push_route_sets
+    candidates: list[RawLineCandidate] = []
+    for line in board.win_lines:
+        x_on_line_count = sum(1 for cell in line if cell in xs)
+        line_x_penalty = X_ON_LINE_PENALTY * x_on_line_count
+        for player_target in line:
+            targets = tuple(cell for cell in line if cell != player_target)
+            if len(targets) != 2:
+                continue
+
+            player_target_has_x = player_target in xs
+            plan_penalty = line_x_penalty
+            if player_target_has_x:
+                plan_penalty += PLAYER_TARGET_X_PENALTY
+
+            target_0, target_1 = targets
+            dist_a0 = distances.get((target_0, o_a_cell))
+            dist_a1 = distances.get((target_1, o_a_cell))
+            dist_b0 = distances.get((target_0, o_b_cell))
+            dist_b1 = distances.get((target_1, o_b_cell))
+
+            if dist_a0 is not None and dist_b1 is not None:
+                route_a = route_sets.get((target_0, o_a_cell), EMPTY_CELL_SET)
+                route_b = route_sets.get((target_1, o_b_cell), EMPTY_CELL_SET)
+                blocking_a = len(xs & route_a) + (1 if o_b_cell in route_a else 0)
+                blocking_b = len(xs & route_b) + (1 if o_a_cell in route_b else 0)
+                cost_a = dist_a0 + (PENALTY_PER_BLOCKING_X * blocking_a)
+                cost_b = dist_b1 + (PENALTY_PER_BLOCKING_X * blocking_b)
+                candidates.append(
+                    (
+                        cost_a + cost_b + plan_penalty,
+                        line,
+                        player_target,
+                        targets,
+                        ((o_a_cell, target_0), (o_b_cell, target_1)),
+                        x_on_line_count,
+                        player_target_has_x,
+                    )
+                )
+
+            if dist_a1 is not None and dist_b0 is not None:
+                route_a = route_sets.get((target_1, o_a_cell), EMPTY_CELL_SET)
+                route_b = route_sets.get((target_0, o_b_cell), EMPTY_CELL_SET)
+                blocking_a = len(xs & route_a) + (1 if o_b_cell in route_a else 0)
+                blocking_b = len(xs & route_b) + (1 if o_a_cell in route_b else 0)
+                cost_a = dist_a1 + (PENALTY_PER_BLOCKING_X * blocking_a)
+                cost_b = dist_b0 + (PENALTY_PER_BLOCKING_X * blocking_b)
+                candidates.append(
+                    (
+                        cost_a + cost_b + plan_penalty,
+                        line,
+                        player_target,
+                        targets,
+                        ((o_a_cell, target_1), (o_b_cell, target_0)),
+                        x_on_line_count,
+                        player_target_has_x,
+                    )
+                )
+
+    return tuple(candidates)
+
+
+def _raw_line_candidates_for(
+    os: frozenset[int],
+    xs: frozenset[int],
+    board: StaticBoard,
+    candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple[RawLineCandidate, ...]]
+    | None = None,
+) -> tuple[RawLineCandidate, ...]:
+    if candidate_cache is None:
+        return _raw_line_candidates(os, xs, board)
+    key = (os, xs)
+    if key not in candidate_cache:
+        candidate_cache[key] = _raw_line_candidates(os, xs, board)
+    return candidate_cache[key]
 
 
 def _top_line_plans(
@@ -82,80 +185,33 @@ def _top_line_plans(
     region: frozenset[int],
     target_access_penalty: float = 0.0,
     limit: int = 8,
+    candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple[RawLineCandidate, ...]]
+    | None = None,
 ) -> tuple[LinePlan, ...]:
     if len(state.os) < 2:
         return ()
 
-    o_cells = tuple(state.os)
-    xs = state.xs
-    distances = board.push_distances
+    raw_candidates = _raw_line_candidates_for(state.os, state.xs, board, candidate_cache)
+    if not raw_candidates:
+        return ()
+
+    adjusted = [
+        (
+            base_score + target_access_penalty if player_target not in region else base_score,
+            line,
+            player_target,
+            targets,
+            o_assignment,
+            x_on_line_count,
+            player_target_has_x,
+        )
+        for base_score, line, player_target, targets, o_assignment, x_on_line_count, player_target_has_x in raw_candidates
+    ]
+    adjusted.sort(key=lambda item: item[0])
+
     route_sets = board.push_route_sets
-    candidates: list[
-        tuple[
-            float,
-            tuple[int, int, int],
-            int,
-            tuple[int, int],
-            tuple[tuple[int, int], tuple[int, int]],
-            int,
-            int,
-            int,
-            int,
-            int,
-        ]
-    ] = []
-    for line in board.win_lines:
-        x_on_line_count = sum(1 for cell in line if cell in xs)
-        line_x_penalty = X_ON_LINE_PENALTY * x_on_line_count
-        for player_target in line:
-            targets = tuple(cell for cell in line if cell != player_target)
-            if len(targets) != 2:
-                continue
-
-            plan_penalty = 0.0
-            if player_target in xs:
-                plan_penalty += PLAYER_TARGET_X_PENALTY
-            if player_target not in region:
-                plan_penalty += target_access_penalty
-            plan_penalty += line_x_penalty
-
-            assignments = (
-                (o_cells[0], targets[0], o_cells[1], targets[1]),
-                (o_cells[0], targets[1], o_cells[1], targets[0]),
-            )
-            for o_a, target_a, o_b, target_b in assignments:
-                distance_a = distances.get(target_a, {}).get(o_a)
-                distance_b = distances.get(target_b, {}).get(o_b)
-                if distance_a is None or distance_b is None:
-                    continue
-
-                route_a = route_sets.get(target_a, {}).get(o_a, EMPTY_CELL_SET)
-                route_b = route_sets.get(target_b, {}).get(o_b, EMPTY_CELL_SET)
-                blocking_a = len(xs & route_a) + (1 if o_b in route_a else 0)
-                blocking_b = len(xs & route_b) + (1 if o_a in route_b else 0)
-                cost_a = distance_a + (PENALTY_PER_BLOCKING_X * blocking_a)
-                cost_b = distance_b + (PENALTY_PER_BLOCKING_X * blocking_b)
-                o_assignment = ((o_a, target_a), (o_b, target_b))
-                score = cost_a + cost_b + plan_penalty
-
-                candidates.append(
-                    (
-                        score,
-                        line,
-                        player_target,
-                        targets,
-                        o_assignment,
-                        x_on_line_count,
-                        o_a,
-                        target_a,
-                        o_b,
-                        target_b,
-                    )
-                )
-
-    candidates.sort(key=lambda item: item[0])
-    plans: list[LinePlan] = []
     stand_route_sets = board.push_stand_route_sets
+    plans: list[LinePlan] = []
     for (
         score,
         line,
@@ -163,18 +219,16 @@ def _top_line_plans(
         targets,
         o_assignment,
         x_on_line_count,
-        o_a,
-        target_a,
-        o_b,
-        target_b,
-    ) in candidates[:limit]:
+        player_target_has_x,
+    ) in adjusted[:limit]:
+        (o_a, target_a), (o_b, target_b) = o_assignment
         route_cells = (
-            route_sets.get(target_a, {}).get(o_a, EMPTY_CELL_SET)
-            | route_sets.get(target_b, {}).get(o_b, EMPTY_CELL_SET)
+            route_sets.get((target_a, o_a), EMPTY_CELL_SET)
+            | route_sets.get((target_b, o_b), EMPTY_CELL_SET)
         )
         stand_cells = (
-            stand_route_sets.get(target_a, {}).get(o_a, EMPTY_CELL_SET)
-            | stand_route_sets.get(target_b, {}).get(o_b, EMPTY_CELL_SET)
+            stand_route_sets.get((target_a, o_a), EMPTY_CELL_SET)
+            | stand_route_sets.get((target_b, o_b), EMPTY_CELL_SET)
         )
         blocked_route_count = len(state.xs & route_cells)
         plans.append(
@@ -186,7 +240,7 @@ def _top_line_plans(
                 o_assignment=o_assignment,
                 route_cells=route_cells,
                 stand_cells=stand_cells,
-                player_target_has_x=player_target in state.xs,
+                player_target_has_x=player_target_has_x,
                 player_target_reachable=player_target in region,
                 x_on_line_count=x_on_line_count,
                 blocked_route_count=blocked_route_count,
@@ -269,6 +323,8 @@ def _top_line_plans_for(
     target_access_penalty: float,
     top_plan_cache: dict[State, tuple[LinePlan, ...]] | None = None,
     limit: int = 8,
+    candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple[RawLineCandidate, ...]]
+    | None = None,
 ) -> tuple[LinePlan, ...]:
     if top_plan_cache is None:
         return _top_line_plans(
@@ -277,6 +333,7 @@ def _top_line_plans_for(
             region=region,
             target_access_penalty=target_access_penalty,
             limit=limit,
+            candidate_cache=candidate_cache,
         )
     if state not in top_plan_cache:
         top_plan_cache[state] = _top_line_plans(
@@ -285,12 +342,13 @@ def _top_line_plans_for(
             region=region,
             target_access_penalty=target_access_penalty,
             limit=limit,
+            candidate_cache=candidate_cache,
         )
     return top_plan_cache[state]
 
 
 def _push_distance(cell: int, target: int, board: StaticBoard) -> float:
-    return board.push_distances.get(target, {}).get(cell, math.inf)
+    return board.push_distances.get((target, cell), math.inf)
 
 
 def _legal_o_push_count(

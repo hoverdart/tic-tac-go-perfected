@@ -195,22 +195,30 @@ def normalize_state(
 def _compute_push_distance_maps(
     board: StaticBoard,
 ) -> tuple[
-    Mapping[int, Mapping[int, int]],
+    Mapping[tuple[int, int], int],
     Mapping[int, Mapping[int, int]],
     Mapping[int, Mapping[int, int]],
     Mapping[int, Mapping[int, tuple[int, ...]]],
     Mapping[int, Mapping[int, tuple[int, ...]]],
-    Mapping[int, Mapping[int, frozenset[int]]],
-    Mapping[int, Mapping[int, frozenset[int]]],
+    Mapping[tuple[int, int], frozenset[int]],
+    Mapping[tuple[int, int], frozenset[int]],
 ]:
+    """Build push-distance/route lookups.
+
+    ``push_distances``/``push_route_sets``/``push_stand_route_sets`` are kept
+    flat (keyed by ``(target, cell)``) rather than nested per-target dicts:
+    they sit on the line-plan hot path, and a single tuple-keyed lookup is
+    cheaper per call than two chained dict lookups plus a default-dict
+    allocation for missing targets.
+    """
     targets = {cell for line in board.win_lines for cell in line}
-    distance_maps: dict[int, Mapping[int, int]] = {}
+    flat_distances: dict[tuple[int, int], int] = {}
     predecessor_maps: dict[int, Mapping[int, int]] = {}
     stand_maps: dict[int, Mapping[int, int]] = {}
     route_maps: dict[int, Mapping[int, tuple[int, ...]]] = {}
     stand_route_maps: dict[int, Mapping[int, tuple[int, ...]]] = {}
-    route_sets_maps: dict[int, Mapping[int, frozenset[int]]] = {}
-    stand_route_sets_maps: dict[int, Mapping[int, frozenset[int]]] = {}
+    flat_route_sets: dict[tuple[int, int], frozenset[int]] = {}
+    flat_stand_route_sets: dict[tuple[int, int], frozenset[int]] = {}
 
     for target in targets:
         distances = {target: 0}
@@ -240,35 +248,32 @@ def _compute_push_distance_maps(
                     stand_cells[previous] = stand
                     queue.append(previous)
 
-        distance_maps[target] = MappingProxyType(distances)
+        for cell, distance in distances.items():
+            flat_distances[(target, cell)] = distance
         predecessor_maps[target] = MappingProxyType(predecessors)
         stand_maps[target] = MappingProxyType(stand_cells)
 
         target_routes = {}
         target_stand_routes = {}
-        target_route_sets = {}
-        target_stand_route_sets = {}
         for cell in distances:
             r_tuple = _build_route_cells(cell, target, predecessors, stand_cells)
             s_tuple = _build_stand_route_cells(cell, target, predecessors, stand_cells)
             target_routes[cell] = r_tuple
             target_stand_routes[cell] = s_tuple
-            target_route_sets[cell] = frozenset(r_tuple)
-            target_stand_route_sets[cell] = frozenset(s_tuple)
+            flat_route_sets[(target, cell)] = frozenset(r_tuple)
+            flat_stand_route_sets[(target, cell)] = frozenset(s_tuple)
 
         route_maps[target] = MappingProxyType(target_routes)
         stand_route_maps[target] = MappingProxyType(target_stand_routes)
-        route_sets_maps[target] = MappingProxyType(target_route_sets)
-        stand_route_sets_maps[target] = MappingProxyType(target_stand_route_sets)
 
     return (
-        MappingProxyType(distance_maps),
+        MappingProxyType(flat_distances),
         MappingProxyType(predecessor_maps),
         MappingProxyType(stand_maps),
         MappingProxyType(route_maps),
         MappingProxyType(stand_route_maps),
-        MappingProxyType(route_sets_maps),
-        MappingProxyType(stand_route_sets_maps),
+        MappingProxyType(flat_route_sets),
+        MappingProxyType(flat_stand_route_sets),
     )
 
 
@@ -308,17 +313,15 @@ def _build_stand_route_cells(
 
 def _compute_dead_cells_for_o(
     board: StaticBoard,
-    push_distances: Mapping[int, Mapping[int, int]],
+    push_distances: Mapping[tuple[int, int], int],
 ) -> frozenset[int]:
-    reachable_cells = set()
-    for distances in push_distances.values():
-        reachable_cells.update(distances)
+    reachable_cells = {cell for (_target, cell) in push_distances}
     return frozenset(board.floor - reachable_cells)
 
 
 def _compute_reachable_o_pairs(
     board: StaticBoard,
-    push_distances: Mapping[int, Mapping[int, int]],
+    push_distances: Mapping[tuple[int, int], int],
 ) -> frozenset[tuple[int, int]]:
     reachable_pairs: set[tuple[int, int]] = set()
     for first, second in itertools.combinations(sorted(board.floor), 2):
@@ -328,11 +331,11 @@ def _compute_reachable_o_pairs(
                 if len(targets) != 2:
                     continue
                 if (
-                    first in push_distances.get(targets[0], {})
-                    and second in push_distances.get(targets[1], {})
+                    (targets[0], first) in push_distances
+                    and (targets[1], second) in push_distances
                 ) or (
-                    first in push_distances.get(targets[1], {})
-                    and second in push_distances.get(targets[0], {})
+                    (targets[1], first) in push_distances
+                    and (targets[0], second) in push_distances
                 ):
                     reachable_pairs.add((first, second))
                     break

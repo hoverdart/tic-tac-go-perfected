@@ -34,6 +34,9 @@ def successors(
     plan_cache: dict[State, LinePlan | None] | None = None,
     top_plan_cache: dict[State, tuple[LinePlan, ...]] | None = None,
     o_push_count_cache: dict[State, int] | None = None,
+    candidate_cache: dict[tuple[frozenset[int], frozenset[int]], tuple] | None = None,
+    push_reach_cache: dict[tuple[int, int, frozenset[int]], bool] | None = None,
+    floor_reach_cache: dict[tuple[int, int, frozenset[int]], bool] | None = None,
     normalize_with_region: NormalizeWithRegion = _normalize_with_region,
     reachable_fn: ReachableFn = reachable,
 ) -> list[tuple[Push, State, frozenset[int], float, float]]:
@@ -46,6 +49,7 @@ def successors(
         region=region,
         target_access_penalty=target_access_penalty,
         top_plan_cache=top_plan_cache,
+        candidate_cache=candidate_cache,
     )
     parent_plan = parent_top_plans[0] if parent_top_plans else None
     if plan_cache is not None and state not in plan_cache:
@@ -78,7 +82,14 @@ def successors(
                     if is_x_loss(new_xs, board):
                         continue
 
-                if is_deadlock(new_os, new_xs, board, player=cell):
+                if is_deadlock(
+                    new_os,
+                    new_xs,
+                    board,
+                    player=cell,
+                    push_reach_cache=push_reach_cache,
+                    floor_reach_cache=floor_reach_cache,
+                ):
                     continue
 
                 next_state, next_region = normalize_with_region(cell, new_os, new_xs, board)
@@ -100,6 +111,7 @@ def successors(
                         region=next_region,
                         target_access_penalty=target_access_penalty,
                         top_plan_cache=top_plan_cache,
+                        candidate_cache=candidate_cache,
                     )
                     child_plan = child_top_plans[0] if child_top_plans else None
                     if plan_cache is not None and next_state not in plan_cache:
