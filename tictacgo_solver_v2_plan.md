@@ -55,8 +55,9 @@ Measured after the initial V2 portfolio pass:
 - the fixed 16-board hard-tail rerun now solves 9 of the 14 stable CSV timeout
   rows, with committed-beam wins on `20251005 Strange Fit`,
   `20251207 Thread the Needle`, and `20260301 Immovable Objects`,
-- beam fallback is wired in the benchmark but cannot run in the current local
-  environment until `torch` is installed.
+- full 341-board comparison under the 30-second benchmark budget:
+  push solves 326/341, Beam/CNN solves 226/341, and push plus Beam/CNN fallback
+  solves 329/341.
 
 Current command set:
 
@@ -78,7 +79,120 @@ python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
 python3 solver/gymnasium_register/benchmark_push_solver_remaining.py \
   --only-failed --timeout-seconds 30 --max-nodes 500000 --workers 6 \
   --beam-fallback --beam-timeout-seconds 30
+python3 -m solver.gymnasium_register.benchmark_push_vs_beam \
+  --output debug-artifacts/push_vs_beam_full.csv \
+  --summary-output debug-artifacts/push_vs_beam_full.summary.json \
+  --workers 6 --push-timeout-seconds 30 --beam-timeout-seconds 30 \
+  --push-max-nodes 500000 --beam-width 5000 --beam-max-depth 200
 ```
+
+## V2.9/V3.0 Snapshot
+
+V2.9 is the current pure-Python push solver. It is still a verified push-level
+Sokoban solver, but the hard-tail path is now policy-guided:
+
+- Classical portfolio first: weighted search, greedy variants, line-committed
+  rank-discrepancy, macros, and policy rank-discrepancy.
+- Committed beam fallback last: enumerate candidate final line assignments,
+  search each assignment with bounded restarts, exact transposition filtering,
+  and novelty penalties.
+- Policy artifact: a dependency-free JSON ranker with linear policy/value
+  weights plus state-action hints exported from known push paths.
+- Safety boundary: the policy only reorders already-legal children; every move
+  string still goes through `verify_solution`.
+
+The V3.0 direction should be a real hard-tail search layer rather than more
+single-number priority tuning:
+
+- Train a push-state policy/value model from verified paths and search traces.
+- Use it only for legal successor ordering, value estimates, and restart
+  scheduling.
+- Add a FESS-style feature-bucket search that diversifies by line-plan progress,
+  player-target access, X-clearing status, O mobility, and frozen-piece risk.
+- Keep the current verifier as the only acceptance gate.
+
+## 341-Board Push vs Beam/CNN Comparison
+
+Command used:
+
+```bash
+/tmp/tictacgo-bench-venv/bin/python -m solver.gymnasium_register.benchmark_push_vs_beam \
+  --output /tmp/tictacgo_push_vs_beam_full.csv \
+  --workers 6 --push-timeout-seconds 30 --beam-timeout-seconds 30 \
+  --push-max-nodes 500000 --beam-width 5000 --beam-max-depth 200
+cp /tmp/tictacgo_push_vs_beam_full.csv debug-artifacts/push_vs_beam_full.csv
+```
+
+For quick experiments, the comparison script also supports:
+
+```bash
+python3 -m solver.gymnasium_register.benchmark_push_vs_beam \
+  --solver push --num-tests 25 --timeout-seconds 60
+
+/tmp/tictacgo-bench-venv/bin/python -m solver.gymnasium_register.benchmark_push_vs_beam \
+  --num-tests 25 --timeout-seconds 60 \
+  --output /tmp/push_vs_beam_25.csv \
+  --summary-output /tmp/push_vs_beam_25.summary.json
+```
+
+Use `--push-timeout-seconds` and `--beam-timeout-seconds` only when the two
+solvers should have different per-board budgets. `--timeout-seconds` sets both.
+
+The Beam/CNN timeout is a benchmark cap, not the service default. The production
+wrapper's default `ATTEMPT_TIMEOUT_SECONDS` is 300 seconds; this comparison uses
+30 seconds per Beam/CNN phase to match the existing push hard-tail benchmark.
+
+| Solver | Verified solved | Accuracy |
+|---|---:|---:|
+| Push V2.9 | 326 / 341 | 95.60% |
+| Beam/CNN production path | 226 / 341 | 66.28% |
+| Push V2.9 + Beam/CNN fallback | 329 / 341 | 96.48% |
+
+Beam/CNN-only wins:
+
+- `20260219 Untangled`
+- `20260701 Intersection`
+- `20260823 Spill the Beans`
+
+Both failed:
+
+- `20250927 Do Not Pass`
+- `20251212 -_-`
+- `20251228 Cornered`
+- `20260124 In the Goal`
+- `20260125 Harmonic Progression`
+- `20260208 Toric Lens`
+- `20260314 Tee Off`
+- `20260502 Hexagon`
+- `20260523 Anchor`
+- `20260524 Gears`
+- `20260614 Yellow Light`
+- `20260705 High Speed`
+
+Push-only wins: 103 boards. The full row-level comparison is checked in at
+`debug-artifacts/push_vs_beam_full.csv`; the most strategically important
+push-only wins are the former hard-tail boards `20250928`, `20251005`,
+`20251116`, `20251207`, `20251221`, `20260220`, `20260301`, `20260627`, and
+`20260802`.
+
+Conclusion: Beam/CNN is no longer competitive as the primary path under this
+budget, but it remains valuable as a narrow fallback because it recovers three
+boards the push solver misses.
+
+## Next Steps
+
+1. Stabilize the 12 combined failures by replaying oracle/known-solution data
+   where available and separating true no-known-solution cases from search
+   misses.
+2. Build a push-state training set that includes failed frontier states, not
+   only solution-path siblings; the current state-action hints are useful but
+   mostly memorized.
+3. Prototype FESS-style feature buckets for the 12 combined failures before
+   adding heavier ML dependencies.
+4. If the feature buckets plateau, train a compact policy/value model for
+   push-level states and use it only inside verified search.
+5. Re-run `benchmark_push_vs_beam` after each hard-tail change and track
+   push-only, Beam-only, and combined-failed sets as first-class metrics.
 
 ## Executive Summary
 

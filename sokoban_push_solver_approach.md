@@ -50,6 +50,17 @@ command. Three of those wins are from the committed beam fallback
 (`20251005`, `20251207`, `20260301`); the other wins come from the stronger
 policy ordering before the fallback is needed.
 
+The V2.9/V3.0 planning snapshot is now tracked in `tictacgo_solver_v2_plan.md`.
+The full 341-board benchmark under the 30-second comparison budget is:
+
+- Push V2.9: 326/341 verified, 95.60%.
+- Beam/CNN production path: 226/341 verified, 66.28%.
+- Push V2.9 plus Beam/CNN fallback: 329/341 verified, 96.48%.
+
+Beam/CNN uniquely recovers `20260219 Untangled`, `20260701 Intersection`, and
+`20260823 Spill the Beans`, so it remains useful as a narrow fallback even
+though the push solver is now the stronger primary solver.
+
 Future work should not be another round of single priority constants. If the
 pure-Python beam stalls again, the next robust layer should be either:
 
