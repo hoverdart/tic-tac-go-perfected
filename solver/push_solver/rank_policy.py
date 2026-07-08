@@ -9,6 +9,10 @@ from typing import Mapping
 
 
 DEFAULT_POLICY_PATH = Path(__file__).with_name("linear_push_ranker_v1.json")
+OPTIONAL_POLICY_PATHS = (
+    Path(__file__).with_name("linear_push_ranker_hard_tail_v1.json"),
+    Path(__file__).with_name("linear_push_ranker_recovery_v1.json"),
+)
 
 
 @dataclass(frozen=True)
@@ -43,7 +47,28 @@ class LinearPushRankPolicy:
         return self.state_action_hints.get(state_action_key(board, state, pushes), 0.0)
 
 
-_DEFAULT_POLICY: LinearPushRankPolicy | None = None
+@dataclass(frozen=True)
+class EnsemblePushRankPolicy:
+    policies: tuple[LinearPushRankPolicy, ...]
+
+    @property
+    def name(self) -> str:
+        return "+".join(policy.name for policy in self.policies)
+
+    def raw_score(self, features: Mapping[str, float]) -> float:
+        return self.policies[0].raw_score(features)
+
+    def value(self, features: Mapping[str, float]) -> float:
+        return self.policies[0].value(features)
+
+    def score(self, features: Mapping[str, float]) -> float:
+        return self.policies[0].score(features)
+
+    def action_bonus(self, board, state, pushes: tuple) -> float:
+        return max(policy.action_bonus(board, state, pushes) for policy in self.policies)
+
+
+_DEFAULT_POLICY: LinearPushRankPolicy | EnsemblePushRankPolicy | None = None
 
 
 def load_policy(path: str | Path = DEFAULT_POLICY_PATH) -> LinearPushRankPolicy:
@@ -72,13 +97,20 @@ def load_policy(path: str | Path = DEFAULT_POLICY_PATH) -> LinearPushRankPolicy:
     )
 
 
-def default_policy() -> LinearPushRankPolicy | None:
+def default_policy() -> LinearPushRankPolicy | EnsemblePushRankPolicy | None:
     global _DEFAULT_POLICY
     if _DEFAULT_POLICY is not None:
         return _DEFAULT_POLICY
     if not DEFAULT_POLICY_PATH.exists():
         return None
-    _DEFAULT_POLICY = load_policy(DEFAULT_POLICY_PATH)
+    policies = [load_policy(DEFAULT_POLICY_PATH)]
+    for path in OPTIONAL_POLICY_PATHS:
+        if path.exists():
+            policies.append(load_policy(path))
+    if len(policies) == 1:
+        _DEFAULT_POLICY = policies[0]
+    else:
+        _DEFAULT_POLICY = EnsemblePushRankPolicy(tuple(policies))
     return _DEFAULT_POLICY
 
 

@@ -1,4 +1,11 @@
-"""Compare push solver and production heuristic/CNN beam solver on all boards."""
+"""Compare push solver, production Beam/CNN solver, and their fallback union.
+
+Examples:
+
+    python3 -m solver.gymnasium_register.benchmark_push_vs_beam --timeout-seconds 60 --num-tests 100 --workers 6 --output debug-artifacts/push_vs_beam_100.csv --summary-output debug-artifacts/push_vs_beam_100.json
+
+    python3 -m solver.gymnasium_register.benchmark_push_vs_beam --solver push --timeout-seconds 30 --num-tests 25
+"""
 
 from __future__ import annotations
 
@@ -7,6 +14,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import csv
 import json
 import multiprocessing as mp
+import random
 import sys
 import time
 from pathlib import Path
@@ -44,7 +52,10 @@ FIELDNAMES = [
     "beam_moves",
     "beam_states",
     "beam_elapsed_ms",
+    "beam_failure_reason",
     "combined_solved",
+    "combined_solver",
+    "combined_elapsed_ms",
 ]
 
 
@@ -86,10 +97,22 @@ def run_push(board, *, timeout_seconds: float, max_nodes: int) -> dict[str, Any]
 
 
 def run_beam(board, *, timeout_seconds: float, beam_width: int, max_depth: int) -> dict[str, Any]:
-    from solver import heuristic_cnn_solver
     from solver.push_solver import verify_solution
 
     started = time.perf_counter()
+    try:
+        from solver import heuristic_cnn_solver
+    except ModuleNotFoundError as exc:
+        elapsed_ms = (time.perf_counter() - started) * 1000
+        return {
+            "solved": False,
+            "verified": False,
+            "moves": "",
+            "states": 0,
+            "elapsed_ms": elapsed_ms,
+            "failure_reason": f"missing_dependency:{exc.name}",
+        }
+
     moves, _final_board, states = heuristic_cnn_solver.solve(
         board,
         beam_width=beam_width,
@@ -104,6 +127,7 @@ def run_beam(board, *, timeout_seconds: float, beam_width: int, max_depth: int) 
         "moves": "" if moves is None else len(moves),
         "states": states,
         "elapsed_ms": elapsed_ms,
+        "failure_reason": "" if moves is not None else "not_solved",
     }
 
 
@@ -117,6 +141,7 @@ def row_for_entry(
     beam_timeout_seconds: float,
     beam_width: int,
     beam_max_depth: int,
+    fallback_order: str,
 ) -> dict[str, Any]:
     board = decode_board(entry)
     push = (
@@ -150,8 +175,29 @@ def row_for_entry(
             "moves": "",
             "states": "",
             "elapsed_ms": "",
+            "failure_reason": "",
         }
     )
+    if fallback_order == "push-first":
+        combined_solver = (
+            "push" if push["verified"] else "beam" if beam["verified"] else ""
+        )
+        combined_elapsed_ms = _sum_elapsed_for_fallback(
+            primary=push,
+            fallback=beam,
+            primary_ran=run_push_solver,
+            fallback_ran=run_beam_solver,
+        )
+    else:
+        combined_solver = (
+            "beam" if beam["verified"] else "push" if push["verified"] else ""
+        )
+        combined_elapsed_ms = _sum_elapsed_for_fallback(
+            primary=beam,
+            fallback=push,
+            primary_ran=run_beam_solver,
+            fallback_ran=run_push_solver,
+        )
     return {
         "board_id": str(entry.get("id", "")),
         "title": str(entry.get("name", "")),
@@ -171,14 +217,42 @@ def row_for_entry(
         "beam_elapsed_ms": ""
         if beam["elapsed_ms"] == ""
         else f"{beam['elapsed_ms']:.1f}",
+        "beam_failure_reason": beam["failure_reason"],
         "combined_solved": bool(push["verified"] or beam["verified"]),
+        "combined_solver": combined_solver,
+        "combined_elapsed_ms": ""
+        if combined_elapsed_ms is None
+        else f"{combined_elapsed_ms:.1f}",
     }
+
+
+def _sum_elapsed_for_fallback(
+    *,
+    primary: dict[str, Any],
+    fallback: dict[str, Any],
+    primary_ran: bool,
+    fallback_ran: bool,
+) -> float | None:
+    """Estimate wall-clock cost for a sequential combined fallback solver."""
+    if not primary_ran:
+        if fallback_ran and fallback["elapsed_ms"] != "":
+            return fallback["elapsed_ms"]
+        return None
+    if primary["elapsed_ms"] == "":
+        return None
+    elapsed_ms = float(primary["elapsed_ms"])
+    if primary["verified"] or not fallback_ran:
+        return elapsed_ms
+    if fallback["elapsed_ms"] != "":
+        elapsed_ms += float(fallback["elapsed_ms"])
+    return elapsed_ms
 
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     push_solved = {row["board_id"] for row in rows if row["push_verified"] is True}
     beam_solved = {row["board_id"] for row in rows if row["beam_verified"] is True}
+    all_ids = {row["board_id"] for row in rows}
     combined = push_solved | beam_solved
     return {
         "total": total,
@@ -191,11 +265,16 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "combined_solved": len(combined),
         "combined_accuracy": len(combined) / total if total else 0.0,
         "combined_accuracy_percent": (len(combined) / total * 100.0) if total else 0.0,
+        "both_solved": len(push_solved & beam_solved),
+        "push_only_count": len(push_solved - beam_solved),
+        "beam_only_count": len(beam_solved - push_solved),
+        "both_failed_count": len(all_ids - combined),
+        "push_failed": sorted(all_ids - push_solved),
+        "beam_failed": sorted(all_ids - beam_solved),
+        "combined_failed": sorted(all_ids - combined),
         "beam_only": sorted(beam_solved - push_solved),
         "push_only": sorted(push_solved - beam_solved),
-        "both_failed": sorted(
-            {row["board_id"] for row in rows} - combined
-        ),
+        "both_failed": sorted(all_ids - combined),
     }
 
 
@@ -212,9 +291,10 @@ def print_summary(summary: dict[str, Any]) -> None:
     )
     print(
         "OVERLAP "
-        f"push_only={len(summary['push_only'])} "
-        f"beam_only={len(summary['beam_only'])} "
-        f"both_failed={len(summary['both_failed'])}"
+        f"both_solved={summary['both_solved']} "
+        f"push_only={summary['push_only_count']} "
+        f"beam_only={summary['beam_only_count']} "
+        f"both_failed={summary['both_failed_count']}"
     )
 
 
@@ -233,16 +313,45 @@ def write_csv(rows: list[dict[str, Any]], output: Path | None) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--boards", type=Path, default=DEFAULT_BOARDS_PATH)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--summary-output", type=Path, default=None)
-    parser.add_argument("--limit", "--num-tests", dest="limit", type=int, default=None)
+    parser.add_argument(
+        "--limit",
+        "--num-tests",
+        dest="limit",
+        type=int,
+        default=None,
+        help="Number of boards to run after board-id and selection filters.",
+    )
     parser.add_argument("--board-id", action="append", default=[])
     parser.add_argument(
+        "--selection",
+        choices=("first", "random"),
+        default="first",
+        help="How to choose boards when --num-tests/--limit is set.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Deterministic seed for --selection random.",
+    )
+    parser.add_argument(
+        "--start-index",
+        type=int,
+        default=0,
+        help="Skip this many sorted boards before applying --num-tests.",
+    )
+    parser.add_argument(
         "--solver",
-        choices=("both", "push", "beam"),
+        choices=("both", "all", "push", "beam"),
         default="both",
+        help="'both'/'all' runs both solvers and reports combined fallback accuracy.",
     )
     parser.add_argument(
         "--timeout-seconds",
@@ -255,6 +364,12 @@ def main() -> int:
     parser.add_argument("--beam-timeout-seconds", type=float, default=None)
     parser.add_argument("--beam-width", type=int, default=5_000)
     parser.add_argument("--beam-max-depth", type=int, default=200)
+    parser.add_argument(
+        "--fallback-order",
+        choices=("push-first", "beam-first"),
+        default="push-first",
+        help="Order used to estimate combined fallback solver and elapsed time.",
+    )
     parser.add_argument("--workers", type=int, default=1)
     args = parser.parse_args()
 
@@ -262,7 +377,17 @@ def main() -> int:
     if args.board_id:
         wanted = set(args.board_id)
         entries = [entry for entry in entries if str(entry.get("id")) in wanted]
+    if args.start_index < 0:
+        parser.error("--start-index must be non-negative")
+    if args.start_index:
+        entries = entries[args.start_index :]
+    if args.selection == "random":
+        rng = random.Random(args.seed)
+        entries = entries[:]
+        rng.shuffle(entries)
     if args.limit is not None:
+        if args.limit < 0:
+            parser.error("--num-tests/--limit must be non-negative")
         entries = entries[: args.limit]
 
     if args.workers < 1:
@@ -278,19 +403,22 @@ def main() -> int:
         if args.beam_timeout_seconds is None
         else args.beam_timeout_seconds
     )
+    run_push_solver = args.solver in {"both", "all", "push"}
+    run_beam_solver = args.solver in {"both", "all", "beam"}
 
     rows_by_id: dict[str, dict[str, Any]] = {}
     if args.workers == 1:
         for index, entry in enumerate(entries, start=1):
             row = row_for_entry(
                 entry,
-                run_push_solver=args.solver in {"both", "push"},
-                run_beam_solver=args.solver in {"both", "beam"},
+                run_push_solver=run_push_solver,
+                run_beam_solver=run_beam_solver,
                 push_timeout_seconds=push_timeout_seconds,
                 push_max_nodes=args.push_max_nodes,
                 beam_timeout_seconds=beam_timeout_seconds,
                 beam_width=args.beam_width,
                 beam_max_depth=args.beam_max_depth,
+                fallback_order=args.fallback_order,
             )
             rows_by_id[row["board_id"]] = row
             print(
@@ -309,13 +437,14 @@ def main() -> int:
                 executor.submit(
                     row_for_entry,
                     entry,
-                    run_push_solver=args.solver in {"both", "push"},
-                    run_beam_solver=args.solver in {"both", "beam"},
+                    run_push_solver=run_push_solver,
+                    run_beam_solver=run_beam_solver,
                     push_timeout_seconds=push_timeout_seconds,
                     push_max_nodes=args.push_max_nodes,
                     beam_timeout_seconds=beam_timeout_seconds,
                     beam_width=args.beam_width,
                     beam_max_depth=args.beam_max_depth,
+                    fallback_order=args.fallback_order,
                 ): entry
                 for entry in entries
             }
