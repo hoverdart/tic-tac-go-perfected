@@ -179,18 +179,50 @@ Conclusion: Beam/CNN is no longer competitive as the primary path under this
 budget, but it remains valuable as a narrow fallback because it recovers three
 boards the push solver misses.
 
+### July 2026 Context-Ranker Update
+
+The push portfolio no longer uses exact initial-board signatures to select
+hard-tail ordering profiles. The replacement is shape-based:
+
+- isolated high-X boards get an early rank-discrepancy attempt,
+- open high-X boards with many two-X threat lines and clustered/adjacent Xs get
+  an early policy-rank attempt,
+- all returned keystrokes still go through `verify_solution`.
+
+The JSON ranker artifacts were retrained with hard-tail board context features
+so the model can distinguish boards with dense X clusters, sparse isolated Xs,
+many X threat lines, and tight wall/floor structure. This is still stdlib-only
+linear inference; it is an ordering prior, not a legality or acceptance layer.
+
+Current validation after removing exact runtime signatures:
+
+```bash
+python3 -m solver.gymnasium_register.benchmark_push_vs_beam \
+  --solver push --timeout-seconds 30 --workers 6 \
+  --board-id 20250927 --board-id 20260124 --board-id 20260125 \
+  --board-id 20260208 --board-id 20260219 --board-id 20260502 \
+  --board-id 20260523 --board-id 20260701 --board-id 20260705 \
+  --board-id 20260823 --board-id 20250928 --board-id 20251005 \
+  --board-id 20251116 --board-id 20251207 --board-id 20251221 \
+  --board-id 20260220 --board-id 20260301 --board-id 20260627 \
+  --board-id 20260802
+```
+
+Result: push solves 19/19. The three remaining 60-second full-bank failures
+remain unsolved by the current push solver and Beam/CNN comparison path:
+`20251212 -_-`, `20251228 Cornered`, and `20260314 Tee Off`.
+
 ## Next Steps
 
-1. Stabilize the 12 combined failures by replaying oracle/known-solution data
-   where available and separating true no-known-solution cases from search
-   misses.
-2. Build a push-state training set that includes failed frontier states, not
+1. Build a push-state training set that includes failed frontier states, not
    only solution-path siblings; the current state-action hints are useful but
    mostly memorized.
-3. Prototype FESS-style feature buckets for the 12 combined failures before
-   adding heavier ML dependencies.
-4. If the feature buckets plateau, train a compact policy/value model for
+2. Prototype FESS-style feature buckets for the three remaining full-bank
+   failures before adding heavier ML dependencies.
+3. If feature buckets plateau, train a compact policy/value model for
    push-level states and use it only inside verified search.
+4. Add benchmark reporting for profile selection, winning strategy, and
+   frontier shape so context-ranker changes are measurable.
 5. Re-run `benchmark_push_vs_beam` after each hard-tail change and track
    push-only, Beam-only, and combined-failed sets as first-class metrics.
 

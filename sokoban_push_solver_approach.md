@@ -33,6 +33,12 @@ Important practical details:
   and dependency-free state-action hints exported from known push paths. These
   hints are only bonuses for legal successors; they are not move replay, unsafe
   pruning, or a bypass around `verify_solution`.
+- The learned feature set now includes start-state board context for hard
+  tails: wall density, low-degree floor fraction, X density/count,
+  X-to-wall ratio, two-X threat lines, X component count, largest X cluster,
+  and X adjacency. Runtime portfolio routing uses those same broad shape
+  signals for high-X boards; it no longer checks exact initial board
+  signatures.
 
 The current hard-tail work moved beyond scalar heuristic tuning. Oracle
 diagnostics showed the next known-solution push was often locally near the top,
@@ -60,6 +66,18 @@ The full 341-board benchmark under the 30-second comparison budget is:
 Beam/CNN uniquely recovers `20260219 Untangled`, `20260701 Intersection`, and
 `20260823 Spill the Beans`, so it remains useful as a narrow fallback even
 though the push solver is now the stronger primary solver.
+
+July 2026 context-ranker status:
+
+- The no-exact-signature runtime profile preserves the focused 19-board
+  recovery set at 19/19 under the 30-second benchmark command.
+- The three remaining 60-second full-bank push failures are still
+  `20251212 -_-`, `20251228 Cornered`, and `20260314 Tee Off`.
+- The current dependency-free linear ranker can learn useful board context and
+  preserve earlier hard-tail wins, but it has not solved those final three.
+  The next improvement should train on frontier/search states or switch to
+  FESS-style feature buckets; more exact board routing is intentionally not the
+  direction.
 
 Future work should not be another round of single priority constants. If the
 pure-Python beam stalls again, the next robust layer should be either:

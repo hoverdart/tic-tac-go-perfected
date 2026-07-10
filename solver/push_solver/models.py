@@ -163,8 +163,9 @@ class SearchContext:
     plan_cache: dict[State, LinePlan | None]
     top_plan_cache: dict[State, tuple[LinePlan, ...]]
     o_push_count_cache: dict[State, int]
+    deadlock_cache: dict[tuple[frozenset[int], frozenset[int], int | None], bool]
     successor_cache: dict[State, tuple[tuple[Push, State, frozenset[int], float, float], ...]]
-    policy_score_cache: dict[tuple[State, tuple[Push, ...], State], float]
+    policy_score_cache: dict[tuple[State, tuple[Push, ...], State, bool, bool], float]
 
 
 StrategyChild = tuple[tuple[Push, ...], State, frozenset[int], float, float, int, float]
