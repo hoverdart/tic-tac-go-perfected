@@ -5,6 +5,8 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi",
     "google-genai",
+    "numpy",
     "playwright",
     "psycopg[binary,pool]",
+    "torch",
 ]

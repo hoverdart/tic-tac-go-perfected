@@ -1,10 +1,11 @@
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 from solver.board_utils import board_dimensions, normalize_board
 from solver import optimized_solver
 from solver.gymnasium_register import ranked_real_boards
-from solver.service import SolverError, _solver_impl, solve_board
+from solver.service import SolverError, _solver_impl, solve_board, solve_daily_board
 
 
 class SolverServiceTest(unittest.TestCase):
@@ -210,6 +211,96 @@ class SolverServiceTest(unittest.TestCase):
         self.assertEqual(result["solver_name"], "push-v2")
         self.assertIsNone(result["moves"])
         self.assertEqual(result["states_checked"], 1)
+
+    def test_daily_solver_returns_push_result_without_running_beam(self):
+        board = [["U", "O", "O"]]
+        normalized = (("U", "O", "O"),)
+        push_result = SimpleNamespace(
+            moves="",
+            final_board=normalized,
+            nodes_expanded=7,
+        )
+
+        with (
+            patch("solver.service._run_push_solver", return_value=push_result) as push,
+            patch("solver.service._run_heuristic_cnn_solver") as beam,
+        ):
+            result = solve_daily_board(board)
+
+        push.assert_called_once_with(
+            normalized,
+            max_nodes=500_000,
+            timeout_seconds=30.0,
+        )
+        beam.assert_not_called()
+        self.assertTrue(result["solved"])
+        self.assertEqual(result["solver_name"], "push-v2")
+        self.assertEqual(result["states_checked"], 7)
+
+    def test_daily_solver_uses_verified_beam_cnn_fallback(self):
+        board = [["U", "O", "", "O"]]
+        push_result = SimpleNamespace(
+            moves=None,
+            final_board=None,
+            nodes_expanded=11,
+        )
+
+        with (
+            patch("solver.service._run_push_solver", return_value=push_result),
+            patch(
+                "solver.service._run_heuristic_cnn_solver",
+                return_value=("R", None, 5),
+            ) as beam,
+        ):
+            result = solve_daily_board(board)
+
+        beam.assert_called_once_with((("U", "O", "", "O"),))
+        self.assertTrue(result["solved"])
+        self.assertEqual(result["solver_name"], "push-v2+heuristic-CNN-fallback")
+        self.assertEqual(result["moves"], "R")
+        self.assertEqual(result["states_checked"], 16)
+        self.assertEqual(result["final_board"], [["", "U", "O", "O"]])
+        self.assertEqual(
+            result["steps"],
+            [{"move": "R", "board": [["", "U", "O", "O"]]}],
+        )
+
+    def test_daily_solver_aggregates_unsolved_fallback_attempt(self):
+        push_result = SimpleNamespace(
+            moves=None,
+            final_board=None,
+            nodes_expanded=11,
+        )
+
+        with (
+            patch("solver.service._run_push_solver", return_value=push_result),
+            patch(
+                "solver.service._run_heuristic_cnn_solver",
+                return_value=(None, None, 5),
+            ),
+        ):
+            result = solve_daily_board([["U", "", "O", "O"]])
+
+        self.assertFalse(result["solved"])
+        self.assertEqual(result["solver_name"], "push-v2+heuristic-CNN-fallback")
+        self.assertEqual(result["states_checked"], 16)
+
+    def test_daily_solver_rejects_invalid_fallback_moves(self):
+        push_result = SimpleNamespace(
+            moves=None,
+            final_board=None,
+            nodes_expanded=11,
+        )
+
+        with (
+            patch("solver.service._run_push_solver", return_value=push_result),
+            patch(
+                "solver.service._run_heuristic_cnn_solver",
+                return_value=("L", None, 5),
+            ),
+            self.assertRaisesRegex(RuntimeError, "invalid solution"),
+        ):
+            solve_daily_board([["U", "O", "", "O"]])
 
 
 if __name__ == "__main__":

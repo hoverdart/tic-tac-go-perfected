@@ -10,7 +10,8 @@ still being worked on.
 ## Project Layout
 
 - `solve.py`: easiest way to run the legacy command-line solver
-- `service.py`: API-facing router that chooses the solver for each board
+- `service.py`: API-facing router plus the daily push-first, Beam/CNN-fallback
+  portfolio
 - `board_utils.py`: shared board normalization and JSON conversion helpers
 - `heuristic_cnn_solver.py`: production wrapper for heuristic beam search with
   CNN fallback
@@ -185,6 +186,11 @@ Current production settings:
 
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
+
+For the daily cron path, `solve_daily_board()` runs the push solver first with a
+500,000-node, 30-second budget. It invokes this heuristic/CNN wrapper only if
+push search does not find a solution, verifies any fallback move string, and
+reports `push-v2+heuristic-CNN-fallback` when the fallback ran.
 
 ## Linear Tree Solver V1
 

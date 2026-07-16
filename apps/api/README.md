@@ -49,15 +49,18 @@ Database connections use a lazy process-local pool. Optional settings are
 each API process for `SOLUTION_CACHE_TTL_SECONDS` (default `300` seconds), and
 writes invalidate that process's cache.
 
-The API chooses a solver per board. Boards that are at least `6x6` route to the
-heuristic-CNN beam solver unless `SOLVER_IMPL=push` is explicitly set. Smaller
-boards default to the legacy solver. To use the optimized solver for smaller
-boards, set `SOLVER_IMPL=optimized`; `SOLVER_MODE` can be `hybrid`, `fast`, or
-`exact` and defaults to `hybrid`. Set `SOLVER_IMPL=push` to use the classical
-push-level solver on any board size.
+The daily job uses the classical push portfolio first, with a 500,000-node and
+30-second budget, then runs heuristic beam search with CNN guidance as a
+fallback. The fallback move string is independently verified before storage.
+
+The direct `POST /solve` endpoint chooses a solver per board. Boards that are at
+least `6x6` route to the heuristic-CNN beam solver unless `SOLVER_IMPL=push` is
+explicitly set. Smaller boards default to the legacy solver. To use the
+optimized solver for smaller boards, set `SOLVER_IMPL=optimized`; `SOLVER_MODE`
+can be `hybrid`, `fast`, or `exact` and defaults to `hybrid`.
 The optimized path falls back to the legacy solver unless
-`SOLVER_FALLBACK=none` is set. `POST /solve` includes `solver_name` in the
-response so callers can see which solver actually ran.
+`SOLVER_FALLBACK=none` is set. `POST /solve` and stored daily records include
+`solver_name` so callers can see which solver path ran.
 
 ## Endpoints
 

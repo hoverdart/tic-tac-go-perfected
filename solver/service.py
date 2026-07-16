@@ -4,6 +4,8 @@ Public interface between the FastAPI layer and the underlying solver implementat
 This module is the single entry point for solving a board. It handles:
   - Solver selection: routes larger boards to heuristic-CNN, otherwise reads
     SOLVER_IMPL and SOLVER_MODE from environment variables.
+  - Daily solver portfolio: runs the push solver first, then the existing
+    heuristic beam/CNN solver only when push search does not find a solution.
   - Fallback logic: if the optimized A* solver gives up (returns None) and budget
     remains, the legacy BFS solver gets a second attempt as a safety net.
   - Result normalization: regardless of which solver ran, solve_board() always
@@ -22,6 +24,10 @@ from solver.legacy_solver import (
     apply_single_move,
     solve as legacy_solve,
 )
+
+
+DAILY_PUSH_MAX_NODES = 500_000
+DAILY_PUSH_TIMEOUT_SECONDS = 30.0
 
 
 def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
@@ -116,6 +122,98 @@ def _build_steps(
     return steps
 
 
+def _build_result(
+    start_board: tuple[tuple[str, ...], ...],
+    *,
+    moves: str | None,
+    final_board: tuple[tuple[str, ...], ...] | None,
+    states_checked: int,
+    solver_name: str,
+    start_time: float,
+) -> dict[str, Any]:
+    """Normalize a solver attempt into the API response shape."""
+    return {
+        "solved": moves is not None,
+        "solver_name": solver_name,
+        "moves": moves,
+        "states_checked": states_checked,
+        "elapsed_ms": (time.perf_counter() - start_time) * 1000,
+        "start_board": to_wire_board(start_board),
+        "final_board": to_wire_board(final_board) if final_board else None,
+        "steps": _build_steps(start_board, moves),
+    }
+
+
+def _run_push_solver(
+    board: tuple[tuple[str, ...], ...],
+    *,
+    max_nodes: int,
+    timeout_seconds: float,
+) -> Any:
+    from solver.push_solver import solve as push_solve
+
+    return push_solve(
+        board,
+        max_nodes=max_nodes,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+def _run_heuristic_cnn_solver(
+    board: tuple[tuple[str, ...], ...],
+) -> tuple[str | None, tuple[tuple[str, ...], ...] | None, int]:
+    from solver import heuristic_cnn_solver
+
+    return heuristic_cnn_solver.solve(board)
+
+
+def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
+    """Run the production daily portfolio: push first, then Beam/CNN fallback."""
+    try:
+        start_board = normalize_board(board)
+    except ValueError as exc:
+        raise SolverError(str(exc)) from exc
+
+    start_time = time.perf_counter()
+    push_result = _run_push_solver(
+        start_board,
+        max_nodes=DAILY_PUSH_MAX_NODES,
+        timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS,
+    )
+    moves = push_result.moves
+    final_board = push_result.final_board
+    states_checked = push_result.nodes_expanded
+    solver_name = "push-v2"
+
+    if moves is None:
+        fallback_moves, _fallback_board, fallback_states = _run_heuristic_cnn_solver(
+            start_board
+        )
+        states_checked += fallback_states
+        solver_name = "push-v2+heuristic-CNN-fallback"
+
+        if fallback_moves is not None:
+            from solver.push_solver import verify_solution
+
+            verification = verify_solution(start_board, fallback_moves)
+            if not verification.ok:
+                raise RuntimeError(
+                    "Heuristic-CNN fallback returned an invalid solution: "
+                    f"{verification.error}"
+                )
+            moves = fallback_moves
+            final_board = verification.final_board
+
+    return _build_result(
+        start_board,
+        moves=moves,
+        final_board=final_board,
+        states_checked=states_checked,
+        solver_name=solver_name,
+        start_time=start_time,
+    )
+
+
 def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[str, Any]:
     """Solve a Tic Tac Go board and return a normalized result dict.
 
@@ -205,15 +303,11 @@ def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[s
             progress_every=0,
             max_states=max_states,
         )
-    elapsed_ms = (time.perf_counter() - start_time) * 1000
-
-    return {
-        "solved": moves is not None,
-        "solver_name": _solver_name(solver_impl, start_board, used_fallback),
-        "moves": moves,
-        "states_checked": states_checked,
-        "elapsed_ms": elapsed_ms,
-        "start_board": to_wire_board(start_board),
-        "final_board": to_wire_board(final_board) if final_board else None,
-        "steps": _build_steps(start_board, moves),
-    }
+    return _build_result(
+        start_board,
+        moves=moves,
+        final_board=final_board,
+        states_checked=states_checked,
+        solver_name=_solver_name(solver_impl, start_board, used_fallback),
+        start_time=start_time,
+    )

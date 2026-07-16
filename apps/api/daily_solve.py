@@ -5,10 +5,11 @@ Orchestrates the three-step pipeline for each day's Tic Tac Go puzzle:
   1. Capture — screenshot the live Google puzzle via a remote browser.
   2. Parse   — send the screenshot to the Gemini vision parser to extract
                the board grid.
-  3. Solve   — run the BFS solver and write the result to Postgres.
+  3. Solve   — run push search with Beam/CNN fallback and write the result to
+               Postgres.
 
-Any failure at any step is caught, stored as a "failed" record in the DB,
-and re-raised so the caller (the API job endpoint) can surface it properly.
+Any failure at any step is caught and stored as a "failed" record in the DB so
+the API job endpoint can return meaningful failure details.
 """
 
 from datetime import UTC, date, datetime
@@ -20,7 +21,7 @@ from apps.api.board_capture import capture_google_board_screenshot, google_tic_t
 from apps.api.board_parser import PARSER_NAME, parse_board_from_screenshot
 from apps.api.solution_storage import upsert_solution
 from apps.api.puzzle_titles import title_from_past_days
-from solver.service import solve_board
+from solver.service import solve_daily_board
 
 
 logger = logging.getLogger("tic_tac_go.daily_solve")
@@ -103,9 +104,9 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
         board = parse_board_from_screenshot(screenshot_path)
         logger.info("daily_solve.parse.ok parser=%s board=\n%s", PARSER_NAME, _board_lines(board))
 
-        # Step 3: run the selected solver on the parsed grid.
+        # Step 3: run the daily push-first portfolio on the parsed grid.
         logger.info("daily_solve.solve.begin")
-        solve_result = solve_board(board)
+        solve_result = solve_daily_board(board)
         solver_name = solve_result["solver_name"]
         logger.info(
             "daily_solve.solve.ok solver=%s solved=%s moves=%r states_checked=%s elapsed_ms=%s",
