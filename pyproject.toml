@@ -8,5 +8,4 @@ dependencies = [
     "numpy",
     "playwright",
     "psycopg[binary,pool]",
-    "torch",
 ]

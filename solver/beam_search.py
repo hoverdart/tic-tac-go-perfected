@@ -1,11 +1,12 @@
-import numpy as np
+from collections import deque
 import heapq
+import importlib
 import itertools
 import logging
 import random
 import time
-import torch as th
-from collections import deque
+
+import numpy as np
 
 try:
     from solver.board_utils import board_dimensions
@@ -200,16 +201,19 @@ def beamSearch(
 
     def model_action_scores(board):
         """Return CNN logits for U/D/L/R, or None when no compatible model exists."""
-        if model is None or not hasattr(model, "get_obs"):
+        if model is None:
             return None
 
-        obs = model.get_obs(board_to_rows(board)).unsqueeze(0)
-        try:
-            device = next(model.parameters()).device
-            obs = obs.to(device)
-        except StopIteration:
-            pass
+        rows = board_to_rows(board)
+        if hasattr(model, "action_scores"):
+            return model.action_scores(rows)
+        if not hasattr(model, "get_obs"):
+            return None
 
+        # Training scripts may still pass a PyTorch model. Keep that optional
+        # compatibility without making Torch a production dependency.
+        th = importlib.import_module("torch")
+        obs = model.get_obs(rows).unsqueeze(0)
         with th.no_grad():
             return model(obs)[0].detach().cpu()
 

@@ -9,17 +9,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import torch as th
-
 from solver.beam_search import beamSearch
 from solver.board_utils import normalize_board
 from solver.legacy_solver import (
     apply_single_move,
 )
-from solver.small_cnn import SmallCNN
+from solver.numpy_cnn import NumpySmallCNN
 
 
-MODEL_PATH = Path(__file__).with_name("small_cnn_policy.pt")
+MODEL_PATH = Path(__file__).with_name("small_cnn_policy.npz")
 
 # Match the latest board-test scripts.
 BEAM_WIDTH = 5000
@@ -33,21 +31,17 @@ RESTART_MODEL_ACTION_WEIGHTS = [0.1, 0.5, 1.0]
 ATTEMPT_TIMEOUT_SECONDS = 300
 
 
-_MODEL: SmallCNN | None = None
+_MODEL: NumpySmallCNN | None = None
 
 
-def load_model(model_path: str | Path = MODEL_PATH) -> SmallCNN:
+def load_model(model_path: str | Path = MODEL_PATH) -> NumpySmallCNN:
     """Load the trained small CNN once and reuse it across solves."""
     global _MODEL
     if _MODEL is not None:
         return _MODEL
 
-    model = SmallCNN()
-    state_dict = th.load(Path(model_path), map_location="cpu")
-    model.load_state_dict(state_dict)
-    model.eval()
-    _MODEL = model
-    return model
+    _MODEL = NumpySmallCNN.load(model_path)
+    return _MODEL
 
 
 def replay_moves(
@@ -63,7 +57,7 @@ def replay_moves(
 
 def _run_beam(
     start_board: tuple[tuple[str, ...], ...],
-    model: SmallCNN | None,
+    model: NumpySmallCNN | None,
     *,
     beam_width: int,
     max_depth: int,
