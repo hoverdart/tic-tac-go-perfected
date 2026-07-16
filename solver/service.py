@@ -190,7 +190,7 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
             start_board
         )
         states_checked += fallback_states
-        solver_name = "push-v2+heuristic-CNN-fallback"
+        solver_name = "heuristic-CNN"
 
         if fallback_moves is not None:
             from solver.push_solver import verify_solution

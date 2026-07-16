@@ -193,7 +193,7 @@ Current production settings:
 For the daily cron path, `solve_daily_board()` runs the push solver first with a
 500,000-node, 30-second budget. It invokes this heuristic/CNN wrapper only if
 push search does not find a solution, verifies any fallback move string, and
-reports `push-v2+heuristic-CNN-fallback` when the fallback ran.
+reports `heuristic-CNN` when the fallback ran.
 
 ## Linear Tree Solver V1
 

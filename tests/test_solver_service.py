@@ -256,7 +256,7 @@ class SolverServiceTest(unittest.TestCase):
 
         beam.assert_called_once_with((("U", "O", "", "O"),))
         self.assertTrue(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v2+heuristic-CNN-fallback")
+        self.assertEqual(result["solver_name"], "heuristic-CNN")
         self.assertEqual(result["moves"], "R")
         self.assertEqual(result["states_checked"], 16)
         self.assertEqual(result["final_board"], [["", "U", "O", "O"]])
@@ -282,7 +282,7 @@ class SolverServiceTest(unittest.TestCase):
             result = solve_daily_board([["U", "", "O", "O"]])
 
         self.assertFalse(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v2+heuristic-CNN-fallback")
+        self.assertEqual(result["solver_name"], "heuristic-CNN")
         self.assertEqual(result["states_checked"], 16)
 
     def test_daily_solver_rejects_invalid_fallback_moves(self):
