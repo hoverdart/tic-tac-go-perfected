@@ -307,10 +307,10 @@ def today_solution(response: Response) -> SolutionRecord:
 
 @app.get("/solutions/recent", response_model=list[SolutionSummary])
 def recent_solutions(response: Response, limit: int = 365) -> list[SolutionSummary]:
-    """Return a summary list of recent solutions, capped at 365 entries."""
+    """Return a summary list of recent solutions, capped at 10,000 entries."""
     enable_public_cache(response)
     try:
-        rows = list_recent_solutions(limit=min(max(limit, 1), 365))
+        rows = list_recent_solutions(limit=min(max(limit, 1), 10_000))
     except StorageError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return [SolutionSummary(**with_title_fallback(row)) for row in rows]

@@ -3,8 +3,10 @@
 // individual pages override it by exporting their own generateMetadata function.
 import type { Metadata } from "next";
 import "./globals.css";
+import { getSiteUrl } from "./site-url";
 
 export const metadata: Metadata = {
+  metadataBase: getSiteUrl(),
   title: "Tic-Tac-Go Daily Solver",
   description: "Today's Tic-Tac-Go puzzle, captured automatically and replayed with an optimal solve path.",
 };
