@@ -125,7 +125,7 @@ export default async function Home() {
           <span>Daily board capture and optimal replay.</span>
           <span>
             Built by{" "}
-            <a href="https://github.com/Abdullah-Waris" target="_blank" rel="noopener noreferrer">Abdullah</a>
+            <a href="https://www.abdullahwaris.com" target="_blank" rel="noopener noreferrer">Abdullah</a>
             {" & "}
             <a href="https://www.shauryav.com/" target="_blank" rel="noopener noreferrer">Shaurya</a>
           </span>
