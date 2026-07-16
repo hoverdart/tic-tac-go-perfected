@@ -9,6 +9,7 @@ from pathlib import Path
 
 DATA_PATH = Path(__file__).with_name("solved_state_move_pairs.json")
 MODEL_PATH = Path(__file__).with_name("small_cnn_policy.pt")
+NUMPY_MODEL_PATH = Path(__file__).with_name("small_cnn_policy.npz")
 BATCH_SIZE = 64
 EPOCH_RUNS = [5]
 VALIDATION_FRACTION = 0.2
@@ -157,6 +158,14 @@ def main():
 
     th.save(model.state_dict(), MODEL_PATH)
     print(f"Saved model to {MODEL_PATH}", flush=True)
+    np.savez_compressed(
+        NUMPY_MODEL_PATH,
+        **{
+            name.replace(".", "_"): value.detach().cpu().numpy()
+            for name, value in model.state_dict().items()
+        },
+    )
+    print(f"Saved NumPy inference model to {NUMPY_MODEL_PATH}", flush=True)
 
 
 if __name__ == "__main__":

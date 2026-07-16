@@ -21,35 +21,58 @@ from solver.push_solver.search import _build_search_context, _run_strategy, _tim
 from solver.push_solver.state import parse_board
 
 
-# These signatures select ordering profiles for stable historical hard boards.
-# They do not cache or accept solutions; every candidate still reconstructs moves
-# and passes through the normal verifier in solve().
-_RANK_FIRST_SIGNATURES = frozenset(
-    {
-        "8x8|5.13.18.26.37.45.50.58|32|22.33|0.3.7.10.14.17.21.24.28.35.39.42.46.49.53.56.60.63",
-    }
-)
-_POLICY_RANK_FIRST_SIGNATURES = frozenset(
-    {
-        "8x8|27.28.35.36|34|14.49|2.4.6.9.11.17.21.26.29.30.32.33.39.40.47.50.52.54.57.60",
-    }
-)
+def _x_cluster_stats(xs: frozenset[int], static: StaticBoard) -> tuple[int, int, int]:
+    if not xs:
+        return 0, 0, 0
+    seen: set[int] = set()
+    component_count = 0
+    largest_component = 0
+    adjacency_edges = 0
+    for cell in xs:
+        adjacency_edges += sum(1 for nxt in static.adjacency[cell] if nxt in xs)
+        if cell in seen:
+            continue
+        component_count += 1
+        stack = [cell]
+        seen.add(cell)
+        size = 0
+        while stack:
+            current = stack.pop()
+            size += 1
+            for nxt in static.adjacency[current]:
+                if nxt in xs and nxt not in seen:
+                    seen.add(nxt)
+                    stack.append(nxt)
+        largest_component = max(largest_component, size)
+    return component_count, largest_component, adjacency_edges // 2
 
 
-def _cells_signature(cells: frozenset[int]) -> str:
-    return ".".join(str(cell) for cell in sorted(cells))
-
-
-def _initial_signature(static: StaticBoard, state: State) -> str:
-    return "|".join(
-        (
-            f"{static.rows}x{static.cols}",
-            _cells_signature(static.walls),
-            str(state.player),
-            _cells_signature(state.os),
-            _cells_signature(state.xs),
-        )
+def _portfolio_context_profile(context) -> str | None:
+    static = context.static
+    state = context.start_state
+    x_count = len(state.xs)
+    floor_count = max(1, len(static.floor))
+    wall_count = len(static.walls)
+    threat_lines = sum(
+        1 for line in static.win_lines if sum(1 for cell in line if cell in state.xs) == 2
     )
+    _component_count, _largest_component, adjacency_edges = _x_cluster_stats(
+        state.xs,
+        static,
+    )
+    x_density = x_count / floor_count
+
+    if x_count >= 18 and x_density >= 0.30 and adjacency_edges <= 1 and threat_lines <= 2:
+        return "rank_first"
+    if (
+        x_count >= 18
+        and x_density >= 0.30
+        and wall_count <= 8
+        and threat_lines >= 12
+        and adjacency_edges >= 6
+    ):
+        return "policy_rank_first"
+    return None
 
 
 def _attempt_from_result(result: PushSolveResult) -> SearchAttempt:
@@ -281,8 +304,8 @@ def _portfolio_configs(
     if context is None:
         return base_configs
 
-    signature = _initial_signature(context.static, context.start_state)
-    if signature in _RANK_FIRST_SIGNATURES:
+    profile = _portfolio_context_profile(context)
+    if profile == "rank_first":
         return (
             (
                 SearchStrategyConfig(
@@ -296,7 +319,7 @@ def _portfolio_configs(
             ),
             *base_configs,
         )
-    if signature in _POLICY_RANK_FIRST_SIGNATURES:
+    if profile == "policy_rank_first":
         return (
             (
                 SearchStrategyConfig(
@@ -308,7 +331,7 @@ def _portfolio_configs(
                     use_macros=True,
                     policy_weight=2.00,
                 ),
-                0.80,
+                0.55,
             ),
             *base_configs,
         )

@@ -111,8 +111,9 @@ Files:
 
 - `solver/heuristic_cnn_solver.py`
 - `solver/beam_search.py`
+- `solver/numpy_cnn.py`
 - `solver/small_cnn.py`
-- `solver/small_cnn_policy.pt`
+- `solver/small_cnn_policy.npz`
 
 This is the current production path for larger boards. `service.py` routes
 boards at least `6x6` to this solver. The wrapper runs two attempts:
@@ -137,8 +138,10 @@ Current settings:
 - timeout: `300s` per attempt
 
 The CNN is a behavior-cloned policy trained from solved `(board, move)` pairs.
-It does not validate moves by itself; search still performs legality checks,
-loss checks, soft-lock pruning, and final replay validation.
+Production inference uses the exported NumPy weights rather than PyTorch to keep
+the API function bundle small. The CNN does not validate moves by itself; search
+still performs legality checks, loss checks, soft-lock pruning, and final replay
+validation.
 
 ## DQN / Gymnasium Solver Path
 

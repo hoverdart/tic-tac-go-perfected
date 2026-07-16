@@ -46,9 +46,14 @@ If the frontend is not running on `http://localhost:3000`, set
 The daily job also needs `DATABASE_URL`, `GEMINI_API_KEY`, `CRON_SECRET`, and
 `GOOGLE_TIC_TAC_GO_URL`.
 
-The API chooses a solver per board. Boards that are at least `6x6` route to the
-heuristic-CNN beam solver. Smaller boards use the legacy solver by default, or
-the optimized pure-Python solver when configured with:
+The daily cron job always runs the push portfolio first with a 500,000-node,
+30-second budget. If push search does not solve the board, it falls back to the
+heuristic beam solver and then CNN-guided beam search. Fallback moves are
+independently verified before they are stored.
+
+The direct `POST /solve` API remains configurable. Boards that are at least
+`6x6` route to the heuristic-CNN beam solver. Smaller boards use the legacy
+solver by default, or the optimized pure-Python solver when configured with:
 
 ```bash
 SOLVER_IMPL=optimized
@@ -100,9 +105,8 @@ Set these environment variables on the Vercel project:
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
-- `SOLVER_IMPL`: optional, set to `optimized`, `learned`, or `push` to use an
-  alternate solver instead of legacy BFS; `push` is explicitly allowed for large
-  boards too
+- `SOLVER_IMPL`: optional direct `POST /solve` selection; the daily cron uses
+  push with Beam/CNN fallback regardless of this setting
 - `SOLVER_MODE`: optional, `hybrid`, `fast`, or `exact`
 - `REMOTE_BROWSER_PROVIDER`: `browserless`
 - `BROWSERLESS_TOKEN`: Browserless API token if using Browserless instead

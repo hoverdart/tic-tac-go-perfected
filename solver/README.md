@@ -10,13 +10,15 @@ still being worked on.
 ## Project Layout
 
 - `solve.py`: easiest way to run the legacy command-line solver
-- `service.py`: API-facing router that chooses the solver for each board
+- `service.py`: API-facing router plus the daily push-first, Beam/CNN-fallback
+  portfolio
 - `board_utils.py`: shared board normalization and JSON conversion helpers
 - `heuristic_cnn_solver.py`: production wrapper for heuristic beam search with
   CNN fallback
 - `beam_search.py`: beam search implementation used by the heuristic-CNN solver
-- `small_cnn.py`: small behavior-cloned CNN policy used as beam guidance
-- `small_cnn_policy.pt`: trained CNN checkpoint used by `heuristic_cnn_solver.py`
+- `numpy_cnn.py`: lightweight production inference for CNN beam guidance
+- `small_cnn.py`: PyTorch training script for the behavior-cloned CNN policy
+- `small_cnn_policy.npz`: trained production CNN weights
 - `optimized_solver.py`: compact-state solver used by the API when
   `SOLVER_IMPL=optimized` on smaller boards
 - `push_solver/`: classical Sokoban-style push-level weighted-A* solver
@@ -169,8 +171,10 @@ estimate into an infinite one from occupancy alone.
 File: `heuristic_cnn_solver.py`
 
 This is the production path for larger boards. It first runs pure heuristic beam
-search. If that fails, it loads `small_cnn_policy.pt` and reruns beam search with
-CNN action logits mixed into the heuristic score.
+search. If that fails, it loads `small_cnn_policy.npz` and reruns beam search
+with CNN action logits mixed into the heuristic score. Production inference uses
+NumPy so the API bundle does not include the multi-gigabyte PyTorch runtime;
+`small_cnn.py` still uses PyTorch for offline training and exports both formats.
 
 Current production settings:
 
@@ -185,6 +189,11 @@ Current production settings:
 
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
+
+For the daily cron path, `solve_daily_board()` runs the push solver first with a
+500,000-node, 30-second budget. It invokes this heuristic/CNN wrapper only if
+push search does not find a solution, verifies any fallback move string, and
+reports `heuristic-CNN` when the fallback ran.
 
 ## Linear Tree Solver V1
 

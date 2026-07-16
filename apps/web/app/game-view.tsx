@@ -1,12 +1,7 @@
-// Root client component for the interactive page. Owns all mutable UI state:
-// which date's solution is currently displayed and whether a fetch is in flight.
-// Today's solution and the history list arrive as server-rendered props;
-// past solutions are fetched on demand through the /api/solutions/[date] route.
-"use client";
-
-import { useState, useCallback, useRef, useEffect } from "react";
+import Link from "next/link";
 import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
 import type { Cell } from "./replay-model";
+import { formatLongDate } from "./solution-data";
 
 type SolveStep = {
   move: string;
@@ -41,6 +36,7 @@ type Props = {
   initialSolution: SolutionRecord;
   history: HistoryEntry[];
   isDemo: boolean;
+  isTodayPage: boolean;
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
@@ -71,65 +67,92 @@ function statusIcon(status: DailyStatus): string {
   return "–";
 }
 
-export function GameView({ initialSolution, history, isDemo }: Props) {
-  const [currentSolution, setCurrentSolution] = useState<SolutionRecord>(initialSolution);
-  const [loadingDate, setLoadingDate] = useState<string | null>(null);
+const MOVE_NAMES: Record<string, string> = {
+  U: "Up",
+  D: "Down",
+  L: "Left",
+  R: "Right",
+};
 
-  // Used to scroll the carousel all the way to the right on first render so
-  // today's tile (the last one) is visible without manual scrolling.
-  const scrollRef = useRef<HTMLDivElement>(null);
+function SolutionSummary({
+  solution,
+  isDemo,
+  isTodayPage,
+}: {
+  solution: SolutionRecord;
+  isDemo: boolean;
+  isTodayPage: boolean;
+}) {
+  const date = formatLongDate(solution.puzzle_date);
+  const subject = isTodayPage
+    ? "Today's Tic Tac Go puzzle"
+    : `The Tic Tac Go puzzle for ${date}`;
+  const namedSubject = solution.puzzle_title
+    ? `${subject} "${solution.puzzle_title}"`
+    : subject;
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-    }
-  }, []);
+  if (solution.status === "solved" && solution.moves !== null) {
+    const moveSequence = solution.moves || "Already solved";
+    const directions = solution.moves
+      .split("")
+      .map((move) => MOVE_NAMES[move] ?? move)
+      .join(", ");
+    return (
+      <section className="solution-summary" aria-labelledby="solution-summary-title">
+        <h2 id="solution-summary-title">Solution summary</h2>
+        <p>
+          {namedSubject} was solved in {solution.moves.length} moves. The replay
+          above follows the recorded solution from the starting board to the
+          completed line.
+        </p>
+        <p className="solution-moves">
+          <strong>Move sequence:</strong> <code>{moveSequence}</code>
+          {directions && <span>{directions}</span>}
+        </p>
+      </section>
+    );
+  }
 
-  const selectDate = useCallback(
-    async (date: string) => {
-      // Ignore taps on the already-active tile or while another fetch is running
-      if (date === currentSolution.puzzle_date || loadingDate !== null) return;
-
-      // Today's solution was already fetched server-side — no need to round-trip
-      if (date === initialSolution.puzzle_date) {
-        setCurrentSolution(initialSolution);
-        return;
-      }
-
-      setLoadingDate(date);
-      try {
-        const res = await fetch(`/api/solutions/${date}`);
-        if (res.ok) {
-          setCurrentSolution(await res.json());
-        }
-      } catch {
-        // Keep the current solution visible on network error
-      } finally {
-        setLoadingDate(null);
-      }
-    },
-    [currentSolution.puzzle_date, initialSolution, loadingDate],
+  const statusCopy = isDemo
+    ? "A local demonstration is shown while the live solution service is unavailable."
+    : solution.status === "pending"
+      ? "The daily solution is not available yet."
+      : solution.status === "unsolved"
+        ? "No verified solution was found for this puzzle."
+        : "The puzzle capture or solution needs review.";
+  return (
+    <section className="solution-summary" aria-labelledby="solution-summary-title">
+      <h2 id="solution-summary-title">Solution status</h2>
+      <p>
+        {subject}. {statusCopy}
+      </p>
+    </section>
   );
+}
 
-  const showDemo = isDemo && currentSolution.puzzle_date === initialSolution.puzzle_date;
+export function GameView({
+  initialSolution,
+  history,
+  isDemo,
+  isTodayPage,
+}: Props) {
+  const currentSolution = initialSolution;
+  const heading = isTodayPage
+    ? "Tic Tac Go Solution Today"
+    : `Tic Tac Go Solution - ${formatLongDate(currentSolution.puzzle_date)}`;
 
   return (
     <>
       <header className="game-header">
-        <h1>Tic-Tac-Go</h1>
-        <p>Daily Solver</p>
+        <h1 className={isTodayPage ? undefined : "historical-heading"}>{heading}</h1>
+        <p>{isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
         <div className="date-pill">
           <time dateTime={currentSolution.puzzle_date}>{formatDate(currentSolution.puzzle_date)}</time>
-          <span>{statusText(currentSolution.status, showDemo, currentSolution.puzzle_title)}</span>
+          <span>{statusText(currentSolution.status, isDemo, currentSolution.puzzle_title)}</span>
         </div>
       </header>
 
-      {/* key={puzzle_date} forces SolveDashboard (and its SolvePlayer child) to
-          fully unmount and remount when the selected date changes. Without this,
-          the frame index and playback state would carry over from the previous
-          solution and show the wrong position on the new board. */}
       <SolveDashboard
-        key={currentSolution.puzzle_date}
         board={currentSolution.board}
         moves={currentSolution.moves}
         statesChecked={currentSolution.states_checked}
@@ -138,42 +161,33 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
         solverName={currentSolution.solver_name}
         status={currentSolution.status}
         errorMessage={currentSolution.error_message}
-        isDemo={showDemo}
+        isDemo={isDemo}
       />
 
-      {/* Carousel: only rendered when there's actual history. The list arrives
-          in chronological order from the server; we reverse it here so the
-          most recent date is on the right. The scrollRef effect above ensures
-          that rightmost tile is in view on load. */}
+      <SolutionSummary
+        solution={currentSolution}
+        isDemo={isDemo}
+        isTodayPage={isTodayPage}
+      />
+
       {history.length > 0 && (
         <nav className="history-carousel" aria-label="Past solutions">
           <div className="history-header">
             <p className="history-label">Past Solutions</p>
-            {/* Show a jump-back button whenever a past date is selected */}
-            {currentSolution.puzzle_date !== initialSolution.puzzle_date && (
-              <button
-                type="button"
-                className="history-today-btn"
-                onClick={() => {
-                  void selectDate(initialSolution.puzzle_date);
-                  if (scrollRef.current) {
-                    scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-                  }
-                }}
-              >
+            {!isTodayPage && (
+              <Link className="history-today-btn" href="/">
                 Today ↩
-              </button>
+              </Link>
             )}
           </div>
-          <div className="history-scroll" ref={scrollRef}>
-            {[...history].reverse().map((entry) => {
+          <div className="history-scroll">
+            {history.map((entry) => {
               const isActive = entry.puzzle_date === currentSolution.puzzle_date;
-              const isLoading = entry.puzzle_date === loadingDate;
-              const isToday = entry.puzzle_date === initialSolution.puzzle_date;
               return (
-                <button
+                <Link
                   key={entry.puzzle_date}
-                  type="button"
+                  href={`/solutions/${entry.puzzle_date}`}
+                  prefetch={false}
                   className={[
                     "history-tile",
                     `history-tile-${entry.status}`,
@@ -181,23 +195,19 @@ export function GameView({ initialSolution, history, isDemo }: Props) {
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  onClick={() => void selectDate(entry.puzzle_date)}
-                  disabled={loadingDate !== null}
-                  aria-pressed={isActive}
+                  aria-current={isActive ? "page" : undefined}
                   aria-label={`${entry.puzzle_title ?? formatShortDate(entry.puzzle_date)} — ${entry.status}`}
                 >
-                  {/* Primary line: puzzle title if known, otherwise a dash */}
                   <span className="history-tile-title">
                     {entry.puzzle_title ?? "—"}
                   </span>
-                  {/* Secondary line: "Today" for the current date, short date otherwise */}
                   <span className="history-tile-date">
-                    {isToday ? "Today" : formatShortDate(entry.puzzle_date)}
+                    {formatShortDate(entry.puzzle_date)}
                   </span>
                   <span className="history-tile-icon" aria-hidden="true">
-                    {isLoading ? "…" : statusIcon(entry.status)}
+                    {statusIcon(entry.status)}
                   </span>
-                </button>
+                </Link>
               );
             })}
           </div>

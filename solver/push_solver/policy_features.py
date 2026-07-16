@@ -26,6 +26,39 @@ def _norm_coord(cell: int, board: core.StaticBoard) -> tuple[float, float]:
     )
 
 
+def _x_cluster_stats(xs: frozenset[int], board: core.StaticBoard) -> tuple[int, int, int]:
+    if not xs:
+        return 0, 0, 0
+    seen: set[int] = set()
+    component_count = 0
+    largest_component = 0
+    adjacency_edges = 0
+    for cell in xs:
+        adjacency_edges += sum(1 for nxt in board.adjacency[cell] if nxt in xs)
+        if cell in seen:
+            continue
+        component_count += 1
+        stack = [cell]
+        seen.add(cell)
+        size = 0
+        while stack:
+            current = stack.pop()
+            size += 1
+            for nxt in board.adjacency[current]:
+                if nxt in xs and nxt not in seen:
+                    seen.add(nxt)
+                    stack.append(nxt)
+        largest_component = max(largest_component, size)
+    return component_count, largest_component, adjacency_edges // 2
+
+
+def _low_degree_floor_fraction(board: core.StaticBoard) -> float:
+    if not board.floor:
+        return 0.0
+    low_degree = sum(1 for cell in board.floor if len(board.adjacency[cell]) <= 2)
+    return low_degree / len(board.floor)
+
+
 def features_for_child(
     context: Any,
     parent: core.State,
@@ -116,6 +149,13 @@ def features_for_child(
     x_threat_after = sum(
         1 for line in board.win_lines if sum(1 for cell in line if cell in child.xs) == 2
     )
+    parent_x_components, parent_largest_x_cluster, parent_x_edges = _x_cluster_stats(
+        parent.xs,
+        board,
+    )
+    floor_count = max(1, len(board.floor))
+    x_count = len(parent.xs)
+    wall_count = len(board.walls)
 
     assigned_progress = 0.0
     if push.piece == "O" and parent_best is not None:
@@ -168,6 +208,14 @@ def features_for_child(
         and parent_best.line == child_best.line
         else 0.0,
         "top_plan_count": len(top_lines) / 8.0,
+        "board_wall_density": wall_count / max(1, board.rows * board.cols),
+        "board_floor_low_degree_frac": _low_degree_floor_fraction(board),
+        "board_x_density": x_count / floor_count,
+        "board_x_count": x_count / 24.0,
+        "board_x_wall_ratio": x_count / max(1, wall_count),
+        "board_x_threat_lines": x_threat_before / max(1, len(board.win_lines)),
+        "board_x_component_count": parent_x_components / max(1, x_count),
+        "board_x_largest_cluster": parent_largest_x_cluster / max(1, x_count),
+        "board_x_adjacency": parent_x_edges / max(1, x_count),
     }
     return features
-

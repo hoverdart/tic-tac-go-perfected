@@ -2,6 +2,5 @@ fastapi
 google-genai
 playwright
 numpy
-torch
 psycopg[binary,pool]
 uvicorn[standard]

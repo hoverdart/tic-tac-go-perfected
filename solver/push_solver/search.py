@@ -104,9 +104,23 @@ def _build_search_context(
         plan_cache=plan_cache,
         top_plan_cache=top_plan_cache,
         o_push_count_cache=o_push_count_cache,
+        deadlock_cache={},
         successor_cache={},
         policy_score_cache={},
     )
+
+
+def _is_deadlock_cached(
+    context: SearchContext,
+    os: frozenset[int],
+    xs: frozenset[int],
+    *,
+    player: int | None,
+) -> bool:
+    key = (os, xs, player)
+    if key not in context.deadlock_cache:
+        context.deadlock_cache[key] = is_deadlock(os, xs, context.static, player=player)
+    return context.deadlock_cache[key]
 
 
 def _successors_for(
@@ -126,6 +140,7 @@ def _successors_for(
                 plan_cache=context.plan_cache,
                 top_plan_cache=context.top_plan_cache,
                 o_push_count_cache=context.o_push_count_cache,
+                deadlock_cache=context.deadlock_cache,
             )
         )
         context.successor_cache[state] = items
@@ -177,7 +192,7 @@ def _push_items_for_piece_cell(
             if is_x_loss(new_xs, static):
                 continue
 
-        if is_deadlock(new_os, new_xs, static, player=cell):
+        if _is_deadlock_cached(context, new_os, new_xs, player=cell):
             continue
 
         next_state, next_region = _normalize_with_region(cell, new_os, new_xs, static)
@@ -309,8 +324,11 @@ def _policy_score_for(
     child_h: float,
     hand_bias: float,
     push_cost: int,
+    *,
+    hints_only: bool = False,
+    raw_only: bool = False,
 ) -> float:
-    key = (parent, pushes, child)
+    key = (parent, pushes, child, hints_only, raw_only)
     if key in context.policy_score_cache:
         return context.policy_score_cache[key]
     try:
@@ -322,6 +340,10 @@ def _policy_score_for(
     if policy is None:
         context.policy_score_cache[key] = 0.0
         return 0.0
+    if hints_only:
+        score = policy.action_bonus(context.static, parent, pushes)
+        context.policy_score_cache[key] = score
+        return score
     features = features_for_child(
         context,
         parent,
@@ -332,7 +354,10 @@ def _policy_score_for(
         hand_bias,
         push_cost,
     )
-    score = policy.score(features) + policy.action_bonus(context.static, parent, pushes)
+    if raw_only:
+        score = policy.raw_score(features) + policy.action_bonus(context.static, parent, pushes)
+    else:
+        score = policy.score(features) + policy.action_bonus(context.static, parent, pushes)
     context.policy_score_cache[key] = score
     return score
 
@@ -491,6 +516,8 @@ def _strategy_children_for(
     committed_plan: LinePlan | None = None,
     commitment_bias_scale: float = 0.0,
     relevance_filter: bool = False,
+    policy_hints_only: bool = False,
+    policy_raw_only: bool = False,
 ) -> list[StrategyChild]:
     base_items = _successors_for(context, state)
     children: list[StrategyChild] = [
@@ -517,6 +544,8 @@ def _strategy_children_for(
                     child_h,
                     bias,
                     push_cost,
+                    hints_only=policy_hints_only,
+                    raw_only=policy_raw_only,
                 ),
             )
             for pushes, nxt, child_region, child_h, bias, push_cost, _policy_score in children
@@ -884,6 +913,7 @@ def _run_committed_beam_strategy(
                         committed_plan=plan,
                         commitment_bias_scale=config.commitment_bias_scale,
                         relevance_filter=True,
+                        policy_raw_only=True,
                     )
                     for pushes, nxt, child_region, child_h, bias, push_cost, policy_score in child_items:
                         next_cost = cost + push_cost
@@ -902,7 +932,7 @@ def _run_committed_beam_strategy(
                         base_score = (
                             child_h
                             + (1.20 * bias)
-                            - (2.00 * policy_score)
+                            - (config.policy_weight * policy_score)
                             + (0.08 * push_cost)
                         )
                         raw_candidates.append(
