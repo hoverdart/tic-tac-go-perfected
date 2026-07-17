@@ -8,6 +8,8 @@ Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a
 - `apps/api/`: FastAPI backend scaffold for exposing the solver over HTTP.
 - `solver/`: Python solvers, screenshot parsers, model-guided search, and
   training experiments.
+- `tictacgo_solver_v3.md`: Push Solver V3 diagnosis, architecture, coverage
+  invariant, and measured release results.
 
 ## Local Development
 
@@ -46,10 +48,11 @@ If the frontend is not running on `http://localhost:3000`, set
 The daily job also needs `DATABASE_URL`, `GEMINI_API_KEY`, `CRON_SECRET`, and
 `GOOGLE_TIC_TAC_GO_URL`.
 
-The daily cron job always runs the push portfolio first with a 500,000-node,
-30-second budget. If push search does not solve the board, it falls back to the
-heuristic beam solver and then CNN-guided beam search. Fallback moves are
-independently verified before they are stored.
+The daily cron job runs Push Solver V3 first. V3 gives the coverage-preserving
+V2 portfolio the complete 500,000-node/30-second budget, then uses time left in
+the first 10 seconds to improve any verified incumbent by total keystrokes. If
+push search does not solve the board, it falls back to the heuristic beam solver
+and then CNN-guided beam search. Every returned path is independently verified.
 
 The direct `POST /solve` API remains configurable. Boards that are at least
 `6x6` route to the heuristic-CNN beam solver. Smaller boards use the legacy
@@ -70,7 +73,7 @@ any board size. This is opt-in and bypasses the large-board heuristic-CNN route.
 Set `SOLVER_FALLBACK=none` to disable the optimized solver's legacy fallback.
 
 `POST /solve` responses include `solver_name`, such as `bfs`,
-`heuristic-CNN`, or `optimized-hybrid`, so each board records which solver
+`heuristic-CNN`, `push-v3`, or `optimized-hybrid`, so each board records which solver
 actually ran.
 
 ### Historical unresolved backfill

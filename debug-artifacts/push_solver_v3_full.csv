@@ -1,0 +1,342 @@
+board_id,title,push_solved,push_verified,push_strategy,push_moves,push_baseline_moves,push_quality_improved,push_quality_nodes,push_nodes,push_elapsed_ms,push_failure_reason,beam_solved,beam_verified,beam_moves,beam_states,beam_elapsed_ms,beam_failure_reason,combined_solved,combined_solver,combined_elapsed_ms
+20250101,Tutorial,True,True,v1_weighted,6,6,False,3,5,4.4,,False,False,,,,,True,push,4.4
+20250925,Cornered,True,True,v3_keystroke_anytime,48,52,True,1271,1413,548.3,,False,False,,,,,True,push,548.3
+20250926,Stairsteps,True,True,v3_keystroke_anytime,41,45,True,3640,3797,6948.3,,False,False,,,,,True,push,6948.3
+20250927,Do Not Pass,True,True,committed_beam_recovery,114,114,False,0,3406,12977.5,,False,False,,,,,True,push,12977.5
+20250928,Jailbreak,True,True,policy_rank_discrepancy,59,59,False,0,8926,22184.2,,False,False,,,,,True,push,22184.2
+20250929,In Time Out,True,True,v3_keystroke_anytime,10,16,True,52,72,21.5,,False,False,,,,,True,push,21.5
+20250930,Counter Intuitive,True,True,v3_keystroke_anytime,25,48,True,566,618,247.5,,False,False,,,,,True,push,247.5
+20251001,Do Naught,True,True,v3_keystroke_anytime,36,85,True,23289,30974,9232.7,,False,False,,,,,True,push,9232.7
+20251002,Smirk,True,True,v3_keystroke_anytime,44,66,True,537,575,339.0,,False,False,,,,,True,push,339.0
+20251003,Pick a Side,True,True,v3_keystroke_anytime,43,60,True,980,1102,2184.4,,False,False,,,,,True,push,2184.4
+20251004,Play Outside,True,True,v3_keystroke_anytime,65,133,True,1355,1478,4404.4,,False,False,,,,,True,push,4404.4
+20251005,Strange Fit,True,True,committed_beam_recovery,76,76,False,45,6914,10001.5,,False,False,,,,,True,push,10001.5
+20251006,One Off,True,True,v3_keystroke_anytime,13,21,True,27,37,9.2,,False,False,,,,,True,push,9.2
+20251007,Bendable,True,True,v3_keystroke_anytime,22,32,True,808,822,723.9,,False,False,,,,,True,push,723.9
+20251008,Step Aside,True,True,v3_keystroke_anytime,20,34,True,1414,1422,1176.5,,False,False,,,,,True,push,1176.5
+20251009,U Can Do It!,True,True,v1_weighted,23,23,False,337,358,243.4,,False,False,,,,,True,push,243.4
+20251010,Brackets,True,True,v3_keystroke_anytime,37,64,True,3398,3429,2605.8,,False,False,,,,,True,push,2605.8
+20251011,Once Around,True,True,v3_keystroke_anytime,42,106,True,1058,1164,4263.1,,False,False,,,,,True,push,4263.1
+20251012,Escape Route,True,True,v1_weighted,90,90,False,2405,3791,10029.4,,False,False,,,,,True,push,10029.4
+20251013,In Passing,True,True,v1_weighted,15,15,False,37,50,10.9,,False,False,,,,,True,push,10.9
+20251014,Keystone,True,True,committed_beam_recovery,118,118,False,4061,23444,10020.3,,False,False,,,,,True,push,10020.3
+20251015,Ravine,True,True,v1_weighted,32,32,False,248,300,295.6,,False,False,,,,,True,push,295.6
+20251016,Peekaboo,True,True,v1_weighted,34,34,False,9043,9051,10132.8,,False,False,,,,,True,push,10132.8
+20251017,Nine Lives,True,True,v3_keystroke_anytime,48,80,True,7224,7463,10051.3,,False,False,,,,,True,push,10051.3
+20251018,Plot Twist,True,True,v3_keystroke_anytime,43,74,True,449,505,4704.0,,False,False,,,,,True,push,4704.0
+20251019,Save the Princess,True,True,v3_keystroke_anytime,43,63,True,133,284,2510.9,,False,False,,,,,True,push,2510.9
+20251020,Sew Close,True,True,v1_weighted,18,18,False,41,52,12.7,,False,False,,,,,True,push,12.7
+20251021,Wrong Way,True,True,v3_keystroke_anytime,30,38,True,546,573,469.6,,False,False,,,,,True,push,469.6
+20251022,Upended,True,True,v1_weighted,27,27,False,110,155,71.9,,False,False,,,,,True,push,71.9
+20251023,Water Water Everywhere,True,True,v1_weighted,12,12,False,204,214,134.1,,False,False,,,,,True,push,134.1
+20251024,The Long Haul,True,True,v3_keystroke_anytime,71,110,True,1348,1380,8328.9,,False,False,,,,,True,push,8328.9
+20251025,Block Breaker,True,True,v3_keystroke_anytime,37,63,True,294,1908,3860.1,,False,False,,,,,True,push,3860.1
+20251026,Lock In,True,True,committed_beam_recovery,109,109,False,0,6118,11986.9,,False,False,,,,,True,push,11986.9
+20251027,Tip Toe,True,True,v3_keystroke_anytime,13,25,True,44,58,25.0,,False,False,,,,,True,push,25.0
+20251028,Monkey Business,True,True,v1_weighted,50,50,False,4669,4767,10018.5,,False,False,,,,,True,push,10018.5
+20251029,Let Sleeping Dogs Lie,True,True,v3_keystroke_anytime,13,21,True,53,65,44.4,,False,False,,,,,True,push,44.4
+20251030,Bee In Your Bonnet,True,True,v3_keystroke_anytime,32,57,True,2586,2886,1317.8,,False,False,,,,,True,push,1317.8
+20251031,Safety Training,True,True,v3_keystroke_anytime,34,57,True,296,330,5704.9,,False,False,,,,,True,push,5704.9
+20251101,Food Court,True,True,v1_weighted,148,148,False,639,737,10023.7,,False,False,,,,,True,push,10023.7
+20251102,O Brother...,True,True,v1_weighted,60,60,False,4438,4570,10034.5,,False,False,,,,,True,push,10034.5
+20251103,No Sweat,True,True,v1_weighted,12,12,False,59,66,39.7,,False,False,,,,,True,push,39.7
+20251104,And A Cherry On Top,True,True,v3_keystroke_anytime,35,63,True,2405,2613,3426.0,,False,False,,,,,True,push,3426.0
+20251105,Team Meeting,True,True,v1_weighted,61,61,False,7700,8061,10067.8,,False,False,,,,,True,push,10067.8
+20251106,False Walls,True,True,v3_keystroke_anytime,45,47,True,2325,2420,1391.8,,False,False,,,,,True,push,1391.8
+20251107,Minefield,True,True,committed_beam_recovery,126,126,False,0,4904,12911.2,,False,False,,,,,True,push,12911.2
+20251108,Herding Cats,True,True,v1_weighted,97,97,False,777,849,10041.3,,False,False,,,,,True,push,10041.3
+20251109,Antechamber,True,True,v3_keystroke_anytime,39,79,True,1028,1439,4121.7,,False,False,,,,,True,push,4121.7
+20251110,So Close,True,True,v1_weighted,15,15,False,6,12,2.5,,False,False,,,,,True,push,2.5
+20251111,Ledge Leap,True,True,v3_keystroke_anytime,28,30,True,2639,2654,1395.2,,False,False,,,,,True,push,1395.2
+20251112,Desk Setup,True,True,v3_keystroke_anytime,26,40,True,1353,1378,760.7,,False,False,,,,,True,push,760.7
+20251113,Peas In A Pod,True,True,v3_keystroke_anytime,49,62,True,2109,3088,1472.8,,False,False,,,,,True,push,1472.8
+20251114,Only Way Out,True,True,v3_keystroke_anytime,22,26,True,431,500,1778.0,,False,False,,,,,True,push,1778.0
+20251115,Platforms,True,True,v1_weighted,87,87,False,796,858,10039.1,,False,False,,,,,True,push,10039.1
+20251116,Minefields,True,True,committed_beam_recovery,43,43,False,0,3506,11217.7,,False,False,,,,,True,push,11217.7
+20251117,Cornered,True,True,v3_keystroke_anytime,8,12,True,16,24,5.5,,False,False,,,,,True,push,5.5
+20251118,Corridor Chaos,True,True,v3_keystroke_anytime,26,31,True,485,524,1475.0,,False,False,,,,,True,push,1475.0
+20251119,Triple Pairs,True,True,v3_keystroke_anytime,44,64,True,10128,12676,6015.1,,False,False,,,,,True,push,6015.1
+20251120,Boxed In,True,True,v3_keystroke_anytime,37,59,True,1510,1818,917.5,,False,False,,,,,True,push,917.5
+20251121,Checkers,True,True,v3_keystroke_anytime,34,44,True,1540,1562,2215.3,,False,False,,,,,True,push,2215.3
+20251122,Missing Piece,True,True,v3_keystroke_anytime,32,102,True,1571,1692,4323.7,,False,False,,,,,True,push,4323.7
+20251123,Connecting the Dots,True,True,v3_keystroke_anytime,38,49,True,1256,1273,6488.6,,False,False,,,,,True,push,6488.6
+20251124,Lost Sheep,True,True,v3_keystroke_anytime,14,15,True,56,65,21.2,,False,False,,,,,True,push,21.2
+20251125,Security System,True,True,v1_weighted,17,17,False,904,912,1698.3,,False,False,,,,,True,push,1698.3
+20251126,In The Doghouse,True,True,v3_keystroke_anytime,17,53,True,538,581,2220.1,,False,False,,,,,True,push,2220.1
+20251127,Flywheel,True,True,v3_keystroke_anytime,41,43,True,9691,9883,3629.9,,False,False,,,,,True,push,3629.9
+20251128,Lake in the Woods,True,True,v3_keystroke_anytime,54,62,True,3433,5134,9083.9,,False,False,,,,,True,push,9083.9
+20251129,Downstream Effects,True,True,v1_weighted,54,54,False,3081,4358,10032.0,,False,False,,,,,True,push,10032.0
+20251130,Neutral State,True,True,v1_weighted,102,102,False,2328,2445,10049.9,,False,False,,,,,True,push,10049.9
+20251201,No Diagonals,True,True,v1_weighted,9,9,False,7,13,4.6,,False,False,,,,,True,push,4.6
+20251202,Dead End,True,True,v3_keystroke_anytime,54,72,True,1994,2083,1446.5,,False,False,,,,,True,push,1446.5
+20251203,Neighbors,True,True,v3_keystroke_anytime,31,44,True,1318,1759,1841.8,,False,False,,,,,True,push,1841.8
+20251204,Catty Corner,True,True,v3_keystroke_anytime,29,43,True,623,657,303.1,,False,False,,,,,True,push,303.1
+20251205,Line of Sight,True,True,v3_keystroke_anytime,32,34,True,584,597,1383.1,,False,False,,,,,True,push,1383.1
+20251206,Face to Face,True,True,v1_weighted,79,79,False,6682,7417,10034.8,,False,False,,,,,True,push,10034.8
+20251207,Thread the Needle,True,True,committed_beam_recovery,152,152,False,0,2640,15963.4,,False,False,,,,,True,push,15963.4
+20251208,Watch Your Step,True,True,v3_keystroke_anytime,7,22,True,20,29,11.6,,False,False,,,,,True,push,11.6
+20251209,U-Turn,True,True,v3_keystroke_anytime,31,45,True,2010,2414,2573.9,,False,False,,,,,True,push,2573.9
+20251210,Rounded Corners,True,True,v3_keystroke_anytime,19,57,True,918,965,2379.0,,False,False,,,,,True,push,2379.0
+20251211,Tight Spaces,True,True,v3_keystroke_anytime,30,36,True,1159,1189,1022.4,,False,False,,,,,True,push,1022.4
+20251212,-_-,False,False,,,,False,0,2202,30673.1,timeout,False,False,,,,,False,,30673.1
+20251213,The Pits,True,True,macro_greedy,45,45,False,1655,8684,10027.2,,False,False,,,,,True,push,10027.2
+20251214,Unboxing,True,True,macro_greedy,105,105,False,2337,9094,10097.9,,False,False,,,,,True,push,10097.9
+20251215,Loopy,True,True,v3_keystroke_anytime,47,83,True,6644,7284,1994.9,,False,False,,,,,True,push,1994.9
+20251216,Centrally Located,True,True,v1_weighted,24,24,False,560,566,542.9,,False,False,,,,,True,push,542.9
+20251217,Ups and Down,True,True,v3_keystroke_anytime,41,65,True,2674,3770,2671.1,,False,False,,,,,True,push,2671.1
+20251218,Spotted You Across The Room,True,True,v3_keystroke_anytime,31,37,True,963,1078,342.0,,False,False,,,,,True,push,342.0
+20251219,Cross Worlds,True,True,v3_keystroke_anytime,41,125,True,1081,1105,3680.3,,False,False,,,,,True,push,3680.3
+20251220,All Things Equal,True,True,policy_rank_recovery_first,94,94,False,0,9043,16187.4,,False,False,,,,,True,push,16187.4
+20251221,Imposter,True,True,committed_beam_recovery,56,56,False,187,6345,10008.8,,False,False,,,,,True,push,10008.8
+20251222,Leapfrog,True,True,v3_keystroke_anytime,9,11,True,7,11,3.3,,False,False,,,,,True,push,3.3
+20251223,Alcove,True,True,v3_keystroke_anytime,35,67,True,1431,1585,2692.7,,False,False,,,,,True,push,2692.7
+20251224,Blocked,True,True,v3_keystroke_anytime,19,24,True,300,365,1301.5,,False,False,,,,,True,push,1301.5
+20251225,Back Pain,True,True,v3_keystroke_anytime,33,48,True,4981,5033,2023.3,,False,False,,,,,True,push,2023.3
+20251226,Skull & Crossbones,True,True,v3_keystroke_anytime,37,47,True,2976,3068,10036.2,,False,False,,,,,True,push,10036.2
+20251227,Marathon,True,True,v1_weighted,200,200,False,2152,2344,10052.8,,False,False,,,,,True,push,10052.8
+20251228,Cornered,False,False,,,,False,0,14111,30092.4,timeout,False,False,,,,,False,,30092.4
+20251229,Out of Place,True,True,v3_keystroke_anytime,22,30,True,36,54,11.3,,False,False,,,,,True,push,11.3
+20251230,Stuck in the Middle,True,True,v3_keystroke_anytime,35,50,True,2017,2204,1873.9,,False,False,,,,,True,push,1873.9
+20251231,Exile,True,True,v3_keystroke_anytime,20,35,True,248,276,155.4,,False,False,,,,,True,push,155.4
+20260101,Everything in its Place,True,True,v3_keystroke_anytime,27,54,True,2964,4478,2859.6,,False,False,,,,,True,push,2859.6
+20260102,Roundabout Way,True,True,v3_keystroke_anytime,34,47,True,352,363,2907.9,,False,False,,,,,True,push,2907.9
+20260103,Pushups,True,True,v1_weighted,79,79,False,3322,3551,10053.0,,False,False,,,,,True,push,10053.0
+20260104,A Bridge Too Far,True,True,committed_beam_recovery,144,144,False,0,28465,12209.2,,False,False,,,,,True,push,12209.2
+20260105,Naught So Easy,True,True,v3_keystroke_anytime,18,22,True,61,96,25.7,,False,False,,,,,True,push,25.7
+20260106,Barricade,True,True,v3_keystroke_anytime,19,41,True,2784,2936,2663.0,,False,False,,,,,True,push,2663.0
+20260107,A Fine Line,True,True,v3_keystroke_anytime,49,85,True,5602,6524,8011.3,,False,False,,,,,True,push,8011.3
+20260108,Surprise Party,True,True,v3_keystroke_anytime,22,25,True,172,210,111.2,,False,False,,,,,True,push,111.2
+20260109,The Tail Wags The Dog,True,True,v3_keystroke_anytime,37,72,True,1257,1414,3870.2,,False,False,,,,,True,push,3870.2
+20260110,Throne Room,True,True,v3_keystroke_anytime,32,47,True,484,526,1447.3,,False,False,,,,,True,push,1447.3
+20260111,Corn Maze,True,True,v3_keystroke_anytime,47,88,True,284,386,1897.5,,False,False,,,,,True,push,1897.5
+20260112,Two at a Time,True,True,v1_weighted,12,12,False,38,51,11.3,,False,False,,,,,True,push,11.3
+20260113,Blind Corners,True,True,v3_keystroke_anytime,14,16,True,86,126,42.6,,False,False,,,,,True,push,42.6
+20260114,Cup o' Joe,True,True,v3_keystroke_anytime,22,43,True,1554,1678,1135.4,,False,False,,,,,True,push,1135.4
+20260115,Waterworks,True,True,v3_keystroke_anytime,28,106,True,599,764,514.1,,False,False,,,,,True,push,514.1
+20260116,Wrong Angle,True,True,v3_keystroke_anytime,45,73,True,97,110,1472.8,,False,False,,,,,True,push,1472.8
+20260117,Plugged Up,True,True,committed_beam_recovery,167,167,False,0,5922,14345.5,,False,False,,,,,True,push,14345.5
+20260118,Summoning Circle,True,True,v1_weighted,131,131,False,978,1420,10105.4,,False,False,,,,,True,push,10105.4
+20260119,Waffling,True,True,v1_weighted,13,13,False,9,16,5.6,,False,False,,,,,True,push,5.6
+20260120,Fish And Chips,True,True,v3_keystroke_anytime,17,34,True,224,247,131.9,,False,False,,,,,True,push,131.9
+20260121,Lucky Horseshoe,True,True,v1_weighted,50,50,False,6501,6644,10053.7,,False,False,,,,,True,push,10053.7
+20260122,Tidy Up,True,True,v3_keystroke_anytime,22,28,True,703,764,1229.7,,False,False,,,,,True,push,1229.7
+20260123,Walking Gingerly,True,True,policy_rank_recovery_first,48,48,False,0,1978,15180.9,,False,False,,,,,True,push,15180.9
+20260124,In the Goal,True,True,committed_beam_recovery,124,124,False,0,4574,12954.6,,False,False,,,,,True,push,12954.6
+20260125,Harmonic Progression,True,True,rank_recovery_first,68,68,False,527,3069,10014.7,,False,False,,,,,True,push,10014.7
+20260126,Playground,True,True,v1_weighted,13,13,False,174,190,107.4,,False,False,,,,,True,push,107.4
+20260127,Starry Sky,True,True,v1_weighted,14,14,False,296,315,236.9,,False,False,,,,,True,push,236.9
+20260128,Workaround,True,True,v3_keystroke_anytime,49,83,True,418,499,1369.1,,False,False,,,,,True,push,1369.1
+20260129,Blockade,True,True,v3_keystroke_anytime,21,37,True,839,870,2509.6,,False,False,,,,,True,push,2509.6
+20260130,Eureka!,True,True,rank_discrepancy,73,73,False,0,6061,24551.7,,False,False,,,,,True,push,24551.7
+20260131,The Stacks,True,True,policy_rank_recovery_first,130,130,False,568,582,10038.9,,False,False,,,,,True,push,10038.9
+20260201,Dance Floor,True,True,v3_keystroke_anytime,44,158,True,290,315,8318.3,,False,False,,,,,True,push,8318.3
+20260202,Shoveling Snow,True,True,v3_keystroke_anytime,21,29,True,1376,1404,948.6,,False,False,,,,,True,push,948.6
+20260203,Across the Universe,True,True,v3_keystroke_anytime,14,23,True,406,421,1147.7,,False,False,,,,,True,push,1147.7
+20260204,Maypole,True,True,v3_keystroke_anytime,21,37,True,857,930,2311.7,,False,False,,,,,True,push,2311.7
+20260205,Untangled,True,True,v3_keystroke_anytime,34,70,True,1101,1187,2616.9,,False,False,,,,,True,push,2616.9
+20260206,Halfway Home,True,True,v3_keystroke_anytime,30,62,True,343,413,1810.9,,False,False,,,,,True,push,1810.9
+20260207,Primordial Soup,True,True,macro_greedy,73,73,False,98,572,10057.5,,False,False,,,,,True,push,10057.5
+20260208,Toric Lens,True,True,policy_rank_recovery_first,133,133,False,0,1688,15993.3,,False,False,,,,,True,push,15993.3
+20260209,Piece of Cake,True,True,v3_keystroke_anytime,8,12,True,14,22,6.0,,False,False,,,,,True,push,6.0
+20260210,Dungeon,True,True,v3_keystroke_anytime,26,62,True,1426,1576,2180.6,,False,False,,,,,True,push,2180.6
+20260211,Slot Machine,True,True,v3_keystroke_anytime,36,38,True,3579,4113,6200.3,,False,False,,,,,True,push,6200.3
+20260212,Cautionary Tale,True,True,macro_greedy,50,50,False,800,2789,10009.9,,False,False,,,,,True,push,10009.9
+20260213,I Spy,True,True,v3_keystroke_anytime,38,76,True,361,586,6117.6,,False,False,,,,,True,push,6117.6
+20260214,Database,True,True,v3_keystroke_anytime,21,47,True,292,365,2468.7,,False,False,,,,,True,push,2468.7
+20260215,Full Steam Ahead,True,True,greedy_bias,97,97,False,1213,3737,10016.7,,False,False,,,,,True,push,10016.7
+20260216,Outside In,True,True,v3_keystroke_anytime,12,24,True,49,59,78.1,,False,False,,,,,True,push,78.1
+20260217,Palate Cleanser,True,True,v3_keystroke_anytime,25,54,True,793,891,1803.4,,False,False,,,,,True,push,1803.4
+20260218,Knotty By Nature,True,True,v3_keystroke_anytime,28,47,True,1161,1200,798.6,,False,False,,,,,True,push,798.6
+20260219,Untangled,True,True,committed_beam_recovery,39,39,False,1673,7811,10012.7,,False,False,,,,,True,push,10012.7
+20260220,Laser Tag,True,True,policy_rank_recovery_first,55,55,False,949,1264,10041.0,,False,False,,,,,True,push,10041.0
+20260221,Teahouse,True,True,v1_weighted,96,96,False,1183,1496,10048.5,,False,False,,,,,True,push,10048.5
+20260222,House of Cards,True,True,policy_rank_recovery_first,81,81,False,0,3735,15462.0,,False,False,,,,,True,push,15462.0
+20260223,Candyland,True,True,v3_keystroke_anytime,10,16,True,234,249,204.7,,False,False,,,,,True,push,204.7
+20260224,Sweet Relief,True,True,v3_keystroke_anytime,14,21,True,784,792,939.5,,False,False,,,,,True,push,939.5
+20260225,Pinched Nerve,True,True,v3_keystroke_anytime,18,60,True,652,679,1213.2,,False,False,,,,,True,push,1213.2
+20260226,Bouquet of Flowers,True,True,v3_keystroke_anytime,28,49,True,3564,3703,1432.5,,False,False,,,,,True,push,1432.5
+20260227,Orion's Belt,True,True,v1_weighted,78,78,False,1720,2177,10037.7,,False,False,,,,,True,push,10037.7
+20260228,Elbow Room,True,True,v3_keystroke_anytime,30,35,True,492,777,4783.1,,False,False,,,,,True,push,4783.1
+20260301,Immovable Objects,True,True,committed_beam,94,94,False,0,5371,28069.6,,False,False,,,,,True,push,28069.6
+20260302,Boom Gate,True,True,v1_weighted,6,6,False,11,18,8.7,,False,False,,,,,True,push,8.7
+20260303,Good Rally,True,True,v3_keystroke_anytime,22,29,True,606,845,1566.9,,False,False,,,,,True,push,1566.9
+20260304,Spiraling,True,True,v3_keystroke_anytime,21,40,True,371,439,1782.3,,False,False,,,,,True,push,1782.3
+20260305,Balance Beam,True,True,v3_keystroke_anytime,20,28,True,363,442,1805.1,,False,False,,,,,True,push,1805.1
+20260306,Chaos Board,True,True,greedy_low_g,54,54,False,1527,2349,10037.7,,False,False,,,,,True,push,10037.7
+20260307,Train Tracks,True,True,v3_keystroke_anytime,42,57,True,1676,2064,9450.3,,False,False,,,,,True,push,9450.3
+20260308,Locked In,True,True,policy_rank_discrepancy,133,133,False,0,2922,23247.5,,False,False,,,,,True,push,23247.5
+20260309,Lighthouse,True,True,v3_keystroke_anytime,20,26,True,434,493,263.2,,False,False,,,,,True,push,263.2
+20260310,Six Feet Under,True,True,v3_keystroke_anytime,32,59,True,798,861,2119.8,,False,False,,,,,True,push,2119.8
+20260311,Bank Teller,True,True,v3_keystroke_anytime,21,45,True,1295,1604,1626.8,,False,False,,,,,True,push,1626.8
+20260312,Tried and True,True,True,committed_beam_recovery,70,70,False,803,6201,10014.9,,False,False,,,,,True,push,10014.9
+20260313,Quilts and Quibbles,True,True,v3_keystroke_anytime,22,24,True,244,255,2108.8,,False,False,,,,,True,push,2108.8
+20260314,Tee Off,False,False,,,,False,0,11117,30126.2,timeout,False,False,,,,,False,,30126.2
+20260315,Four Corners,True,True,v3_keystroke_anytime,33,45,True,273,348,3146.5,,False,False,,,,,True,push,3146.5
+20260316,One Small Step,True,True,v3_keystroke_anytime,10,22,True,39,48,14.1,,False,False,,,,,True,push,14.1
+20260317,Handshake,True,True,v3_keystroke_anytime,26,38,True,2223,2281,1392.4,,False,False,,,,,True,push,1392.4
+20260318,Helpful Advice,True,True,v3_keystroke_anytime,17,43,True,497,593,1619.1,,False,False,,,,,True,push,1619.1
+20260319,Sideways,True,True,v1_weighted,31,31,False,4374,4694,10027.5,,False,False,,,,,True,push,10027.5
+20260320,All Mixed Up,True,True,v3_keystroke_anytime,27,52,True,254,364,2439.0,,False,False,,,,,True,push,2439.0
+20260321,Friends In High Places,True,True,macro_greedy,162,162,False,424,1820,10027.1,,False,False,,,,,True,push,10027.1
+20260322,Stairstep,True,True,v3_keystroke_anytime,33,60,True,217,307,2928.6,,False,False,,,,,True,push,2928.6
+20260323,Poker Face,True,True,v3_keystroke_anytime,36,42,True,82,107,51.6,,False,False,,,,,True,push,51.6
+20260324,Elbow Joint,True,True,macro_greedy,62,62,False,1385,3156,10016.1,,False,False,,,,,True,push,10016.1
+20260325,Treasure Trove,True,True,v3_keystroke_anytime,26,34,True,3709,3820,1654.8,,False,False,,,,,True,push,1654.8
+20260326,Runway,True,True,v3_keystroke_anytime,34,58,True,4663,5445,5694.7,,False,False,,,,,True,push,5694.7
+20260327,Simplicity,True,True,v3_keystroke_anytime,34,53,True,195,233,2201.0,,False,False,,,,,True,push,2201.0
+20260328,Platforms,True,True,v3_keystroke_anytime,49,51,True,89,106,1433.4,,False,False,,,,,True,push,1433.4
+20260329,Neutrality,True,True,greedy_low_g,66,66,False,366,886,10053.0,,False,False,,,,,True,push,10053.0
+20260330,S Curve,True,True,v3_keystroke_anytime,15,21,True,1081,1107,337.3,,False,False,,,,,True,push,337.3
+20260331,Defusion,True,True,v3_keystroke_anytime,22,24,True,117,133,59.8,,False,False,,,,,True,push,59.8
+20260401,Circling the Drain,True,True,v3_keystroke_anytime,28,79,True,491,2117,7183.4,,False,False,,,,,True,push,7183.4
+20260402,Greeting Card,True,True,v3_keystroke_anytime,35,71,True,832,1141,2159.7,,False,False,,,,,True,push,2159.7
+20260403,Line Dance,True,True,v3_keystroke_anytime,54,94,True,637,729,4239.4,,False,False,,,,,True,push,4239.4
+20260404,Four Angles,True,True,v3_keystroke_anytime,39,52,True,111,139,2235.3,,False,False,,,,,True,push,2235.3
+20260405,Test Your Strength,True,True,v1_weighted,79,79,False,378,445,10030.7,,False,False,,,,,True,push,10030.7
+20260406,Escargot,True,True,v3_keystroke_anytime,27,43,True,1500,1541,1490.2,,False,False,,,,,True,push,1490.2
+20260407,Mindreader,True,True,v3_keystroke_anytime,17,35,True,1279,1399,1288.8,,False,False,,,,,True,push,1288.8
+20260408,Full Stack,True,True,v3_keystroke_anytime,14,16,True,255,263,366.5,,False,False,,,,,True,push,366.5
+20260409,Tiles and Grout,True,True,v3_keystroke_anytime,27,47,True,1543,1640,5318.8,,False,False,,,,,True,push,5318.8
+20260410,Around the Corner,True,True,policy_rank_discrepancy,91,91,False,0,2018,23125.3,,False,False,,,,,True,push,23125.3
+20260411,False Alarm,True,True,v3_keystroke_anytime,42,68,True,460,497,5862.7,,False,False,,,,,True,push,5862.7
+20260412,Gated Community,True,True,v3_keystroke_anytime,34,41,True,263,298,3265.7,,False,False,,,,,True,push,3265.7
+20260413,Under the Weather,True,True,v3_keystroke_anytime,12,23,True,481,499,614.7,,False,False,,,,,True,push,614.7
+20260414,Pressure Valve,True,True,v3_keystroke_anytime,24,54,True,351,403,1996.2,,False,False,,,,,True,push,1996.2
+20260415,Push and Pull,True,True,v3_keystroke_anytime,31,38,True,1304,1402,2018.9,,False,False,,,,,True,push,2018.9
+20260416,Play the Fool,True,True,v3_keystroke_anytime,34,61,True,771,826,1534.8,,False,False,,,,,True,push,1534.8
+20260417,Braided River,True,True,macro_greedy,112,112,False,713,2564,10036.3,,False,False,,,,,True,push,10036.3
+20260418,Hop the Fence,True,True,v1_weighted,96,96,False,625,669,10040.5,,False,False,,,,,True,push,10040.5
+20260419,Skip A Beat,True,True,policy_rank_discrepancy,96,96,False,0,2150,24150.6,,False,False,,,,,True,push,24150.6
+20260420,Sourdough,True,True,v1_weighted,21,21,False,884,900,570.0,,False,False,,,,,True,push,570.0
+20260421,Cut Your Teeth,True,True,v3_keystroke_anytime,24,75,True,1087,1120,2134.4,,False,False,,,,,True,push,2134.4
+20260422,Dark Forest,True,True,v3_keystroke_anytime,31,56,True,920,1209,5116.8,,False,False,,,,,True,push,5116.8
+20260423,Now You See Me,True,True,v3_keystroke_anytime,34,55,True,1096,1200,2355.3,,False,False,,,,,True,push,2355.3
+20260424,First Time Caller,True,True,v1_weighted,55,55,False,812,830,10045.4,,False,False,,,,,True,push,10045.4
+20260425,Stick It Out,True,True,v1_weighted,165,165,False,666,740,10043.5,,False,False,,,,,True,push,10043.5
+20260426,Throwback,True,True,v3_keystroke_anytime,29,72,True,113,213,2515.8,,False,False,,,,,True,push,2515.8
+20260427,Cruise Control,True,True,macro_greedy,74,74,False,6312,18715,10020.3,,False,False,,,,,True,push,10020.3
+20260428,Polygon,True,True,v3_keystroke_anytime,26,42,True,705,910,2239.6,,False,False,,,,,True,push,2239.6
+20260429,Nova,True,True,v3_keystroke_anytime,27,40,True,798,837,1542.2,,False,False,,,,,True,push,1542.2
+20260430,One Way,True,True,v1_weighted,17,17,False,1852,1873,4649.0,,False,False,,,,,True,push,4649.0
+20260501,Rotate,True,True,v3_keystroke_anytime,38,119,True,240,478,8757.9,,False,False,,,,,True,push,8757.9
+20260502,Hexagon,True,True,policy_rank_discrepancy,87,87,False,0,764,24741.9,,False,False,,,,,True,push,24741.9
+20260503,Zen Garden,True,True,v3_keystroke_anytime,37,56,True,1004,1428,9450.3,,False,False,,,,,True,push,9450.3
+20260504,Supernova,True,True,v3_keystroke_anytime,24,26,True,136,161,43.5,,False,False,,,,,True,push,43.5
+20260505,Ricochet,True,True,v3_keystroke_anytime,27,31,True,867,971,1264.6,,False,False,,,,,True,push,1264.6
+20260506,Pendulum,True,True,v3_keystroke_anytime,26,30,True,542,722,2268.6,,False,False,,,,,True,push,2268.6
+20260507,Rush Hour,True,True,v3_keystroke_anytime,24,71,True,3644,3828,6823.4,,False,False,,,,,True,push,6823.4
+20260508,Star Cluster,True,True,v1_weighted,66,66,False,235,442,10026.8,,False,False,,,,,True,push,10026.8
+20260509,Paving,True,True,v3_keystroke_anytime,46,64,True,658,705,8870.8,,False,False,,,,,True,push,8870.8
+20260510,Roundabout,True,True,v3_keystroke_anytime,31,124,True,158,182,6534.6,,False,False,,,,,True,push,6534.6
+20260511,Scale,True,True,v3_keystroke_anytime,22,36,True,2670,2691,1199.2,,False,False,,,,,True,push,1199.2
+20260512,Avalanche,True,True,v3_keystroke_anytime,24,34,True,348,373,1416.8,,False,False,,,,,True,push,1416.8
+20260513,Lightyear,True,True,policy_rank_discrepancy,63,63,False,0,5326,21907.2,,False,False,,,,,True,push,21907.2
+20260514,Expressway,True,True,committed_beam_recovery,150,150,False,0,8917,10300.9,,False,False,,,,,True,push,10300.9
+20260515,Geyser,True,True,rank_discrepancy,122,122,False,0,1359,22390.0,,False,False,,,,,True,push,22390.0
+20260516,Space Station,True,True,v3_keystroke_anytime,35,91,True,361,1257,8744.1,,False,False,,,,,True,push,8744.1
+20260517,Zig Zag,True,True,v3_keystroke_anytime,46,90,True,205,295,6352.8,,False,False,,,,,True,push,6352.8
+20260518,Speed Bump,True,True,v3_keystroke_anytime,22,53,True,2327,3207,2013.7,,False,False,,,,,True,push,2013.7
+20260519,Carpool Lane,True,True,v3_keystroke_anytime,34,85,True,806,823,1387.8,,False,False,,,,,True,push,1387.8
+20260520,Asymmetry,True,True,v3_keystroke_anytime,22,52,True,384,571,1967.0,,False,False,,,,,True,push,1967.0
+20260521,Joyride,True,True,v3_keystroke_anytime,35,49,True,3722,4141,4127.7,,False,False,,,,,True,push,4127.7
+20260522,Merge,True,True,v1_weighted,84,84,False,652,863,10039.0,,False,False,,,,,True,push,10039.0
+20260523,Anchor,True,True,v1_deep_recovery_first,205,205,False,0,6063,29286.7,,False,False,,,,,True,push,29286.7
+20260524,Gears,False,False,,,,False,0,2037,31487.7,timeout,False,False,,,,,False,,31487.7
+20260525,Pyramid,True,True,v1_weighted,19,19,False,488,510,198.6,,False,False,,,,,True,push,198.6
+20260526,Zipper Merge,True,True,v3_keystroke_anytime,28,58,True,928,1005,1495.6,,False,False,,,,,True,push,1495.6
+20260527,Sphere,True,True,greedy_bias,70,70,False,4344,9207,10047.1,,False,False,,,,,True,push,10047.1
+20260528,Parallel Parking,True,True,v3_keystroke_anytime,11,13,True,115,140,331.9,,False,False,,,,,True,push,331.9
+20260529,Mirror,True,True,v3_keystroke_anytime,29,63,True,140,230,4599.6,,False,False,,,,,True,push,4599.6
+20260530,Tight Squeeze,True,True,v1_weighted,171,171,False,434,704,10060.5,,False,False,,,,,True,push,10060.5
+20260531,Short Cut,True,True,greedy_low_g,107,107,False,259,601,10020.8,,False,False,,,,,True,push,10020.8
+20260601,Jungle,True,True,v1_weighted,28,28,False,224,265,88.1,,False,False,,,,,True,push,88.1
+20260602,Narrow Margin,True,True,v3_keystroke_anytime,16,18,True,765,798,1375.9,,False,False,,,,,True,push,1375.9
+20260603,Sandstorm,True,True,v3_keystroke_anytime,28,69,True,1439,1662,2533.9,,False,False,,,,,True,push,2533.9
+20260604,Earthquake,True,True,v3_keystroke_anytime,18,71,True,611,628,561.9,,False,False,,,,,True,push,561.9
+20260605,Oasis,True,True,committed_beam_recovery,61,61,False,0,1702,16406.4,,False,False,,,,,True,push,16406.4
+20260606,Tidal Wave,True,True,macro_greedy,38,38,False,463,2347,10026.5,,False,False,,,,,True,push,10026.5
+20260607,Quasar,True,True,v1_weighted,55,55,False,630,844,10049.9,,False,False,,,,,True,push,10049.9
+20260608,Green Light,True,True,v3_keystroke_anytime,13,26,True,117,133,65.1,,False,False,,,,,True,push,65.1
+20260609,Gear Shift,True,True,v3_keystroke_anytime,20,74,True,733,771,2128.1,,False,False,,,,,True,push,2128.1
+20260610,Split,True,True,v3_keystroke_anytime,38,90,True,4536,4789,5601.2,,False,False,,,,,True,push,5601.2
+20260611,Bypass,True,True,v3_keystroke_anytime,28,41,True,808,878,3474.8,,False,False,,,,,True,push,3474.8
+20260612,Tailgate,True,True,rank_discrepancy,84,84,False,0,961,18434.7,,False,False,,,,,True,push,18434.7
+20260613,Spiral,True,True,greedy_bias,77,77,False,507,1322,10037.5,,False,False,,,,,True,push,10037.5
+20260614,Yellow Light,True,True,policy_rank_discrepancy,183,183,False,0,1529,27055.5,,False,False,,,,,True,push,27055.5
+20260615,Monsoon,True,True,v1_weighted,30,30,False,1925,1992,588.6,,False,False,,,,,True,push,588.6
+20260616,Kaleidoscope,True,True,v3_keystroke_anytime,34,42,True,2654,2847,2970.4,,False,False,,,,,True,push,2970.4
+20260617,Lagoon,True,True,v1_weighted,29,29,False,10129,10346,10046.2,,False,False,,,,,True,push,10046.2
+20260618,Teleport,True,True,v3_keystroke_anytime,12,47,True,588,618,1309.7,,False,False,,,,,True,push,1309.7
+20260619,Quicksand,True,True,greedy_low_g,108,108,False,472,748,10046.0,,False,False,,,,,True,push,10046.0
+20260620,Constellation,True,True,v3_keystroke_anytime,41,120,True,681,1546,6308.6,,False,False,,,,,True,push,6308.6
+20260621,Overpass,True,True,macro_greedy,83,83,False,389,1193,10040.9,,False,False,,,,,True,push,10040.9
+20260622,Crosswalk,True,True,v3_keystroke_anytime,18,35,True,1033,1201,567.7,,False,False,,,,,True,push,567.7
+20260623,Pulsar,True,True,v3_keystroke_anytime,31,81,True,2044,2203,2338.1,,False,False,,,,,True,push,2338.1
+20260624,Red Light,True,True,committed_beam_recovery,72,72,False,0,1644,14154.9,,False,False,,,,,True,push,14154.9
+20260625,Pit Stop,True,True,v1_weighted,61,61,False,1235,1555,10022.8,,False,False,,,,,True,push,10022.8
+20260626,Freeway,True,True,macro_greedy,104,104,False,393,1040,10022.6,,False,False,,,,,True,push,10022.6
+20260627,Blueprint,True,True,committed_beam_recovery,80,80,False,0,1348,17168.0,,False,False,,,,,True,push,17168.0
+20260628,Blizzard,True,True,macro_greedy,88,88,False,738,2798,10030.1,,False,False,,,,,True,push,10030.1
+20260629,Orbit,True,True,v3_keystroke_anytime,18,30,True,1806,1865,902.6,,False,False,,,,,True,push,902.6
+20260630,Labyrinth,True,True,v1_weighted,20,20,False,5222,5239,10041.7,,False,False,,,,,True,push,10041.7
+20260701,Intersection,True,True,committed_beam_recovery,53,53,False,202,2233,10002.5,,False,False,,,,,True,push,10002.5
+20260702,Equator,True,True,v3_keystroke_anytime,23,38,True,229,258,1496.6,,False,False,,,,,True,push,1496.6
+20260703,Tundra,True,True,v3_keystroke_anytime,36,63,True,288,328,2156.0,,False,False,,,,,True,push,2156.0
+20260704,Cube,True,True,v3_keystroke_anytime,32,74,True,148,865,5196.2,,False,False,,,,,True,push,5196.2
+20260705,High Speed,True,True,committed_beam_recovery,97,97,False,0,1255,17744.5,,False,False,,,,,True,push,17744.5
+20260706,Easy Stroll,True,True,v3_keystroke_anytime,36,53,True,2998,3058,1561.6,,False,False,,,,,True,push,1561.6
+20260707,Tessellation,True,True,v3_keystroke_anytime,22,72,True,859,888,2241.1,,False,False,,,,,True,push,2241.1
+20260708,Prism,True,True,v3_keystroke_anytime,32,56,True,647,1210,2626.3,,False,False,,,,,True,push,2626.3
+20260709,Black Hole,True,True,line_commit_1,84,84,False,771,1733,10021.4,,False,False,,,,,True,push,10021.4
+20260710,Traffic Circle,True,True,v3_keystroke_anytime,28,51,True,399,486,5601.7,,False,False,,,,,True,push,5601.7
+20260711,Toll Booth,True,True,rank_discrepancy,132,132,False,0,1539,20166.2,,False,False,,,,,True,push,20166.2
+20260712,Nebula,True,True,v1_weighted,41,41,False,2159,2698,10036.0,,False,False,,,,,True,push,10036.0
+20260713,Yield,True,True,v3_keystroke_anytime,10,12,True,115,140,116.5,,False,False,,,,,True,push,116.5
+20260714,Flip,True,True,v1_weighted,25,25,False,1934,2183,10031.1,,False,False,,,,,True,push,10031.1
+20260715,Clone,True,True,v1_weighted,86,86,False,1443,1948,10018.1,,False,False,,,,,True,push,10018.1
+20260716,Hourglass,True,True,v3_keystroke_anytime,19,42,True,304,401,2294.9,,False,False,,,,,True,push,2294.9
+20260717,Cylinder,True,True,v3_keystroke_anytime,34,124,True,116,228,4584.2,,False,False,,,,,True,push,4584.2
+20260718,Volcano,True,True,v3_keystroke_anytime,45,51,True,344,437,2966.1,,False,False,,,,,True,push,2966.1
+20260719,Mars Rover,True,True,v1_weighted,138,138,False,386,464,10037.0,,False,False,,,,,True,push,10037.0
+20260720,Coffee Table,True,True,v1_weighted,8,8,False,14,23,22.0,,False,False,,,,,True,push,22.0
+20260721,Back to Basics,True,True,v1_weighted,77,77,False,3773,4107,10046.6,,False,False,,,,,True,push,10046.6
+20260722,Symmetry,True,True,v3_keystroke_anytime,7,30,True,89,98,151.7,,False,False,,,,,True,push,151.7
+20260723,Coral Reef,True,True,v3_keystroke_anytime,19,37,True,284,290,2042.8,,False,False,,,,,True,push,2042.8
+20260724,Half Measures,True,True,v1_weighted,65,65,False,1194,1285,10054.3,,False,False,,,,,True,push,10054.3
+20260725,Gridlock,True,True,v3_keystroke_anytime,36,56,True,140,191,2723.8,,False,False,,,,,True,push,2723.8
+20260726,Bookshelf,True,True,rank_discrepancy,138,138,False,0,2319,20327.7,,False,False,,,,,True,push,20327.7
+20260727,Bite the Bullet,True,True,v3_keystroke_anytime,14,21,True,227,234,144.2,,False,False,,,,,True,push,144.2
+20260728,Equilibrium,True,True,v3_keystroke_anytime,27,45,True,869,891,1911.4,,False,False,,,,,True,push,1911.4
+20260729,Desert Mirage,True,True,v3_keystroke_anytime,22,44,True,807,857,1908.7,,False,False,,,,,True,push,1908.7
+20260730,Solar Eclipse,True,True,macro_greedy,71,71,False,2145,5299,10019.7,,False,False,,,,,True,push,10019.7
+20260731,Underpass,True,True,macro_greedy,53,53,False,439,2042,10023.9,,False,False,,,,,True,push,10023.9
+20260801,Attic Storage,True,True,v3_keystroke_anytime,29,109,True,114,495,4905.7,,False,False,,,,,True,push,4905.7
+20260802,Cold Feet,True,True,committed_beam_recovery,47,47,False,0,1471,13617.6,,False,False,,,,,True,push,13617.6
+20260803,Synchronicity,True,True,v3_keystroke_anytime,13,23,True,157,176,120.4,,False,False,,,,,True,push,120.4
+20260804,Thunderstorm,True,True,v3_keystroke_anytime,28,52,True,1045,1102,3308.6,,False,False,,,,,True,push,3308.6
+20260805,Galaxy Cluster,True,True,v3_keystroke_anytime,29,44,True,699,727,2033.8,,False,False,,,,,True,push,2033.8
+20260806,Switchback,True,True,greedy_bias,88,88,False,817,2100,10026.1,,False,False,,,,,True,push,10026.1
+20260807,Subway Station,True,True,v3_keystroke_anytime,20,25,True,43,57,1879.7,,False,False,,,,,True,push,1879.7
+20260808,Down to Earth,True,True,v3_keystroke_anytime,22,33,True,94,134,1582.5,,False,False,,,,,True,push,1582.5
+20260809,Crossword,True,True,v3_keystroke_anytime,31,64,True,50,100,2087.9,,False,False,,,,,True,push,2087.9
+20260810,Autumn Leaves,True,True,v3_keystroke_anytime,9,16,True,43,52,37.2,,False,False,,,,,True,push,37.2
+20260811,Choke Point,True,True,v3_keystroke_anytime,18,35,True,306,436,2219.9,,False,False,,,,,True,push,2219.9
+20260812,Botanical Garden,True,True,v3_keystroke_anytime,32,61,True,1471,1490,1559.9,,False,False,,,,,True,push,1559.9
+20260813,On the Fence,True,True,v3_keystroke_anytime,31,51,True,2140,2320,5470.7,,False,False,,,,,True,push,5470.7
+20260814,Domino Effect,True,True,greedy_low_g_recovery_first,96,96,False,104,191,10068.1,,False,False,,,,,True,push,10068.1
+20260815,Migrating Birds,True,True,v3_keystroke_anytime,50,130,True,770,1865,9310.8,,False,False,,,,,True,push,9310.8
+20260816,Perimeter,True,True,v3_keystroke_anytime,40,60,True,336,383,4778.9,,False,False,,,,,True,push,4778.9
+20260817,Flea Market,True,True,v1_weighted,21,21,False,430,484,296.5,,False,False,,,,,True,push,296.5
+20260818,Out of the Blue,True,True,v3_keystroke_anytime,44,96,True,211,224,1321.9,,False,False,,,,,True,push,1321.9
+20260819,Tipping Point,True,True,v3_keystroke_anytime,26,46,True,1330,1411,1630.0,,False,False,,,,,True,push,1630.0
+20260820,Hidden Valley,True,True,committed_beam_recovery,66,66,False,0,27264,11695.6,,False,False,,,,,True,push,11695.6
+20260821,Diagonal Alley,True,True,v3_keystroke_anytime,24,68,True,62,75,1914.7,,False,False,,,,,True,push,1914.7
+20260822,Clock Tower,True,True,v3_keystroke_anytime,30,43,True,199,314,3081.9,,False,False,,,,,True,push,3081.9
+20260823,Spill the Beans,True,True,committed_beam_recovery,31,31,False,0,1148,17038.5,,False,False,,,,,True,push,17038.5
+20260824,Vanishing Act,True,True,v3_keystroke_anytime,14,25,True,364,372,258.3,,False,False,,,,,True,push,258.3
+20260825,Deep Ocean,True,True,v1_weighted,9,9,False,56,69,162.9,,False,False,,,,,True,push,162.9
+20260826,Man in the Moon,True,True,v3_keystroke_anytime,20,38,True,769,787,1004.1,,False,False,,,,,True,push,1004.1
+20260827,Touch and Go,True,True,v3_keystroke_anytime,24,30,True,596,618,2029.5,,False,False,,,,,True,push,2029.5
+20260828,Up in the Air,True,True,v3_keystroke_anytime,38,54,True,72,562,3414.2,,False,False,,,,,True,push,3414.2
+20260829,Word of Mouth,True,True,macro_greedy,193,193,False,270,961,10027.8,,False,False,,,,,True,push,10027.8
+20260830,Time Capsule,True,True,committed_beam_recovery,94,94,False,0,1828,11562.0,,False,False,,,,,True,push,11562.0

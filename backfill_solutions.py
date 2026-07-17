@@ -4265,7 +4265,7 @@ def solve_worker(
                         f"Push solver returned an invalid solution: {verification.error}"
                     )
                 final_board = verification.final_board
-            solver_name = "push-v2"
+            solver_name = "push-v3"
         else:
             from solver import optimized_solver
 
@@ -4301,7 +4301,7 @@ def solve_worker(
                 "error_message": str(exc),
                 "traceback": traceback.format_exc(),
                 "solver_name": (
-                    "push-v2" if solver == "push" else f"optimized-{mode}"
+                    "push-v3" if solver == "push" else f"optimized-{mode}"
                 ),
             }
         )
@@ -4336,7 +4336,7 @@ def solve_with_timeout(
                 f"{solver.title()} solver exceeded {timeout_seconds:.1f} seconds."
             ),
             "elapsed_ms": timeout_seconds * 1000,
-            "solver_name": "push-v2" if solver == "push" else f"optimized-{mode}",
+            "solver_name": "push-v3" if solver == "push" else f"optimized-{mode}",
         }
 
     try:
@@ -4348,7 +4348,7 @@ def solve_with_timeout(
             "error_message": (
                 f"{solver.title()} solver exited with code {process.exitcode}."
             ),
-            "solver_name": "push-v2" if solver == "push" else f"optimized-{mode}",
+            "solver_name": "push-v3" if solver == "push" else f"optimized-{mode}",
         }
 
 
@@ -4689,7 +4689,7 @@ def run_backfill(args: argparse.Namespace) -> int:
                 "timed_out": False,
                 "error_message": str(exc),
                 "solver_name": (
-                    "push-v2" if solver == "push" else f"optimized-{mode}"
+                    "push-v3" if solver == "push" else f"optimized-{mode}"
                 ),
             }
 

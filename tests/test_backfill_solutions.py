@@ -99,7 +99,7 @@ class BackfillSolutionsTest(unittest.TestCase):
 
         self.assertTrue(queue.value["ok"])
         self.assertTrue(queue.value["solved"])
-        self.assertEqual(queue.value["solver_name"], "push-v2")
+        self.assertEqual(queue.value["solver_name"], "push-v3")
 
     def test_solution_corpus_only_fills_missing_paths(self):
         with TemporaryDirectory() as temp_dir:
@@ -201,7 +201,7 @@ class BackfillSolutionsTest(unittest.TestCase):
             "start_board": [["U", "O", "O"]],
             "final_board": [["U", "O", "O"]],
             "steps": [],
-            "solver_name": "push-v2",
+            "solver_name": "push-v3",
             "strategy": "precheck",
             "attempts": [],
             "failure_reason": None,
@@ -265,7 +265,7 @@ class BackfillSolutionsTest(unittest.TestCase):
             "start_board": board_from_entry(entry),
             "final_board": None,
             "steps": [],
-            "solver_name": "push-v2",
+            "solver_name": "push-v3",
             "strategy": None,
             "attempts": [],
             "failure_reason": "node_limit",

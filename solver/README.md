@@ -130,10 +130,13 @@ python3 -m solver.benchmark_solvers --groups five six seven --limit 3
 
 File: `push_solver/`
 
-This is the opt-in Sokoban-style solver. It searches over pushes instead of
-individual walking moves, normalizes the player to its reachable region, uses
-weighted A*, prunes immediate X-loss states, and verifies the reconstructed
-keystroke solution independently.
+Push Solver V3 keeps V2's Sokoban-style portfolio as a full-budget coverage
+baseline. After V2 finds a verified incumbent, an anytime quality search keeps
+the push-level branching but adds the player's exact post-push location to its
+state key and prices every edge in direction keystrokes. It can therefore prefer
+slightly more pushes when they eliminate long walks. The incumbent is retained
+on timeout, error, or invalid optimization output, so quality work cannot lower
+board coverage.
 
 Enable it through the API/service router:
 
@@ -154,7 +157,18 @@ python3 -m solver.push_solver.bench \
 The benchmark emits:
 
 ```text
-board_id,title,solved,push_depth,keystrokes,nodes_expanded,peak_closed_size,elapsed_ms,weight,failure_reason,verified
+board_id,title,solved,push_depth,keystrokes,baseline_keystrokes,quality_improved,quality_nodes_expanded,nodes_expanded,peak_closed_size,elapsed_ms,weight,failure_reason,verified
+```
+
+`solve()` is V3, `solve_v2()` is the frozen coverage baseline, and `solve_v1()`
+remains available for historical comparisons. Before accepting a solver change,
+compare full-corpus CSVs; the guard exits nonzero if any previously verified
+board becomes unsolved:
+
+```bash
+python3 -m solver.push_solver.coverage_guard \
+  debug-artifacts/push_solver_v3_full.csv \
+  /tmp/push_solver_v3.csv
 ```
 
 The heuristic uses precomputed wall-aware reverse-push distances from candidate
@@ -190,10 +204,11 @@ Current production settings:
 `solve_board()` returns `solver_name` so API records show whether a board used
 `bfs`, `heuristic-CNN`, or an optimized mode.
 
-For the daily cron path, `solve_daily_board()` runs the push solver first with a
-500,000-node, 30-second budget. It invokes this heuristic/CNN wrapper only if
-push search does not find a solution, verifies any fallback move string, and
-reports `heuristic-CNN` when the fallback ran.
+For the daily cron path, `solve_daily_board()` runs Push Solver V3 first with a
+500,000-node, 30-second coverage budget and a 10-second quality ceiling. It
+invokes this heuristic/CNN wrapper only if push search does not find a solution,
+verifies any fallback move string, and reports `heuristic-CNN` when the fallback
+ran.
 
 ## Linear Tree Solver V1
 
