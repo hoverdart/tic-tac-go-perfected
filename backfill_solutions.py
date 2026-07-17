@@ -1,15 +1,16 @@
 """
 Backfill historical Tic Tac Go solutions into the daily_solutions table.
 
-This runner contains the historical board manifest, converts each puzzle
-into the solver's board format, gives the optimized solver a
-wall-clock timeout per board, then stores the result with the same persistence
-path used by the daily solve job.
+This runner contains the historical board manifest, selects stored rows that
+are still unresolved, and retries them with the current push-solver portfolio.
+Verified solutions use the same persistence path as the daily solve job and
+can optionally be merged into the push ranker's training corpus.
 """
 
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 from datetime import date
 import json
 import logging
@@ -21,14 +22,20 @@ import time
 import traceback
 from typing import Any
 
-from apps.api.solution_storage import get_solution, upsert_solution
+from apps.api.solution_storage import (
+    clear_solution_cache,
+    get_solution,
+    get_solutions_for_dates,
+    upsert_solution,
+)
 from solver.legacy_solver import apply_single_move, normalize_board
 
 
 LOGGER = logging.getLogger("tic_tac_go.backfill")
 PARSER_NAME = "backfill_solutions"
-DEFAULT_TIMEOUT_SECONDS = 60.0
-DEFAULT_TIMEOUT_LOG = Path("backfill_solver_timeouts.jsonl")
+DEFAULT_TIMEOUT_SECONDS = 30.0
+DEFAULT_TIMEOUT_LOG = Path("backfill_push_failures.jsonl")
+DEFAULT_MAX_NODES = 500_000
 DEFAULT_GOOGLE_TIC_TAC_GO_URL = "https://www.google.com/search?q=tic+tac+go&hl=en&gl=US"
 
 PUZZLE_CELL_MAP = {
@@ -4220,19 +4227,56 @@ def build_steps(
     return steps
 
 
-def solve_worker(board: list[list[str]], mode: str, queue: mp.Queue) -> None:
-    """Run one optimized solve and put a JSON-serializable result on queue."""
+def solve_worker(
+    board: list[list[str]],
+    solver: str,
+    mode: str,
+    max_nodes: int,
+    timeout_seconds: float,
+    queue: mp.Queue,
+) -> None:
+    """Run one isolated solve and put a JSON-serializable result on queue."""
     try:
-        from solver import optimized_solver
-
         start_time = time.perf_counter()
         start_board = normalize_board(board)
-        moves, final_board, states_checked = optimized_solver.solve(
-            start_board,
-            progress_every=0,
-            max_states=None,
-            mode=mode,
-        )
+        strategy = None
+        attempts: list[dict[str, Any]] = []
+        failure_reason = None
+
+        if solver == "push":
+            from solver.push_solver import solve as push_solve
+            from solver.push_solver import verify_solution
+
+            result = push_solve(
+                start_board,
+                max_nodes=max_nodes,
+                timeout_seconds=timeout_seconds,
+            )
+            moves = result.moves
+            final_board = result.final_board
+            states_checked = result.nodes_expanded
+            strategy = result.strategy
+            attempts = [asdict(attempt) for attempt in result.attempts]
+            failure_reason = result.failure_reason
+            if moves is not None:
+                verification = verify_solution(start_board, moves)
+                if not verification.ok:
+                    raise RuntimeError(
+                        f"Push solver returned an invalid solution: {verification.error}"
+                    )
+                final_board = verification.final_board
+            solver_name = "push-v2"
+        else:
+            from solver import optimized_solver
+
+            moves, final_board, states_checked = optimized_solver.solve(
+                start_board,
+                progress_every=0,
+                max_states=None,
+                mode=mode,
+            )
+            solver_name = f"optimized-{mode}"
+
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         queue.put(
             {
@@ -4244,6 +4288,10 @@ def solve_worker(board: list[list[str]], mode: str, queue: mp.Queue) -> None:
                 "start_board": to_wire_board(start_board),
                 "final_board": to_wire_board(final_board),
                 "steps": build_steps(start_board, moves),
+                "solver_name": solver_name,
+                "strategy": strategy,
+                "attempts": attempts,
+                "failure_reason": failure_reason,
             }
         )
     except BaseException as exc:
@@ -4252,19 +4300,28 @@ def solve_worker(board: list[list[str]], mode: str, queue: mp.Queue) -> None:
                 "ok": False,
                 "error_message": str(exc),
                 "traceback": traceback.format_exc(),
+                "solver_name": (
+                    "push-v2" if solver == "push" else f"optimized-{mode}"
+                ),
             }
         )
 
 
 def solve_with_timeout(
     board: list[list[str]],
+    solver: str,
     mode: str,
     timeout_seconds: float,
+    max_nodes: int,
 ) -> dict[str, Any]:
     queue: mp.Queue = mp.Queue(maxsize=1)
-    process = mp.Process(target=solve_worker, args=(board, mode, queue))
+    process = mp.Process(
+        target=solve_worker,
+        args=(board, solver, mode, max_nodes, timeout_seconds, queue),
+    )
     process.start()
-    process.join(timeout_seconds)
+    hard_timeout_seconds = timeout_seconds + 5 if solver == "push" else timeout_seconds
+    process.join(hard_timeout_seconds)
 
     if process.is_alive():
         process.terminate()
@@ -4275,8 +4332,11 @@ def solve_with_timeout(
         return {
             "ok": False,
             "timed_out": True,
-            "error_message": f"Optimized solver exceeded {timeout_seconds:.1f} seconds.",
+            "error_message": (
+                f"{solver.title()} solver exceeded {timeout_seconds:.1f} seconds."
+            ),
             "elapsed_ms": timeout_seconds * 1000,
+            "solver_name": "push-v2" if solver == "push" else f"optimized-{mode}",
         }
 
     try:
@@ -4285,7 +4345,10 @@ def solve_with_timeout(
         return {
             "ok": False,
             "timed_out": False,
-            "error_message": f"Optimized solver exited with code {process.exitcode}.",
+            "error_message": (
+                f"{solver.title()} solver exited with code {process.exitcode}."
+            ),
+            "solver_name": "push-v2" if solver == "push" else f"optimized-{mode}",
         }
 
 
@@ -4301,7 +4364,7 @@ def build_record(
         "puzzle_date": puzzle_date,
         "source_url": source_url,
         "parser_name": PARSER_NAME,
-        "solver_name": f"optimized-{mode}",
+        "solver_name": solve_result.get("solver_name", f"optimized-{mode}"),
         "board": board,
         "moves": None,
         "final_board": None,
@@ -4326,12 +4389,25 @@ def build_record(
         "states_checked": solve_result["states_checked"],
         "elapsed_ms": solve_result["elapsed_ms"],
         "status": "solved" if solved else "unsolved",
-        "error_message": None if solved else "Solver did not find a solution.",
+        "error_message": (
+            None
+            if solved
+            else "Solver did not find a solution"
+            + (
+                f": {solve_result['failure_reason']}"
+                if solve_result.get("failure_reason")
+                else "."
+            )
+        ),
     }
 
 
-def append_failure_log(path: Path, entry: dict[str, Any], record: dict[str, Any]) -> None:
-    payload = {
+def failure_payload(
+    entry: dict[str, Any],
+    record: dict[str, Any],
+    solve_result: dict[str, Any],
+) -> dict[str, Any]:
+    return {
         "id": entry.get("id"),
         "name": entry.get("name"),
         "puzzle_date": record["puzzle_date"].isoformat(),
@@ -4339,11 +4415,78 @@ def append_failure_log(path: Path, entry: dict[str, Any], record: dict[str, Any]
         "error_message": record["error_message"],
         "states_checked": record["states_checked"],
         "elapsed_ms": record["elapsed_ms"],
+        "solver_name": record["solver_name"],
+        "failure_reason": solve_result.get("failure_reason"),
+        "strategy": solve_result.get("strategy"),
+        "attempts": solve_result.get("attempts", []),
         "puzzle": entry.get("puzzle"),
     }
+
+
+def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Replace a JSONL artifact atomically so repeated runs do not duplicate rows."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(payload, separators=(",", ":")) + "\n")
+    temporary_path = path.with_name(f".{path.name}.tmp")
+    with temporary_path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, separators=(",", ":")) + "\n")
+    os.replace(temporary_path, path)
+
+
+def update_solution_corpus(
+    path: Path,
+    solved_rows: list[tuple[dict[str, Any], dict[str, Any]]],
+) -> int:
+    """Merge newly verified paths into the ranker's canonical solution corpus."""
+    if not solved_rows:
+        return 0
+    if not path.is_file():
+        raise FileNotFoundError(f"Solution corpus does not exist: {path}")
+
+    corpus = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    rows_by_id = {str(row.get("id")): row for row in corpus}
+    updated = 0
+    for entry, record in solved_rows:
+        board_id = str(entry.get("id"))
+        moves = record.get("moves")
+        if not board_id or moves is None:
+            continue
+        row = rows_by_id.get(board_id)
+        if row is not None and row.get("solution") is not None:
+            continue
+
+        from solver.push_solver import verify_solution
+
+        verification = verify_solution(board_from_entry(entry), str(moves))
+        if not verification.ok:
+            LOGGER.warning(
+                "backfill.solution_corpus.skip_invalid id=%s error=%s",
+                board_id,
+                verification.error,
+            )
+            continue
+        if row is None:
+            row = {
+                "id": board_id,
+                "name": entry.get("name"),
+                "date": entry.get("date"),
+                "puzzle": entry.get("puzzle"),
+                "solution": moves,
+            }
+            corpus.append(row)
+            rows_by_id[board_id] = row
+            updated += 1
+        else:
+            row["solution"] = moves
+            updated += 1
+
+    if updated:
+        write_jsonl(path, corpus)
+    return updated
 
 
 def iter_entries(args: argparse.Namespace) -> list[dict[str, Any]]:
@@ -4365,37 +4508,140 @@ def iter_entries(args: argparse.Namespace) -> list[dict[str, Any]]:
         selected.append(entry)
 
     selected.sort(key=parse_entry_date)
-    if args.limit is not None:
-        selected = selected[:args.limit]
     return selected
+
+
+def is_complete_solution(record: dict[str, Any] | None) -> bool:
+    return bool(
+        record is not None
+        and record.get("status") == "solved"
+        and record.get("moves") is not None
+    )
+
+
+def audit_entries(
+    entries: list[dict[str, Any]],
+    records_by_date: dict[date, dict[str, Any]],
+    *,
+    log_details: bool,
+) -> dict[str, int]:
+    counts = {
+        "manifest": len(entries),
+        "stored": 0,
+        "solved": 0,
+        "unresolved": 0,
+        "missing": 0,
+    }
+    for entry in entries:
+        puzzle_date = parse_entry_date(entry)
+        record = records_by_date.get(puzzle_date)
+        if record is None:
+            counts["missing"] += 1
+            if log_details:
+                LOGGER.warning(
+                    "backfill.audit.missing date=%s title=%r",
+                    puzzle_date,
+                    entry.get("name") or "<untitled>",
+                )
+            continue
+        counts["stored"] += 1
+        if is_complete_solution(record):
+            counts["solved"] += 1
+            continue
+        counts["unresolved"] += 1
+        if log_details:
+            LOGGER.warning(
+                "backfill.audit.unresolved date=%s title=%r status=%s solver=%s error=%s",
+                puzzle_date,
+                entry.get("name") or "<untitled>",
+                record.get("status"),
+                record.get("solver_name"),
+                record.get("error_message"),
+            )
+    LOGGER.info("backfill.audit.done counts=%s", counts)
+    return counts
 
 
 def run_backfill(args: argparse.Namespace) -> int:
     if args.env_file:
         load_env_file(Path(args.env_file))
 
+    solver = args.solver.strip().lower()
+    if solver not in {"push", "optimized"}:
+        raise ValueError("--solver must be one of: push, optimized")
     mode = args.mode.strip().lower()
     if mode not in {"hybrid", "fast", "exact"}:
         raise ValueError("--mode must be one of: hybrid, fast, exact")
+    if args.timeout_seconds <= 0:
+        raise ValueError("--timeout-seconds must be greater than zero")
+    if args.max_nodes <= 0:
+        raise ValueError("--max-nodes must be greater than zero")
 
     entries = iter_entries(args)
+    records_by_date = get_solutions_for_dates(
+        [parse_entry_date(entry) for entry in entries]
+    )
+    audit_entries(entries, records_by_date, log_details=args.audit_only)
+    if args.audit_only:
+        return 0
+    if args.sync_corpus_only:
+        if not args.solution_corpus:
+            raise ValueError("--sync-corpus-only requires --solution-corpus")
+        stored_solutions = [
+            (entry, records_by_date[parse_entry_date(entry)])
+            for entry in entries
+            if is_complete_solution(records_by_date.get(parse_entry_date(entry)))
+        ]
+        updated = update_solution_corpus(Path(args.solution_corpus), stored_solutions)
+        LOGGER.info(
+            "backfill.solution_corpus.sync_done path=%s updated=%s",
+            args.solution_corpus,
+            updated,
+        )
+        return 0
     LOGGER.info(
-        "backfill.start count=%s mode=%s timeout_seconds=%s dry_run=%s",
+        "backfill.start count=%s solver=%s mode=%s timeout_seconds=%s "
+        "max_nodes=%s dry_run=%s list_only=%s",
         len(entries),
+        solver,
         mode,
         args.timeout_seconds,
+        args.max_nodes,
         args.dry_run,
+        args.list_only,
     )
 
-    counts = {"solved": 0, "unsolved": 0, "failed": 0, "skipped": 0}
+    counts = {
+        "selected": 0,
+        "solved": 0,
+        "unsolved": 0,
+        "failed": 0,
+        "skipped_solved": 0,
+        "skipped_missing": 0,
+        "race_skipped": 0,
+    }
+    failure_rows: list[dict[str, Any]] = []
+    solved_rows: list[tuple[dict[str, Any], dict[str, Any]]] = []
+
     for index, entry in enumerate(entries, start=1):
         puzzle_date = parse_entry_date(entry)
         title = entry.get("name") or "<untitled>"
+        existing = records_by_date.get(puzzle_date)
 
-        if args.skip_existing and not args.dry_run and get_solution(puzzle_date):
-            counts["skipped"] += 1
-            LOGGER.info(
-                "backfill.skip_existing index=%s/%s date=%s title=%r",
+        if is_complete_solution(existing):
+            counts["skipped_solved"] += 1
+            LOGGER.debug(
+                "backfill.skip_solved index=%s/%s date=%s title=%r",
+                index,
+                len(entries),
+                puzzle_date,
+                title,
+            )
+            continue
+        if existing is None and not args.include_missing:
+            counts["skipped_missing"] += 1
+            LOGGER.debug(
+                "backfill.skip_missing index=%s/%s date=%s title=%r",
                 index,
                 len(entries),
                 puzzle_date,
@@ -4403,34 +4649,59 @@ def run_backfill(args: argparse.Namespace) -> int:
             )
             continue
 
+        if args.limit is not None and counts["selected"] >= args.limit:
+            break
+
+        counts["selected"] += 1
+        if args.list_only:
+            LOGGER.info(
+                "backfill.selected index=%s/%s date=%s title=%r stored_status=%s",
+                index,
+                len(entries),
+                puzzle_date,
+                title,
+                existing.get("status") if existing else "missing",
+            )
+            continue
+
         LOGGER.info(
-            "backfill.solve.begin index=%s/%s date=%s title=%r",
+            "backfill.solve.begin index=%s/%s date=%s title=%r previous_status=%s",
             index,
             len(entries),
             puzzle_date,
             title,
+            existing.get("status") if existing else "missing",
         )
 
         board = None
         try:
             board = board_from_entry(entry)
-            solve_result = solve_with_timeout(board, mode, args.timeout_seconds)
+            solve_result = solve_with_timeout(
+                board,
+                solver,
+                mode,
+                args.timeout_seconds,
+                args.max_nodes,
+            )
         except Exception as exc:
             solve_result = {
                 "ok": False,
                 "timed_out": False,
                 "error_message": str(exc),
+                "solver_name": (
+                    "push-v2" if solver == "push" else f"optimized-{mode}"
+                ),
             }
 
         record = build_record(entry, puzzle_date, board, solve_result, mode)
         counts[record["status"]] += 1
 
-        if record["status"] == "failed":
-            append_failure_log(Path(args.timeout_log), entry, record)
+        if record["status"] != "solved":
             LOGGER.warning(
-                "backfill.solve.failed date=%s title=%r error=%s",
+                "backfill.solve.incomplete date=%s title=%r status=%s error=%s",
                 puzzle_date,
                 title,
+                record["status"],
                 record["error_message"],
             )
         else:
@@ -4445,29 +4716,84 @@ def run_backfill(args: argparse.Namespace) -> int:
             )
 
         if args.dry_run:
+            if record["status"] != "solved":
+                failure_rows.append(failure_payload(entry, record, solve_result))
+            continue
+
+        clear_solution_cache()
+        latest = get_solution(puzzle_date)
+        if is_complete_solution(latest):
+            counts[record["status"]] -= 1
+            counts["race_skipped"] += 1
+            LOGGER.warning(
+                "backfill.persist.skip_race date=%s; row became solved during run",
+                puzzle_date,
+            )
             continue
 
         stored = upsert_solution(record)
+        if record["status"] == "solved":
+            solved_rows.append((entry, record))
+        else:
+            failure_rows.append(failure_payload(entry, record, solve_result))
         LOGGER.info(
             "backfill.persist.done date=%s status=%s",
             stored.get("puzzle_date"),
             stored.get("status"),
         )
 
+    if not args.list_only:
+        write_jsonl(Path(args.failure_log), failure_rows)
+        LOGGER.info(
+            "backfill.failure_log path=%s rows=%s",
+            args.failure_log,
+            len(failure_rows),
+        )
+
+    corpus_updates = 0
+    if args.solution_corpus and not args.dry_run and not args.list_only:
+        corpus_updates = update_solution_corpus(Path(args.solution_corpus), solved_rows)
+        LOGGER.info(
+            "backfill.solution_corpus path=%s updated=%s",
+            args.solution_corpus,
+            corpus_updates,
+        )
+
+    counts["corpus_updates"] = corpus_updates
     LOGGER.info("backfill.done counts=%s", counts)
     return 0
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Solve and store historical Tic Tac Go boards."
+        description=(
+            "Retry unresolved historical Tic Tac Go boards without overwriting "
+            "stored solutions."
+        )
     )
-    parser.add_argument("--timeout-seconds", type=float, default=DEFAULT_TIMEOUT_SECONDS)
+    parser.add_argument(
+        "--solver",
+        default="push",
+        choices=("push", "optimized"),
+        help="Solver to run. Defaults to the current production push portfolio.",
+    )
+    parser.add_argument(
+        "--timeout-seconds",
+        type=float,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help="Per-board solver timeout.",
+    )
+    parser.add_argument(
+        "--max-nodes",
+        type=int,
+        default=DEFAULT_MAX_NODES,
+        help="Per-board push-search node budget.",
+    )
     parser.add_argument(
         "--mode",
         default=os.getenv("SOLVER_MODE", "hybrid"),
         choices=("hybrid", "fast", "exact"),
-        help="Optimized solver mode.",
+        help="Mode used only with --solver optimized.",
     )
     parser.add_argument("--start-date", help="First YYYY-MM-DD puzzle date to process.")
     parser.add_argument("--end-date", help="Last YYYY-MM-DD puzzle date to process. Defaults to today.")
@@ -4478,9 +4804,30 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--limit", type=int, help="Process only the first N selected entries.")
     parser.add_argument(
-        "--skip-existing",
+        "--include-missing",
         action="store_true",
-        help="Do not solve dates that already have a stored daily_solutions row.",
+        help="Also solve manifest dates with no stored row. Solved rows are always skipped.",
+    )
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help=(
+            "Report solved, unresolved, and missing manifest dates without "
+            "solving or writing files."
+        ),
+    )
+    parser.add_argument(
+        "--sync-corpus-only",
+        action="store_true",
+        help=(
+            "Verify stored solved paths and merge missing ones into "
+            "--solution-corpus without solving or writing Postgres."
+        ),
+    )
+    parser.add_argument(
+        "--list-only",
+        action="store_true",
+        help="List selected unresolved rows without running a solver or writing files.",
     )
     parser.add_argument(
         "--dry-run",
@@ -4488,9 +4835,20 @@ def parse_args() -> argparse.Namespace:
         help="Solve and log results without writing to the database.",
     )
     parser.add_argument(
+        "--failure-log",
         "--timeout-log",
+        dest="failure_log",
         default=str(DEFAULT_TIMEOUT_LOG),
-        help="JSONL file for timed-out or failed boards.",
+        help="JSONL report replaced with all still-unsolved or failed boards.",
+    )
+    parser.add_argument(
+        "--solution-corpus",
+        type=Path,
+        default=None,
+        help=(
+            "Optionally merge newly verified paths into a solution JSONL corpus "
+            "for push-ranker training."
+        ),
     )
     parser.add_argument(
         "--env-file",

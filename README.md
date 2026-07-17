@@ -73,6 +73,86 @@ Set `SOLVER_FALLBACK=none` to disable the optimized solver's legacy fallback.
 `heuristic-CNN`, or `optimized-hybrid`, so each board records which solver
 actually ran.
 
+### Historical unresolved backfill
+
+`backfill_solutions.py` retries only stored rows whose status is not `solved`.
+It uses the same push portfolio and 500,000-node/30-second budget as the daily
+job, never overwrites an existing solved row, and replaces its failure report
+on every run so stale failures do not accumulate.
+
+Load a `DATABASE_URL` in `.env`, then audit the complete historical manifest
+with one database query:
+
+```bash
+python3 backfill_solutions.py --audit-only
+```
+
+The audit reports separate `solved`, `unresolved`, and `missing` counts. Use
+`--list-only` to print only the unresolved rows that a normal run would retry.
+
+Import verified paths that already exist in Postgres but are missing from the
+training corpus without rerunning any solver:
+
+```bash
+python3 backfill_solutions.py \
+  --sync-corpus-only \
+  --solution-corpus solver/gymnasium_register/all_boards_heuristic_cnn_solutions.jsonl
+```
+
+If the local virtual environment is stale, create a temporary Python 3.12
+environment with the API's Postgres dependency before running the commands:
+
+```bash
+/opt/homebrew/bin/python3.12 -m venv /tmp/tic-tac-go-backfill-venv
+source /tmp/tic-tac-go-backfill-venv/bin/activate
+python -m pip install -r apps/api/requirements.txt
+```
+
+Exercise one board without writing to Postgres:
+
+```bash
+python3 backfill_solutions.py \
+  --solver push \
+  --dry-run \
+  --limit 1 \
+  --failure-log /tmp/backfill_push_failures.jsonl
+```
+
+Run the full backfill and add newly verified push paths to the ranker corpus:
+
+```bash
+python3 backfill_solutions.py \
+  --solver push \
+  --timeout-seconds 30 \
+  --max-nodes 500000 \
+  --failure-log backfill_push_failures.jsonl \
+  --solution-corpus solver/gymnasium_register/all_boards_heuristic_cnn_solutions.jsonl
+```
+
+Dates missing from Postgres are skipped unless `--include-missing` is passed.
+Use `--start-date`, `--end-date`, or `--limit` to run smaller batches. The
+failure JSONL records each unsuccessful strategy and its search diagnostics.
+
+Newly solved paths are valid supervised ranking examples. Remaining failed
+boards are useful hard-tail benchmarks, but they do not provide positive
+ranking labels by themselves. Train a candidate model outside the tracked
+production path first:
+
+```bash
+python3 -m solver.push_solver.training_export \
+  --solutions solver/gymnasium_register/all_boards_heuristic_cnn_solutions.jsonl \
+  --examples-out /tmp/push_ranker_backfill_examples.jsonl \
+  --model-out /tmp/linear_push_ranker_candidate.json \
+  --verify-solutions
+```
+
+Do not replace `solver/push_solver/linear_push_ranker_v1.json` until the
+candidate has been benchmarked against the current model.
+
+Set `PUSH_RANK_POLICY_PATH=/path/to/candidate.json` to benchmark a candidate
+primary policy without replacing the tracked model. Optional supplemental
+policies remain active so the comparison matches production loading behavior.
+
 ### Web
 
 ```bash

@@ -44,7 +44,7 @@
 {"id":"20251111","name":"Ledge Leap","date":{"year":2025,"month":11,"day":11},"puzzle":"WWWWWWWWW-X-XO-WW---X--WWWWX--XWW-O--WWWW-X--X-WW----P-WWWWWWWWW","solution":"LUUURULLRDDDDLLLUURRDRULURUR"}
 {"id":"20251112","name":"Desk Setup","date":{"year":2025,"month":11,"day":12},"puzzle":"WWWWWWWWW--PX--WW-W-XWWWWOW--X-WW-WW-O-WW----X-WW-WWX--WWWWWWWWW","solution":"LLDDDUUURRDDRDDRLUURDRDLLL"}
 {"id":"20251113","name":"Peas In A Pod","date":{"year":2025,"month":11,"day":13},"puzzle":"WWWWWWWWWW--O-WWWX-X--XWW-PWXX-WW-XXW--WW----O-WWW--X-WWWWWWWWWW","solution":"UURRDRDRDDLLLRRRUULDRDLDLLURRUUULULLDDLDDRRRDRUUU"}
-{"id":"20251004","name":"Play Outside","date":{"year":2025,"month":10,"day":4},"puzzle":"-X-----------X----WXWWW---W-O-W---W--PW---WWWWWX-X-O-X----X-----","solution":null}
+{"id":"20251004","name":"Play Outside","date":{"year":2025,"month":10,"day":4},"puzzle":"-X-----------X----WXWWW---W-O-W---W--PW---WWWWWX-X-O-X----X-----","solution":"LLUUULLDDDDLDDRRULUUUUURRRURRDRDDDDDLDLLULLDLUUUUUDDDDRRRDRRURUUUUUULLLDLLULRDRRURRDRDDDDDLDLLULLLUUUULURURRDDDDRRULDLUUULULDLDDRUURU"}
 {"id":"20251114","name":"Only Way Out","date":{"year":2025,"month":11,"day":14},"puzzle":"----X-----X-X-O-X-W--W---W-X--WXXW-PO-W---W--W----XWW-X--X---X--","solution":"DRUULUUURRDLULDDDRULUR"}
 {"id":"20251115","name":"Platforms","date":{"year":2025,"month":11,"day":15},"puzzle":"-X---X----W---P-O-X--WWW---X-WWWWWWX----WWW--X----X--WO--X---X--","solution":"URDLLLDLLDRDDDRDRRUURULLLDLURUDLULLURDRRULL"}
 {"id":"20251117","name":"Cornered","date":{"year":2025,"month":11,"day":17},"puzzle":"WWWWWWWWWWWWWWWWWW----WWWW-XO-WWWWOPX-WWWWX-XWWWWWWWWWWWWWWWWWWW","solution":"RURULLDL"}
@@ -53,7 +53,7 @@
 {"id":"20251120","name":"Boxed In","date":{"year":2025,"month":11,"day":20},"puzzle":"WWWWWWWWWW--X-WWWO--X-PWWX-WW--WW--WWOXWW-X----WWW----WWWWWWWWWW","solution":"LDDUUULLDRURDRDDLUULLLDDDRRDRUUURULLL"}
 {"id":"20251121","name":"Checkers","date":{"year":2025,"month":11,"day":21},"puzzle":"-X--X-WWX--X--WW--WW-OX--OWW----X-XPWWX---X-WW--WW--XX--WW-X--X-","solution":"DLLUULUURRRURDRDULLLLLDDRULURRRRDR"}
 {"id":"20251122","name":"Missing Piece","date":{"year":2025,"month":11,"day":22},"puzzle":"WWX--O-XWW-X-W-----X-WXX-OX--X----W--WWX-WWX-WP---X--WX-X--X----","solution":"RUDDDLURUUDDDLLLUUUUUULDLLLDDRULURRRDRUULU"}
-{"id":"20251012","name":"Escape Route","date":{"year":2025,"month":10,"day":12},"puzzle":"-X--X-------X-O--WWWW---OWWWW---PWWWW-X--WWWWXX-X---X--X-X-X--X-","solution":null}
+{"id":"20251012","name":"Escape Route","date":{"year":2025,"month":10,"day":12},"puzzle":"-X--X-------X-O--WWWW---OWWWW---PWWWW-X--WWWWXX-X---X--X-X-X--X-","solution":"UUURRURRRDDDRRDDDLLUDRRUUUULLUULLDRURDLLLLLDDDDDRRRRDRURRUUUUULLLLLLRRRRRDDRDDDLLLLLLLUUUU"}
 {"id":"20251124","name":"Lost Sheep","date":{"year":2025,"month":11,"day":24},"puzzle":"WWWWWWWWWWWWWWWWWWO---WWWW-PX-WWWWXXO-WWWW---XWWWWWWWWWWWWWWWWWW","solution":"DUURRDDLDLUURU"}
 {"id":"20251125","name":"Security System","date":{"year":2025,"month":11,"day":25},"puzzle":"WWWWWWWWW--WW--WW---O--WW---O--WW-WXXW-WWXX-PXXWW------WWWWWWWWW","solution":"LDLLUUURRURRURDLD"}
 {"id":"20251126","name":"In The Doghouse","date":{"year":2025,"month":11,"day":26},"puzzle":"WWWWWWWWWWW--WWWWWPX--WWW--OX--WW-X-WO-WWX-X--XWW------WWWWWWWWW","solution":"DLDDUURURDRRDDLLLUURDDRD"}
@@ -65,15 +65,15 @@
 {"id":"20251202","name":"Dead End","date":{"year":2025,"month":12,"day":2},"puzzle":"WWWWWWWWW-----WWW-XX-X-WW--WW--WW-XPW--WW-W--O-WWOW---XWWWWWWWWW","solution":"DRDRURUULULULLDLDDRLUURDUURRDLULDRRRDRDDLUURULLLLULDDD"}
 {"id":"20251203","name":"Neighbors","date":{"year":2025,"month":12,"day":3},"puzzle":"WWWWWWWWW-X-X--WW-X--W-WW-OPXO-WW-WW-WXWW------WW---X--WWWWWWWWW","solution":"LRURDLUULRDDLULDDDRRRRRUULLLLULDD"}
 {"id":"20251204","name":"Catty Corner","date":{"year":2025,"month":12,"day":4},"puzzle":"WWWWWWWWW-----XWW-W-OX-WWX-PW-XWW--W-O-WWX--X--WW-XXWXXWWWWWWWWW","solution":"UURRDRDDUULULLDRRLLDLDDRRURUR"}
-{"id":"20251026","name":"Lock In","date":{"year":2025,"month":10,"day":26},"puzzle":"-X-WOW---X-W-WX---X-X-X--XPX-X-----X-WWW-XW-X---X-XXW-O-----W---","solution":null}
+{"id":"20251026","name":"Lock In","date":{"year":2025,"month":10,"day":26},"puzzle":"-X-WOW---X-W-WX---X-X-X--XPX-X-----X-WWW-XW-X---X-XXW-O-----W---","solution":"UDDRDRRRLLLULUURRLLDDRDRRDDRRULULLLULLLDDUUUUUURLDDRDURRRDLDLLRRDDLLRRURRRDDLURULLULUURDLDLLDDRRUUUDLLUURRDRU"}
 {"id":"20251205","name":"Line of Sight","date":{"year":2025,"month":12,"day":5},"puzzle":"-X-WWWPX--XWWW-X-O-------XXWWW-X-X-WWWO-X--X--X---X--XX-XX---X--","solution":"DDLLLLULLDRRRRRLLLDDLDDRDRRUURRU"}
 {"id":"20251206","name":"Face to Face","date":{"year":2025,"month":12,"day":6},"puzzle":"W--X--XWXX-WW-XX---W-X-W--XOP-X-WW-XO-X---X-W--X-XXWWW-X--------","solution":"RDDRDDLLLLLLUURRUULUURURLDLDDRUUDDRLDDLLDDRRUUDDLUDRRRRRUULUURDDUUULDLLLULLDRRRRRURDLD"}
 {"id":"20251208","name":"Watch Your Step","date":{"year":2025,"month":12,"day":8},"puzzle":"WWWWWWWWWWWWWWWWWWO---WWWW--OXWWWWPX--WWWW-X-XWWWWWWWWWWWWWWWWWW","solution":"DRURULU"}
 {"id":"20251209","name":"U-Turn","date":{"year":2025,"month":12,"day":9},"puzzle":"WWWWWWWWW-X----WW---XX-WW-OWWOXWW--WW--WW-XX-X-WWP-----WWWWWWWWW","solution":"UURDLDRRRURLLLULUURDDLDRRRDRU"}
 {"id":"20251210","name":"Rounded Corners","date":{"year":2025,"month":12,"day":10},"puzzle":"WWWWWWWWW-X-X--WW-X--X-WW-OWWOXWW--XX--WW-X-PX-WW------WWWWWWWWW","solution":"RLLLULUURDDLDRRRDRU"}
 {"id":"20251211","name":"Tight Spaces","date":{"year":2025,"month":12,"day":11},"puzzle":"WWWWWWWWW-----PWW-OWWWWWW-X----WW-WWW--WW-O-X-XWW-----XWWWWWWWWW","solution":"LLLLLDDRULURDDLDDDRRULDLUUUURU"}
-{"id":"20251105","name":"Team Meeting","date":{"year":2025,"month":11,"day":5},"puzzle":"WWWWWWWWW---O--WW-XWW-XWW-X----WW--X-XXWW-OXW--WW---X-PWWWWWWWWW","solution":null}
-{"id":"20251107","name":"Minefield","date":{"year":2025,"month":11,"day":7},"puzzle":"--X------OX-----XX-P------XWW----X-WWWWW-X-X------X--XO--X---X--","solution":null}
+{"id":"20251105","name":"Team Meeting","date":{"year":2025,"month":11,"day":5},"puzzle":"WWWWWWWWW---O--WW-XWW-XWW-X----WW--X-XXWW-OXW--WW---X-PWWWWWWWWW","solution":"UULULLLDLDDRUDRRRUUUUULLLRRRDDLLLULDRRRRDDDLLLUUDDRRRUUULLLUL"}
+{"id":"20251107","name":"Minefield","date":{"year":2025,"month":11,"day":7},"puzzle":"--X------OX-----XX-P------XWW----X-WWWWW-X-X------X--XO--X---X--","solution":"LDLLDDDRRDRRRLUURDURRDLULLDDLLUURRRRLLLLDLLUUURRURUULRDDLDLLDDDRRULRRRRRDLULLLLUDDRDRRURULDDLLUULULUURRRLLDDDRDDRRUULLDLUULUUR"}
 {"id":"20251116","name":"Minefields","date":{"year":2025,"month":11,"day":16},"puzzle":"--X---X-XO--X-----XWWP-X-XWWWWX---WWWW--XX-WWX----X-O--X---X----","solution":"RDDDDLDLLURRDRUUUURUULLULLDRURDRDRDDLUURULLLL"}
 {"id":"20251215","name":"Loopy","date":{"year":2025,"month":12,"day":15},"puzzle":"WWWWWWWWWWWWWWWWW--X-OXWW-X--X-WW---X-XWW--WWO-WWP-----WWWWWWWWW","solution":"URDRRRRUULLLLRRUULLDDDLDRRRRURULLLULLDDRULURDRURU"}
 {"id":"20251216","name":"Centrally Located","date":{"year":2025,"month":12,"day":16},"puzzle":"WWWWWWWWW----O-WW-X--X-WW-WOX--WW--X-W-WW-P-XW-WW---X--WWWWWWWWW","solution":"DRRLULLUUUURRRDDRRUULLDL"}
@@ -95,7 +95,7 @@
 {"id":"20260101","name":"Everything in its Place","date":{"year":2026,"month":1,"day":1},"puzzle":"WWWWWWWWW-P-X--WW-XX-O-WWX-XW-XWW-O-WX-WW-X-X-XWW---XX-WWWWWWWWW","solution":"LDDRURURRDLLLDLDDRUULURRRUR"}
 {"id":"20260102","name":"Roundabout Way","date":{"year":2026,"month":1,"day":2},"puzzle":"-----X---XOWWX----XP--XX-X-WWX---X-WW--------X---WW-OWW----X----","solution":"RRDRRDDDDLLLULULUULURLLUURRDDDDLDR"}
 {"id":"20260103","name":"Pushups","date":{"year":2026,"month":1,"day":3},"puzzle":"-X---X---X-XOW----W-X-W--W---X--X-OXW-X---X-W-X--XX-WX------W--P","solution":"LURULURDLDUULULLUULLDLDDRDDUULDUUURURRDDDDLLURDRUUUDDLLLUURUR"}
-{"id":"20251207","name":"Thread the Needle","date":{"year":2025,"month":12,"day":7},"puzzle":"-----W--X-X--WO---X-XW--XX-WPW---XXW--X--O-W-X-X-X-W-XX--X-W----","solution":null}
+{"id":"20251207","name":"Thread the Needle","date":{"year":2025,"month":12,"day":7},"puzzle":"-----W--X-X--WO---X-XW--XX-WPW---XXW--X--O-W-X-X-X-W-XX--X-W----","solution":"DDDDRRRUULDULULUUDDRDRRUDLLURUURUULDDDDDRDDLLRURULULLDUUUUDDDDRDRRULDLURULDLUUULUULLDDRDDDDLRUUUULURDDDLURURUDLDLUUDLUDRDDRDDLUUURUULLDRDRURU"}
 {"id":"20260105","name":"Naught So Easy","date":{"year":2026,"month":1,"day":5},"puzzle":"WWWWWWWWWWWWWWWWWW--O-WWWWPX-XWWWWXOX-WWWW----WWWWWWWWWWWWWWWWWW","solution":"URRDDUULLDDRDRUULU"}
 {"id":"20260106","name":"Barricade","date":{"year":2026,"month":1,"day":6},"puzzle":"WWWWWWWWW--X--WWW--WXO-WW-XP-X-WW-X-W-XWW-WOW--WW----X-WWWWWWWWW","solution":"RRUDDDRDLLLUULURRUR"}
 {"id":"20260107","name":"A Fine Line","date":{"year":2026,"month":1,"day":7},"puzzle":"WWWWWWWWWPW--X-WW-W-OX-WW-W-W--WW--X---WW-WWXX-WW-O---XWWWWWWWWW","solution":"DDDDDRRRLLLUURRUUURRDRDDLLDRURUULDRDLUUULLDRURDDD"}
@@ -121,7 +121,7 @@
 {"id":"20260127","name":"Starry Sky","date":{"year":2026,"month":1,"day":27},"puzzle":"WWWWWWWWW--XP--WWX-W-X-WW-O-XWXWWX---O-WW-XXWXXWWX--X--WWWWWWWWW","solution":"LLRRRLLLDDRDDUULLDRR"}
 {"id":"20260128","name":"Workaround","date":{"year":2026,"month":1,"day":28},"puzzle":"WWWWWWWWW--X---WW--X-OXWW-XW---WW-X-WXXWW-O-X--WW--PX--WWWWWWWWW","solution":"LLUUUURRLURRRLDLLLDDRUUDDLDDRUUULURR"}
 {"id":"20260129","name":"Blockade","date":{"year":2026,"month":1,"day":29},"puzzle":"WWWWWWWWW----X-WW-O-X--WWWWX--XWWWW-XX-WW-O-P--WW---X--WWWWWWWWW","solution":"LUUURLDDDDLLURDRUUURU"}
-{"id":"20251219","name":"Cross Worlds","date":{"year":2025,"month":12,"day":19},"puzzle":"-X-----XX-W--XOX--W--X----W-P-XXX--X---X-XX--WX-XO-X-WX-----X---","solution":null}
+{"id":"20251219","name":"Cross Worlds","date":{"year":2025,"month":12,"day":19},"puzzle":"-X-----XX-W--XOX--W--X----W-P-XXX--X---X-XX--WX-XO-X-WX-----X---","solution":"DDLDURUUUUULLLRRRRRDULLLLLDDDDRRRUUUURRDLULLDDDRRUDLDDDLLUDDLLURDRURUUUUUULLDDDDDRDRRUUUURRLDLDDDLLURDRUUURUUDDLLURDRURUULDRD"}
 {"id":"20260131","name":"The Stacks","date":{"year":2026,"month":1,"day":31},"puzzle":"---X---X--XO-X---X-X-X--XPWWWWXX--X-X--------XX--XX-OX--XX----X-","solution":"UDDDLRRRDDRRRLLURULLULLUURRLULDDDDRURDRDDLLUUDDRURULLDLUUUURU"}
 {"id":"20251228","name":"Cornered","date":{"year":2025,"month":12,"day":28},"puzzle":"--X------O-X-W---PWXXWX---W--W---X---W-X--X--W---WWWWWO----X----","solution":null}
 {"id":"20260202","name":"Shoveling Snow","date":{"year":2026,"month":2,"day":2},"puzzle":"WWWWWWWWWWWWWWWWW--X--OWW-X-XP-WWX-OX-XWW----X-WWWWWWWWWWWWWWWWW","solution":"LRULLLDDULRRRDULLDRDLURURRDLULLDDRUULURR"}
@@ -142,12 +142,12 @@
 {"id":"20260217","name":"Palate Cleanser","date":{"year":2026,"month":2,"day":17},"puzzle":"WWWWWWWWW-X----WW-XXO--WW---WWXWW-X--X-WW-OX-X-WWX-X--PWWWWWWWWW","solution":"LLLRUULLULUURRDLRURRDLLULDD"}
 {"id":"20260218","name":"Knotty By Nature","date":{"year":2026,"month":2,"day":18},"puzzle":"WWWWWWWWW---X--WW-OXX--WWX--OXXWWX-W---WW-XX--XWW--PXX-WWWWWWWWW","solution":"LURRURRUULULLDURRDLRRDDLLULU"}
 {"id":"20260219","name":"Untangled","date":{"year":2026,"month":2,"day":19},"puzzle":"WWWWWWWWW-X--X-WW-OXXO-WWX-----WWX-XX-XWW-X-XX-WW-XP---WWWWWWWWW","solution":"LRUURDUURRDLDUURUULDDLDLLDURRURRDLLLDLU"}
-{"id":"20260117","name":"Plugged Up","date":{"year":2026,"month":1,"day":17},"puzzle":"---O-----X-W-----X--WWWX-W--WW---W--W-O--W--XX-X-W--X----P-X----","solution":null}
+{"id":"20260117","name":"Plugged Up","date":{"year":2026,"month":1,"day":17},"puzzle":"---O-----X-W-----X--WWWX-W--WW---W--W-O--W--XX-X-W--X----P-X----","solution":"RURRLUUUULUURRRDRRDUULLDRRDDUUULLLLLDLRURRDRRRDDLDURUUULLLLLLDRDDDDDRRRUDDRRULDLLULUUUULUURRDRRRDDLDDUURUUULLLLLDDDDDDRRDRUDRRULLLLUUUULLRDDDRDRDLLUUUUUULU"}
 {"id":"20260220","name":"Laser Tag","date":{"year":2026,"month":2,"day":20},"puzzle":"P-X--X----X-O-XX-X-WW-----WWWWXXX-X-X----X--O-XX--X--X--XX-X-X--","solution":"RRRDLDLUDDLUDDRDRRURLLDRDRRRULLDLULULRDRRULLDLUUULURR"}
 {"id":"20260208","name":"Toric Lens","date":{"year":2026,"month":2,"day":8},"puzzle":"--X-X-X--X-X--O--X---X----XWWXX-XX-WW--XX-----PX-OX-X-X--X--X---","solution":"LLLDDLLRURURRDDLURURDUUURUULDLDDRULULURDRLUURDLDDRDDDLUUUUURDDLDDDLLURDRUUURDDLDLLLDRURRDRUUULUURULRDDDLDLDLDRRURUUURULULDDDDRDLLL"}
 {"id":"20260223","name":"Candyland","date":{"year":2026,"month":2,"day":23},"puzzle":"WWWWWWWWWWWWWWWWW--X---WWX--XO-WW-OX--XWW-X-P--WWWWWWWWWWWWWWWWW","solution":"RRULLDRRLLLLULURDRRU"}
 {"id":"20260224","name":"Sweet Relief","date":{"year":2026,"month":2,"day":24},"puzzle":"WWWWWWWWW-X-X--WW---X-XWWX-XOWPWW-X--XXWW-O-X--WW-X--X-WWWWWWWWW","solution":"UDDUULLLRDURRDDDLLRRUUULLDDLD"}
-{"id":"20260124","name":"In the Goal","date":{"year":2026,"month":1,"day":24},"puzzle":"X-X--X-----X-----XWWWW--P----WOX-XX-OW--X-WWWWX-----X----X-X---X","solution":null}
+{"id":"20260124","name":"In the Goal","date":{"year":2026,"month":1,"day":24},"puzzle":"X-X--X-----X-----XWWWW--P----WOX-XX-OW--X-WWWWX-----X----X-X---X","solution":"UURRRRRRDRDDDULUURULLLLLRRRRDDDDDLDLLULLUULURRRLLDDDRRRRLLLLUUULUURLDDRRRDLULLDDUURDULUURURRLLDDLDDRRULUUURRDLULDDDULDDRURRD"}
 {"id":"20260215","name":"Full Steam Ahead","date":{"year":2026,"month":2,"day":15},"puzzle":"----X-X--PO-X-X-X--X----WWWWW-XXWWWWWX--X--X---X-XO--X-----X-X-X","solution":"DRUDLUURDRRDLLRRRRDDDLLDDLLLUDRRURURRUUURUULDLLLRRDDRULURDDDDLUURURULLLLDLURDRRDRURDLLDDLDDRUUUUUDDDLDLDLLURRRDRUUUURULLUL"}
 {"id":"20260226","name":"Bouquet of Flowers","date":{"year":2026,"month":2,"day":26},"puzzle":"WWWWWWWWW-X-O--WW--XX-XWWX-X-X-WW-XP--XWWXO-XX-WW----X-WWWWWWWWW","solution":"DDRRLLUURULURDDDLDLLURRDRUUU"}
 {"id":"20260225","name":"Pinched Nerve","date":{"year":2026,"month":2,"day":25},"puzzle":"WWWWWWWWWX-W--XWW-O--X-WW--XX--WW-XX-OXWWX--X--WW-XW-P-WWWWWWWWW","solution":"UULULRURDRDLDLUULU"}
@@ -158,7 +158,7 @@
 {"id":"20260304","name":"Spiraling","date":{"year":2026,"month":3,"day":4},"puzzle":"WWWWWWWWWX--W--WW-OX-X-WWX-X---WW-X-XOWWW-X----WWP--X--WWWWWWWWW","solution":"UUURRURRDLDLDRRUURULL"}
 {"id":"20260305","name":"Balance Beam","date":{"year":2026,"month":3,"day":5},"puzzle":"WWWWWWWWW-X-X--WWX---O-WW-X-WX-WW--X-X-WW-OX--XWWX---P-WWWWWWWWW","solution":"LLLURLLUURLDDRUULURR"}
 {"id":"20260227","name":"Orion's Belt","date":{"year":2026,"month":2,"day":27},"puzzle":"-X-X----X---X-X--XX-XO-X---W-X--XX--W--X-XOX-WX---X--XP----X--X-","solution":"URUDDLLDLLUURDRRURULUUULLDRURDDDDRDLLDLULU"}
-{"id":"20260125","name":"Harmonic Progression","date":{"year":2026,"month":1,"day":25},"puzzle":"X--X-W-X--X--WX--XW--XO-X-W-X---PO-X-W-X--X--WX--XW--X--X-W-X--X","solution":null}
+{"id":"20260125","name":"Harmonic Progression","date":{"year":2026,"month":1,"day":25},"puzzle":"X--X-W-X--X--WX--XW--XO-X-W-X---PO-X-W-X--X--WX--XW--X--X-W-X--X","solution":"RUUURRDDDRURRDDUULLLUULLDDDRRURRRDDDUUULLLDDRULURDDDRRLLUUURLDDDRRUU"}
 {"id":"20260309","name":"Lighthouse","date":{"year":2026,"month":3,"day":9},"puzzle":"WWWWWWWWWW----WWWW-XOXWWWW--X-WWWWW-X-WWWW-O-XWWWW-XP-WWWWWWWWWW","solution":"ULUURDDUULLUURRDDDLD"}
 {"id":"20260310","name":"Six Feet Under","date":{"year":2026,"month":3,"day":10},"puzzle":"WWWWWWWWW--X---WW-OX-X-WW-X-XWWWW---P--WWXX-XOXWW--X---WWWWWWWWW","solution":"RDULLLLUUURRLLDDRLUURDDLDRRRDR"}
 {"id":"20260311","name":"Bank Teller","date":{"year":2026,"month":3,"day":11},"puzzle":"WWWWWWWWW---X--WWXX-W--WW-O-WO-WW-XX-XXWWX--X--WW-XP-X-WWWWWWWWW","solution":"UURDLLRRRRULRUULDDRDLLLUL"}
@@ -233,8 +233,8 @@
 {"id":"20260519","name":"Carpool Lane","date":{"year":2026,"month":5,"day":19},"puzzle":"WWWWWWWWW-X----WWX--XO-WW-XX-W-WW-X--X-WW-OX-X-WWPX----WWWWWWWWW","solution":"RRURUUUDDRDRUUULULDDDRDL"}
 {"id":"20260520","name":"Asymmetry","date":{"year":2026,"month":5,"day":20},"puzzle":"WWWWWWWWW----X-WW-OX---WWXX-XX-WW---XO-WW-X-P-XWW--X---WWWWWWWWW","solution":"RDRUDLLLURLLRUUUDDLLUURURDDDLDRRDR"}
 {"id":"20260521","name":"Joyride","date":{"year":2026,"month":5,"day":21},"puzzle":"WWWWWWWWWX-X--PWW-X--X-WW-OW---WWX-WX--WW--X-OXWW-X--X-WWWWWWWWW","solution":"DLDLULLDLDDRUUDDRDRRUUURULL"}
-{"id":"20260417","name":"Braided River","date":{"year":2026,"month":4,"day":17},"puzzle":"---X--X--O-X-----X-W-X-XX-WWW------WWWX--XX-WO-X-X---X-----X---P","solution":null}
-{"id":"20260419","name":"Skip A Beat","date":{"year":2026,"month":4,"day":19},"puzzle":"---W-----O-WXOX-X--W-X---X-WX--X--XW--X-X--W-X---X--X------X--XP","solution":null}
+{"id":"20260417","name":"Braided River","date":{"year":2026,"month":4,"day":17},"puzzle":"---X--X--O-X-----X-W-X-XX-WWW------WWWX--XX-WO-X-X---X-----X---P","solution":"ULLDLLULLDRRRRLLURRRLLLLLURDRRRRUURULUULULLLLRDDLRUULDDUURRRDRRDDDDDLLLLULLURDDRRRRRUUUUULULLLDDLDDDRDDLLURRRRDR"}
+{"id":"20260419","name":"Skip A Beat","date":{"year":2026,"month":4,"day":19},"puzzle":"---W-----O-WXOX-X--W-X---X-WX--X--XW--X-X--W-X---X--X------X--XP","solution":"UUUULLDLDDLLULULURDDRDRRUURURUUDDLDLDDLLULUUURUULDDDLDDRDULUURDDLDRRRRURURLDRLLDRDRUUUURUUDDLURU"}
 {"id":"20260522","name":"Merge","date":{"year":2026,"month":5,"day":22},"puzzle":"-X--X----X--OX----XWW-X-----X--XXX--X----X-WWX-----O--XX---X--XP","solution":"LULLLRDLLUULRURURRLLLULLDRURULDDDRUULUR"}
 {"id":"20260525","name":"Pyramid","date":{"year":2026,"month":5,"day":25},"puzzle":"WWWWWWWWWWP-X-WWWWXOX-WWWW-X--WWWW-X-XWWWWX-O-WWWW--X-WWWWWWWWWW","solution":"RRLLDDRRLLUURDLDRDR"}
 {"id":"20260526","name":"Zipper Merge","date":{"year":2026,"month":5,"day":26},"puzzle":"WWWWWWWWW----XPWW-OX--XWWXX-W--WW--X-X-WW-X-XO-WW-X---XWWWWWWWWW","solution":"DLLULLLDDUURRDULLDRRRURDRDDL"}
@@ -256,14 +256,14 @@
 {"id":"20260611","name":"Bypass","date":{"year":2026,"month":6,"day":11},"puzzle":"WWWWWWWWW-X--X-WWX--X--WW--OX-XWW-XXPX-WWX--X-OWW-X----WWWWWWWWW","solution":"DLLULDRRRULDLLUUURRDDLDRR"}
 {"id":"20260612","name":"Tailgate","date":{"year":2026,"month":6,"day":12},"puzzle":"-X--X-------X-OXX-XWW-X--X--------WX-W---XW-XWXXPO---X--X--X----","solution":"RRDRRURRUURULRULDDDDDLLLLURRRDRUUUU"}
 {"id":"20260606","name":"Tidal Wave","date":{"year":2026,"month":6,"day":6},"puzzle":"P--X--X---X-WO---X--WW-XX-WW-X-----WX--XXX--X----OX---X-----X--X","solution":"DDRDDRDDUULLDDRUDRRURLDDRRUUDRLLLLULUUDDLDRRRURUDLDRURRULDRDLLDLURULDLLDRRLULURRRRURUUURDLDDLDDRUUUURU"}
-{"id":"20260510","name":"Roundabout","date":{"year":2026,"month":5,"day":10},"puzzle":"X---X-----XOX-XX--X--X--XX---X----XX--XXX---X-X---X---O-P-X--X--","solution":null}
+{"id":"20260510","name":"Roundabout","date":{"year":2026,"month":5,"day":10},"puzzle":"X---X-----XOX-XX--X--X--XX---X----XX--XXX---X-X---X---O-P-X--X--","solution":"URURRDRRUULUULLLUURRDULLDDRDRRURLDDRDLDLLULDRRRUUUURRLLDLLULUURRDDRDDDDRRLUULUURRDRDULULLDDRRDDUULLURDRULULLLDRRURDDLDRURDLD"}
 {"id":"20260615","name":"Monsoon","date":{"year":2026,"month":6,"day":15},"puzzle":"WWWWWWWWWWWWWWWWW-X--XPWW--X-OXWWXOX---WW-X-X--WWWWWWWWWWWWWWWWW","solution":"DDLLUURDRDLULULLDRRRDDLURULLUL"}
 {"id":"20260616","name":"Kaleidoscope","date":{"year":2026,"month":6,"day":16},"puzzle":"WWWWWWWWW---X--WWXO---XWW-WWXX-WW--X---WWX--XOXWW-X-X-PWWWWWWWWW","solution":"UDLLRRUDLLULLULUURRURRLLDLLDDRDRRDRRULUUULULLDRRLLLDDRDRRDRUU"}
 {"id":"20260617","name":"Lagoon","date":{"year":2026,"month":6,"day":17},"puzzle":"WWWWWWWWW---X--WW-O---XWWX-WXX-WW-XW-X-WW--X-O-WWPX--X-WWWWWWWWW","solution":"URULUURURRDDDDRLLLUUURURDDDRD"}
 {"id":"20260618","name":"Teleport","date":{"year":2026,"month":6,"day":18},"puzzle":"WWWWWWWWW-X--X-WW-XPXO-WWX----XWW--WWX-WW-O---XWW-X-X--WWWWWWWWW","solution":"URRDRDLLLULD"}
 {"id":"20260619","name":"Quicksand","date":{"year":2026,"month":6,"day":19},"puzzle":"-X-W----XO-W-XO---XW---XX--WW-X---XWW----X-P-X-X-X-----X---X-X--","solution":"LLDURRRRUUULUURDURRDLDLDRUUULDDDDRDLLLLDLUUU"}
 {"id":"20260614","name":"Yellow Light","date":{"year":2026,"month":6,"day":14},"puzzle":"--X--X---OX-X-X---W-X--XX---W-----XWPX---X--XW-X--X--XO----X----","solution":"RRDDLDRLLLUULLUUULUURDDDDLDDRURUDRDLLULUURDLDRDRRDLULUURDLDRURDLDRRR"}
-{"id":"20260517","name":"Zig Zag","date":{"year":2026,"month":5,"day":17},"puzzle":"---W-X--XO-W-----X--XWW----X--XXWW--X-----X---XX-X--WXO-P-X-W---","solution":null}
+{"id":"20260517","name":"Zig Zag","date":{"year":2026,"month":5,"day":17},"puzzle":"---W-X--XO-W-----X--XWW----X--XXWW--X-----X---XX-X--WXO-P-X-W---","solution":"UURRUUURDLLLUURURDDDRRRDDLLLLRRRRUULLLDURRRDDLLDLLURRLUURRRDDDUUULLLDDRRLLUURRRDRRDDLRUULL"}
 {"id":"20260622","name":"Crosswalk","date":{"year":2026,"month":6,"day":22},"puzzle":"WWWWWWWWWWWWWWWWW----PXWWX-XX-OWW-OX---WW-X--X-WWWWWWWWWWWWWWWWW","solution":"DDLUDDLLURUDLLURRR"}
 {"id":"20260623","name":"Pulsar","date":{"year":2026,"month":6,"day":23},"puzzle":"WWWWWWWWW--X---WWXX--X-WW-PWWO-WWXX--X-WWO-X-XXWW--X---WWWWWWWWW","solution":"LUDRDRRDDRRUULDLDLLURRRURUULDDRDLLL"}
 {"id":"20260620","name":"Constellation","date":{"year":2026,"month":6,"day":20},"puzzle":"--X-X--X-XX--XO-X----X------X-WWWWWXPWWWWW-X-X--X-X--XO-X--X----","solution":"UURUDRLDLDDRRLLDDRUDRRULLDLUULRUURURUDLLDLLURRRUR"}
@@ -273,7 +273,7 @@
 {"id":"20260626","name":"Freeway","date":{"year":2026,"month":6,"day":26},"puzzle":"--X-X----O--X-X--X-P-X--X-WWWW-X--WW----XX-X--XX-----XO--X--X---","solution":"LLDDDRRDRURURRDLLDURRDLLLLDLURULDLUUU"}
 {"id":"20260629","name":"Orbit","date":{"year":2026,"month":6,"day":29},"puzzle":"WWWWWWWWWWPO--WWWW-X--WWWWX-X-WWWW-XO-WWWW--X-WWWWWWWWWWWWWWWWWW","solution":"RLDDRURRDLLRRDDLUU"}
 {"id":"20260630","name":"Labyrinth","date":{"year":2026,"month":6,"day":30},"puzzle":"WWWWWWWWW---X--WW-OW-X-WWX-X-X-WW--W--XWW-X-XO-WW-X--XPWWWWWWWWW","solution":"UUDDLLULLRRDRRULLLRRRUUULULLLDD"}
-{"id":"20260527","name":"Sphere","date":{"year":2026,"month":5,"day":27},"puzzle":"WWWWWWWWW--O---WW--WX--WWXXW-XXWW---X--WW-X-XO-WWPX---XWWWWWWWWW","solution":null}
+{"id":"20260527","name":"Sphere","date":{"year":2026,"month":5,"day":27},"puzzle":"WWWWWWWWW--O---WW--WX--WWXXW-XXWW---X--WW-X-XO-WWPX---XWWWWWWWWW","solution":"UUUURURRRDRDDLLURUULLLDLDDRRDDRRUURUDLUUDDDDLLUULLUURURR"}
 {"id":"20260702","name":"Equator","date":{"year":2026,"month":7,"day":2},"puzzle":"WWWWWWWWW-X-X--WWXX-OXXWW---W--WW-X-X--WWXO---XWW--X-XPWWWWWWWWW","solution":"LULLUUUURRDLULDDDRD"}
 {"id":"20260628","name":"Blizzard","date":{"year":2026,"month":6,"day":28},"puzzle":"-X--X-X-X-W-X-O---X--X--X--W--WX-X--X----OW-W-WXX-X--XX-P--X----","solution":"RRRUUULLRUDRRUULLDLURRUURDDURDRRULLDLLUURDRDLLLDDRDDDLLUUU"}
 {"id":"20260605","name":"Oasis","date":{"year":2026,"month":6,"day":5},"puzzle":"-X--X--P-OX-X-XX----WW--X--WW----XWWW--X--W--X--X-X---O--X---X--","solution":"DLRDLDDLDURDRDDLLULLDLLUUUURUUDLDDDDRDRURRURRDLLLLLDLUUUU"}

@@ -17,8 +17,8 @@ class PushSolverHardTailTest(unittest.TestCase):
         statuses = Counter(row.known_solution_status for row in rows)
 
         self.assertEqual(len(rows), 16)
-        self.assertEqual(statuses["known_solution"], 11)
-        self.assertEqual(statuses["no_known_solution"], 5)
+        self.assertEqual(statuses["known_solution"], 13)
+        self.assertEqual(statuses["no_known_solution"], 3)
 
         no_known_ids = {
             row.board_id
@@ -27,7 +27,7 @@ class PushSolverHardTailTest(unittest.TestCase):
         }
         self.assertEqual(
             no_known_ids,
-            {"20251207", "20251212", "20251228", "20260124", "20260314"},
+            {"20251212", "20251228", "20260314"},
         )
 
 

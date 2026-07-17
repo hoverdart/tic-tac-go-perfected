@@ -318,6 +318,24 @@ def get_solution(puzzle_date: date) -> dict[str, Any] | None:
     return result
 
 
+def get_solutions_for_dates(puzzle_dates: list[date]) -> dict[date, dict[str, Any]]:
+    """Return stored rows for many dates with one database query."""
+    unique_dates = list(dict.fromkeys(puzzle_dates))
+    if not unique_dates:
+        return {}
+    logger.info("storage.get_many.start count=%s", len(unique_dates))
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM daily_solutions WHERE puzzle_date = ANY(%s)",
+            (unique_dates,),
+        ).fetchall()
+    result = {row["puzzle_date"]: dict(row) for row in rows}
+    for puzzle_date in unique_dates:
+        _cache_set(("solution", puzzle_date), result.get(puzzle_date))
+    logger.info("storage.get_many.done found=%s", len(result))
+    return result
+
+
 def list_recent_solutions(limit: int = 30) -> list[dict[str, Any]]:
     """Return a lightweight summary list of the most recent solutions."""
     cache_key = ("recent", limit)

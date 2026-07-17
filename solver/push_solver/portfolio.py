@@ -265,7 +265,7 @@ def _portfolio_configs(
                 commitment_bias_scale=1.50,
                 relevance_filter=True,
             ),
-            0.74,
+            0.45,
         ),
         (
             SearchStrategyConfig(
@@ -275,7 +275,7 @@ def _portfolio_configs(
                 g_weight=1.0,
                 bias_scale=1.25,
             ),
-            1.00,
+            0.35,
         ),
         (
             SearchStrategyConfig(
@@ -287,7 +287,7 @@ def _portfolio_configs(
                 use_macros=True,
                 policy_weight=2.00,
             ),
-            1.00,
+            0.55,
         ),
         (
             SearchStrategyConfig(

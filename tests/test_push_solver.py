@@ -1,7 +1,11 @@
+import json
 import math
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
+from solver.push_solver import rank_policy
 from solver.push_solver import core
 from solver.push_solver.core import (
     SearchStrategyConfig,
@@ -544,6 +548,13 @@ class PushSolverTest(unittest.TestCase):
         self.assertTrue(all(config.committed_plan is not None for config in line_configs))
         self.assertTrue(all(config.relevance_filter for config in line_configs))
 
+    def test_non_final_portfolio_strategies_leave_time_for_fallbacks(self):
+        configs = core._portfolio_configs(2.0)
+
+        self.assertTrue(all(fraction < 1.0 for _config, fraction in configs[:-1]))
+        self.assertEqual(configs[-1][0].name, "committed_beam")
+        self.assertEqual(configs[-1][1], 1.0)
+
     def test_portfolio_ends_with_committed_beam_fallback(self):
         board = [
             ["", "", "", ""],
@@ -610,9 +621,40 @@ class PushSolverTest(unittest.TestCase):
         policy = default_policy()
 
         self.assertIsNotNone(policy)
+        self.assertIn("linear_push_policy_backfill_v1", policy.name)
         self.assertIsInstance(policy.score(features), float)
         self.assertIsInstance(policy.raw_score(features), float)
         self.assertIsInstance(policy.value(features), float)
+
+    def test_default_rank_policy_honors_configured_primary_path(self):
+        with TemporaryDirectory() as temp_dir:
+            policy_path = Path(temp_dir) / "candidate.json"
+            policy_path.write_text(
+                json.dumps(
+                    {
+                        "name": "candidate-policy",
+                        "weights": {"child_h": 1.5},
+                        "value_weights": {},
+                        "state_action_hints": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with (
+                patch.dict(
+                    "os.environ",
+                    {"PUSH_RANK_POLICY_PATH": str(policy_path)},
+                ),
+                patch.object(rank_policy, "OPTIONAL_POLICY_PATHS", ()),
+            ):
+                rank_policy._DEFAULT_POLICY = None
+                rank_policy._DEFAULT_POLICY_PATHS = None
+                policy = default_policy()
+
+        rank_policy._DEFAULT_POLICY = None
+        rank_policy._DEFAULT_POLICY_PATHS = None
+        self.assertEqual(policy.name, "candidate-policy")
+        self.assertEqual(policy.raw_score({"child_h": 2.0}), 3.0)
 
     def test_portfolio_short_circuits_initial_x_loss(self):
         result = solve(
