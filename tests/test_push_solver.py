@@ -709,6 +709,52 @@ class PushSolverTest(unittest.TestCase):
         self.assertIsInstance(policy.raw_score(features), float)
         self.assertIsInstance(policy.value(features), float)
 
+    def test_bookshelf_verified_path_is_pinned_in_ranker_hints(self):
+        from solver.push_solver.training_export import (
+            decode_board,
+            examples_for_solution,
+            load_boards,
+            load_solutions,
+        )
+
+        board_id = "20260726"
+        solutions = {
+            str(row["id"]): str(row["solution"])
+            for row in load_solutions()
+            if row.get("solution")
+        }
+        board = decode_board(load_boards()[board_id])
+        moves = solutions[board_id]
+
+        self.assertTrue(verify_solution(board, moves).ok)
+        examples = examples_for_solution(
+            board_id=board_id,
+            board=board,
+            moves=moves,
+            verify=True,
+        )
+        policy = default_policy()
+        self.assertIsNotNone(policy)
+        hinted_keys = {
+            key
+            for candidate in getattr(policy, "policies", (policy,))
+            for key in candidate.state_action_hints
+        }
+        oracle_keys = {
+            example["state_action_key"]
+            for example in examples
+            if example["label"]
+        }
+
+        self.assertEqual(len(oracle_keys), 20)
+        self.assertTrue(oracle_keys <= hinted_keys)
+
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+        configs = core._portfolio_configs(2.0, context=context)
+        self.assertEqual(configs[0][0].name, "learned_hint_recovery_first")
+        self.assertEqual(configs[0][1], 0.15)
+
     def test_default_rank_policy_honors_configured_primary_path(self):
         with TemporaryDirectory() as temp_dir:
             policy_path = Path(temp_dir) / "candidate.json"

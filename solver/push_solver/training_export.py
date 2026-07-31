@@ -38,6 +38,7 @@ HARD_TAIL_BOOST_BOARD_IDS: tuple[str, ...] = (
     "20260524",
     "20260614",
     "20260627",
+    "20260726",
     "20260802",
 )
 
@@ -385,6 +386,8 @@ def main() -> int:
     parser.add_argument("--hard-tail-boost", type=int, default=4)
     parser.add_argument("--value-weight", type=float, default=1.5)
     parser.add_argument("--state-action-bonus", type=float, default=80.0)
+    parser.add_argument("--policy-name", default="linear_push_policy_value_v1")
+    parser.add_argument("--priority-recovery", action="store_true")
     args = parser.parse_args()
 
     board_ids = set(args.board_id) if args.board_id else None
@@ -430,12 +433,13 @@ def main() -> int:
         bonus=args.state_action_bonus,
     )
     payload = {
-        "name": "linear_push_policy_value_v1",
+        "name": args.policy_name,
         "intercept": 0.0,
         "value_intercept": value_intercept,
         "value_target_scale": value_target_scale,
         "value_weight": args.value_weight,
         "state_action_bonus": args.state_action_bonus,
+        "priority_recovery": args.priority_recovery,
         "hard_tail_boost": args.hard_tail_boost,
         "hard_tail_boost_board_ids": list(HARD_TAIL_BOOST_BOARD_IDS),
         "feature_count": len(weights),

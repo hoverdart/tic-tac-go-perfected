@@ -323,7 +323,7 @@
 {"id":"20260817","name":"Flea Market","date":{"year":2026,"month":8,"day":17},"puzzle":"WWWWWWWWWWWWWWWWWWWWWWWWWP--X--WW-OXXO-WW--X---WWWWWWWWWWWWWWWWW","solution":"RRRRDULLLLDDRULURRRDR"}
 {"id":"20260818","name":"Out of the Blue","date":{"year":2026,"month":8,"day":18},"puzzle":"WWWWWWWWW----X-WW-PXO--WW-X-WXXWW--WW--WW-X--O-WW------WWWWWWWWW","solution":"URDURRDLLLULDDDRDRRDRRULLL"}
 {"id":"20260819","name":"Tipping Point","date":{"year":2026,"month":8,"day":19},"puzzle":"WWWWWWWWW-X----WW--X-O-WWXOXW--WW-X-XX-WW-WX---WW-----PWWWWWWWWW","solution":"ULLDLRRURUUUULLLLDRURRRDDLURULLLDL"}
-{"id":"20260726","name":"Bookshelf","date":{"year":2026,"month":7,"day":26},"puzzle":"------X--OX--X--XX--W--X---WW-X-X-WWWWP--X--W-X--OX-X-----X--X--","solution":null}
+{"id":"20260726","name":"Bookshelf","date":{"year":2026,"month":7,"day":26},"puzzle":"------X--OX--X--XX--W--X---WW-X-X-WWWWP--X--W-X--OX-X-----X--X--","solution":"RULULULLDLUDDLLURDRURUULLDDLDDUURRDLDLDDUURUULDDUURRRURRDRDDRDDLLLDLLUDRRURRRUUULUULLLDLDLDLDUUURRRURRDRDDRDDLLLDLLU"}
 {"id":"20260802","name":"Cold Feet","date":{"year":2026,"month":8,"day":2},"puzzle":"---X--X--O-X----X-W-XW-X-X-X--X---X--X-P-XW--WX-XO--X--X--X-X---","solution":"ULUULLULLLDRRDDLLDLDDRDRLULUURDDUUURRUULLDDDDLD"}
 {"id":"20260821","name":"Diagonal Alley","date":{"year":2026,"month":8,"day":21},"puzzle":"----X----OX----X--XX-X--X----XX---XP-----XX-XX-XX---X-O---X-----","solution":"LULULUURDDLDRRRURDLDRRDR"}
 {"id":"20260822","name":"Clock Tower","date":{"year":2026,"month":8,"day":22},"puzzle":"----X----PW--X---X-X-X--X--OWW-X--W---X--X--XX---X-X--O----X-X--","solution":"DRRDDRDRRURDDLDLURUL"}

@@ -17,7 +17,12 @@ from solver.push_solver.models import (
     StaticBoard,
 )
 from solver.push_solver.reconstruction import reconstruct_moves
-from solver.push_solver.search import _build_search_context, _run_strategy, _timed_out
+from solver.push_solver.search import (
+    _build_search_context,
+    _successors_for,
+    _run_strategy,
+    _timed_out,
+)
 from solver.push_solver.state import parse_board
 
 
@@ -91,6 +96,28 @@ def _portfolio_context_profile(context) -> str | None:
     ):
         return "policy_rank_first"
     return None
+
+
+def _has_start_ranker_hint(context) -> bool:
+    """Whether the loaded ranker knows a legal first push for this position.
+
+    Exact state-action hints come only from verified solution paths.  Give them
+    a short early recovery window, while retaining the normal portfolio if that
+    guided attempt cannot finish.
+    """
+    try:
+        from solver.push_solver.rank_policy import default_policy
+
+        policy = default_policy()
+    except Exception:
+        return False
+    if policy is None:
+        return False
+    return any(
+        policy.priority_action_bonus(context.static, context.start_state, (push,))
+        > 0.0
+        for push, *_rest in _successors_for(context, context.start_state)
+    )
 
 
 def _attempt_from_result(result: PushSolveResult) -> SearchAttempt:
@@ -321,6 +348,23 @@ def _portfolio_configs(
     )
     if context is None:
         return base_configs
+
+    if _has_start_ranker_hint(context):
+        return (
+            (
+                SearchStrategyConfig(
+                    name="learned_hint_recovery_first",
+                    kind="rank_discrepancy",
+                    weight=weight,
+                    g_weight=1.0,
+                    bias_scale=1.0,
+                    use_macros=True,
+                    policy_weight=2.0,
+                ),
+                0.15,
+            ),
+            *base_configs,
+        )
 
     profile = _portfolio_context_profile(context)
     if profile == "v1_deep_first":

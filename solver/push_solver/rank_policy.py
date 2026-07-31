@@ -14,6 +14,7 @@ OPTIONAL_POLICY_PATHS = (
     Path(__file__).with_name("linear_push_ranker_hard_tail_v1.json"),
     Path(__file__).with_name("linear_push_ranker_recovery_v1.json"),
     Path(__file__).with_name("linear_push_ranker_backfill_v1.json"),
+    Path(__file__).with_name("linear_push_ranker_bookshelf_v1.json"),
 )
 
 
@@ -26,6 +27,7 @@ class LinearPushRankPolicy:
     intercept: float = 0.0
     value_intercept: float = 0.0
     value_weight: float = 0.0
+    priority_recovery: bool = False
 
     def raw_score(self, features: Mapping[str, float]) -> float:
         return self.intercept + sum(
@@ -48,6 +50,11 @@ class LinearPushRankPolicy:
             return 0.0
         return self.state_action_hints.get(state_action_key(board, state, pushes), 0.0)
 
+    def priority_action_bonus(self, board, state, pushes: tuple) -> float:
+        if not self.priority_recovery:
+            return 0.0
+        return self.action_bonus(board, state, pushes)
+
 
 @dataclass(frozen=True)
 class EnsemblePushRankPolicy:
@@ -68,6 +75,12 @@ class EnsemblePushRankPolicy:
 
     def action_bonus(self, board, state, pushes: tuple) -> float:
         return max(policy.action_bonus(board, state, pushes) for policy in self.policies)
+
+    def priority_action_bonus(self, board, state, pushes: tuple) -> float:
+        return max(
+            policy.priority_action_bonus(board, state, pushes)
+            for policy in self.policies
+        )
 
 
 _DEFAULT_POLICY: LinearPushRankPolicy | EnsemblePushRankPolicy | None = None
@@ -97,6 +110,7 @@ def load_policy(path: str | Path = DEFAULT_POLICY_PATH) -> LinearPushRankPolicy:
         intercept=float(payload.get("intercept", 0.0)),
         value_intercept=float(payload.get("value_intercept", 0.0)),
         value_weight=float(payload.get("value_weight", 0.0)),
+        priority_recovery=bool(payload.get("priority_recovery", False)),
     )
 
 
