@@ -28,6 +28,7 @@ from solver.legacy_solver import (
 
 DAILY_PUSH_MAX_NODES = 500_000
 DAILY_PUSH_TIMEOUT_SECONDS = 30.0
+DAILY_PUSH_QUALITY_TIMEOUT_SECONDS = 10.0
 
 
 def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
@@ -81,7 +82,7 @@ def _solver_name(
     if impl == "heuristiccnn":
         name = "heuristic-CNN"
     elif impl == "push":
-        name = "push-v2"
+        name = "push-v3"
     elif impl == "learned":
         name = f"linear-tree-v1-{_solver_mode(board)}"
     elif impl == "optimized":
@@ -149,6 +150,7 @@ def _run_push_solver(
     *,
     max_nodes: int,
     timeout_seconds: float,
+    quality_timeout_seconds: float = DAILY_PUSH_QUALITY_TIMEOUT_SECONDS,
 ) -> Any:
     from solver.push_solver import solve as push_solve
 
@@ -156,6 +158,7 @@ def _run_push_solver(
         board,
         max_nodes=max_nodes,
         timeout_seconds=timeout_seconds,
+        quality_timeout_seconds=quality_timeout_seconds,
     )
 
 
@@ -179,11 +182,12 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
         start_board,
         max_nodes=DAILY_PUSH_MAX_NODES,
         timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS,
+        quality_timeout_seconds=DAILY_PUSH_QUALITY_TIMEOUT_SECONDS,
     )
     moves = push_result.moves
     final_board = push_result.final_board
     states_checked = push_result.nodes_expanded
-    solver_name = "push-v2"
+    solver_name = "push-v3"
 
     if moves is None:
         fallback_moves, _fallback_board, fallback_states = _run_heuristic_cnn_solver(

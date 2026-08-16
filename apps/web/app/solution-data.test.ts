@@ -10,7 +10,7 @@ const solvedRecord: SolutionRecord = {
   puzzle_date: "2026-07-15",
   source_url: "",
   parser_name: "gemini",
-  solver_name: "push-v2",
+  solver_name: "push-v3",
   board: [["U", "O", "O"]],
   moves: "RULD",
   final_board: [["U", "O", "O"]],

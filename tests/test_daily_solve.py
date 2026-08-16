@@ -11,7 +11,7 @@ class DailySolveTest(unittest.TestCase):
         board = [["U", "O", "O"]]
         solve_result = {
             "solved": True,
-            "solver_name": "push-v2",
+            "solver_name": "push-v3",
             "moves": "",
             "states_checked": 1,
             "elapsed_ms": 2.5,
@@ -49,7 +49,7 @@ class DailySolveTest(unittest.TestCase):
 
         solve_daily.assert_called_once_with(board)
         self.assertEqual(record["status"], "solved")
-        self.assertEqual(record["solver_name"], "push-v2")
+        self.assertEqual(record["solver_name"], "push-v3")
         self.assertEqual(record["puzzle_title"], "Test Puzzle")
 
 

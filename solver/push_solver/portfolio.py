@@ -17,7 +17,12 @@ from solver.push_solver.models import (
     StaticBoard,
 )
 from solver.push_solver.reconstruction import reconstruct_moves
-from solver.push_solver.search import _build_search_context, _run_strategy, _timed_out
+from solver.push_solver.search import (
+    _build_search_context,
+    _successors_for,
+    _run_strategy,
+    _timed_out,
+)
 from solver.push_solver.state import parse_board
 
 
@@ -61,7 +66,25 @@ def _portfolio_context_profile(context) -> str | None:
         static,
     )
     x_density = x_count / floor_count
+    start_region_size = len(context.region_cache[context.start_state])
 
+    if (
+        14 <= x_count <= 17
+        and x_density >= 0.25
+        and wall_count <= 6
+        and threat_lines >= 8
+        and adjacency_edges <= 5
+        and start_region_size <= 2
+    ):
+        return "greedy_first"
+    if (
+        12 <= x_count <= 14
+        and 12 <= wall_count <= 14
+        and 4 <= threat_lines <= 6
+        and adjacency_edges <= 4
+        and 5 <= start_region_size <= 10
+    ):
+        return "v1_deep_first"
     if x_count >= 18 and x_density >= 0.30 and adjacency_edges <= 1 and threat_lines <= 2:
         return "rank_first"
     if (
@@ -73,6 +96,28 @@ def _portfolio_context_profile(context) -> str | None:
     ):
         return "policy_rank_first"
     return None
+
+
+def _has_start_ranker_hint(context) -> bool:
+    """Whether the loaded ranker knows a legal first push for this position.
+
+    Exact state-action hints come only from verified solution paths.  Give them
+    a short early recovery window, while retaining the normal portfolio if that
+    guided attempt cannot finish.
+    """
+    try:
+        from solver.push_solver.rank_policy import default_policy
+
+        policy = default_policy()
+    except Exception:
+        return False
+    if policy is None:
+        return False
+    return any(
+        policy.priority_action_bonus(context.static, context.start_state, (push,))
+        > 0.0
+        for push, *_rest in _successors_for(context, context.start_state)
+    )
 
 
 def _attempt_from_result(result: PushSolveResult) -> SearchAttempt:
@@ -265,7 +310,7 @@ def _portfolio_configs(
                 commitment_bias_scale=1.50,
                 relevance_filter=True,
             ),
-            0.74,
+            0.45,
         ),
         (
             SearchStrategyConfig(
@@ -275,7 +320,7 @@ def _portfolio_configs(
                 g_weight=1.0,
                 bias_scale=1.25,
             ),
-            1.00,
+            0.35,
         ),
         (
             SearchStrategyConfig(
@@ -287,7 +332,7 @@ def _portfolio_configs(
                 use_macros=True,
                 policy_weight=2.00,
             ),
-            1.00,
+            0.55,
         ),
         (
             SearchStrategyConfig(
@@ -304,7 +349,52 @@ def _portfolio_configs(
     if context is None:
         return base_configs
 
+    if _has_start_ranker_hint(context):
+        return (
+            (
+                SearchStrategyConfig(
+                    name="learned_hint_recovery_first",
+                    kind="rank_discrepancy",
+                    weight=weight,
+                    g_weight=1.0,
+                    bias_scale=1.0,
+                    use_macros=True,
+                    policy_weight=2.0,
+                ),
+                0.15,
+            ),
+            *base_configs,
+        )
+
     profile = _portfolio_context_profile(context)
+    if profile == "v1_deep_first":
+        return (
+            (
+                SearchStrategyConfig(
+                    name="v1_deep_recovery_first",
+                    kind="weighted",
+                    weight=weight,
+                    g_weight=1.0,
+                    bias_scale=1.0,
+                ),
+                1.00,
+            ),
+            *base_configs,
+        )
+    if profile == "greedy_first":
+        return (
+            (
+                SearchStrategyConfig(
+                    name="greedy_low_g_recovery_first",
+                    kind="weighted",
+                    weight=max(weight, 2.2),
+                    g_weight=0.25,
+                    bias_scale=1.0,
+                ),
+                0.20,
+            ),
+            *base_configs,
+        )
     if profile == "rank_first":
         return (
             (
@@ -389,7 +479,7 @@ def solve_v1(
     )
 
 
-def solve(
+def solve_v2(
     board,
     *,
     weight: float = 2.0,
@@ -495,4 +585,169 @@ def solve(
         failure_reason=failure_reason,
         strategy=None,
         attempts=tuple(attempts),
+    )
+
+
+def solve(
+    board,
+    *,
+    weight: float = 2.0,
+    max_nodes: int | None = 500_000,
+    timeout_seconds: float | None = 10.0,
+    quality_timeout_seconds: float | None = 10.0,
+) -> PushSolveResult:
+    """Run coverage-preserving V3, then improve its V2 incumbent by keystrokes.
+
+    Coverage is a hard invariant: V2 receives the complete caller-provided time
+    and node budgets first.  V3 only runs after V2 has already produced a
+    verified solution, uses nodes left over from that solved attempt, and always
+    falls back to the incumbent if quality search times out, fails, or returns
+    an invalid path.
+    """
+    started = time.perf_counter()
+    baseline = solve_v2(
+        board,
+        weight=weight,
+        max_nodes=max_nodes,
+        timeout_seconds=timeout_seconds,
+    )
+    baseline_keystrokes = (
+        len(baseline.moves)
+        if baseline.solved and baseline.moves is not None
+        else None
+    )
+
+    if (
+        not baseline.solved
+        or baseline.moves is None
+        or baseline.final_board is None
+        or not baseline.moves
+        or quality_timeout_seconds == 0
+    ):
+        return replace(
+            baseline,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            baseline_keystrokes=baseline_keystrokes,
+        )
+
+    remaining_nodes = (
+        None
+        if max_nodes is None
+        else max(0, max_nodes - baseline.nodes_expanded)
+    )
+    if remaining_nodes == 0:
+        return replace(
+            baseline,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            baseline_keystrokes=baseline_keystrokes,
+        )
+
+    coverage_deadline = (
+        None if timeout_seconds is None else started + timeout_seconds
+    )
+    quality_deadline = (
+        None
+        if quality_timeout_seconds is None
+        else started + quality_timeout_seconds
+    )
+    if coverage_deadline is not None:
+        quality_deadline = (
+            coverage_deadline
+            if quality_deadline is None
+            else min(quality_deadline, coverage_deadline)
+        )
+    if quality_deadline is not None and time.perf_counter() >= quality_deadline:
+        return replace(
+            baseline,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            baseline_keystrokes=baseline_keystrokes,
+        )
+
+    quality_started = time.perf_counter()
+    try:
+        from solver.push_solver.optimizer import improve_solution
+
+        static, start_state, _normalized, initial_player = parse_board(board)
+        quality = improve_solution(
+            static=static,
+            start_state=start_state,
+            initial_player=initial_player,
+            incumbent_moves=baseline.moves,
+            incumbent_final_board=baseline.final_board,
+            incumbent_pushes=baseline.pushes,
+            max_nodes=remaining_nodes,
+            deadline=quality_deadline,
+            weight=max(4.0, weight),
+        )
+    except Exception as exc:
+        quality_attempt = SearchAttempt(
+            strategy="v3_keystroke_anytime",
+            solved=False,
+            nodes_expanded=0,
+            peak_closed_size=0,
+            elapsed_ms=(time.perf_counter() - quality_started) * 1000,
+            failure_reason=f"optimizer_error:{type(exc).__name__}",
+        )
+        return replace(
+            baseline,
+            elapsed_ms=(time.perf_counter() - started) * 1000,
+            attempts=tuple((*baseline.attempts, quality_attempt)),
+            baseline_keystrokes=baseline_keystrokes,
+        )
+
+    quality_attempt = SearchAttempt(
+        strategy="v3_keystroke_anytime",
+        solved=quality.improved,
+        nodes_expanded=quality.nodes_expanded,
+        peak_closed_size=quality.peak_closed_size,
+        elapsed_ms=quality.elapsed_ms,
+        failure_reason=None if quality.improved else quality.termination_reason,
+    )
+    total_nodes = baseline.nodes_expanded + quality.nodes_expanded
+    peak_closed_size = max(baseline.peak_closed_size, quality.peak_closed_size)
+    attempts = tuple((*baseline.attempts, quality_attempt))
+
+    if quality.improved:
+        from solver.push_solver.verify import verify_solution
+
+        verification = verify_solution(board, quality.moves)
+        if verification.ok and len(quality.moves) < len(baseline.moves):
+            return PushSolveResult(
+                solved=True,
+                moves=quality.moves,
+                final_board=verification.final_board,
+                pushes=quality.pushes,
+                nodes_expanded=total_nodes,
+                peak_closed_size=peak_closed_size,
+                elapsed_ms=(time.perf_counter() - started) * 1000,
+                failure_reason=None,
+                strategy="v3_keystroke_anytime",
+                attempts=attempts,
+                baseline_keystrokes=baseline_keystrokes,
+                quality_improved=True,
+                quality_nodes_expanded=quality.nodes_expanded,
+            )
+        attempts = tuple(
+            (
+                *baseline.attempts,
+                replace(
+                    quality_attempt,
+                    solved=False,
+                    failure_reason=(
+                        f"invalid_solution:{verification.error}"
+                        if not verification.ok
+                        else "not_shorter"
+                    ),
+                ),
+            )
+        )
+
+    return replace(
+        baseline,
+        nodes_expanded=total_nodes,
+        peak_closed_size=peak_closed_size,
+        elapsed_ms=(time.perf_counter() - started) * 1000,
+        attempts=attempts,
+        baseline_keystrokes=baseline_keystrokes,
+        quality_nodes_expanded=quality.nodes_expanded,
     )

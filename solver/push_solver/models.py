@@ -129,6 +129,9 @@ class PushSolveResult:
     failure_reason: str | None
     strategy: str | None = None
     attempts: tuple[SearchAttempt, ...] = ()
+    baseline_keystrokes: int | None = None
+    quality_improved: bool = False
+    quality_nodes_expanded: int = 0
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,11 @@
+import json
 import math
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
+from solver.push_solver import rank_policy
 from solver.push_solver import core
 from solver.push_solver.core import (
     SearchStrategyConfig,
@@ -15,6 +19,7 @@ from solver.push_solver.core import (
     reachable,
     solve,
     solve_v1,
+    solve_v2,
     successors,
 )
 from solver.push_solver.verify import verify_solution
@@ -359,6 +364,22 @@ class PushSolverTest(unittest.TestCase):
         self.assertEqual(len(result.pushes), 0)
         self.assertTrue(verification.ok, verification.error)
 
+    def test_verifier_builds_static_lines_once_per_replay(self):
+        from solver.push_solver import verify
+
+        board = [["U", "", "O", "O"]]
+        with patch.object(verify, "_valid_lines", wraps=verify._valid_lines) as build_lines:
+            verification = verify_solution(board, "R")
+
+        self.assertTrue(verification.ok, verification.error)
+        self.assertEqual(build_lines.call_count, 1)
+
+    def test_verifier_rejects_x_loss_created_by_push(self):
+        verification = verify_solution([["X", "X", "", "X", "U"]], "L")
+
+        self.assertFalse(verification.ok)
+        self.assertEqual(verification.error, "x_loss:1")
+
     def test_solver_solves_one_push_board(self):
         board = [
             ["", "", "", ""],
@@ -385,7 +406,19 @@ class PushSolverTest(unittest.TestCase):
         self.assertTrue(result.solved)
         self.assertEqual(result.strategy, "v1_weighted")
 
-    def test_package_solve_uses_verified_v2_portfolio_result(self):
+    def test_solve_v2_remains_available(self):
+        board = [
+            ["", "", "", ""],
+            ["U", "O", "", ""],
+            ["", "", "O", ""],
+        ]
+
+        result = solve_v2(board, weight=1.0, max_nodes=1_000, timeout_seconds=1.0)
+
+        self.assertTrue(result.solved)
+        self.assertEqual(result.strategy, "v1_weighted")
+
+    def test_package_solve_uses_verified_v3_result(self):
         board = [
             ["", "", "", ""],
             ["U", "O", "", ""],
@@ -397,8 +430,38 @@ class PushSolverTest(unittest.TestCase):
 
         self.assertTrue(result.solved)
         self.assertTrue(verification.ok, verification.error)
-        self.assertEqual(result.strategy, "v1_weighted")
+        self.assertIn(result.strategy, {"v1_weighted", "v3_keystroke_anytime"})
+        self.assertIsNotNone(result.baseline_keystrokes)
+        self.assertLessEqual(len(result.moves), result.baseline_keystrokes)
         self.assertGreaterEqual(len(result.attempts), 1)
+
+    def test_v3_preserves_v2_incumbent_when_optimizer_errors(self):
+        from solver.push_solver import portfolio
+
+        board = [["U", "", "O", "O"]]
+        baseline = core.PushSolveResult(
+            solved=True,
+            moves="R",
+            final_board=(("", "U", "O", "O"),),
+            pushes=(),
+            nodes_expanded=7,
+            peak_closed_size=7,
+            elapsed_ms=1.0,
+            failure_reason=None,
+            strategy="v1_weighted",
+        )
+
+        with patch.object(portfolio, "solve_v2", return_value=baseline), patch(
+            "solver.push_solver.optimizer.improve_solution",
+            side_effect=RuntimeError("quality failure"),
+        ):
+            result = portfolio.solve(board, max_nodes=100, timeout_seconds=1.0)
+
+        self.assertTrue(result.solved)
+        self.assertEqual(result.moves, baseline.moves)
+        self.assertEqual(result.final_board, baseline.final_board)
+        self.assertEqual(result.baseline_keystrokes, 1)
+        self.assertIn("optimizer_error", result.attempts[-1].failure_reason)
 
     def test_rank_discrepancy_strategy_smoke_test(self):
         board = [
@@ -544,6 +607,13 @@ class PushSolverTest(unittest.TestCase):
         self.assertTrue(all(config.committed_plan is not None for config in line_configs))
         self.assertTrue(all(config.relevance_filter for config in line_configs))
 
+    def test_non_final_portfolio_strategies_leave_time_for_fallbacks(self):
+        configs = core._portfolio_configs(2.0)
+
+        self.assertTrue(all(fraction < 1.0 for _config, fraction in configs[:-1]))
+        self.assertEqual(configs[-1][0].name, "committed_beam")
+        self.assertEqual(configs[-1][1], 1.0)
+
     def test_portfolio_ends_with_committed_beam_fallback(self):
         board = [
             ["", "", "", ""],
@@ -556,6 +626,30 @@ class PushSolverTest(unittest.TestCase):
 
         self.assertEqual(configs[-1][0].name, "committed_beam")
         self.assertEqual(configs[-1][0].kind, "committed_beam")
+
+    def test_portfolio_routes_tiny_open_region_to_greedy_coverage_recovery(self):
+        from solver.push_solver.training_export import decode_board, load_boards
+
+        board = decode_board(load_boards()["20260814"])
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+
+        configs = core._portfolio_configs(2.0, context=context)
+
+        self.assertEqual(configs[0][0].name, "greedy_low_g_recovery_first")
+        self.assertEqual(configs[0][1], 0.20)
+
+    def test_portfolio_routes_anchor_shape_to_deep_v1_coverage_recovery(self):
+        from solver.push_solver.training_export import decode_board, load_boards
+
+        board = decode_board(load_boards()["20260523"])
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+
+        configs = core._portfolio_configs(2.0, context=context)
+
+        self.assertEqual(configs[0][0].name, "v1_deep_recovery_first")
+        self.assertEqual(configs[0][1], 1.00)
 
     def test_portfolio_rejects_invalid_verified_solution(self):
         from solver.push_solver import portfolio
@@ -610,9 +704,86 @@ class PushSolverTest(unittest.TestCase):
         policy = default_policy()
 
         self.assertIsNotNone(policy)
+        self.assertIn("linear_push_policy_backfill_v1", policy.name)
         self.assertIsInstance(policy.score(features), float)
         self.assertIsInstance(policy.raw_score(features), float)
         self.assertIsInstance(policy.value(features), float)
+
+    def test_bookshelf_verified_path_is_pinned_in_ranker_hints(self):
+        from solver.push_solver.training_export import (
+            decode_board,
+            examples_for_solution,
+            load_boards,
+            load_solutions,
+        )
+
+        board_id = "20260726"
+        solutions = {
+            str(row["id"]): str(row["solution"])
+            for row in load_solutions()
+            if row.get("solution")
+        }
+        board = decode_board(load_boards()[board_id])
+        moves = solutions[board_id]
+
+        self.assertTrue(verify_solution(board, moves).ok)
+        examples = examples_for_solution(
+            board_id=board_id,
+            board=board,
+            moves=moves,
+            verify=True,
+        )
+        policy = default_policy()
+        self.assertIsNotNone(policy)
+        hinted_keys = {
+            key
+            for candidate in getattr(policy, "policies", (policy,))
+            for key in candidate.state_action_hints
+        }
+        oracle_keys = {
+            example["state_action_key"]
+            for example in examples
+            if example["label"]
+        }
+
+        self.assertEqual(len(oracle_keys), 20)
+        self.assertTrue(oracle_keys <= hinted_keys)
+
+        static, state, _normalized, initial_player = parse_board(board)
+        context = core._build_search_context(static, state, initial_player)
+        configs = core._portfolio_configs(2.0, context=context)
+        self.assertEqual(configs[0][0].name, "learned_hint_recovery_first")
+        self.assertEqual(configs[0][1], 0.15)
+
+    def test_default_rank_policy_honors_configured_primary_path(self):
+        with TemporaryDirectory() as temp_dir:
+            policy_path = Path(temp_dir) / "candidate.json"
+            policy_path.write_text(
+                json.dumps(
+                    {
+                        "name": "candidate-policy",
+                        "weights": {"child_h": 1.5},
+                        "value_weights": {},
+                        "state_action_hints": {},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with (
+                patch.dict(
+                    "os.environ",
+                    {"PUSH_RANK_POLICY_PATH": str(policy_path)},
+                ),
+                patch.object(rank_policy, "OPTIONAL_POLICY_PATHS", ()),
+            ):
+                rank_policy._DEFAULT_POLICY = None
+                rank_policy._DEFAULT_POLICY_PATHS = None
+                policy = default_policy()
+
+        rank_policy._DEFAULT_POLICY = None
+        rank_policy._DEFAULT_POLICY_PATHS = None
+        self.assertEqual(policy.name, "candidate-policy")
+        self.assertEqual(policy.raw_score({"child_h": 2.0}), 3.0)
 
     def test_portfolio_short_circuits_initial_x_loss(self):
         result = solve(

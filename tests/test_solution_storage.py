@@ -83,6 +83,23 @@ class SolutionStorageCacheTests(unittest.TestCase):
 
         self.assertEqual(connection.execute_count, 2)
 
+    def test_get_solutions_for_dates_uses_one_query(self):
+        first_date = date(2026, 7, 1)
+        second_date = date(2026, 7, 2)
+        connection = _Connection(
+            _QueryResult(
+                rows=[{"puzzle_date": first_date, "status": "solved"}]
+            )
+        )
+
+        with patch.object(solution_storage, "_connect", return_value=connection):
+            rows = solution_storage.get_solutions_for_dates(
+                [first_date, second_date, first_date]
+            )
+
+        self.assertEqual(connection.execute_count, 1)
+        self.assertEqual(list(rows), [first_date])
+
 
 if __name__ == "__main__":
     unittest.main()

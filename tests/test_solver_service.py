@@ -192,7 +192,7 @@ class SolverServiceTest(unittest.TestCase):
             )
 
         self.assertTrue(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v2")
+        self.assertEqual(result["solver_name"], "push-v3")
         self.assertEqual(result["moves"], "")
         self.assertEqual(result["states_checked"], 1)
 
@@ -208,7 +208,7 @@ class SolverServiceTest(unittest.TestCase):
             )
 
         self.assertFalse(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v2")
+        self.assertEqual(result["solver_name"], "push-v3")
         self.assertIsNone(result["moves"])
         self.assertEqual(result["states_checked"], 1)
 
@@ -231,10 +231,11 @@ class SolverServiceTest(unittest.TestCase):
             normalized,
             max_nodes=500_000,
             timeout_seconds=30.0,
+            quality_timeout_seconds=10.0,
         )
         beam.assert_not_called()
         self.assertTrue(result["solved"])
-        self.assertEqual(result["solver_name"], "push-v2")
+        self.assertEqual(result["solver_name"], "push-v3")
         self.assertEqual(result["states_checked"], 7)
 
     def test_daily_solver_uses_verified_beam_cnn_fallback(self):

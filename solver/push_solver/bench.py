@@ -16,6 +16,9 @@ FIELDNAMES = [
     "solved",
     "push_depth",
     "keystrokes",
+    "baseline_keystrokes",
+    "quality_improved",
+    "quality_nodes_expanded",
     "nodes_expanded",
     "peak_closed_size",
     "elapsed_ms",
@@ -59,6 +62,11 @@ def main() -> None:
                 "solved": result.solved,
                 "push_depth": len(result.pushes) if result.solved else "",
                 "keystrokes": "" if result.moves is None else len(result.moves),
+                "baseline_keystrokes": ""
+                if result.baseline_keystrokes is None
+                else result.baseline_keystrokes,
+                "quality_improved": result.quality_improved,
+                "quality_nodes_expanded": result.quality_nodes_expanded,
                 "nodes_expanded": result.nodes_expanded,
                 "peak_closed_size": result.peak_closed_size,
                 "elapsed_ms": f"{result.elapsed_ms:.1f}",

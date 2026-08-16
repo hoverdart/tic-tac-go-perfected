@@ -44,6 +44,9 @@ FIELDNAMES = [
     "push_verified",
     "push_strategy",
     "push_moves",
+    "push_baseline_moves",
+    "push_quality_improved",
+    "push_quality_nodes",
     "push_nodes",
     "push_elapsed_ms",
     "push_failure_reason",
@@ -90,6 +93,11 @@ def run_push(board, *, timeout_seconds: float, max_nodes: int) -> dict[str, Any]
         "verified": bool(verification and verification.ok),
         "strategy": result.strategy or "",
         "moves": "" if result.moves is None else len(result.moves),
+        "baseline_moves": ""
+        if result.baseline_keystrokes is None
+        else result.baseline_keystrokes,
+        "quality_improved": result.quality_improved,
+        "quality_nodes": result.quality_nodes_expanded,
         "nodes": result.nodes_expanded,
         "elapsed_ms": elapsed_ms,
         "failure_reason": result.failure_reason or "",
@@ -156,6 +164,9 @@ def row_for_entry(
             "verified": False,
             "strategy": "",
             "moves": "",
+            "baseline_moves": "",
+            "quality_improved": False,
+            "quality_nodes": "",
             "nodes": "",
             "elapsed_ms": "",
             "failure_reason": "",
@@ -205,6 +216,9 @@ def row_for_entry(
         "push_verified": push["verified"],
         "push_strategy": push["strategy"],
         "push_moves": push["moves"],
+        "push_baseline_moves": push["baseline_moves"],
+        "push_quality_improved": push["quality_improved"],
+        "push_quality_nodes": push["quality_nodes"],
         "push_nodes": push["nodes"],
         "push_elapsed_ms": ""
         if push["elapsed_ms"] == ""
@@ -254,6 +268,14 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     beam_solved = {row["board_id"] for row in rows if row["beam_verified"] is True}
     all_ids = {row["board_id"] for row in rows}
     combined = push_solved | beam_solved
+    quality_rows = [
+        row
+        for row in rows
+        if row.get("push_baseline_moves") not in {"", None}
+        and row.get("push_moves") not in {"", None}
+    ]
+    baseline_moves = sum(int(row["push_baseline_moves"]) for row in quality_rows)
+    final_moves = sum(int(row["push_moves"]) for row in quality_rows)
     return {
         "total": total,
         "push_solved": len(push_solved),
@@ -275,6 +297,13 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "beam_only": sorted(beam_solved - push_solved),
         "push_only": sorted(push_solved - beam_solved),
         "both_failed": sorted(all_ids - combined),
+        "quality_eligible": len(quality_rows),
+        "quality_improved": sum(
+            row.get("push_quality_improved") is True for row in quality_rows
+        ),
+        "baseline_keystrokes": baseline_moves,
+        "final_keystrokes": final_moves,
+        "keystrokes_saved": baseline_moves - final_moves,
     }
 
 
@@ -295,6 +324,11 @@ def print_summary(summary: dict[str, Any]) -> None:
         f"push_only={summary['push_only_count']} "
         f"beam_only={summary['beam_only_count']} "
         f"both_failed={summary['both_failed_count']}"
+    )
+    print(
+        "QUALITY "
+        f"improved={summary['quality_improved']}/{summary['quality_eligible']} "
+        f"keystrokes_saved={summary['keystrokes_saved']}"
     )
 
 
