@@ -121,7 +121,8 @@ The simplest remote browser option is Browserless BaaS:
 
 1. Create a Browserless project and copy the API token from its dashboard.
 2. Set `BROWSERLESS_TOKEN` in Vercel to that token.
-3. Redeploy and test `POST /api/manual/daily-solve`.
+3. Redeploy and test `POST /api/manual/daily-solve` with
+   `Authorization: Bearer $CRON_SECRET`.
 
 Browserless REST URLs such as `/pdf` are for one-off HTTP tasks. This app uses
 Browserless BaaS over WebSocket/CDP, equivalent to

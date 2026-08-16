@@ -14,7 +14,6 @@ from datetime import datetime
 import tic_tac_go_env
 import BFStoTrainer
 
-#This class is AI code idk whats happening inside
 #Three 3x3 conv layers give each final conv cell a 7x7 receptive field.
 class CustomTinyCNN(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256):

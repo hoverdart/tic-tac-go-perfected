@@ -2,8 +2,8 @@
 // Triggered automatically by Vercel Cron on a daily schedule to kick off the
 // board capture and solve pipeline. Vercel passes the CRON_SECRET in the
 // Authorization header; we validate it before forwarding the job to the FastAPI
-// backend's POST /jobs/daily-solve endpoint. Do not call this manually —
-// use /api/manual/daily-solve instead (it accepts POST without the header check).
+// backend's POST /jobs/daily-solve endpoint. Manual re-runs use
+// /api/manual/daily-solve with the same bearer authorization.
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
 
