@@ -1,9 +1,8 @@
 // POST /api/manual/daily-solve
 // Manually triggers the daily board capture and solve pipeline. Intended for
 // development and one-off re-runs when the cron job needs to be replayed.
-// Accepts POST with no Authorization header check (unlike the cron route), but
-// still requires CRON_SECRET to be set so it can authenticate against the
-// FastAPI backend. Do not expose this endpoint publicly in production.
+// It requires the same bearer secret as the cron route before forwarding the
+// request to the FastAPI backend.
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
 
@@ -22,14 +21,22 @@ async function readBackendBody(response: Response) {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   const apiBaseUrl = getBackendBaseUrl();
+  const authHeader = request.headers.get("authorization");
 
   if (!cronSecret) {
     return NextResponse.json(
       { ok: false, error: "CRON_SECRET is not configured." },
       { status: 500 },
+    );
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
     );
   }
 
