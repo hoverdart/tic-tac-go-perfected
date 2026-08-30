@@ -1,5 +1,10 @@
 import type { HistoryEntry, SolutionRecord } from "./game-view";
 import { getBackendBaseUrl } from "./backend-url";
+import {
+  SOLUTION_HISTORY_CACHE_TAG,
+  SOLUTION_TODAY_CACHE_TAG,
+  solutionDateCacheTag,
+} from "./solution-cache";
 
 export const demoSolution: SolutionRecord = {
   puzzle_date: new Date().toISOString().slice(0, 10),
@@ -86,7 +91,8 @@ export async function getTodaySolution(): Promise<{
 
   try {
     const response = await fetch(`${apiBaseUrl}/solutions/today`, {
-      next: { revalidate: 300 },
+      cache: "force-cache",
+      next: { tags: [SOLUTION_TODAY_CACHE_TAG] },
     });
     if (!response.ok) {
       return {
@@ -114,7 +120,8 @@ export async function getSolutionByDate(date: string): Promise<SolutionRecord | 
 
   try {
     const response = await fetch(`${apiBaseUrl}/solutions/${date}`, {
-      next: { revalidate: 3600 },
+      cache: "force-cache",
+      next: { tags: [solutionDateCacheTag(date)] },
     });
     if (!response.ok) return null;
     const solution: SolutionRecord = await response.json();
@@ -134,7 +141,8 @@ async function getHistory(limit: number): Promise<HistoryEntry[]> {
 
   try {
     const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=${limit}`, {
-      next: { revalidate: 300 },
+      cache: "force-cache",
+      next: { tags: [SOLUTION_HISTORY_CACHE_TAG] },
     });
     if (!response.ok) return [];
     return await response.json();

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import robots from "./robots";
-import sitemap from "./sitemap";
+import sitemap, { dynamic, revalidate } from "./sitemap";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -56,8 +56,13 @@ describe("SEO metadata routes", () => {
 
     expect(fetch).toHaveBeenCalledWith(
       "https://api.example.com/solutions/recent?limit=10000",
-      { next: { revalidate: 300 } },
+      {
+        cache: "force-cache",
+        next: { tags: ["solutions:history"] },
+      },
     );
+    expect(dynamic).toBe("force-static");
+    expect(revalidate).toBe(false);
     expect(entries.map((entry) => entry.url)).toEqual([
       "https://tictacgo.shauryav.com/",
       "https://tictacgo.shauryav.com/solutions/2026-07-15",

@@ -3,13 +3,20 @@ import { notFound } from "next/navigation";
 import { GameView } from "../../game-view";
 import {
   formatLongDate,
-  getFullHistory,
   getSolutionByDate,
   isIsoDate,
   solutionMetaDescription,
 } from "../../solution-data";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const dynamicParams = true;
+export const revalidate = false;
+
+export function generateStaticParams() {
+  // Historical pages are generated once on their first request, then retained
+  // until the authenticated publishing flow invalidates that exact date.
+  return [];
+}
 
 type Props = {
   params: Promise<{ date: string }>;
@@ -37,19 +44,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HistoricalSolutionPage({ params }: Props) {
   const { date } = await params;
-  const [solution, history] = await Promise.all([
-    loadSolution(date),
-    getFullHistory(),
-  ]);
+  const solution = await loadSolution(date);
 
   return (
     <main className="page">
       <section className="game-scene">
         <GameView
           initialSolution={solution}
-          history={history}
+          history={[]}
           isDemo={false}
           isTodayPage={false}
+          loadSharedHistory
         />
 
         <footer className="site-footer">

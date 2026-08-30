@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
 import type { Cell } from "./replay-model";
 import { formatLongDate } from "./solution-data";
+import { HistoryCarousel } from "./history-carousel";
 
 type SolveStep = {
   move: string;
@@ -37,20 +37,13 @@ type Props = {
   history: HistoryEntry[];
   isDemo: boolean;
   isTodayPage: boolean;
+  loadSharedHistory?: boolean;
 };
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
 
 function formatDate(date: string): string {
   const [year, month, day] = date.split("-");
   if (!year || !month || !day) return date;
   return `${Number(month)}/${Number(day)}/${year}`;
-}
-
-function formatShortDate(date: string): string {
-  const [, month, day] = date.split("-");
-  if (!month || !day) return date;
-  return `${MONTHS[Number(month) - 1] ?? month} ${Number(day)}`;
 }
 
 function statusText(status: DailyStatus, isDemo: boolean, puzzleTitle: string | null): string {
@@ -59,12 +52,6 @@ function statusText(status: DailyStatus, isDemo: boolean, puzzleTitle: string | 
   if (status === "unsolved") return "No route found";
   if (status === "failed") return "Capture needs review";
   return "Solve pending";
-}
-
-function statusIcon(status: DailyStatus): string {
-  if (status === "solved") return "✓";
-  if (status === "failed") return "!";
-  return "–";
 }
 
 const MOVE_NAMES: Record<string, string> = {
@@ -135,6 +122,7 @@ export function GameView({
   history,
   isDemo,
   isTodayPage,
+  loadSharedHistory = false,
 }: Props) {
   const currentSolution = initialSolution;
   const heading = isTodayPage
@@ -170,49 +158,12 @@ export function GameView({
         isTodayPage={isTodayPage}
       />
 
-      {history.length > 0 && (
-        <nav className="history-carousel" aria-label="Past solutions">
-          <div className="history-header">
-            <p className="history-label">Past Solutions</p>
-            {!isTodayPage && (
-              <Link className="history-today-btn" href="/">
-                Today ↩
-              </Link>
-            )}
-          </div>
-          <div className="history-scroll">
-            {history.map((entry) => {
-              const isActive = entry.puzzle_date === currentSolution.puzzle_date;
-              return (
-                <Link
-                  key={entry.puzzle_date}
-                  href={`/solutions/${entry.puzzle_date}`}
-                  prefetch={false}
-                  className={[
-                    "history-tile",
-                    `history-tile-${entry.status}`,
-                    isActive ? "history-tile-active" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  aria-current={isActive ? "page" : undefined}
-                  aria-label={`${entry.puzzle_title ?? formatShortDate(entry.puzzle_date)} — ${entry.status}`}
-                >
-                  <span className="history-tile-title">
-                    {entry.puzzle_title ?? "—"}
-                  </span>
-                  <span className="history-tile-date">
-                    {formatShortDate(entry.puzzle_date)}
-                  </span>
-                  <span className="history-tile-icon" aria-hidden="true">
-                    {statusIcon(entry.status)}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-      )}
+      <HistoryCarousel
+        initialHistory={history}
+        currentDate={currentSolution.puzzle_date}
+        isTodayPage={isTodayPage}
+        loadSharedHistory={loadSharedHistory}
+      />
     </>
   );
 }

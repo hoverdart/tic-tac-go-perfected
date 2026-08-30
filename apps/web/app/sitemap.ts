@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 import { getSitemapHistory, isIsoDate, todayIsoDate } from "./solution-data";
 import { getSiteUrl } from "./site-url";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const revalidate = false;
 
 function lastModified(date: string): Date {
   return new Date(`${date}T00:00:00Z`);

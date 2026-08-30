@@ -7,7 +7,8 @@ import {
   solutionMetaDescription,
 } from "./solution-data";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const revalidate = false;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { solution } = await getTodaySolution();
