@@ -35,7 +35,7 @@ describe("solution SEO helpers", () => {
 
   it("describes the dated solution and move count", () => {
     expect(solutionMetaDescription(solvedRecord, false)).toBe(
-      "See the July 15, 2026 Tic Tac Go solution, including the verified 4-move sequence and interactive step-by-step board replay.",
+      "See the July 15, 2026 Tic Tac Go solution for Test Puzzle, including verified hint-first steps and the 4-move replay.",
     );
   });
 });

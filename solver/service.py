@@ -29,6 +29,8 @@ from solver.legacy_solver import (
 DAILY_PUSH_MAX_NODES = 500_000
 DAILY_PUSH_TIMEOUT_SECONDS = 30.0
 DAILY_PUSH_QUALITY_TIMEOUT_SECONDS = 10.0
+CUSTOM_PUSH_MAX_NODES = 100_000
+CUSTOM_PUSH_TIMEOUT_SECONDS = 5.0
 
 
 def _solver_impl(board: tuple[tuple[str, ...], ...] | None = None) -> str:
@@ -214,6 +216,50 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
         final_board=final_board,
         states_checked=states_checked,
         solver_name=solver_name,
+        start_time=start_time,
+    )
+
+
+def solve_custom_board(board: list[list[str]]) -> dict[str, Any]:
+    """Solve an editor-submitted board with a fixed public resource budget.
+
+    Custom solves intentionally do not fall back to the long-running CNN/beam
+    portfolio used for the daily job. Every successful response is replayed by
+    the existing verifier before it can be cached or shown to a visitor.
+    """
+    if not 3 <= len(board) <= 8 or any(not 3 <= len(row) <= 8 for row in board):
+        raise SolverError("Custom boards must be between 3x3 and 8x8.")
+    widths = {len(row) for row in board}
+    if len(widths) != 1:
+        raise SolverError("Custom boards must be rectangular.")
+    try:
+        start_board = normalize_board(board)
+    except ValueError as exc:
+        raise SolverError(str(exc)) from exc
+
+    start_time = time.perf_counter()
+    result = _run_push_solver(
+        start_board,
+        max_nodes=CUSTOM_PUSH_MAX_NODES,
+        timeout_seconds=CUSTOM_PUSH_TIMEOUT_SECONDS,
+        quality_timeout_seconds=0.0,
+    )
+    moves = result.moves
+    final_board = result.final_board
+    if moves is not None:
+        from solver.push_solver import verify_solution
+
+        verification = verify_solution(start_board, moves)
+        if not verification.ok:
+            raise RuntimeError(f"Custom push solver returned an invalid solution: {verification.error}")
+        final_board = verification.final_board
+
+    return _build_result(
+        start_board,
+        moves=moves,
+        final_board=final_board,
+        states_checked=result.nodes_expanded,
+        solver_name="push-v3-custom",
         start_time=start_time,
     )
 

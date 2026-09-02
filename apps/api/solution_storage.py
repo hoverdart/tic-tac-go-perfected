@@ -207,6 +207,28 @@ def run_migrations() -> None:
         conn.execute(
             "ALTER TABLE daily_solutions ADD COLUMN IF NOT EXISTS puzzle_title text"
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS custom_solve_cache (
+                board_hash text PRIMARY KEY,
+                result jsonb NOT NULL,
+                expires_at timestamptz NOT NULL,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                last_accessed_at timestamptz NOT NULL DEFAULT now()
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS custom_solve_usage (
+                puzzle_day date NOT NULL,
+                client_hash text NOT NULL,
+                solve_count integer NOT NULL DEFAULT 0,
+                updated_at timestamptz NOT NULL DEFAULT now(),
+                PRIMARY KEY (puzzle_day, client_hash)
+            )
+            """
+        )
     logger.info("storage.migrate.done")
 
 
@@ -296,6 +318,80 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
         stored.get("updated_at"),
     )
     return stored
+
+
+def update_missing_titles(titles: dict[date, str]) -> dict[date, str]:
+    """Fill only missing/blank titles and return the dates actually updated."""
+    if not titles:
+        return {}
+
+    updated: dict[date, str] = {}
+    with _connect() as conn:
+        for puzzle_date, title in titles.items():
+            row = conn.execute(
+                """
+                UPDATE daily_solutions
+                SET puzzle_title = %s, updated_at = now()
+                WHERE puzzle_date = %s
+                  AND (puzzle_title IS NULL OR btrim(puzzle_title) = '')
+                RETURNING puzzle_date, puzzle_title
+                """,
+                (title, puzzle_date),
+            ).fetchone()
+            if row:
+                updated[row["puzzle_date"]] = row["puzzle_title"]
+    if updated:
+        clear_solution_cache()
+    logger.info("storage.title_backfill.done updated=%s", len(updated))
+    return updated
+
+
+def get_cached_custom_solution(board_hash: str) -> dict[str, Any] | None:
+    """Return an unexpired custom solver result, without retaining requester data."""
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            UPDATE custom_solve_cache
+            SET last_accessed_at = now()
+            WHERE board_hash = %s AND expires_at > now()
+            RETURNING result
+            """,
+            (board_hash,),
+        ).fetchone()
+    return dict(row["result"]) if row else None
+
+
+def cache_custom_solution(board_hash: str, result: dict[str, Any]) -> None:
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO custom_solve_cache (board_hash, result, expires_at)
+            VALUES (%s, %s, now() + interval '30 days')
+            ON CONFLICT (board_hash) DO UPDATE SET
+                result = EXCLUDED.result,
+                expires_at = EXCLUDED.expires_at,
+                last_accessed_at = now()
+            """,
+            (board_hash, _json(result)),
+        )
+
+
+def reserve_custom_solve(client_hash: str, *, limit: int = 10) -> int | None:
+    """Consume one UTC-day custom solve allowance, or return None at the limit."""
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            INSERT INTO custom_solve_usage (puzzle_day, client_hash, solve_count)
+            VALUES (CURRENT_DATE, %s, 1)
+            ON CONFLICT (puzzle_day, client_hash) DO UPDATE SET
+                solve_count = custom_solve_usage.solve_count + 1,
+                updated_at = now()
+            WHERE custom_solve_usage.solve_count < %s
+            RETURNING solve_count
+            """,
+            (client_hash, limit),
+        ).fetchone()
+    return int(row["solve_count"]) if row else None
 
 
 def get_solution(puzzle_date: date) -> dict[str, Any] | None:

@@ -15,6 +15,7 @@ Routes:
 from contextlib import asynccontextmanager
 import os
 import logging
+import re
 from datetime import date
 from typing import Literal
 
@@ -28,11 +29,20 @@ from apps.api.daily_solve import run_daily_solve, utc_puzzle_date
 from apps.api.solution_storage import (
     StorageError,
     close_pool,
+    cache_custom_solution,
+    get_cached_custom_solution,
     get_solution,
     list_recent_solutions,
+    reserve_custom_solve,
+    run_migrations,
 )
-from apps.api.puzzle_titles import clean_puzzle_title, title_from_past_days
-from solver.service import SolverError, solve_board
+from apps.api.puzzle_titles import (
+    clean_puzzle_title,
+    normalize_official_title,
+    official_level_label,
+    title_from_past_days,
+)
+from solver.service import SolverError, solve_board, solve_custom_board
 
 
 logging.basicConfig(
@@ -76,6 +86,11 @@ class SolveResponse(BaseModel):
     start_board: list[list[Cell]]
     final_board: list[list[Cell]] | None
     steps: list[SolveStep]
+
+
+class CustomSolveResponse(SolveResponse):
+    cached: bool = False
+    remaining: int | None = None
 
 
 class SolutionRecord(BaseModel):
@@ -149,20 +164,23 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
         elapsed_ms=None,
         status="pending",
         error_message="No solution has been generated for this date yet.",
-        puzzle_title=title_from_past_days(puzzle_date),
+        puzzle_title=title_from_past_days(puzzle_date) or official_level_label(puzzle_date),
     )
 
 
 def with_title_fallback(record: dict) -> dict:
     """Clean a DB title and fall back to the historical manifest when unusable."""
-    title = clean_puzzle_title(record.get("puzzle_title"))
+    # Database/catalog titles are trusted official values and can legitimately
+    # be short or punctuation-only. Keep strict DOM cleaning for live capture.
+    title = normalize_official_title(record.get("puzzle_title"))
     if title:
         if title == record.get("puzzle_title"):
             return record
         return {**record, "puzzle_title": title}
     return {
         **record,
-        "puzzle_title": title_from_past_days(record.get("puzzle_date")),
+        "puzzle_title": title_from_past_days(record.get("puzzle_date"))
+        or official_level_label(record.get("puzzle_date")),
     }
 
 
@@ -175,6 +193,7 @@ def with_title_fallback(record: dict) -> dict:
 async def lifespan(_app: FastAPI):
     """Release process-local resources when a Cloud Run instance stops."""
     try:
+        run_migrations()
         yield
     finally:
         close_pool()
@@ -262,6 +281,51 @@ def solve(request: SolveRequest) -> SolveResponse:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return SolveResponse(**result)
+
+
+@app.post(
+    "/solve/custom",
+    response_model=CustomSolveResponse,
+    dependencies=[Depends(require_cron_secret)],
+)
+def custom_solve(
+    request: SolveRequest,
+    x_custom_solver_client_hash: str | None = Header(default=None),
+) -> CustomSolveResponse:
+    """Run the bounded custom-board solver for the authenticated web proxy."""
+    client_hash = x_custom_solver_client_hash or ""
+    if not re.fullmatch(r"[a-f0-9]{64}", client_hash):
+        raise HTTPException(status_code=400, detail="Missing or invalid custom solver client identity.")
+
+    import hashlib
+    import json
+
+    # Stable JSON avoids cache fragmentation from equivalent request formatting.
+    board_hash = hashlib.sha256(
+        json.dumps(request.board, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    ).hexdigest()
+    try:
+        cached = get_cached_custom_solution(board_hash)
+        if cached is not None:
+            return CustomSolveResponse(**cached, cached=True, remaining=None)
+
+        count = reserve_custom_solve(client_hash)
+        if count is None:
+            raise HTTPException(
+                status_code=429,
+                detail="Daily custom solver limit reached. Try again after midnight UTC.",
+                headers={"Retry-After": "3600"},
+            )
+        result = solve_custom_board(request.board)
+        # The service verifies every successful route before returning it. Cache
+        # both solved and exhausted-search responses so repeats do not consume
+        # another public budget.
+        cache_custom_solution(board_hash, result)
+        return CustomSolveResponse(**result, cached=False, remaining=10 - count)
+    except StorageError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except SolverError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 # ---------------------------------------------------------------------------

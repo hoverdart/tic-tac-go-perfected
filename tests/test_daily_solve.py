@@ -3,10 +3,17 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from apps.api.daily_solve import run_daily_solve
+from apps.api.daily_solve import fallback_puzzle_title, run_daily_solve
 
 
 class DailySolveTest(unittest.TestCase):
+    def test_fallback_title_uses_official_level_label_when_catalog_is_unavailable(self):
+        with (
+            patch("apps.api.daily_solve.title_from_official_catalog", return_value=None),
+            patch("apps.api.daily_solve.title_from_past_days", return_value=None),
+        ):
+            self.assertEqual(fallback_puzzle_title(date(2026, 9, 2)), "Level 2026-09-02")
+
     def test_cron_pipeline_uses_daily_push_beam_portfolio(self):
         board = [["U", "O", "O"]]
         solve_result = {

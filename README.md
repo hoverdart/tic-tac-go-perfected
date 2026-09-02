@@ -185,6 +185,9 @@ Set these environment variables on the Vercel project:
 
 - `API_ALLOWED_ORIGINS`: `https://tictacgo.shauryav.com`
 - `CRON_SECRET`
+- `CUSTOM_SOLVER_RATE_LIMIT_SECRET`: a distinct high-entropy secret used only
+  to HMAC client identities for the public custom-board solver. Never use a
+  raw IP address as a database key.
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
 - `GOOGLE_TIC_TAC_GO_URL`
@@ -236,3 +239,22 @@ only for local development.
 
 If you set `API_BASE_URL` in production, use
 `https://tictacgo.shauryav.com/api/python`.
+
+Set `tictacgo.shauryav.com` as the Vercel project's primary domain and retain
+`tictacgo.abdullahwaris.com` only as a redirect domain. The application also
+permanently redirects every legacy-domain path to its matching canonical URL.
+
+### Publishing a title-only repair
+
+Use the auditable title backfill rather than the board backfill for missing
+labels. It updates only blank titles and never changes a stored board, route,
+or solution status. After deployment, call the publication endpoint so cached
+solution pages and the dynamic sitemap refresh together:
+
+```bash
+.venv/bin/python backfill_puzzle_titles.py \
+  --audit-only
+
+.venv/bin/python backfill_puzzle_titles.py \
+  --publish-url https://tictacgo.shauryav.com/api/maintenance/publish-solution-cache
+```

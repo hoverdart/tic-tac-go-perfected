@@ -17,6 +17,7 @@ type Props = {
   status: DailyStatus;
   errorMessage: string | null;
   isDemo: boolean;
+  hintFirst?: boolean;
 };
 
 function formatElapsed(ms: number | null): string {
@@ -52,13 +53,14 @@ export function SolveDashboard({
   status,
   errorMessage,
   isDemo,
+  hintFirst = false,
 }: Props) {
   const frames = buildReplayFrames(board, moves);
 
   return (
     <>
       <div className="wood-stage">
-        <SolvePlayer frames={frames} emptyMessage={emptyMessage(status)} />
+        <SolvePlayer frames={frames} emptyMessage={emptyMessage(status)} hintFirst={hintFirst} />
       </div>
 
       <details className="diagnostics">

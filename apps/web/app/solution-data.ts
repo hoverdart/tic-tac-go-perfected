@@ -68,8 +68,9 @@ export function solutionMetaDescription(
 ): string {
   const date = formatLongDate(solution.puzzle_date);
   const timing = isToday ? "today's" : `the ${date}`;
+  const title = solution.puzzle_title ? ` for ${solution.puzzle_title}` : "";
   if (solution.status === "solved" && solution.moves !== null) {
-    return `See ${timing} Tic Tac Go solution, including the verified ${solution.moves.length}-move sequence and interactive step-by-step board replay.`;
+    return `See ${timing} Tic Tac Go solution${title}, including verified hint-first steps and the ${solution.moves.length}-move replay.`;
   }
   return `Check the Tic Tac Go puzzle status and board replay for ${date}.`;
 }

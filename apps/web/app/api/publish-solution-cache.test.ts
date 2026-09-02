@@ -9,6 +9,7 @@ vi.mock("next/cache", () => cacheMocks);
 
 import {
   publishSolutionCache,
+  publishSolutionCaches,
   puzzleDateFromPayload,
 } from "./publish-solution-cache";
 
@@ -48,5 +49,14 @@ describe("solution cache publishing", () => {
     );
     expect(cacheMocks.revalidateTag).not.toHaveBeenCalled();
     expect(cacheMocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("publishes each affected date only once after a backfill", () => {
+    publishSolutionCaches(["2026-08-31", "2026-08-31", "2026-09-01"]);
+
+    expect(cacheMocks.revalidatePath.mock.calls).toContainEqual(["/sitemap.xml"]);
+    expect(cacheMocks.revalidatePath.mock.calls).toContainEqual(["/solutions/2026-08-31"]);
+    expect(cacheMocks.revalidatePath.mock.calls).toContainEqual(["/solutions/2026-09-01"]);
+    expect(cacheMocks.revalidatePath.mock.calls.filter(([path]) => path === "/solutions/2026-08-31")).toHaveLength(1);
   });
 });

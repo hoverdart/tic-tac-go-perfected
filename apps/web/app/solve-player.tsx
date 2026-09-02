@@ -40,9 +40,10 @@ function serverReducedMotion(): boolean {
 type SolvePlayerProps = {
   frames: ReplayFrame[];
   emptyMessage: string;
+  hintFirst?: boolean;
 };
 
-export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
+export function SolvePlayer({ frames, emptyMessage, hintFirst = false }: SolvePlayerProps) {
   const hasReplay = frames.length > 1;
   const reducedMotion = useSyncExternalStore(
     subscribeToReducedMotion,
@@ -50,12 +51,14 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
     serverReducedMotion,
   );
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(hasReplay);
+  const [playing, setPlaying] = useState(false);
+  const [revealed, setRevealed] = useState(hintFirst ? 0 : Math.max(frames.length - 1, 0));
   const activeFrame = frames[index] ?? frames[0] ?? null;
 
   // When reducedMotion is true the auto-advance timer never starts, so
   // effectivePlaying is false regardless of the play/pause toggle state.
-  const effectivePlaying = playing && !reducedMotion;
+  const maxIndex = Math.min(revealed, Math.max(frames.length - 1, 0));
+  const effectivePlaying = playing && !reducedMotion && index < maxIndex;
   const moveCount = Math.max(frames.length - 1, 0);
 
   // Auto-advance: fires an interval whenever effectivePlaying is true.
@@ -67,7 +70,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
     if (!effectivePlaying || !hasReplay) return;
     const timer = window.setInterval(() => {
       setIndex((current) => {
-        if (current >= frames.length - 1) {
+        if (current >= maxIndex) {
           setPlaying(false);
           return current;
         }
@@ -75,29 +78,40 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
       });
     }, 560);
     return () => window.clearInterval(timer);
-  }, [effectivePlaying, frames.length, hasReplay]);
+  }, [effectivePlaying, maxIndex, hasReplay]);
 
   function step(delta: number) {
     setPlaying(false);
-    setIndex((current) => Math.min(Math.max(current + delta, 0), frames.length - 1));
+    setIndex((current) => Math.min(Math.max(current + delta, 0), maxIndex));
   }
 
   // Resets to frame 0 and restarts playback (unless reduced motion is on).
   function replay() {
     setIndex(0);
-    setPlaying(hasReplay && !reducedMotion);
+    setPlaying(false);
   }
 
   function togglePlayback() {
     if (!hasReplay || reducedMotion) return;
     // If we're at the end, wrap back to the start before resuming
-    if (index >= frames.length - 1) setIndex(0);
+    if (index >= maxIndex) setIndex(0);
     setPlaying((current) => !current);
   }
 
   function scrubTo(frameIndex: number) {
     setPlaying(false);
-    setIndex(frameIndex);
+    setIndex(Math.min(frameIndex, maxIndex));
+  }
+
+  function revealNext() {
+    const next = Math.min(revealed + 1, frames.length - 1);
+    setRevealed(next);
+    setIndex(next);
+  }
+
+  function revealAll() {
+    setPlaying(false);
+    setRevealed(Math.max(frames.length - 1, 0));
   }
 
   return (
@@ -124,7 +138,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
           type="button"
           className="icon-button replay-primary"
           onClick={togglePlayback}
-          disabled={!hasReplay || reducedMotion}
+          disabled={!hasReplay || reducedMotion || maxIndex === 0}
           aria-label={effectivePlaying ? "Pause replay" : "Play replay"}
           title={reducedMotion ? "Playback disabled by reduced motion preference" : effectivePlaying ? "Pause replay" : "Play replay"}
         >
@@ -134,7 +148,7 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
           type="button"
           className="icon-button"
           onClick={() => step(1)}
-          disabled={index >= frames.length - 1 || frames.length === 0}
+          disabled={index >= maxIndex || frames.length === 0}
           aria-label="Next move"
           title="Next move"
         >
@@ -156,21 +170,32 @@ export function SolvePlayer({ frames, emptyMessage }: SolvePlayerProps) {
         <input
           type="range"
           min={0}
-          max={Math.max(moveCount, 1)}
+          max={Math.max(maxIndex, 1)}
           value={index}
           disabled={!hasReplay}
           onChange={(event) => scrubTo(Number(event.target.value))}
           aria-label="Solution timeline"
         />
         {/* Move sequence: each arrow is highlighted once that move has been played */}
-        <div className="move-sequence" aria-label={moveCount ? `Solution moves: ${frames.slice(1).map((frame) => frame.move).join("")}` : "Solution pending"}>
+        <div className="move-sequence" aria-label={moveCount ? `${index} of ${moveCount} solution moves revealed` : "Solution pending"}>
           {moveCount ? frames.slice(1).map((frame, frameIndex) => (
             <span key={`${frameIndex}-${frame.move}`} className={frameIndex < index ? "move-complete" : ""}>
-              {MOVE_ARROWS[frame.move ?? ""] ?? frame.move}
+              {frameIndex < revealed ? (MOVE_ARROWS[frame.move ?? ""] ?? frame.move) : "·"}
             </span>
           )) : <span>Awaiting solve path</span>}
         </div>
       </div>
+
+      {hintFirst && hasReplay && revealed < frames.length - 1 && (
+        <div className="hint-controls">
+          <button type="button" className="hint-button" onClick={revealNext}>
+            Reveal next move
+          </button>
+          <button type="button" className="hint-button hint-button-secondary" onClick={revealAll}>
+            Reveal full solution
+          </button>
+        </div>
+      )}
     </section>
   );
 }

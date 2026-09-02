@@ -20,7 +20,11 @@ from typing import Any
 from apps.api.board_capture import capture_google_board_screenshot, google_tic_tac_go_url
 from apps.api.board_parser import PARSER_NAME, parse_board_from_screenshot
 from apps.api.solution_storage import upsert_solution
-from apps.api.puzzle_titles import title_from_past_days
+from apps.api.puzzle_titles import (
+    official_level_label,
+    title_from_official_catalog,
+    title_from_past_days,
+)
 from solver.service import solve_daily_board
 
 
@@ -40,6 +44,15 @@ def _board_lines(board: list[list[str]] | None) -> str:
 def utc_puzzle_date() -> date:
     """Return today's date in UTC — used to key the daily solution record."""
     return datetime.now(UTC).date()
+
+
+def fallback_puzzle_title(puzzle_date: date) -> str | None:
+    """Resolve a title even when live capture failed before page extraction."""
+    return (
+        title_from_official_catalog(puzzle_date)
+        or title_from_past_days(puzzle_date)
+        or official_level_label(puzzle_date)
+    )
 
 
 def _failed_record(
@@ -93,6 +106,8 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
         capture_result = capture_google_board_screenshot(source_url, puzzle_date=target_date)
         screenshot_path = capture_result.screenshot_path
         puzzle_title = capture_result.puzzle_title
+        if puzzle_title is None:
+            puzzle_title = fallback_puzzle_title(target_date)
         logger.info(
             "daily_solve.capture.ok screenshot_path=%s puzzle_title=%r",
             screenshot_path,
@@ -123,7 +138,7 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
         logger.error("daily_solve.failed error=%s", exc)
         logger.error("daily_solve.traceback\n%s", traceback.format_exc())
         if puzzle_title is None:
-            puzzle_title = title_from_past_days(target_date)
+            puzzle_title = fallback_puzzle_title(target_date)
         record = _failed_record(
             target_date,
             source_url,

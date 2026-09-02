@@ -36,6 +36,17 @@ class _Connection:
         return self.result
 
 
+class _TitleBackfillConnection(_Connection):
+    def __init__(self, row):
+        super().__init__(_QueryResult(row=row))
+        self.calls = []
+
+    def execute(self, query, params):
+        self.execute_count += 1
+        self.calls.append((query, params))
+        return self.result
+
+
 class SolutionStorageCacheTests(unittest.TestCase):
     def setUp(self):
         solution_storage.clear_solution_cache()
@@ -99,6 +110,23 @@ class SolutionStorageCacheTests(unittest.TestCase):
 
         self.assertEqual(connection.execute_count, 1)
         self.assertEqual(list(rows), [first_date])
+
+    def test_title_only_backfill_updates_only_blank_title_column(self):
+        puzzle_date = date(2026, 9, 1)
+        connection = _TitleBackfillConnection(
+            {"puzzle_date": puzzle_date, "puzzle_title": "Level 2026-09-01"}
+        )
+        with patch.object(solution_storage, "_connect", return_value=connection):
+            updated = solution_storage.update_missing_titles(
+                {puzzle_date: "Level 2026-09-01"}
+            )
+
+        self.assertEqual(updated, {puzzle_date: "Level 2026-09-01"})
+        query, params = connection.calls[0]
+        self.assertIn("SET puzzle_title = %s", query)
+        self.assertIn("puzzle_title IS NULL", query)
+        self.assertNotIn("SET status", query)
+        self.assertEqual(params, ("Level 2026-09-01", puzzle_date))
 
 
 if __name__ == "__main__":

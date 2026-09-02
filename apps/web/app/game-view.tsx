@@ -2,6 +2,8 @@ import { SolveDashboard, type DailyStatus } from "./solve-dashboard";
 import type { Cell } from "./replay-model";
 import { formatLongDate } from "./solution-data";
 import { HistoryCarousel } from "./history-carousel";
+import { buildSolutionExplanation } from "./solution-explanation";
+import { SolutionHints } from "./solution-hints";
 
 type SolveStep = {
   move: string;
@@ -117,6 +119,12 @@ function SolutionSummary({
   );
 }
 
+function SolutionHintsSection({ solution }: { solution: SolutionRecord }) {
+  const explanation = buildSolutionExplanation(solution.board, solution.final_board, solution.step_boards);
+  if (solution.status !== "solved" || !solution.moves) return null;
+  return <SolutionHints goal={explanation.goal} phases={explanation.phases} />;
+}
+
 export function GameView({
   initialSolution,
   history,
@@ -125,12 +133,30 @@ export function GameView({
   loadSharedHistory = false,
 }: Props) {
   const currentSolution = initialSolution;
+  const titleSuffix = currentSolution.puzzle_title ? `: ${currentSolution.puzzle_title}` : "";
   const heading = isTodayPage
-    ? "Tic Tac Go Solution Today"
-    : `Tic Tac Go Solution - ${formatLongDate(currentSolution.puzzle_date)}`;
+    ? `Tic Tac Go Solution Today${titleSuffix} (${formatLongDate(currentSolution.puzzle_date)})`
+    : `Tic Tac Go Solution: ${formatLongDate(currentSolution.puzzle_date)}${titleSuffix}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: `${heading}${currentSolution.puzzle_title ? `: ${currentSolution.puzzle_title}` : ""}`,
+    description: currentSolution.status === "solved" && currentSolution.moves
+      ? `Verified hint-first Tic Tac Go solution in ${currentSolution.moves.length} moves.`
+      : "Tic Tac Go puzzle status and verified replay.",
+    datePublished: currentSolution.puzzle_date,
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Tic Tac Go Solution", item: "/" },
+        { "@type": "ListItem", position: 2, name: currentSolution.puzzle_title ?? currentSolution.puzzle_date },
+      ],
+    },
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <header className="game-header">
         <h1 className={isTodayPage ? undefined : "historical-heading"}>{heading}</h1>
         <p>{isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
@@ -150,6 +176,7 @@ export function GameView({
         status={currentSolution.status}
         errorMessage={currentSolution.error_message}
         isDemo={isDemo}
+        hintFirst
       />
 
       <SolutionSummary
@@ -157,6 +184,7 @@ export function GameView({
         isDemo={isDemo}
         isTodayPage={isTodayPage}
       />
+      <SolutionHintsSection solution={currentSolution} />
 
       <HistoryCarousel
         initialHistory={history}

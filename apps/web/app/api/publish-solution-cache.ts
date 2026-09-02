@@ -35,3 +35,8 @@ export function publishSolutionCache(puzzleDate: string): void {
   revalidatePath(`/solutions/${puzzleDate}`);
   revalidatePath(`/api/solutions/${puzzleDate}`);
 }
+
+export function publishSolutionCaches(puzzleDates: string[]): void {
+  const uniqueDates = [...new Set(puzzleDates)];
+  for (const puzzleDate of uniqueDates) publishSolutionCache(puzzleDate);
+}

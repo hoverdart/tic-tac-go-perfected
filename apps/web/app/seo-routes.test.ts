@@ -61,12 +61,14 @@ describe("SEO metadata routes", () => {
         next: { tags: ["solutions:history"] },
       },
     );
-    expect(dynamic).toBe("force-static");
-    expect(revalidate).toBe(false);
+    expect(dynamic).toBe("force-dynamic");
+    expect(revalidate).toBe(86400);
     expect(entries.map((entry) => entry.url)).toEqual([
       "https://tictacgo.shauryav.com/",
       "https://tictacgo.shauryav.com/solutions/2026-07-15",
       "https://tictacgo.shauryav.com/solutions/2026-07-14",
+      "https://tictacgo.shauryav.com/how-to-solve-tic-tac-go",
+      "https://tictacgo.shauryav.com/custom-tic-tac-go-solver",
     ]);
     expect(entries[1]?.lastModified).toEqual(
       new Date("2026-07-15T00:00:00Z"),
