@@ -51,7 +51,7 @@ export function SolvePlayer({ frames, emptyMessage, hintFirst = false }: SolvePl
     serverReducedMotion,
   );
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(hintFirst ? false : hasReplay);
   const [revealed, setRevealed] = useState(hintFirst ? 0 : Math.max(frames.length - 1, 0));
   const activeFrame = frames[index] ?? frames[0] ?? null;
 
@@ -88,7 +88,7 @@ export function SolvePlayer({ frames, emptyMessage, hintFirst = false }: SolvePl
   // Resets to frame 0 and restarts playback (unless reduced motion is on).
   function replay() {
     setIndex(0);
-    setPlaying(false);
+    setPlaying(hintFirst ? false : hasReplay && !reducedMotion);
   }
 
   function togglePlayback() {

@@ -12,9 +12,8 @@ export const revalidate = false;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { solution } = await getTodaySolution();
-  const puzzleTitle = solution.puzzle_title ? `: ${solution.puzzle_title}` : "";
   return {
-    title: `Tic Tac Go Solution Today – ${formatLongDate(solution.puzzle_date)}${puzzleTitle}`,
+    title: `Tic Tac Go Solution Today – ${formatLongDate(solution.puzzle_date)}`,
     description: solutionMetaDescription(solution, true),
     alternates: {
       canonical: "/",

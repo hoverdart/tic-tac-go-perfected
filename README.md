@@ -240,10 +240,6 @@ only for local development.
 If you set `API_BASE_URL` in production, use
 `https://tictacgo.shauryav.com/api/python`.
 
-Set `tictacgo.shauryav.com` as the Vercel project's primary domain and retain
-`tictacgo.abdullahwaris.com` only as a redirect domain. The application also
-permanently redirects every legacy-domain path to its matching canonical URL.
-
 ### Publishing a title-only repair
 
 Use the auditable title backfill rather than the board backfill for missing

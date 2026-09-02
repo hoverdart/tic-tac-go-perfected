@@ -135,7 +135,7 @@ export function GameView({
   const currentSolution = initialSolution;
   const titleSuffix = currentSolution.puzzle_title ? `: ${currentSolution.puzzle_title}` : "";
   const heading = isTodayPage
-    ? `Tic Tac Go Solution Today${titleSuffix} (${formatLongDate(currentSolution.puzzle_date)})`
+    ? "Tic Tac Go Solution Today"
     : `Tic Tac Go Solution: ${formatLongDate(currentSolution.puzzle_date)}${titleSuffix}`;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -176,7 +176,7 @@ export function GameView({
         status={currentSolution.status}
         errorMessage={currentSolution.error_message}
         isDemo={isDemo}
-        hintFirst
+        hintFirst={!isTodayPage}
       />
 
       <SolutionSummary
@@ -184,7 +184,7 @@ export function GameView({
         isDemo={isDemo}
         isTodayPage={isTodayPage}
       />
-      <SolutionHintsSection solution={currentSolution} />
+      {!isTodayPage && <SolutionHintsSection solution={currentSolution} />}
 
       <HistoryCarousel
         initialHistory={history}
