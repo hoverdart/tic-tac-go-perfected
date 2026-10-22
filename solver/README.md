@@ -3,9 +3,10 @@
 Fast Tic Tac Go solvers plus a Gymnasium environment for model training.
 
 The solver stack searches Tic Tac Go boards and reports the move string, final
-board, states checked, elapsed time, and the solver used. Screenshot parsing is
-currently best run with the Gemini fallback parser while the OpenCV parser is
-still being worked on.
+board, states checked, elapsed time, and the solver used. Daily board ingestion
+reads the official date-keyed catalog through
+`apps/api/puzzle_catalog.py`; Gemini is a date-checked screenshot fallback.
+OpenCV experiments are archived and excluded from active parser selection.
 
 ## Project Layout
 
@@ -28,11 +29,10 @@ still being worked on.
 - `screenshots/`: drop screenshots here for the `reg-settings` command
 - `legacy_solver.py`: legacy solver implementation
 - `boardParsers/fallbackBoardParser.py`: Gemini screenshot parser
-- `boardParsers/openCVBoardParser.py`: experimental OpenCV parser
+- `boardParsers/archive/opencv/`: archived, unsupported OpenCV experiments
 - `gymnasium_register/`: local Gymnasium environment, board data, training
   scripts, and offline test utilities
 - `requirements.txt`: minimal install for solving with Gemini
-- `requirements-opencv.txt`: optional OpenCV parser dependencies
 - `requirements-autoplay.txt`: optional autoplay dependency
 - `requirements-training.txt`: optional DQN training dependencies
 
@@ -284,8 +284,8 @@ python3 solve.py reg-settings
 `reg-settings` chooses the newest image in `screenshots/`, uses the Gemini
 parser, and runs with quiet progress.
 
-Use `--gemini-only` to skip OpenCV and parse the screenshot directly with
-Gemini:
+Screenshot input uses Gemini directly. `--gemini-only` remains a compatibility
+option; OpenCV is archived and `--no-fallback` is unsupported:
 
 ```bash
 python3 solve.py \

@@ -1,0 +1,90 @@
+{
+  "parser_name": "catalog",
+  "source_url": "https://www.gstatic.com/_/mss/boq-search/_/js/k=boq-search.GoogleGamesPlatformUi.en_US.U07UngYsBrQ.2018.O/d=1/excm=_b/ed=1/dg=0/wt=2/ujg=1/rs=AH7-fg4EMkk8N4Mz3xBOIl46-fIwMUDySg/ee=Pjplud:PoEs9b;QGR0gd:Mlhmy;ScI3Yc:e7Hzgb;YIZmRd:A1yn5d;cEt90b:ws9Tlc;dowIGb:ebZ3mb/dti=1/m=Aeygpd",
+  "board": [
+    [
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B"
+    ],
+    [
+      "B",
+      "",
+      "X",
+      "",
+      "",
+      "X",
+      "",
+      "B"
+    ],
+    [
+      "B",
+      "",
+      "",
+      "X",
+      "",
+      "X",
+      "X",
+      "B"
+    ],
+    [
+      "B",
+      "",
+      "",
+      "B",
+      "O",
+      "",
+      "",
+      "B"
+    ],
+    [
+      "B",
+      "X",
+      "",
+      "O",
+      "U",
+      "X",
+      "",
+      "B"
+    ],
+    [
+      "B",
+      "",
+      "X",
+      "",
+      "X",
+      "X",
+      "",
+      "B"
+    ],
+    [
+      "B",
+      "",
+      "X",
+      "X",
+      "",
+      "",
+      "",
+      "B"
+    ],
+    [
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B"
+    ]
+  ],
+  "moves": "RDULUULLDDRDRUU",
+  "elapsed_ms": 1070.4514998942614,
+  "states_checked": 1816,
+  "status": "solved"
+}

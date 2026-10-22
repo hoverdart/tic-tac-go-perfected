@@ -1,0 +1,9 @@
+{
+  "status": 200,
+  "tiles": 36,
+  "internal_barriers": 1,
+  "moves_replayed": 15,
+  "page_errors": [],
+  "final_status": "SOLVED",
+  "reduced_motion_checked": true
+}

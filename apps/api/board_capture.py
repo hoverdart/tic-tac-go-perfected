@@ -29,6 +29,7 @@ import os
 import tempfile
 import logging
 import json
+import re
 from dataclasses import dataclass
 from datetime import date
 from urllib.parse import parse_qs, quote, urlparse
@@ -62,6 +63,19 @@ class CaptureResult:
     """
     screenshot_path: Path
     puzzle_title: str | None
+    puzzle_date: date | None = None
+
+
+def extract_visible_puzzle_date(page) -> date | None:
+    """Require one unambiguous visible date; never substitute the caller's date."""
+    text = page.locator("body").inner_text(timeout=5_000)
+    found: set[date] = set()
+    for month, day, year in re.findall(r"(?<!\d)(\d{1,2})\s*/\s*(\d{1,2})\s*/\s*(\d{4})(?!\d)", text):
+        try:
+            found.add(date(int(year), int(month), int(day)))
+        except ValueError:
+            continue
+    return next(iter(found)) if len(found) == 1 else None
 
 
 @dataclass(frozen=True)
@@ -601,6 +615,7 @@ def capture_google_board_screenshot(
     # Initialised here so it remains accessible after the browser block even if
     # title extraction raises inside the try/except below.
     puzzle_title: str | None = None
+    visible_date: date | None = None
 
     logger.info("capture.start url=%s screenshot_path=%s", url, screenshot_path)
 
@@ -635,6 +650,10 @@ def capture_google_board_screenshot(
             page.wait_for_timeout(2_500)
             _log_page_state(page, "before_screenshot")
             _capture_board_image(page, screenshot_path)
+            try:
+                visible_date = extract_visible_puzzle_date(page)
+            except Exception as exc:
+                logger.info("capture.date_unavailable error=%s", exc)
             puzzle_title = extract_puzzle_title(page, puzzle_date=puzzle_date)
             browser.close()
     except PlaywrightTimeoutError as exc:
@@ -651,4 +670,5 @@ def capture_google_board_screenshot(
         screenshot_path.stat().st_size,
         puzzle_title,
     )
-    return CaptureResult(screenshot_path=screenshot_path, puzzle_title=puzzle_title)
+    return CaptureResult(screenshot_path=screenshot_path, puzzle_title=puzzle_title,
+                         puzzle_date=visible_date)

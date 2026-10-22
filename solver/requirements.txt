@@ -1,4 +1,3 @@
 google-genai
 numpy
-opencv-python
 pyautogui

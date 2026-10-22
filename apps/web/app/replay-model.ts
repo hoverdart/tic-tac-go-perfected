@@ -92,17 +92,20 @@ export function replayStatus(board: Cell[][]): ReplayStatus {
   return "ready";
 }
 
-// Boards are internally padded to 8×8, but trailing rows/columns that are
-// entirely barriers are invisible in the game. This trims those padding rows
-// and columns from the bottom-right so the UI only shows the live play area.
+// Catalog boards may have a wall border on any side; Gemini boards usually
+// have padding only at bottom/right. Keep interior barriers and trim only the
+// fully blocked outer border so both sources use the same visible coordinates.
 export function visibleBoard(board: Cell[][]): Cell[][] {
-  let rows = board.length;
-  let cols = board[0]?.length ?? 1;
-
-  while (rows > 1 && board[rows - 1]?.every((cell) => cell === "B")) rows -= 1;
-  while (cols > 1 && board.slice(0, rows).every((row) => row[cols - 1] === "B")) cols -= 1;
-
-  return board.slice(0, rows).map((row) => row.slice(0, cols));
+  let top = 0;
+  let bottom = board.length;
+  let left = 0;
+  let right = board[0]?.length ?? 0;
+  while (bottom - top > 1 && board[bottom - 1].every((cell) => cell === "B")) bottom -= 1;
+  while (bottom - top > 1 && board[top].every((cell) => cell === "B")) top += 1;
+  const rows = board.slice(top, bottom);
+  while (right - left > 1 && rows.every((row) => row[right - 1] === "B")) right -= 1;
+  while (right - left > 1 && rows.every((row) => row[left] === "B")) left += 1;
+  return rows.map((row) => row.slice(left, right));
 }
 
 // Walks the board top-left to bottom-right and assigns each piece a stable ID

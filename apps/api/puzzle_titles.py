@@ -10,22 +10,13 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from functools import lru_cache
-from html import unescape
-import json
 import logging
 import re
 from typing import Any
-from urllib.parse import urljoin
-from urllib.request import Request, urlopen
+from apps.api.puzzle_catalog import CatalogError, OFFICIAL_GAME_URL, load_catalog
 
 
 logger = logging.getLogger("tic_tac_go.daily_solve")
-
-OFFICIAL_GAME_URL = "https://dailygames.discover.google.com/games/tic-tac-go"
-_CATALOG_SCRIPT_RE = re.compile(r'<script[^>]+src=["\'](?P<src>[^"\']*GoogleGamesPlatformUi[^"\']*)', re.I)
-_CATALOG_ENTRY_RE = re.compile(
-    r'\["(?P<id>\d{8})",\{name:"(?P<name>(?:\\.|[^"\\])*)"',
-)
 
 _TITLE_CSS_SELECTORS = [
     "[data-attrid='title']",
@@ -201,48 +192,15 @@ def title_from_past_days(puzzle_date: date | datetime | str | None) -> str | Non
     return title
 
 
-def _decode_catalog_name(value: str) -> str | None:
-    try:
-        decoded = json.loads(f'"{value}"')
-    except json.JSONDecodeError:
-        return None
-    return normalize_official_title(decoded)
-
-
-@lru_cache(maxsize=1)
 def _official_catalog_titles() -> dict[str, str]:
-    """Read Google-published title metadata without depending on UI selectors.
-
-    The Daily Games shell exposes a versioned app bundle. Its Tic Tac Go module
-    contains the date-keyed level catalog used by the official game itself. This
-    is a best-effort fallback: failures are logged and callers keep their local
-    manifest/fallback label instead of failing a daily solve.
-    """
+    """Share the validated, expiring board catalog instead of fetching twice."""
     try:
-        request = Request(OFFICIAL_GAME_URL, headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(request, timeout=12) as response:
-            page_html = response.read().decode("utf-8", errors="replace")
-        match = _CATALOG_SCRIPT_RE.search(page_html)
-        if not match:
-            return {}
-        script_url = urljoin(OFFICIAL_GAME_URL, unescape(match.group("src")))
-        module_url = re.sub(r"m=_b(?=$|[;&])", "m=Aeygpd", script_url)
-        if module_url == script_url:
-            return {}
-        module_request = Request(module_url, headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(module_request, timeout=18) as response:
-            module_source = response.read().decode("utf-8", errors="replace")
-    except Exception as exc:
+        snapshot = load_catalog()
+    except CatalogError as exc:
         logger.info("title_fetcher.catalog_unavailable error=%s", exc)
         return {}
-
-    titles: dict[str, str] = {}
-    for match in _CATALOG_ENTRY_RE.finditer(module_source):
-        title = _decode_catalog_name(match.group("name"))
-        if title:
-            titles[match.group("id")] = title
-    logger.info("title_fetcher.catalog_loaded entries=%s", len(titles))
-    return titles
+    return {entry.puzzle_date.strftime("%Y%m%d"): entry.title
+            for entry in snapshot.entries.values()}
 
 
 def title_from_official_catalog(puzzle_date: date | datetime | str | None) -> str | None:

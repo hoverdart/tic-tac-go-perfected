@@ -237,12 +237,13 @@ def init_db() -> None:
     run_migrations()
 
 
-def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
+def upsert_solution(record: dict[str, Any], *, preserve_solved: bool = False) -> dict[str, Any]:
     """Insert or replace a daily solution record, returning the stored row.
 
-    Uses Postgres INSERT ... ON CONFLICT DO UPDATE so re-running the daily job
-    for the same date (e.g. after a parse failure) always reflects the latest
-    result rather than creating a duplicate.
+    Daily jobs set preserve_solved so an unsuccessful retry cannot replace a
+    solved row. The guard is evaluated under the conflict-row lock, not via a
+    racy preflight SELECT. Explicit repair/backfill callers retain replacement
+    semantics by default.
     """
     logger.info(
         "storage.upsert.start puzzle_date=%s status=%s states_checked=%s elapsed_ms=%s",
@@ -298,16 +299,27 @@ def upsert_solution(record: dict[str, Any]) -> dict[str, Any]:
                 error_message = EXCLUDED.error_message,
                 puzzle_title = EXCLUDED.puzzle_title,
                 updated_at = now()
+            WHERE NOT %(preserve_solved)s
+               OR daily_solutions.status <> 'solved'
+               OR EXCLUDED.status = 'solved'
             RETURNING *
             """,
             {
                 **record,
+                "preserve_solved": preserve_solved,
                 "board": _json(record.get("board")),
                 "final_board": _json(record.get("final_board")),
                 "step_boards": _json(record.get("step_boards", [])),
                 "puzzle_title": record.get("puzzle_title"),
             },
         ).fetchone()
+        if row is None:
+            row = conn.execute(
+                "SELECT * FROM daily_solutions WHERE puzzle_date = %s",
+                (record["puzzle_date"],),
+            ).fetchone()
+        if row is None:
+            raise StorageError("Solution disappeared during guarded update.")
         stored = dict(row)
 
     clear_solution_cache()

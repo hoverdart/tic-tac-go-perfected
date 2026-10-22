@@ -2,7 +2,6 @@ import argparse
 import datetime
 import heapq
 import itertools
-import sys
 import time
 import webbrowser
 from collections import deque
@@ -428,24 +427,14 @@ def parse_board_from_screenshot(
     no_fallback=False,
     gemini_only=False,
 ):
-    repo_root = Path(__file__).resolve().parents[1]
-    parser_dir = repo_root / "boardParsers"
-    if str(parser_dir) not in sys.path:
-        sys.path.insert(0, str(parser_dir))
+    if no_fallback:
+        raise ValueError("OpenCV is archived; --no-fallback is no longer supported.")
+    try:
+        from solver.boardParsers.fallbackBoardParser import parse_board_from_image
+    except ModuleNotFoundError:
+        from boardParsers.fallbackBoardParser import parse_board_from_image
 
-    if gemini_only:
-        from fallbackBoardParser import parse_board_from_image
-
-        return normalize_board(parse_board_from_image(screenshot_path))
-
-    from openCVBoardParser import parse_board_from_image
-
-    parsed_board = parse_board_from_image(
-        screenshot_path,
-        use_fallback=not no_fallback,
-        debug_dir=debug_dir,
-    )
-    return normalize_board(parsed_board)
+    return normalize_board(parse_board_from_image(screenshot_path))
 
 
 def newest_screenshot(screenshots_dir="screenshots"):
@@ -511,17 +500,17 @@ def build_parser():
     )
     parser.add_argument(
         "--debug-dir",
-        help="Optional directory where the OpenCV board crop is written.",
+        help="Deprecated compatibility option; OpenCV is archived.",
     )
     parser.add_argument(
         "--no-fallback",
         action="store_true",
-        help="Do not call the Gemini fallback parser if OpenCV parsing fails.",
+        help="Unsupported: OpenCV is archived. Screenshot input uses Gemini.",
     )
     parser.add_argument(
         "--gemini-only",
         action="store_true",
-        help="Parse screenshots with Gemini directly and skip OpenCV.",
+        help="Compatibility option; screenshot input already uses Gemini.",
     )
     parser.add_argument(
         "--autoplay",

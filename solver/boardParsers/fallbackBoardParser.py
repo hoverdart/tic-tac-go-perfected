@@ -280,7 +280,7 @@ def _call_gemini(image_path, prompt, model):
     return response.text
 
 
-def parse_board_from_image(image_path, model="gemini-flash-latest"):
+def parse_board_from_image(image_path, model=None):
     """Parse a Tic Tac Go board from a screenshot using Gemini Vision.
 
     Retry strategy:
@@ -299,6 +299,7 @@ def parse_board_from_image(image_path, model="gemini-flash-latest"):
     if not Path(image_path).is_file():
         raise FileNotFoundError(f"Screenshot does not exist: {image_path}")
 
+    model = model or os.environ.get("GEMINI_MODEL") or "gemini-flash-latest"
     first_response = _call_gemini(image_path, PROMPT, model)
     try:
         return board_from_response_text(first_response)
@@ -323,8 +324,8 @@ def main():
     parser.add_argument("image_path", help="Path to a saved screenshot.")
     parser.add_argument(
         "--model",
-        default="gemini-flash-latest",
-        help="Gemini model to use. Defaults to gemini-flash-latest.",
+        default=None,
+        help="Gemini model override; otherwise GEMINI_MODEL or gemini-flash-latest.",
     )
     args = parser.parse_args()
 

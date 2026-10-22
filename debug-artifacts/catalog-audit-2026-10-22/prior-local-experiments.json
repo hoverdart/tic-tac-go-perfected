@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-22",
+  "scope": "Read-only production GETs and local checkout experiments. No writes to production.",
+  "archive": {
+    "stored": 394,
+    "status_solved": 386,
+    "status_unsolved": 8,
+    "board_mismatches_against_current_official_catalog": 11,
+    "stored_solved_paths_invalid_on_official_layouts": 10,
+    "stored_paths_verified_on_official_layouts": 376
+  },
+  "runs": [
+    {
+      "id": "20261021",
+      "title": "Too Close For Comfort",
+      "solved": true,
+      "verified": true,
+      "wall_seconds": 0.18429150013253093,
+      "moves": 46,
+      "nodes": 203,
+      "strategy": "v1_weighted",
+      "failure_reason": null,
+      "artifact": "probe-20261021.json"
+    },
+    {
+      "id": "20261017",
+      "title": "Bottleneck",
+      "solved": true,
+      "verified": true,
+      "wall_seconds": 2.003030958585441,
+      "moves": 52,
+      "nodes": 472,
+      "strategy": "v1_weighted",
+      "failure_reason": null,
+      "artifact": "probe-unprofiled-20261017.json"
+    },
+    {
+      "id": "20261018",
+      "title": "Here and There",
+      "solved": true,
+      "verified": true,
+      "wall_seconds": 6.363534125033766,
+      "moves": 224,
+      "nodes": 2534,
+      "strategy": "macro_greedy",
+      "failure_reason": null,
+      "artifact": "probe-unprofiled-20261018.json"
+    },
+    {
+      "id": "20261004",
+      "title": "Cup of Tea",
+      "solved": false,
+      "verified": false,
+      "wall_seconds": 30.13480666698888,
+      "moves": 0,
+      "nodes": 14171,
+      "strategy": null,
+      "failure_reason": "timeout",
+      "artifact": "probe-20261004.json"
+    },
+    {
+      "id": "20260913",
+      "title": "Peninsula Problems",
+      "solved": false,
+      "verified": false,
+      "wall_seconds": 30.519350291229784,
+      "moves": 0,
+      "nodes": 10548,
+      "strategy": null,
+      "failure_reason": "timeout",
+      "artifact": "probe-20260913.json"
+    },
+    {
+      "id": "20260911",
+      "title": "Walled Off",
+      "solved": true,
+      "verified": true,
+      "wall_seconds": 2.5954760839231312,
+      "moves": 84,
+      "nodes": 382,
+      "strategy": "greedy_low_g",
+      "failure_reason": null,
+      "artifact": "probe-20260911.json"
+    },
+    {
+      "id": "20260314",
+      "title": "Tee Off",
+      "solved": false,
+      "verified": false,
+      "wall_seconds": 30.15554750012234,
+      "moves": 0,
+      "nodes": 13584,
+      "strategy": null,
+      "failure_reason": "timeout",
+      "artifact": "probe-20260314.json"
+    },
+    {
+      "id": "20251228",
+      "title": "Surrounded",
+      "solved": false,
+      "verified": false,
+      "wall_seconds": 30.50570487510413,
+      "moves": 0,
+      "nodes": 16777,
+      "strategy": null,
+      "failure_reason": "timeout",
+      "artifact": "probe-20251228.json"
+    },
+    {
+      "id": "20251212",
+      "title": "-_-",
+      "solved": false,
+      "verified": false,
+      "wall_seconds": 30.648266291245818,
+      "moves": 0,
+      "nodes": 2806,
+      "strategy": null,
+      "failure_reason": "timeout",
+      "artifact": "probe-20251212.json"
+    }
+  ],
+  "weighted_full_budget": [
+    {
+      "id": "20251212",
+      "solved": false,
+      "wall_seconds": 30.01590708270669,
+      "nodes": 1954,
+      "failure_reason": "timeout"
+    },
+    {
+      "id": "20251228",
+      "solved": false,
+      "wall_seconds": 30.004936875309795,
+      "nodes": 8494,
+      "failure_reason": "timeout"
+    },
+    {
+      "id": "20260314",
+      "solved": false,
+      "wall_seconds": 30.007637166883796,
+      "nodes": 9475,
+      "failure_reason": "timeout"
+    },
+    {
+      "id": "20260913",
+      "solved": false,
+      "wall_seconds": 30.011747208889574,
+      "nodes": 9817,
+      "failure_reason": "timeout"
+    },
+    {
+      "id": "20261004",
+      "solved": false,
+      "wall_seconds": 30.01080479193479,
+      "nodes": 18380,
+      "failure_reason": "timeout"
+    }
+  ],
+  "profile_note": "probe-20261018.json was instrumented with cProfile and is excluded from normal timing comparisons. See probe-unprofiled-20261018.json."
+}

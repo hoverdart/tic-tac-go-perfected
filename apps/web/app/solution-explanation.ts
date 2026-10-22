@@ -1,4 +1,4 @@
-import type { Cell } from "./replay-model";
+import { visibleBoard, type Cell } from "./replay-model";
 
 type Step = { move: string; board: Cell[][] };
 
@@ -94,10 +94,11 @@ export function buildSolutionExplanation(
   steps: Step[],
 ): SolutionExplanation {
   const phases: ExplanationPhase[] = [];
-  let previous = board;
+  let previous = board ? visibleBoard(board) : null;
   for (let index = 0; index < steps.length; index += 1) {
     const step = steps[index]!;
-    const moved = previous ? movedPiece(previous, step.board) : null;
+    const current = visibleBoard(step.board);
+    const moved = previous ? movedPiece(previous, current) : null;
     if (moved) {
       phases.push({
         moveIndex: index + 1,
@@ -105,7 +106,7 @@ export function buildSolutionExplanation(
         detail: `Press ${DIRECTION[step.move] ?? step.move} to move the ${moved.piece} from ${moved.from} to ${moved.to}.`,
       });
     }
-    previous = step.board;
+    previous = current;
   }
-  return { goal: findWinningLine(finalBoard), phases };
+  return { goal: findWinningLine(finalBoard ? visibleBoard(finalBoard) : null), phases };
 }

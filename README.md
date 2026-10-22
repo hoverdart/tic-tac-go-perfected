@@ -12,6 +12,8 @@ The September 8, 2026 production audit found **348 daily boards marked solved ou
   training experiments.
 - `tictacgo_solver_v3.md`: Push Solver V3 diagnosis, architecture, coverage
   invariant, and measured release results.
+- [Catalog ingestion and V4 evidence](docs/audits/catalog-ingestion-and-v4-data-2026-10-22.md):
+  input contract, archive mismatches, verified recovery paths, and reproducible benchmarks.
 
 ## Local Development
 
@@ -47,8 +49,15 @@ The API exposes:
 If the frontend is not running on `http://localhost:3000`, set
 `API_ALLOWED_ORIGINS` for the backend.
 
-The daily job also needs `DATABASE_URL`, `GEMINI_API_KEY`, `CRON_SECRET`, and
-`GOOGLE_TIC_TAC_GO_URL`.
+The daily job reads the requested date directly from Google's published catalog.
+It needs `DATABASE_URL` and `CRON_SECRET`. `GEMINI_API_KEY` and a configured browser
+are required only for screenshot fallback when the catalog cannot be used;
+`GEMINI_MODEL` selects that fallback model. `GOOGLE_TIC_TAC_GO_URL` configures the
+fallback capture URL. Captures with a wrong or unknown date are rejected. OpenCV
+experiments are archived under `solver/boardParsers/archive/opencv/`.
+
+Catalog records preserve Google's board coordinates and store the versioned bundle
+URL as provenance. A failed daily retry cannot replace a solved row.
 
 The daily cron job runs Push Solver V3 first. V3 gives the coverage-preserving
 V2 portfolio the complete 500,000-node/30-second budget, then uses time left in
@@ -191,7 +200,8 @@ Set these environment variables on the Vercel project:
   to HMAC client identities for the public custom-board solver. Never use a
   raw IP address as a database key.
 - `DATABASE_URL`
-- `GEMINI_API_KEY`
+- `GEMINI_API_KEY`: screenshot fallback only
+- `GEMINI_MODEL`: optional screenshot fallback model
 - `GOOGLE_TIC_TAC_GO_URL`
 - `SOLVER_IMPL`: optional direct `POST /solve` selection; the daily cron uses
   push with Beam/CNN fallback regardless of this setting

@@ -6,7 +6,7 @@ Routes:
   GET  /debug/remote-browser    — dump remote-browser diagnostic info (cron-auth required)
   GET  /debug/screenshot        — capture and return the current puzzle screenshot (cron-auth required)
   POST /solve                   — solve an arbitrary board submitted in the request body
-  POST /jobs/daily-solve        — trigger the daily capture→parse→solve pipeline (cron-auth required)
+  POST /jobs/daily-solve        — resolve the dated board and solve (cron-auth required)
   GET  /solutions/today         — fetch today's stored solution
   GET  /solutions/recent        — list recent solution summaries
   GET  /solutions/{puzzle_date} — fetch the stored solution for a specific date
@@ -25,6 +25,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from apps.api.board_capture import capture_google_board_screenshot, remote_browser_diagnostics
+from apps.api.puzzle_catalog import CatalogError, entry_for_date
 from apps.api.daily_solve import run_daily_solve, utc_puzzle_date
 from apps.api.solution_storage import (
     StorageError,
@@ -154,7 +155,7 @@ def pending_solution(puzzle_date: date) -> SolutionRecord:
     return SolutionRecord(
         puzzle_date=puzzle_date,
         source_url=os.getenv("GOOGLE_TIC_TAC_GO_URL", ""),
-        parser_name="gemini",
+        parser_name="not-run",
         solver_name="bfs",
         board=None,
         moves=None,
@@ -236,6 +237,23 @@ def health() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # Debug endpoints (cron-auth required)
 # ---------------------------------------------------------------------------
+
+@app.get("/debug/catalog/{puzzle_date}", dependencies=[Depends(require_cron_secret)])
+def debug_catalog(puzzle_date: date, response: Response) -> dict[str, object]:
+    """Inspect the authoritative input without solving, capturing, or storing."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        entry, snapshot = entry_for_date(puzzle_date)
+    except CatalogError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "puzzle_date": puzzle_date.isoformat(), "puzzle_title": entry.title,
+        "parser_name": "catalog", "width": entry.width, "height": entry.height,
+        "board": entry.board(), "board_sha256": entry.board_sha256,
+        "source_url": snapshot.source_url, "source_sha256": snapshot.source_sha256,
+        "source_fetched_at": snapshot.fetched_at,
+    }
+
 
 @app.get(
     "/debug/remote-browser",
@@ -338,7 +356,7 @@ def custom_solve(
     dependencies=[Depends(require_cron_secret)],
 )
 def daily_solve_job() -> JobResponse:
-    """Trigger the daily capture → parse → solve pipeline for today's puzzle."""
+    """Resolve today's catalog board, with date-checked Gemini fallback, and solve."""
     try:
         record = run_daily_solve()
     except StorageError as exc:

@@ -1,0 +1,278 @@
+{
+  "board": "20261018",
+  "note": "cProfile changes wall-clock budget outcomes; not ordinary timing evidence. Cumulative times overlap.",
+  "total_seconds": 31.918830124,
+  "total_calls": 202837041,
+  "top_functions": [
+    {
+      "file": "solver/push_solver/portfolio.py",
+      "line": 591,
+      "function": "solve",
+      "primitive_calls": 1,
+      "calls": 1,
+      "own_seconds": 0.064840332,
+      "cumulative_seconds": 32.499853125
+    },
+    {
+      "file": "solver/push_solver/portfolio.py",
+      "line": 482,
+      "function": "solve_v2",
+      "primitive_calls": 1,
+      "calls": 1,
+      "own_seconds": 0.001941542,
+      "cumulative_seconds": 32.434990042
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 632,
+      "function": "_run_strategy",
+      "primitive_calls": 9,
+      "calls": 9,
+      "own_seconds": 0.020801051,
+      "cumulative_seconds": 32.358138542
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 509,
+      "function": "_strategy_children_for",
+      "primitive_calls": 2133,
+      "calls": 2133,
+      "own_seconds": 0.026654996,
+      "cumulative_seconds": 32.241140742
+    },
+    {
+      "file": "solver/push_solver/heuristics.py",
+      "line": 264,
+      "function": "_top_line_plans_for",
+      "primitive_calls": 72985,
+      "calls": 72985,
+      "own_seconds": 0.367809998,
+      "cumulative_seconds": 18.166378247
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 126,
+      "function": "_successors_for",
+      "primitive_calls": 2134,
+      "calls": 2134,
+      "own_seconds": 0.006875891,
+      "cumulative_seconds": 18.142425628
+    },
+    {
+      "file": "solver/push_solver/successors.py",
+      "line": 27,
+      "function": "successors",
+      "primitive_calls": 1408,
+      "calls": 1408,
+      "own_seconds": 0.07586706600000001,
+      "cumulative_seconds": 18.118826727000002
+    },
+    {
+      "file": "solver/push_solver/heuristics.py",
+      "line": 78,
+      "function": "_top_line_plans",
+      "primitive_calls": 21182,
+      "calls": 21182,
+      "own_seconds": 10.403327613,
+      "cumulative_seconds": 17.7471427
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 789,
+      "function": "_run_committed_beam_strategy",
+      "primitive_calls": 2,
+      "calls": 2,
+      "own_seconds": 0.021088598,
+      "cumulative_seconds": 16.576940125
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 279,
+      "function": "_macro_children_for",
+      "primitive_calls": 977,
+      "calls": 977,
+      "own_seconds": 0.018116249,
+      "cumulative_seconds": 12.634107744000001
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 257,
+      "function": "_same_piece_continuation",
+      "primitive_calls": 18810,
+      "calls": 18810,
+      "own_seconds": 0.009655707000000001,
+      "cumulative_seconds": 12.603972937
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 153,
+      "function": "_push_items_for_piece_cell",
+      "primitive_calls": 18810,
+      "calls": 18810,
+      "own_seconds": 0.102003985,
+      "cumulative_seconds": 12.593255893
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 215,
+      "function": "is_deadlock",
+      "primitive_calls": 26192,
+      "calls": 26192,
+      "own_seconds": 0.033202298000000005,
+      "cumulative_seconds": 9.77236514
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 174,
+      "function": "_has_viable_line_under_frozen_constraints",
+      "primitive_calls": 13923,
+      "calls": 13923,
+      "own_seconds": 0.066167296,
+      "cumulative_seconds": 8.041545178
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 138,
+      "function": "_assignment_survives_frozen_constraints",
+      "primitive_calls": 37066,
+      "calls": 37066,
+      "own_seconds": 0.049840196,
+      "cumulative_seconds": 7.6207881330000005
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 102,
+      "function": "_push_reachable_with_permanent_blockers",
+      "primitive_calls": 117199,
+      "calls": 117199,
+      "own_seconds": 4.480296657,
+      "cumulative_seconds": 7.570947937000001
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 113,
+      "function": "_is_deadlock_cached",
+      "primitive_calls": 19169,
+      "calls": 19169,
+      "own_seconds": 0.013890178000000001,
+      "cumulative_seconds": 4.578217313000001
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 55,
+      "function": "frozen_pieces",
+      "primitive_calls": 26188,
+      "calls": 26188,
+      "own_seconds": 0.101598513,
+      "cumulative_seconds": 1.667152355
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 35,
+      "function": "_piece_permanently_frozen",
+      "primitive_calls": 657011,
+      "calls": 657011,
+      "own_seconds": 0.20850280300000001,
+      "cumulative_seconds": 1.544117768
+    },
+    {
+      "file": "solver/push_solver/models.py",
+      "line": 45,
+      "function": "coord",
+      "primitive_calls": 11977316,
+      "calls": 11977316,
+      "own_seconds": 0.9188089850000001,
+      "cumulative_seconds": 1.3828868330000001
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 14,
+      "function": "_direction_permanently_blocked",
+      "primitive_calls": 1941310,
+      "calls": 1941310,
+      "own_seconds": 0.7828384,
+      "cumulative_seconds": 1.335614965
+    },
+    {
+      "file": "solver/push_solver/search.py",
+      "line": 318,
+      "function": "_policy_score_for",
+      "primitive_calls": 14912,
+      "calls": 14912,
+      "own_seconds": 0.027669807,
+      "cumulative_seconds": 1.321681249
+    },
+    {
+      "file": "solver/push_solver/models.py",
+      "line": 39,
+      "function": "in_bounds",
+      "primitive_calls": 22617323,
+      "calls": 22617323,
+      "own_seconds": 1.146893372,
+      "cumulative_seconds": 1.146893372
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 10,
+      "function": "is_x_loss",
+      "primitive_calls": 32895,
+      "calls": 32895,
+      "own_seconds": 0.008811251,
+      "cumulative_seconds": 1.075021062
+    },
+    {
+      "file": "solver/push_solver/heuristics.py",
+      "line": 111,
+      "function": "<genexpr>",
+      "primitive_calls": 11438280,
+      "calls": 11438280,
+      "own_seconds": 1.016792013,
+      "cumulative_seconds": 1.016792013
+    },
+    {
+      "file": "solver/push_solver/deadlocks.py",
+      "line": 11,
+      "function": "<genexpr>",
+      "primitive_calls": 1976603,
+      "calls": 1976603,
+      "own_seconds": 0.538752157,
+      "cumulative_seconds": 0.9711574460000001
+    },
+    {
+      "file": "solver/push_solver/policy_features.py",
+      "line": 62,
+      "function": "features_for_child",
+      "primitive_calls": 9002,
+      "calls": 9002,
+      "own_seconds": 0.13114651300000002,
+      "cumulative_seconds": 0.8431953990000001
+    },
+    {
+      "file": "solver/push_solver/models.py",
+      "line": 42,
+      "function": "index",
+      "primitive_calls": 18855910,
+      "calls": 18855910,
+      "own_seconds": 0.745146748,
+      "cumulative_seconds": 0.745146748
+    },
+    {
+      "file": "solver/push_solver/state.py",
+      "line": 175,
+      "function": "_normalize_with_region",
+      "primitive_calls": 34760,
+      "calls": 34760,
+      "own_seconds": 0.032101808,
+      "cumulative_seconds": 0.476049622
+    },
+    {
+      "file": "solver/push_solver/heuristics.py",
+      "line": 329,
+      "function": "_plan_specific_push_bias",
+      "primitive_calls": 278056,
+      "calls": 278056,
+      "own_seconds": 0.298341868,
+      "cumulative_seconds": 0.458279551
+    }
+  ]
+}

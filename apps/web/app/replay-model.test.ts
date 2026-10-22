@@ -13,6 +13,21 @@ function board(rows: string[]): Cell[][] {
 }
 
 describe("replay model", () => {
+  it("renders catalog borders like screenshot padding and replays the corrected October 21 board", () => {
+    const catalog = board([
+      "BBBBBBBB", "B.X..X.B", "B..X.XXB", "B..BO..B",
+      "BX.OUX.B", "B.X.XX.B", "B.XX...B", "BBBBBBBB",
+    ]);
+    const visible = visibleBoard(catalog);
+    expect(visible).toHaveLength(6);
+    expect(visible[0]).toHaveLength(6);
+    expect(visible[2][2]).toBe("B");
+    const invalid = buildReplayFrames(catalog, "RULUL");
+    expect(invalid.at(-1)?.status).not.toBe("won");
+    const valid = buildReplayFrames(catalog, "UULRDDRDUULULLRRDDRDLUUULLDDRLUURRDRDDLULLUURR");
+    expect(valid.at(-1)?.status).toBe("won");
+  });
+
   it("walks the user piece while preserving its stable id", () => {
     const start = createReplayStart(board(["U..", "...", "..."]));
     const next = applyReplayMove(start, "R");

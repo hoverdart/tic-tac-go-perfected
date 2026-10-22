@@ -1,0 +1,12 @@
+{
+  "targets": 18,
+  "verified_recoveries": 13,
+  "remaining": [
+    "2025-12-12",
+    "2025-12-28",
+    "2026-03-14",
+    "2026-09-13",
+    "2026-10-04"
+  ],
+  "note": "Local sequential coverage runs; quality optimization disabled; no production records updated."
+}

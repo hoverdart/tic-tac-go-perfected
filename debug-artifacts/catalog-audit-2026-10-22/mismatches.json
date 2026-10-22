@@ -1,0 +1,2068 @@
+[
+  {
+    "date": "2026-05-29",
+    "stored_status": "solved",
+    "stored_title": "Mirror",
+    "parser": "gemini",
+    "solver": "bfs",
+    "elapsed_ms": 100.94504099106416,
+    "reported_states": 86,
+    "official_title": "Mirror",
+    "board_sha256": "df92fddc418b254bbc084d3334536d5d9b672d07a7680c659bb9ff528daed580",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "O",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "O",
+        "",
+        "",
+        "X",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "B",
+        "B",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "B",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "U",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "O",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "B",
+        "B",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "",
+        "X",
+        "X"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "X",
+        "B",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "U",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "x_loss:3",
+    "stored_moves": "UUUULULDRDL"
+  },
+  {
+    "date": "2026-06-02",
+    "stored_status": "solved",
+    "stored_title": "Narrow Margin",
+    "parser": "gemini",
+    "solver": "bfs",
+    "elapsed_ms": 281.894082960207,
+    "reported_states": 294,
+    "official_title": "Narrow Margin",
+    "board_sha256": "7785478298b76e52b0fa87a6c1f1d2eabe8c791a646931f9e456679365a7e8ab",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "O",
+        "X",
+        "X",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "U",
+        "X",
+        "",
+        "",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "X",
+        "O",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "U",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "O",
+        "X",
+        "",
+        "X",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "",
+        "B",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "",
+        "O",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "wall:2",
+    "stored_moves": "DRDRRUDLLURLLUUURRDDLRUULDRD"
+  },
+  {
+    "date": "2026-06-24",
+    "stored_status": "solved",
+    "stored_title": "Red Light",
+    "parser": "gemini",
+    "solver": "bfs",
+    "elapsed_ms": 36647.80636500001,
+    "reported_states": 6538,
+    "official_title": "Red Light",
+    "board_sha256": "8814f09701c84d78392edf26c1f70803c2b6cc74260fd8a72d8eaff426920965",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "",
+        "X",
+        "O",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "U",
+        "",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "O",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "",
+        "X",
+        "O",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "",
+        "U",
+        "B",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "O",
+        "",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 3,
+        "col": 5,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "blocked_push:8",
+    "stored_moves": "LULURRRDRDLLLDL"
+  },
+  {
+    "date": "2026-07-28",
+    "stored_status": "solved",
+    "stored_title": "Equilibrium",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 1540.4046869999988,
+    "reported_states": 46,
+    "official_title": "Equilibrium",
+    "board_sha256": "426a961ec50068c960646d1c26d6dbf6e637302ab06f47f6df74887c01b6e37b",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "O",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "O",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "B",
+        "",
+        "",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "U",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "B",
+        "X",
+        "",
+        "O",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "O",
+        "",
+        "X",
+        "B",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "B",
+        "",
+        "",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "",
+        "U",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 2,
+        "col": 2,
+        "stored": "",
+        "official": "B"
+      },
+      {
+        "row": 3,
+        "col": 5,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "blocked_push:5",
+    "stored_moves": "LLUUURUDLLURR"
+  },
+  {
+    "date": "2026-08-11",
+    "stored_status": "solved",
+    "stored_title": "Choke Point",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 4710.314038995421,
+    "reported_states": 99,
+    "official_title": "Choke Point",
+    "board_sha256": "4536cd71d4f9de822745980abd47741e589748760866d6b065829a029fff454f",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "U",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "X",
+        "",
+        "",
+        "O",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "O",
+        "",
+        "X",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "U",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "X",
+        "",
+        "",
+        "O",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "B",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "O",
+        "",
+        "X",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 3,
+        "col": 3,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "wall:8",
+    "stored_moves": "RRRRDLLDDRDDLUURU"
+  },
+  {
+    "date": "2026-09-06",
+    "stored_status": "solved",
+    "stored_title": "Level 2026-09-06",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 10151.451897999998,
+    "reported_states": 181,
+    "official_title": "Not My First Rodeo",
+    "board_sha256": "07ab2dd736b54fda111f9d51de49cd4687d8f936db68aa11958ef1347b9987fc",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "X",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "X",
+        "",
+        "U",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "X"
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "B",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "O",
+        "X"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "official_board": [
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "X",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "X",
+        "",
+        "U",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "B",
+        "",
+        "",
+        "X",
+        "X"
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "B",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "O",
+        "X"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 5,
+        "col": 4,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "wall:1",
+    "stored_moves": "DDDRRDRULLLUUURRRRDLULLDLDDRRRUURULLLUULLULRDRRDDLRUULLLDDUURRRDDLLRRUULLLDLDURURRRDDLLLUL"
+  },
+  {
+    "date": "2026-09-27",
+    "stored_status": "solved",
+    "stored_title": "Scattershot",
+    "parser": "gemini",
+    "solver": "heuristic-CNN",
+    "elapsed_ms": 157836.65708299985,
+    "reported_states": 595,
+    "official_title": "Scattershot",
+    "board_sha256": "fdd1d33344c480acc2ec6273b0dafac7abe8655c901dd4145c7b540f940719c4",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "X",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "U",
+        "B",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "X"
+      ],
+      [
+        "",
+        "",
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "official_board": [
+      [
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "X",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "U",
+        "B",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "X"
+      ],
+      [
+        "",
+        "",
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "X",
+        "",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 7,
+        "col": 6,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "blocked_push:33",
+    "stored_moves": "LRDLLLDDLURURRRRRURULRUULDDDDDRDLLULDRDLL"
+  },
+  {
+    "date": "2026-10-09",
+    "stored_status": "solved",
+    "stored_title": "Home Renovation",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 10144.226279000577,
+    "reported_states": 259,
+    "official_title": "Home Renovation",
+    "board_sha256": "de1033b144524625a8c46825f645ccee43f96d4fd305477ebb0644e3bc85316f",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "O",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "",
+        "B",
+        "B",
+        "",
+        "X"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "U"
+      ],
+      [
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "O",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "official_board": [
+      [
+        "",
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "O",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "",
+        "B",
+        "B",
+        "",
+        "X"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "U"
+      ],
+      [
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "O",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 6,
+        "col": 6,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "wall:12",
+    "stored_moves": "DDDDLLLUUUDRRRUULUULLLRRRDDRDDLLLULRDRRRUULUULLLDDLLUURLDDDDLDDRRRURURRRUULUULLULDDULLDDR"
+  },
+  {
+    "date": "2026-10-14",
+    "stored_status": "solved",
+    "stored_title": "Figure Eight",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 3409.204031002446,
+    "reported_states": 113,
+    "official_title": "Figure Eight",
+    "board_sha256": "8fadae6bfb18cf3742a85324cd2e2f73e08c9ffbcdc277f16f4cc5ff14681be6",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "O",
+        "",
+        "X",
+        "",
+        "O",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "U",
+        "",
+        "",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "O",
+        "B",
+        "X",
+        "",
+        "O",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "U",
+        "",
+        "B",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "X",
+        "",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 3,
+        "col": 2,
+        "stored": "",
+        "official": "B"
+      },
+      {
+        "row": 4,
+        "col": 5,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "blocked_push:13",
+    "stored_moves": "RUULDURRRDLLL"
+  },
+  {
+    "date": "2026-10-17",
+    "stored_status": "unsolved",
+    "stored_title": "Bottleneck",
+    "parser": "gemini",
+    "solver": "heuristic-CNN",
+    "elapsed_ms": 674555.2851640005,
+    "reported_states": 2136,
+    "official_title": "Bottleneck",
+    "board_sha256": "79d0d5835410a2be7f062f771be22014d9d51012f0a7a0a0b0b68dc6f8786c56",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "U",
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "B",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "B",
+        "B",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "B",
+        "B",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "official_board": [
+      [
+        "U",
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "",
+        "B",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "B",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "B",
+        "",
+        "X",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "B",
+        "",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "B",
+        "B",
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 6,
+        "col": 5,
+        "stored": "B",
+        "official": ""
+      },
+      {
+        "row": 7,
+        "col": 5,
+        "stored": "B",
+        "official": ""
+      }
+    ]
+  },
+  {
+    "date": "2026-10-21",
+    "stored_status": "solved",
+    "stored_title": "Too Close For Comfort",
+    "parser": "gemini",
+    "solver": "push-v3",
+    "elapsed_ms": 943.9180800000031,
+    "reported_states": 55,
+    "official_title": "Too Close For Comfort",
+    "board_sha256": "b818c136bb2880012e89f32931fcd134d1be72253b444905ee9a038dda9a5c11",
+    "mismatch": true,
+    "stored_board": [
+      [
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "",
+        "O",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "X",
+        "",
+        "O",
+        "U",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        "",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "official_board": [
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "B",
+        "O",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "X",
+        "",
+        "O",
+        "U",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "",
+        "X",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "",
+        "X",
+        "X",
+        "",
+        "",
+        "",
+        "B"
+      ],
+      [
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    ],
+    "cell_differences": [
+      {
+        "row": 3,
+        "col": 3,
+        "stored": "",
+        "official": "B"
+      }
+    ],
+    "valid_on_stored": true,
+    "valid_on_official": false,
+    "verification_error": "blocked_push:3",
+    "stored_moves": "RULUL"
+  }
+]
