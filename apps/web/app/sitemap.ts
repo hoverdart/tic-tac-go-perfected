@@ -23,11 +23,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   };
 
   const solutionPages = history
-    .filter((solution) => isIsoDate(solution.puzzle_date))
+    .filter((solution) => isIsoDate(solution.puzzle_date) && solution.status !== "pending")
     .map((solution) => ({
       url: new URL(`/solutions/${solution.puzzle_date}`, siteUrl).toString(),
       lastModified: lastModified(solution.puzzle_date),
-      changeFrequency: "never" as const,
+      changeFrequency: "monthly" as const,
       priority: 0.8,
     }));
 
@@ -36,13 +36,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...solutionPages,
     {
       url: new URL("/how-to-solve-tic-tac-go", siteUrl).toString(),
-      lastModified: lastModified(todayIsoDate()),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: new URL("/custom-tic-tac-go-solver", siteUrl).toString(),
-      lastModified: lastModified(todayIsoDate()),
       changeFrequency: "monthly",
       priority: 0.8,
     },

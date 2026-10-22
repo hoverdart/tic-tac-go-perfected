@@ -7,7 +7,7 @@ import { getSolutionByDate } from "../../../solution-data";
 
 export const dynamic = "force-static";
 export const dynamicParams = true;
-export const revalidate = false;
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return [];
@@ -24,7 +24,7 @@ export async function GET(
   }
   return NextResponse.json(solution, {
     headers: {
-      "Cache-Control": "public, max-age=300, s-maxage=31536000, stale-while-revalidate=86400",
+      "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
 }

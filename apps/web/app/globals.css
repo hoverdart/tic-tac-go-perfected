@@ -75,6 +75,25 @@ a:focus-visible {
   animation: scene-in 0.45s ease-out both;
 }
 
+.history-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-block: 12px;
+  font-size: 16px;
+}
+
+.history-resources a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding-block: 10px;
+}
+
+.history-resources a:hover {
+  text-decoration-thickness: 2px;
+}
+
 .game-header {
   display: grid;
   justify-items: center;

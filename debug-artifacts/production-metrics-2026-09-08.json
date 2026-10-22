@@ -1,0 +1,148 @@
+{
+  "all": {
+    "rows": 351,
+    "solved": 348,
+    "timed_solved": 137,
+    "solved_rate": 99.14529914529915,
+    "under30": 110,
+    "median_seconds": 6.675888288,
+    "mean_seconds": 29.79184088897105,
+    "slowest": {
+      "puzzle_date": "2026-08-14",
+      "puzzle_title": "Domino Effect",
+      "status": "solved",
+      "solver_name": "heuristic-CNN",
+      "elapsed_ms": 648170.1785309997,
+      "states_checked": 572,
+      "created_at": "2026-08-14 00:56:36.191539+00:00",
+      "updated_at": "2026-08-14 00:56:36.191539+00:00"
+    },
+    "total_states": 503555,
+    "median_states": 372,
+    "mean_states": 3675.5839416058393,
+    "max_states": 66086
+  },
+  "by_solver": {
+    "bfs": {
+      "rows": 14,
+      "solved": 14,
+      "timed_solved": 14,
+      "solved_rate": 100.0,
+      "under30": 7,
+      "median_seconds": 20.711636446500023,
+      "mean_seconds": 38.42633732599654,
+      "slowest": {
+        "puzzle_date": "2026-06-11",
+        "puzzle_title": "Bypass",
+        "status": "solved",
+        "solver_name": "bfs",
+        "elapsed_ms": 159909.68434000007,
+        "states_checked": 35415,
+        "created_at": "2026-06-11 00:47:29.752267+00:00",
+        "updated_at": "2026-07-01 06:15:01.065181+00:00"
+      },
+      "total_states": 153013,
+      "median_states": 4375.5,
+      "mean_states": 10929.5,
+      "max_states": 35415
+    },
+    "heuristic-CNN": {
+      "rows": 228,
+      "solved": 228,
+      "timed_solved": 17,
+      "solved_rate": 100.0,
+      "under30": 4,
+      "median_seconds": 102.983222945,
+      "mean_seconds": 149.8451370445294,
+      "slowest": {
+        "puzzle_date": "2026-08-14",
+        "puzzle_title": "Domino Effect",
+        "status": "solved",
+        "solver_name": "heuristic-CNN",
+        "elapsed_ms": 648170.1785309997,
+        "states_checked": 572,
+        "created_at": "2026-08-14 00:56:36.191539+00:00",
+        "updated_at": "2026-08-14 00:56:36.191539+00:00"
+      },
+      "total_states": 12051,
+      "median_states": 36,
+      "mean_states": 708.8823529411765,
+      "max_states": 6800
+    },
+    "optimized-hybrid": {
+      "rows": 36,
+      "solved": 36,
+      "timed_solved": 36,
+      "solved_rate": 100.0,
+      "under30": 31,
+      "median_seconds": 2.156815258,
+      "mean_seconds": 11.190342244333333,
+      "slowest": {
+        "puzzle_date": "2025-12-02",
+        "puzzle_title": "Dead End",
+        "status": "solved",
+        "solver_name": "optimized-hybrid",
+        "elapsed_ms": 57479.049001,
+        "states_checked": 66086,
+        "created_at": "2026-06-10 00:28:09.470035+00:00",
+        "updated_at": "2026-06-10 00:28:09.470035+00:00"
+      },
+      "total_states": 236091,
+      "median_states": 1073.0,
+      "mean_states": 6558.083333333333,
+      "max_states": 66086
+    },
+    "push-v2": {
+      "rows": 19,
+      "solved": 19,
+      "timed_solved": 19,
+      "solved_rate": 100.0,
+      "under30": 17,
+      "median_seconds": 9.240451500001654,
+      "mean_seconds": 13.63703139373699,
+      "slowest": {
+        "puzzle_date": "2026-01-17",
+        "puzzle_title": "Plugged Up",
+        "status": "solved",
+        "solver_name": "push-v2",
+        "elapsed_ms": 58028.26525000273,
+        "states_checked": 20317,
+        "created_at": "2026-07-01 05:31:54.507194+00:00",
+        "updated_at": "2026-07-16 04:46:49.774994+00:00"
+      },
+      "total_states": 67076,
+      "median_states": 1386,
+      "mean_states": 3530.315789473684,
+      "max_states": 20317
+    },
+    "push-v3": {
+      "rows": 54,
+      "solved": 51,
+      "timed_solved": 51,
+      "solved_rate": 94.44444444444444,
+      "under30": 51,
+      "median_seconds": 5.076855028000004,
+      "mean_seconds": 6.552749650805477,
+      "slowest": {
+        "puzzle_date": "2026-08-23",
+        "puzzle_title": "Spill the Beans",
+        "status": "solved",
+        "solver_name": "push-v3",
+        "elapsed_ms": 24227.042755000184,
+        "states_checked": 661,
+        "created_at": "2026-08-23 00:28:34.580804+00:00",
+        "updated_at": "2026-08-23 00:28:34.580804+00:00"
+      },
+      "total_states": 35324,
+      "median_states": 281,
+      "mean_states": 692.6274509803922,
+      "max_states": 11902
+    }
+  },
+  "status_counts": {
+    "solved": 348,
+    "unsolved": 3
+  },
+  "date_min": "2025-01-01",
+  "date_max": "2026-09-09"
+}

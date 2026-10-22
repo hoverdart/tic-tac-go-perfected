@@ -1,6 +1,8 @@
 # Tic Tac Go Perfected
 
-Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a 3-in-a-row configuration with a web frontend and FastAPI backend. Uses BFS/A* for smaller boards and beam search combined with a behavioral cloning CNN trained on 15,000+ board/move pairs for complex 8x8 configurations, selecting the appropriate algorithm based on board size and complexity. Achieves 93% solve rate across 334 real game boards.
+Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a 3-in-a-row configuration, with a Next.js frontend and FastAPI backend. The daily pipeline runs Push Solver V3 first, then heuristic/CNN beam search when needed, and independently verifies returned paths.
+
+The September 8, 2026 production audit found **348 daily boards marked solved out of 351 stored (99.15%)**. The 51 successful records attributed to push-v3 all had recorded times below 30 seconds, with a **5.08-second median**. These are historical stored outcomes, not an attempt-level benchmark or proof that captures matched the official boards; 211 other solved records have no timing measurements. An October 22 comparison subsequently found ten stored solutions that fail against Google's current official layouts. See the [metrics and indexing audit](docs/audits/project-metrics-and-indexing-2026-09-08.md) for definitions, limitations, and evidence.
 
 ## Project Layout
 

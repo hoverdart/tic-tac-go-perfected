@@ -58,7 +58,7 @@ describe("SEO metadata routes", () => {
       "https://api.example.com/solutions/recent?limit=10000",
       {
         cache: "force-cache",
-        next: { tags: ["solutions:history"] },
+        next: { tags: ["solutions:history"], revalidate: 3600 },
       },
     );
     expect(dynamic).toBe("force-dynamic");
@@ -73,5 +73,23 @@ describe("SEO metadata routes", () => {
     expect(entries[1]?.lastModified).toEqual(
       new Date("2026-07-15T00:00:00Z"),
     );
+  });
+
+  it("does not publish pending or invalid pages, or fake daily guide updates", async () => {
+    vi.stubEnv("API_BASE_URL", "https://api.example.com");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify([
+      { puzzle_date: "2026-07-15", status: "pending", puzzle_title: null },
+      { puzzle_date: "2026-02-30", status: "solved", puzzle_title: null },
+      { puzzle_date: "2026-07-14", status: "unsolved", puzzle_title: "Still trying" },
+    ]))));
+    const entries = await sitemap();
+    expect(entries.filter((entry) => entry.url.includes("/solutions/"))).toHaveLength(1);
+    expect(entries.find((entry) => entry.url.endsWith("how-to-solve-tic-tac-go"))?.lastModified).toBeUndefined();
+  });
+
+  it("fails on backend outage instead of advertising an empty archive", async () => {
+    vi.stubEnv("API_BASE_URL", "https://api.example.com");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("Unavailable", { status: 503 })));
+    await expect(sitemap()).rejects.toThrow("503");
   });
 });

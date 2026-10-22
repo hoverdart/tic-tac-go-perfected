@@ -1,0 +1,48 @@
+{
+  "baseline_keystrokes": 335,
+  "beam_accuracy": 0.0,
+  "beam_accuracy_percent": 0.0,
+  "beam_failed": [
+    "20251207",
+    "20260215",
+    "20260523",
+    "20260524",
+    "20260614"
+  ],
+  "beam_only": [],
+  "beam_only_count": 0,
+  "beam_solved": 0,
+  "both_failed": [
+    "20260215",
+    "20260523",
+    "20260524"
+  ],
+  "both_failed_count": 3,
+  "both_solved": 0,
+  "combined_accuracy": 0.4,
+  "combined_accuracy_percent": 40.0,
+  "combined_failed": [
+    "20260215",
+    "20260523",
+    "20260524"
+  ],
+  "combined_solved": 2,
+  "final_keystrokes": 335,
+  "keystrokes_saved": 0,
+  "push_accuracy": 0.4,
+  "push_accuracy_percent": 40.0,
+  "push_failed": [
+    "20260215",
+    "20260523",
+    "20260524"
+  ],
+  "push_only": [
+    "20251207",
+    "20260614"
+  ],
+  "push_only_count": 2,
+  "push_solved": 2,
+  "quality_eligible": 2,
+  "quality_improved": 0,
+  "total": 5
+}

@@ -74,6 +74,10 @@ export function HistoryCarousel({
           </Link>
         )}
       </div>
+      <div className="history-resources">
+        <Link href="/how-to-solve-tic-tac-go">Learn solving strategies</Link>
+        <Link href="/custom-tic-tac-go-solver">Solve your own board</Link>
+      </div>
       {history.length > 0 && (
         <div className="history-scroll">
           {history.map((entry) => {

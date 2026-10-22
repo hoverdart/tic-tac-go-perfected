@@ -1,0 +1,6 @@
+board_id,title,push_solved,push_verified,push_strategy,push_moves,push_baseline_moves,push_quality_improved,push_quality_nodes,push_nodes,push_elapsed_ms,push_failure_reason,beam_solved,beam_verified,beam_moves,beam_states,beam_elapsed_ms,beam_failure_reason,combined_solved,combined_solver,combined_elapsed_ms
+20251207,Thread the Needle,True,True,committed_beam_recovery,152,152,False,0,2569,16003.5,,False,False,,,,,True,push,16003.5
+20260215,Full Steam Ahead,False,False,,,,False,0,19772,30088.1,timeout,False,False,,,,,False,,30088.1
+20260523,Anchor,False,False,,,,False,0,4467,30116.7,timeout,False,False,,,,,False,,30116.7
+20260524,Gears,False,False,,,,False,0,2080,31997.7,timeout,False,False,,,,,False,,31997.7
+20260614,Yellow Light,True,True,policy_rank_discrepancy,183,183,False,0,1526,26145.9,,False,False,,,,,True,push,26145.9

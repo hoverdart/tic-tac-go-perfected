@@ -114,48 +114,69 @@ export async function getTodaySolution(): Promise<{
 }
 
 export async function getSolutionByDate(date: string): Promise<SolutionRecord | null> {
+  if (!isIsoDate(date)) return null;
   const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) {
-    return unavailableSolution(date, "Backend URL is not configured.");
+    throw new Error("Solution service is not configured.");
   }
 
-  try {
-    const response = await fetch(`${apiBaseUrl}/solutions/${date}`, {
-      cache: "force-cache",
-      next: { tags: [solutionDateCacheTag(date)] },
-    });
-    if (!response.ok) return null;
-    const solution: SolutionRecord = await response.json();
-    if (solution.status === "pending" && date !== todayIsoDate()) return null;
-    return solution;
-  } catch (error) {
-    return unavailableSolution(
-      date,
-      error instanceof Error ? error.message : "Could not reach backend.",
-    );
+  // Only a genuinely missing puzzle may become a cached 404/noindex page.
+  // Throw on outages so ISR retains a previous good page and retries later.
+  const response = await fetch(`${apiBaseUrl}/solutions/${date}`, {
+    cache: "force-cache",
+    next: { tags: [solutionDateCacheTag(date)], revalidate: 3600 },
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Solution service returned ${response.status}.`);
   }
+  const solution: SolutionRecord = await response.json();
+  if (solution.puzzle_date !== date) throw new Error("Solution date mismatch.");
+  if (solution.status === "pending" && date !== todayIsoDate()) return null;
+  return solution;
 }
 
-async function getHistory(limit: number): Promise<HistoryEntry[]> {
+async function getHistory(limit: number, required = false): Promise<HistoryEntry[]> {
   const apiBaseUrl = getBackendBaseUrl();
-  if (!apiBaseUrl) return [];
+  if (!apiBaseUrl) {
+    if (required) throw new Error("Solution service is not configured.");
+    return [];
+  }
 
   try {
     const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=${limit}`, {
       cache: "force-cache",
-      next: { tags: [SOLUTION_HISTORY_CACHE_TAG] },
+      next: { tags: [SOLUTION_HISTORY_CACHE_TAG], revalidate: 3600 },
     });
-    if (!response.ok) return [];
+    if (!response.ok) throw new Error(`Solution history returned ${response.status}.`);
     return await response.json();
-  } catch {
+  } catch (error) {
+    if (required) throw error;
     return [];
   }
 }
 
 export function getFullHistory(): Promise<HistoryEntry[]> {
-  return getHistory(365);
+  return getHistory(10_000);
 }
 
 export function getSitemapHistory(): Promise<HistoryEntry[]> {
-  return getHistory(10_000);
+  // Never publish an almost-empty sitemap during a temporary backend outage.
+  return getHistory(10_000, true);
+}
+
+export function nearbyHistory(history: HistoryEntry[], date: string): HistoryEntry[] {
+  const sorted = history.filter((entry) => isIsoDate(entry.puzzle_date))
+    .sort((a, b) => b.puzzle_date.localeCompare(a.puzzle_date));
+  const index = sorted.findIndex((entry) => entry.puzzle_date <= date);
+  const start = Math.min(
+    Math.max(0, sorted.length - 15),
+    Math.max(0, (index < 0 ? sorted.length : index) - 7),
+  );
+  return sorted.slice(start, start + 15);
+}
+
+export async function getNearbyHistory(date: string): Promise<HistoryEntry[]> {
+  // Navigation is optional: an archive outage must not hide an available solve.
+  return nearbyHistory(await getFullHistory(), date);
 }

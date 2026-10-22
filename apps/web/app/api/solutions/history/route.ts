@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
-import { getFullHistory } from "../../../solution-data";
+import { getSitemapHistory } from "../../../solution-data";
 
 export const dynamic = "force-static";
-export const revalidate = false;
+export const revalidate = 3600;
 
 export async function GET() {
-  const history = await getFullHistory();
+  // A failed refresh must retain the previous archive, not cache an empty one.
+  const history = await getSitemapHistory();
   return NextResponse.json(history, {
     headers: {
-      "Cache-Control": "public, max-age=300, s-maxage=86400, stale-while-revalidate=86400",
+      "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
 }
