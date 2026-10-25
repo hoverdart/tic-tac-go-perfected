@@ -209,6 +209,26 @@ def run_migrations() -> None:
         )
         conn.execute(
             """
+            CREATE TABLE IF NOT EXISTS daily_solve_runs (
+                run_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                puzzle_date date NOT NULL,
+                solver_version text NOT NULL,
+                board_sha256 text,
+                started_at timestamptz NOT NULL DEFAULT now(),
+                finished_at timestamptz,
+                status text NOT NULL DEFAULT 'running'
+                    CHECK (status IN ('running', 'solved', 'unsolved', 'failed')),
+                diagnostics jsonb NOT NULL DEFAULT '{}'::jsonb,
+                error_message text
+            )
+            """
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS daily_solve_runs_date_started_idx "
+            "ON daily_solve_runs (puzzle_date, started_at DESC)"
+        )
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS custom_solve_cache (
                 board_hash text PRIMARY KEY,
                 result jsonb NOT NULL,
@@ -237,7 +257,50 @@ def init_db() -> None:
     run_migrations()
 
 
-def upsert_solution(record: dict[str, Any], *, preserve_solved: bool = False) -> dict[str, Any]:
+def begin_daily_solve_run(puzzle_date: date, solver_version: str) -> int:
+    """Commit the receipt before any network or search work begins."""
+    with _connect() as conn:
+        row = conn.execute(
+            "INSERT INTO daily_solve_runs (puzzle_date, solver_version) "
+            "VALUES (%s, %s) RETURNING run_id",
+            (puzzle_date, solver_version),
+        ).fetchone()
+    return int(row["run_id"])
+
+
+def finish_daily_solve_run(
+    run_id: int,
+    *,
+    status: str,
+    diagnostics: dict,
+    board_sha256: str | None = None,
+    error_message: str | None = None,
+) -> None:
+    if status not in {"solved", "unsolved", "failed"}:
+        raise ValueError("Invalid terminal solver run status")
+    with _connect() as conn:
+        row = conn.execute(
+            "UPDATE daily_solve_runs SET status=%s, finished_at=now(), diagnostics=%s, "
+            "board_sha256=%s, error_message=%s WHERE run_id=%s AND status='running' RETURNING run_id",
+            (status, _json(diagnostics), board_sha256, error_message, run_id),
+        ).fetchone()
+    if row is None:
+        raise StorageError("Solver run is missing or already terminal.")
+
+
+def list_daily_solve_runs(puzzle_date: date, limit: int = 20) -> list[dict[str, Any]]:
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM daily_solve_runs WHERE puzzle_date=%s "
+            "ORDER BY started_at DESC, run_id DESC LIMIT %s",
+            (puzzle_date, min(100, max(1, limit))),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def upsert_solution(
+    record: dict[str, Any], *, preserve_solved: bool = False
+) -> dict[str, Any]:
     """Insert or replace a daily solution record, returning the stored row.
 
     Daily jobs set preserve_solved so an unsuccessful retry cannot replace a
@@ -422,7 +485,9 @@ def get_solution(puzzle_date: date) -> dict[str, Any] | None:
         ).fetchone()
         result = dict(row) if row else None
     _cache_set(cache_key, result)
-    logger.info("storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None)
+    logger.info(
+        "storage.get.done puzzle_date=%s found=%s", puzzle_date, row is not None
+    )
     return result
 
 

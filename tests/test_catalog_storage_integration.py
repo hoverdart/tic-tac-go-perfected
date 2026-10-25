@@ -36,7 +36,7 @@ class CatalogStorageIntegrationTest(unittest.TestCase):
 
     def setUp(self):
         with storage._connect() as conn:
-            conn.execute("TRUNCATE daily_solutions")
+            conn.execute("TRUNCATE daily_solutions, daily_solve_runs")
 
     def record(self, status="solved"):
         return {"puzzle_date": date(2026, 10, 21), "source_url": "https://www.gstatic.com/test-bundle",
@@ -65,6 +65,22 @@ class CatalogStorageIntegrationTest(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=5) as pool:
             list(pool.map(lambda row: storage.upsert_solution(row, preserve_solved=True), records))
         self.assertEqual(storage.get_solution(date(2026, 10, 21))["status"], "solved")
+
+    def test_retry_ledger_is_independent_and_terminal_receipts_are_immutable(self):
+        original = storage.upsert_solution(self.record())
+        run = storage.begin_daily_solve_run(date(2026,10,21), "v4")
+        # Another connection sees the committed receipt while search has not run.
+        self.assertEqual(storage.list_daily_solve_runs(date(2026,10,21))[0]["status"], "running")
+        retained = storage.upsert_solution(self.record("unsolved"), preserve_solved=True)
+        storage.finish_daily_solve_run(run, status="unsolved", board_sha256="hash",
+            diagnostics={"push_expanded_nodes":500000,"fallback_reported_transitions":12})
+        receipt = storage.list_daily_solve_runs(date(2026,10,21))[0]
+        self.assertEqual(retained,original)
+        self.assertEqual(receipt["status"], "unsolved")
+        self.assertEqual(receipt["diagnostics"]["push_expanded_nodes"], 500000)
+        self.assertIsNotNone(receipt["finished_at"])
+        with self.assertRaises(storage.StorageError):
+            storage.finish_daily_solve_run(run, status="solved", diagnostics={})
 
 
 if __name__ == "__main__":

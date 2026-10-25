@@ -24,6 +24,7 @@ class DailyBoardInput:
     puzzle_title: str | None
     parser_name: str
     source_url: str
+    board_sha256: str | None = None
 
 
 def resolve_daily_board(puzzle_date: date) -> DailyBoardInput:
@@ -34,7 +35,7 @@ def resolve_daily_board(puzzle_date: date) -> DailyBoardInput:
     else:
         logger.info("parse.catalog_ok date=%s board_sha256=%s source_sha256=%s",
                     puzzle_date, entry.board_sha256, snapshot.source_sha256)
-        return DailyBoardInput(entry.board(), entry.title, "catalog", snapshot.source_url)
+        return DailyBoardInput(entry.board(), entry.title, "catalog", snapshot.source_url, entry.board_sha256)
 
     # The live game may display another date near midnight, or when a historical
     # run was requested. Never relabel that screenshot as the requested puzzle.

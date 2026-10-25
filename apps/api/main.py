@@ -13,11 +13,13 @@ Routes:
 """
 
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 import os
 import logging
 import re
 from datetime import date
 from typing import Literal
+from threading import Lock
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,11 +36,11 @@ from apps.api.solution_storage import (
     get_cached_custom_solution,
     get_solution,
     list_recent_solutions,
+    list_daily_solve_runs,
     reserve_custom_solve,
     run_migrations,
 )
 from apps.api.puzzle_titles import (
-    clean_puzzle_title,
     normalize_official_title,
     official_level_label,
     title_from_past_days,
@@ -204,11 +206,71 @@ app = FastAPI(title="Tic Tac Go Solver API", lifespan=lifespan)
 logger = logging.getLogger("tic_tac_go.api")
 
 PUBLIC_CACHE_CONTROL = "public, max-age=60, s-maxage=300, stale-while-revalidate=300"
+_benchmark_lock = Lock()
+
+
+class PushBenchmarkRequest(BaseModel):
+    version: Literal["v3", "v4"] = "v4"
+    timeout_seconds: float = Field(default=30, gt=0, le=30)
+    max_nodes: int = Field(default=500_000, gt=0, le=500_000)
+    schedule: Literal["rank", "uniform", "weighted"] = "rank"
+
+
+@app.post(
+    "/debug/push-benchmark/{puzzle_date}", dependencies=[Depends(require_cron_secret)]
+)
+def debug_push_benchmark(
+    puzzle_date: date, request: PushBenchmarkRequest, response: Response
+):
+    """Read-only search receipt: no fallback or write; V4 never uses exact hints."""
+    from solver.push_solver import solve_v3, solve_v4, verify_solution
+    from solver.push_solver.benchmark_v4 import provenance
+
+    response.headers["Cache-Control"] = "no-store"
+    if not _benchmark_lock.acquire(blocking=False):
+        raise HTTPException(
+            status_code=409, detail="Another benchmark is running in this process."
+        )
+    try:
+        try:
+            entry, _ = entry_for_date(puzzle_date)
+        except CatalogError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        kwargs = dict(
+            timeout_seconds=request.timeout_seconds,
+            max_nodes=request.max_nodes,
+            quality_timeout_seconds=0,
+        )
+        if request.version == "v4":
+            kwargs["schedule"] = request.schedule
+        result = (solve_v4 if request.version == "v4" else solve_v3)(
+            entry.board(), **kwargs
+        )
+        return {
+            "puzzle_date": puzzle_date,
+            "board_sha256": entry.board_sha256,
+            "version": request.version,
+            "verified": bool(
+                result.solved and verify_solution(entry.board(), result.moves).ok
+            ),
+            "result": asdict(result),
+            "provenance": provenance(),
+            "revision": os.getenv("K_REVISION"),
+        }
+    finally:
+        _benchmark_lock.release()
+
+
+@app.get("/debug/solve-runs/{puzzle_date}", dependencies=[Depends(require_cron_secret)])
+def debug_solve_runs(puzzle_date: date, response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return {"puzzle_date": puzzle_date, "runs": list_daily_solve_runs(puzzle_date)}
 
 
 def enable_public_cache(response: Response) -> None:
     """Allow browsers and shared proxies to briefly cache public solution reads."""
     response.headers["Cache-Control"] = PUBLIC_CACHE_CONTROL
+
 
 allowed_origins = [
     origin.strip()
@@ -229,6 +291,7 @@ app.add_middleware(
 # Health
 # ---------------------------------------------------------------------------
 
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -237,6 +300,7 @@ def health() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 # Debug endpoints (cron-auth required)
 # ---------------------------------------------------------------------------
+
 
 @app.get("/debug/catalog/{puzzle_date}", dependencies=[Depends(require_cron_secret)])
 def debug_catalog(puzzle_date: date, response: Response) -> dict[str, object]:
@@ -247,10 +311,15 @@ def debug_catalog(puzzle_date: date, response: Response) -> dict[str, object]:
     except CatalogError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {
-        "puzzle_date": puzzle_date.isoformat(), "puzzle_title": entry.title,
-        "parser_name": "catalog", "width": entry.width, "height": entry.height,
-        "board": entry.board(), "board_sha256": entry.board_sha256,
-        "source_url": snapshot.source_url, "source_sha256": snapshot.source_sha256,
+        "puzzle_date": puzzle_date.isoformat(),
+        "puzzle_title": entry.title,
+        "parser_name": "catalog",
+        "width": entry.width,
+        "height": entry.height,
+        "board": entry.board(),
+        "board_sha256": entry.board_sha256,
+        "source_url": snapshot.source_url,
+        "source_sha256": snapshot.source_sha256,
         "source_fetched_at": snapshot.fetched_at,
     }
 
@@ -274,7 +343,9 @@ def debug_screenshot() -> FileResponse:
         result = capture_google_board_screenshot()
     except Exception as exc:
         logger.exception("debug_screenshot.failed")
-        raise HTTPException(status_code=500, detail=f"Screenshot capture failed: {exc}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Screenshot capture failed: {exc}"
+        ) from exc
 
     return FileResponse(
         result.screenshot_path,
@@ -288,9 +359,12 @@ def debug_screenshot() -> FileResponse:
 # Solver endpoint (not public)
 # ---------------------------------------------------------------------------
 
-@app.post("/solve", 
-          response_model=SolveResponse,
-          dependencies=[Depends(require_cron_secret)],)
+
+@app.post(
+    "/solve",
+    response_model=SolveResponse,
+    dependencies=[Depends(require_cron_secret)],
+)
 def solve(request: SolveRequest) -> SolveResponse:
     """Solve a board submitted directly in the request body."""
     try:
@@ -313,14 +387,18 @@ def custom_solve(
     """Run the bounded custom-board solver for the authenticated web proxy."""
     client_hash = x_custom_solver_client_hash or ""
     if not re.fullmatch(r"[a-f0-9]{64}", client_hash):
-        raise HTTPException(status_code=400, detail="Missing or invalid custom solver client identity.")
+        raise HTTPException(
+            status_code=400, detail="Missing or invalid custom solver client identity."
+        )
 
     import hashlib
     import json
 
     # Stable JSON avoids cache fragmentation from equivalent request formatting.
     board_hash = hashlib.sha256(
-        json.dumps(request.board, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+        json.dumps(request.board, separators=(",", ":"), ensure_ascii=True).encode(
+            "utf-8"
+        )
     ).hexdigest()
     try:
         cached = get_cached_custom_solution(board_hash)
@@ -350,6 +428,7 @@ def custom_solve(
 # Cron job endpoint (cron-auth required)
 # ---------------------------------------------------------------------------
 
+
 @app.post(
     "/jobs/daily-solve",
     response_model=JobResponse,
@@ -363,7 +442,9 @@ def daily_solve_job() -> JobResponse:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:
         logger.exception("daily_solve_job.unhandled")
-        raise HTTPException(status_code=500, detail=f"Daily solve failed: {exc}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"Daily solve failed: {exc}"
+        ) from exc
 
     return JobResponse(**record)
 
@@ -371,6 +452,7 @@ def daily_solve_job() -> JobResponse:
 # ---------------------------------------------------------------------------
 # Solution read endpoints (public)
 # ---------------------------------------------------------------------------
+
 
 @app.get("/solutions/today", response_model=SolutionRecord)
 def today_solution(response: Response) -> SolutionRecord:

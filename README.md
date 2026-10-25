@@ -15,6 +15,18 @@ The September 8, 2026 production audit found **348 daily boards marked solved ou
 - [Catalog ingestion and V4 evidence](docs/audits/catalog-ingestion-and-v4-data-2026-10-22.md):
   input contract, archive mismatches, verified recovery paths, and reproducible benchmarks.
 
+## Experimental push solver V4
+
+Daily jobs accept `DAILY_PUSH_SOLVER_VERSION=v3|v4` (default `v3`). V4 is
+experimental; custom/direct routing is unchanged. The push budget remains
+30 seconds / 500,000 nodes, followed by the existing Beam/CNN fallback.
+
+Implementation, reproducible corpus benchmarks, and the release gates are in
+[the V4 evidence report](docs/audits/push-solver-v4-2026-10-25.md). Authenticated
+`POST /debug/push-benchmark/{date}` runs a read-only push benchmark, and
+`GET /debug/solve-runs/{date}` reads retry diagnostics. Neither endpoint repairs
+archive records or changes the daily selector.
+
 ## Local Development
 
 ### Solver

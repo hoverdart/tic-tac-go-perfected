@@ -1,0 +1,120 @@
+# Push Solver V4 implementation and release evidence
+
+V4 is experimental. `DAILY_PUSH_SOLVER_VERSION` still defaults to `v3`; direct
+and custom solving retain their existing routing. Neither archive replacements
+nor a V4 daily cutover is authorized by the evidence below.
+
+## Inputs and reference
+
+The immutable [corpus](../../debug-artifacts/v4-2026-10-25/catalog.jsonl) contains
+397 official boards through October 25, with date and catalog SHA-256 identity.
+The catalog source receipt is alongside it. Original historical verified paths
+and parser-repair paths remain in `debug-artifacts/catalog-audit-2026-10-22/`;
+they are separate evidence, not search results for V4.
+
+The fresh sequential V3 baseline independently verified **390/397** boards with
+30 seconds / 500,000 nodes, quality search disabled for the coverage comparison.
+V3's search, geometry, pruning, optimizer, and verifier code are unchanged from
+`82dd036`. The optional diagnostics field does not affect V3 execution. See
+`v3-baseline.jsonl` and `v3-baseline.metadata.json` in the new artifact directory.
+Some later reference measurements ran alongside independent research processes
+on this 16-core host; these are local coverage measurements, not isolated
+runtime or deployment-equivalence claims.
+
+V3 failed December 12/28, February 15, March 14, May 24, September 13, and
+October 4. This fresh measured reference is distinct from the nine dates with
+unsolved production records.
+
+## Implementation
+
+- `solver/push_solver/v4.py`: integer-mask occupancy, reachability, line and route
+  intersections; cached reverse-push maps keyed by permanent blockers and target;
+  bounded invocation-local caches; lazy O-assignment geometry; complete short
+  plan caching; incremental X-loss checks; all O pairs and OOO wins.
+- Four generator sessions retain frontier, immutable reconstruction links,
+  independent dominance tables, and unfinished successor generation. The default
+  allocation is rank-discrepancy, weighted, macro, committed beam at 4:2:1:1.
+  A slice yields at 250 milliseconds or 128 expansions. Uniform and weighted-heavy
+  alternatives are explicit benchmark options.
+- The absolute deadline covers preprocessing, search, reconstruction, replay, and
+  optional keystroke improvement. Search stops 250 milliseconds early for the
+  final reconstruction/replay window. Quality search uses V3's exact-player
+  keystroke objective through cooperative V4 successors and shares the total node
+  budget. A verified incumbent survives interrupted or failed quality search.
+- Up to three deterministic wall-only routes, at most shortest+2 pushes, inform
+  congestion ordering. Primitive pushes remain available in the three unfiltered
+  searches. Committed beam has its own relevance/escape band and soft novelty
+  penalties; these do not prune another strategy's frontier.
+- `solve_v3` is an explicit reference alias. `solve_v4` has matching budget and
+  quality arguments; extra experimental options select schedules, individual
+  strategies, route count, and an offline feature-only candidate. V4 never calls
+  the exact-action hint policy. The replay verifier is unchanged.
+- Daily results retain optional internal diagnostics. `daily_solve_runs` commits
+  a receipt before parsing/search and a terminal receipt afterward; no database
+  transaction spans network access or solving. Protected solved rows can remain
+  solved while a retry's own receipt records unsolved/failed. Terminal receipts
+  cannot be overwritten. Push expansions/quality expansions and fallback replay
+  transitions have separate counters. The legacy public count remains compatible.
+- Authenticated `POST /debug/push-benchmark/{date}` executes push search without
+  fallback or persistence. `GET /debug/solve-runs/{date}` reads attempt receipts.
+  Search receipts include source/model fingerprints, CPU/wall time, limits,
+  per-strategy counters/frontiers, cache measurements, and runtime memory/quotas.
+
+## First milestone and experiments
+
+The initial corrected V4 implementation solved Bubble Wrap locally in 1.75s
+(portfolio) / 1.15s (rank alone), versus the earlier unchanged-V3 measurements of
+22.2s (portfolio) / 4.7s (rank alone). All paths passed the independent verifier.
+These comparisons are local measurements from separate runs.
+
+An initial one-CPU, 512 MiB Linux amd64 container using the repository Dockerfile
+completed ten fresh-process and ten warm-process Bubble Wrap runs in roughly
+2.6–2.8 seconds each. One V3 run in the same constrained image failed after
+32.4 seconds externally measured. These limits have not yet been established as
+the deployed service's limits. This experiment does not prove the cause of the
+October 25 production failure. Container receipts pin the source used at build
+time; later experimental engine changes require new release receipts.
+
+Initial V4 production-target coverage was **4/9**: September 11 and October
+17/18/25. The five persistent hard targets still failed at the daily budget.
+The initial full-corpus run found losses against V3, including committed-beam
+recovery cases. Commitment scoring and novelty handling were subsequently
+corrected; both initial and corrected corpus evidence are retained separately.
+
+Offline sweeps use 300 seconds / 5 million nodes per strategy and stop a board
+when a verified path appears. These are research limits only. Sweeps for separate
+boards may run on separate host cores; they cannot establish production timing.
+No saved path is loaded as a search hint by V4.
+
+`train_v4_candidate.py` reuses the existing supervised exporter and pairwise
+trainer. Original board identity (including rotations/reflections) determines
+splits. The nine targets are development data. The candidate stays in the artifact
+directory, has no exact-action keys, and is never selected by the daily pipeline.
+The first candidate's held-out *action-ranking* accuracy was 440/1071 (41.1%);
+that is not held-out search coverage or evidence of unseen-board generalization.
+
+## Reproduction and release gates
+
+```sh
+.venv/bin/python -m solver.push_solver.benchmark_v4 \
+  --version v3 --output /tmp/v3.jsonl
+.venv/bin/python -m solver.push_solver.benchmark_v4 \
+  --output /tmp/v4.jsonl --gate-v3 /tmp/v3.jsonl
+.venv/bin/python -m solver.push_solver.benchmark_v4 \
+  --targets --schedule uniform --output /tmp/uniform.jsonl
+.venv/bin/python -m solver.push_solver.benchmark_v4 \
+  --targets --schedule weighted --output /tmp/weighted.jsonl
+.venv/bin/python -m solver.push_solver.benchmark_v4 \
+  --sweep --fresh-process --ids 20251212 --output /tmp/research.jsonl
+```
+
+`gate()` fails on missing boards, mismatched identities, time/node overruns,
+exact-action hints, any lost V3 solution, or an unsolved mandatory target.
+`repetition_gate()` requires all 180 target receipts (nine boards × ten fresh
+processes and ten warm runs). Container/deployment equivalence and hosted tests
+are additional gates, not inferred from a local Python pass.
+
+The complete 180-run matrix, daily selector switch, and archive replacements
+remain gated on full target/corpus coverage. No fallback success or longer
+research solve can satisfy the daily push gate. Once all gates pass, archive
+repairs must preserve prior records and invalidate the affected page caches.

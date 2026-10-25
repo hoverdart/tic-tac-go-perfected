@@ -16,6 +16,9 @@ from __future__ import annotations
 
 import os
 import time
+from dataclasses import asdict
+from hashlib import sha256
+from pathlib import Path
 from typing import Any
 
 from solver.board_utils import board_dimensions, normalize_board, to_wire_board
@@ -172,6 +175,13 @@ def _run_heuristic_cnn_solver(
     return heuristic_cnn_solver.solve(board)
 
 
+def daily_push_version() -> str:
+    version = os.getenv("DAILY_PUSH_SOLVER_VERSION", "v3").strip().lower()
+    if version not in {"v3", "v4"}:
+        raise SolverError("DAILY_PUSH_SOLVER_VERSION must be v3 or v4.")
+    return version
+
+
 def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
     """Run the production daily portfolio: push first, then Beam/CNN fallback."""
     try:
@@ -180,7 +190,15 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
         raise SolverError(str(exc)) from exc
 
     start_time = time.perf_counter()
-    push_result = _run_push_solver(
+    version = daily_push_version()
+    if version == "v4":
+        from solver.push_solver import solve_v4
+
+        runner = solve_v4
+    else:
+        runner = _run_push_solver
+    push_started = time.perf_counter()
+    push_result = runner(
         start_board,
         max_nodes=DAILY_PUSH_MAX_NODES,
         timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS,
@@ -189,13 +207,54 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
     moves = push_result.moves
     final_board = push_result.final_board
     states_checked = push_result.nodes_expanded
-    solver_name = "push-v3"
+    solver_name = f"push-{version}"
+    diagnostics = {
+        "push_version": version,
+        "push_expanded_nodes": push_result.nodes_expanded,
+        "push_wall_ms": (time.perf_counter() - push_started) * 1000,
+        "push_attempts": [
+            asdict(attempt) for attempt in getattr(push_result, "attempts", ())
+        ],
+        "push_diagnostics": getattr(push_result, "diagnostics", None),
+        "fallback_reported_transitions": 0,
+        "push_quality_expanded_nodes": getattr(
+            push_result, "quality_nodes_expanded", 0
+        ),
+        "limits": {
+            "push_seconds": DAILY_PUSH_TIMEOUT_SECONDS,
+            "push_nodes": DAILY_PUSH_MAX_NODES,
+        },
+    }
+    from solver.push_solver.benchmark_v4 import provenance
+
+    environment = provenance()
+    diagnostics["runtime"] = environment["runtime"]
+    diagnostics["source_hashes"] = environment["sources"]
+    diagnostics["model_hashes"] = environment["models"] if version == "v3" else {}
 
     if moves is None:
-        fallback_moves, _fallback_board, fallback_states = _run_heuristic_cnn_solver(
-            start_board
+        model_path = Path(__file__).with_name("small_cnn_policy.npz")
+        diagnostics["fallback_model_sha256"] = (
+            sha256(model_path.read_bytes()).hexdigest() if model_path.exists() else None
         )
+        fallback_started = time.perf_counter()
+        try:
+            fallback_moves, _fallback_board, fallback_states = (
+                _run_heuristic_cnn_solver(start_board)
+            )
+        except Exception as exc:
+            diagnostics["fallback_wall_ms"] = (
+                time.perf_counter() - fallback_started
+            ) * 1000
+            diagnostics["fallback_error"] = str(exc)
+            exc.diagnostics = diagnostics
+            raise
         states_checked += fallback_states
+        diagnostics["fallback_reported_transitions"] = fallback_states
+        diagnostics["fallback_wall_ms"] = (
+            time.perf_counter() - fallback_started
+        ) * 1000
+        diagnostics["fallback_solved"] = fallback_moves is not None
         solver_name = "heuristic-CNN"
 
         if fallback_moves is not None:
@@ -203,14 +262,16 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
 
             verification = verify_solution(start_board, fallback_moves)
             if not verification.ok:
-                raise RuntimeError(
+                error = RuntimeError(
                     "Heuristic-CNN fallback returned an invalid solution: "
                     f"{verification.error}"
                 )
+                error.diagnostics = diagnostics
+                raise error
             moves = fallback_moves
             final_board = verification.final_board
 
-    return _build_result(
+    result = _build_result(
         start_board,
         moves=moves,
         final_board=final_board,
@@ -218,6 +279,8 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
         solver_name=solver_name,
         start_time=start_time,
     )
+    result["diagnostics"] = diagnostics
+    return result
 
 
 def solve_custom_board(board: list[list[str]]) -> dict[str, Any]:
@@ -251,7 +314,9 @@ def solve_custom_board(board: list[list[str]]) -> dict[str, Any]:
 
         verification = verify_solution(start_board, moves)
         if not verification.ok:
-            raise RuntimeError(f"Custom push solver returned an invalid solution: {verification.error}")
+            raise RuntimeError(
+                f"Custom push solver returned an invalid solution: {verification.error}"
+            )
         final_board = verification.final_board
 
     return _build_result(
@@ -264,7 +329,9 @@ def solve_custom_board(board: list[list[str]]) -> dict[str, Any]:
     )
 
 
-def solve_board(board: list[list[str]], max_states: int | None = None) -> dict[str, Any]:
+def solve_board(
+    board: list[list[str]], max_states: int | None = None
+) -> dict[str, Any]:
     """Solve a Tic Tac Go board and return a normalized result dict.
 
     Routing logic:

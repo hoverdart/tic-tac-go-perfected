@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Any, Mapping
 
 
 DIRECTIONS: tuple[tuple[str, int, int], ...] = (
@@ -132,6 +132,7 @@ class PushSolveResult:
     baseline_keystrokes: int | None = None
     quality_improved: bool = False
     quality_nodes_expanded: int = 0
+    diagnostics: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
