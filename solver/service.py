@@ -19,7 +19,7 @@ import time
 from dataclasses import asdict
 from hashlib import sha256
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from solver.board_utils import board_dimensions, normalize_board, to_wire_board
 from solver import optimized_solver
@@ -182,7 +182,11 @@ def daily_push_version() -> str:
     return version
 
 
-def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
+def solve_daily_board(
+    board: list[list[str]],
+    *,
+    on_push_complete: Callable[[dict[str, Any]], None] | None = None,
+) -> dict[str, Any]:
     """Run the production daily portfolio: push first, then Beam/CNN fallback."""
     try:
         start_board = normalize_board(board)
@@ -231,6 +235,9 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
     diagnostics["runtime"] = environment["runtime"]
     diagnostics["source_hashes"] = environment["sources"]
     diagnostics["model_hashes"] = environment["models"] if version == "v3" else {}
+    diagnostics["phase"] = "fallback_running" if moves is None else "push_complete"
+    if on_push_complete is not None:
+        on_push_complete(diagnostics)
 
     if moves is None:
         model_path = Path(__file__).with_name("small_cnn_policy.npz")
@@ -243,6 +250,7 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
                 _run_heuristic_cnn_solver(start_board)
             )
         except Exception as exc:
+            diagnostics["phase"] = "fallback_failed"
             diagnostics["fallback_wall_ms"] = (
                 time.perf_counter() - fallback_started
             ) * 1000
@@ -280,6 +288,7 @@ def solve_daily_board(board: list[list[str]]) -> dict[str, Any]:
         start_time=start_time,
     )
     result["diagnostics"] = diagnostics
+    diagnostics["phase"] = "complete"
     return result
 
 

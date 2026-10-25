@@ -5,7 +5,13 @@ import tempfile
 import unittest
 
 from solver.push_solver import solve_v4
-from solver.push_solver.benchmark_v4 import corpus, gate, repetition_gate, TARGETS
+from solver.push_solver.benchmark_v4 import (
+    corpus,
+    gate,
+    repetition_gate,
+    TARGETS,
+    ENGINE_SHA256,
+)
 from solver.push_solver.train_v4_candidate import identity, splits
 
 
@@ -18,6 +24,9 @@ class V4ReleaseToolsTest(unittest.TestCase):
                 "id": r["id"],
                 "board_sha256": r["board_sha256"],
                 "version": "v4",
+                "engine_sha256": ENGINE_SHA256,
+                "limits": {"seconds": 30, "nodes": 500000},
+                "process_wall_seconds": 1.0,
                 "verified": True,
                 "wall_seconds": 1.0,
                 "result": {
@@ -30,7 +39,17 @@ class V4ReleaseToolsTest(unittest.TestCase):
         ]
         baseline = [{**r, "version": "v3"} for r in rows]
         self.assertTrue(gate(rows, baseline, boards)["passed"])
-        for invalid in ("missing", "hash", "timeout", "hints", "nodes"):
+        self.assertFalse(gate(rows + [rows[0]], baseline, boards)["passed"])
+        for invalid in (
+            "missing",
+            "hash",
+            "timeout",
+            "hints",
+            "nodes",
+            "engine",
+            "budget",
+            "strategy",
+        ):
             altered = deepcopy(rows)
             if invalid == "missing":
                 altered.pop()
@@ -42,10 +61,20 @@ class V4ReleaseToolsTest(unittest.TestCase):
                 altered[-1]["result"]["diagnostics"]["exact_hints"] = True
             if invalid == "nodes":
                 altered[-1]["result"]["nodes_expanded"] = 500001
+            if invalid == "engine":
+                altered[-1]["engine_sha256"] = "stale"
+            if invalid == "budget":
+                altered[-1]["limits"]["seconds"] = 300
+            if invalid == "strategy":
+                altered[-1]["strategy_requested"] = "rank_discrepancy"
             self.assertFalse(gate(altered, baseline, boards)["passed"], invalid)
         self.assertFalse(repetition_gate(rows)["passed"])
         matrix = [
-            {**rows[0], "id": key, "repeat": repeat, "process": process}
+            {
+                **next(r for r in rows if r["id"] == key),
+                "repeat": repeat,
+                "process": process,
+            }
             for key in TARGETS
             for process in ("fresh", "warm")
             for repeat in range(10)

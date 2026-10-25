@@ -10,7 +10,7 @@ from typing import Any
 
 from apps.api.board_parser import resolve_daily_board
 from apps.api.puzzle_catalog import OFFICIAL_GAME_URL
-from apps.api.solution_storage import upsert_solution, begin_daily_solve_run, finish_daily_solve_run
+from apps.api.solution_storage import upsert_solution, begin_daily_solve_run, finish_daily_solve_run, update_daily_solve_run
 from apps.api.puzzle_titles import (
     official_level_label,
     title_from_official_catalog,
@@ -98,6 +98,10 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
         parser_name = resolved.parser_name
         source_url = resolved.source_url
         diagnostics["parse_ms"] = (time.perf_counter() - run_started) * 1000
+        diagnostics.update(
+            phase="push_running", parser_name=parser_name, source_url=source_url
+        )
+        update_daily_solve_run(run_id, diagnostics=diagnostics, board_sha256=board_hash)
         logger.info(
             "daily_solve.parse.ok parser=%s date=%s source_url=%s board=\n%s",
             parser_name,
@@ -105,7 +109,16 @@ def run_daily_solve(puzzle_date: date | None = None) -> dict[str, Any]:
             source_url,
             _board_lines(board),
         )
-        solve_result = solve_daily_board(board)
+
+        def persist_push_diagnostics(push_diagnostics):
+            diagnostics.update(push_diagnostics)
+            update_daily_solve_run(
+                run_id, diagnostics=diagnostics, board_sha256=board_hash
+            )
+
+        solve_result = solve_daily_board(
+            board, on_push_complete=persist_push_diagnostics
+        )
         diagnostics.update(solve_result.get("diagnostics", {}))
         solver_name = solve_result["solver_name"]
         logger.info(

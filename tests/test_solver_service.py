@@ -44,6 +44,23 @@ class SolverServiceTest(unittest.TestCase):
         self.assertEqual(error.exception.diagnostics["push_expanded_nodes"], 7)
         self.assertIn("fallback_wall_ms", error.exception.diagnostics)
 
+    def test_push_receipt_is_committed_before_long_fallback_starts(self):
+        result = SimpleNamespace(moves=None, final_board=None, nodes_expanded=13)
+        phases = []
+
+        def persist(diagnostics):
+            phases.append(("persisted", diagnostics["push_expanded_nodes"]))
+
+        def fallback(board):
+            self.assertEqual(phases, [("persisted", 13)])
+            return None, None, 7
+
+        with (
+            patch("solver.service._run_push_solver", return_value=result),
+            patch("solver.service._run_heuristic_cnn_solver", side_effect=fallback),
+        ):
+            solve_daily_board([["U", "O", "O"]], on_push_complete=persist)
+
     def test_solved_board_returns_structured_result(self):
         result = solve_board(
             [

@@ -50,10 +50,12 @@ unsolved production records.
   strategies, route count, and an offline feature-only candidate. V4 never calls
   the exact-action hint policy. The replay verifier is unchanged.
 - Daily results retain optional internal diagnostics. `daily_solve_runs` commits
-  a receipt before parsing/search and a terminal receipt afterward; no database
+  a receipt before parsing/search, a checkpoint after parsing, another immediately
+  after push search, and a terminal receipt afterward; no database
   transaction spans network access or solving. Protected solved rows can remain
   solved while a retry's own receipt records unsolved/failed. Terminal receipts
-  cannot be overwritten. Push expansions/quality expansions and fallback replay
+  cannot be overwritten. A worker exiting during the long fallback leaves a
+  running receipt containing its already-completed push diagnostics. Push expansions/quality expansions and fallback replay
   transitions have separate counters. The legacy public count remains compatible.
 - Authenticated `POST /debug/push-benchmark/{date}` executes push search without
   fallback or persistence. `GET /debug/solve-runs/{date}` reads attempt receipts.
@@ -80,6 +82,28 @@ Initial V4 production-target coverage was **4/9**: September 11 and October
 The initial full-corpus run found losses against V3, including committed-beam
 recovery cases. Commitment scoring and novelty handling were subsequently
 corrected; both initial and corrected corpus evidence are retained separately.
+The corrected local target portfolio solved **5/9**, including Cup of Tea. The
+read-only deployed nine-target run solved **4/9**: Cup of Tea exhausted its push
+budget there. None of these results meets the release requirement.
+
+Offline sweeps recovered independently verified paths for -_- (32.8s committed
+beam), Surrounded (182.1s rank), Peninsula Problems (186.0s weighted), and Cup of
+Tea (16.9s rank). A research path is not a daily-budget portfolio result.
+
+The pushed engine also verified Bubble Wrap through the actual deployed API in
+2.93s (204 moves, quality disabled). Its source hash matched `a9470d5`. The
+subsequent sequential deployed target probe took 4.23s for the same date. The
+public API is served by the Vercel Python entry point; the separate hosted Cloud
+Run deployment is not proof of the Vercel runtime configuration. That runtime
+reported Linux/Python 3.12.14 and no readable cgroup quotas, so the earlier
+one-CPU container is a controlled comparison, not a deployment-matched gate.
+
+Local validation passed **158 Python tests**, including real Postgres concurrency,
+all 360 small-board arrangements with one wall/X and two O pieces, differential
+successors, three-O cases, session resumption, shared budgets, durable progress,
+and fail-closed release receipts. Hosted `a9470d5` validation passed the earlier
+157 Python tests, all web tests/lint/build, and the Cloud Run deployment. The
+checkpoint hardening is validated separately at its own commit.
 
 Offline sweeps use 300 seconds / 5 million nodes per strategy and stop a board
 when a verified path appears. These are research limits only. Sweeps for separate
@@ -108,7 +132,8 @@ that is not held-out search coverage or evidence of unseen-board generalization.
   --sweep --fresh-process --ids 20251212 --output /tmp/research.jsonl
 ```
 
-`gate()` fails on missing boards, mismatched identities, time/node overruns,
+`gate()` fails on missing/duplicate boards, stale engine hashes, mixed configurations,
+research budgets or single-strategy receipts, mismatched identities, time/node overruns,
 exact-action hints, any lost V3 solution, or an unsolved mandatory target.
 `repetition_gate()` requires all 180 target receipts (nine boards × ten fresh
 processes and ten warm runs). Container/deployment equivalence and hosted tests

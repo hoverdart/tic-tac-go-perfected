@@ -151,19 +151,55 @@ def gate(rows, baseline, catalog):
     ]
     missing_targets = [k for k in TARGETS if not good(valid.get(k, {}))]
     missing = sorted(set(expected) - valid.keys())
+    stale = sorted(r["id"] for r in rows if r.get("engine_sha256") != ENGINE_SHA256)
+    configurations = {
+        (
+            r.get("schedule"),
+            r.get("routes"),
+            r.get("strategy_requested"),
+            json.dumps(
+                r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
+                sort_keys=True,
+            ),
+        )
+        for r in rows
+    }
+    invalid_budgets = sorted(
+        r["id"]
+        for r in rows
+        if r.get("limits") != {"seconds": 30, "nodes": 500000}
+        or r.get("strategy_requested") is not None
+    )
+    duplicate_or_extra_records = (
+        len(rows) != 397 or len(valid) != 397 or bool(set(valid) - set(expected))
+    )
     return {
-        "passed": not (losses or missing_targets or missing or len(reference) != 397),
+        "passed": not (
+            losses
+            or missing_targets
+            or missing
+            or stale
+            or invalid_budgets
+            or len(configurations) != 1
+            or len(reference) != 397
+            or duplicate_or_extra_records
+        ),
         "v3_verified": sum(bool(r.get("verified")) for r in reference.values()),
         "v4_verified": sum(bool(good(r)) for r in valid.values()),
         "coverage_losses": losses,
         "unsolved_targets": missing_targets,
         "missing": missing,
         "baseline_boards": len(reference),
+        "stale_engine_inputs": stale,
+        "invalid_budgets_or_individual_strategies": invalid_budgets,
+        "configuration_count": len(configurations),
+        "invalid_record_count": duplicate_or_extra_records,
         "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate.",
     }
 
 
 def repetition_gate(rows):
+    hashes = {r["id"]: r["board_sha256"] for r in corpus()}
     expected = {
         (board, process, repeat)
         for board in TARGETS
@@ -179,8 +215,15 @@ def repetition_gate(rows):
         found.add(key)
         if not (
             r.get("verified")
+            and r.get("engine_sha256") == ENGINE_SHA256
+            and r.get("board_sha256") == hashes[r["id"]]
+            and r.get("limits") == {"seconds": 30, "nodes": 500000}
+            and r.get("strategy_requested") is None
             and r["wall_seconds"] <= 30
-            and r.get("process_wall_seconds", 0) <= 30
+            and (
+                r.get("process") != "fresh"
+                or 0 < r.get("process_wall_seconds", 0) <= 30
+            )
             and r["result"]["nodes_expanded"] <= 500000
             and r.get("version") == "v4"
             and r["result"].get("diagnostics", {}).get("exact_hints") is False

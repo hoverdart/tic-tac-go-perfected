@@ -288,6 +288,20 @@ def finish_daily_solve_run(
         raise StorageError("Solver run is missing or already terminal.")
 
 
+def update_daily_solve_run(
+    run_id: int, *, diagnostics: dict, board_sha256: str | None = None
+) -> None:
+    """Commit progress between solver stages, never while search is running."""
+    with _connect() as conn:
+        row = conn.execute(
+            "UPDATE daily_solve_runs SET diagnostics=%s, board_sha256=%s "
+            "WHERE run_id=%s AND status='running' RETURNING run_id",
+            (_json(diagnostics), board_sha256, run_id),
+        ).fetchone()
+    if row is None:
+        raise StorageError("Solver run is missing or already terminal.")
+
+
 def list_daily_solve_runs(puzzle_date: date, limit: int = 20) -> list[dict[str, Any]]:
     with _connect() as conn:
         rows = conn.execute(

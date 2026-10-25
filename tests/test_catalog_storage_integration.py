@@ -71,16 +71,29 @@ class CatalogStorageIntegrationTest(unittest.TestCase):
         run = storage.begin_daily_solve_run(date(2026,10,21), "v4")
         # Another connection sees the committed receipt while search has not run.
         self.assertEqual(storage.list_daily_solve_runs(date(2026,10,21))[0]["status"], "running")
+        storage.update_daily_solve_run(run,diagnostics={"phase":"fallback_running","push_expanded_nodes":500000},board_sha256="hash")
+        progress=storage.list_daily_solve_runs(date(2026,10,21))[0]
+        self.assertEqual(progress["status"],"running")
+        self.assertEqual(progress["diagnostics"]["push_expanded_nodes"],500000)
         retained = storage.upsert_solution(self.record("unsolved"), preserve_solved=True)
-        storage.finish_daily_solve_run(run, status="unsolved", board_sha256="hash",
-            diagnostics={"push_expanded_nodes":500000,"fallback_reported_transitions":12})
-        receipt = storage.list_daily_solve_runs(date(2026,10,21))[0]
-        self.assertEqual(retained,original)
+        storage.finish_daily_solve_run(
+            run,
+            status="unsolved",
+            board_sha256="hash",
+            diagnostics={
+                "push_expanded_nodes": 500000,
+                "fallback_reported_transitions": 12,
+            },
+        )
+        receipt = storage.list_daily_solve_runs(date(2026, 10, 21))[0]
+        self.assertEqual(retained, original)
         self.assertEqual(receipt["status"], "unsolved")
         self.assertEqual(receipt["diagnostics"]["push_expanded_nodes"], 500000)
         self.assertIsNotNone(receipt["finished_at"])
         with self.assertRaises(storage.StorageError):
             storage.finish_daily_solve_run(run, status="solved", diagnostics={})
+        with self.assertRaises(storage.StorageError):
+            storage.update_daily_solve_run(run, diagnostics={})
 
 
 if __name__ == "__main__":

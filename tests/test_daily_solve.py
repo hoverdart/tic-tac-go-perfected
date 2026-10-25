@@ -1,6 +1,6 @@
 from datetime import date
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 from apps.api.board_parser import DailyBoardInput, DailyBoardParseError
 from apps.api.daily_solve import fallback_puzzle_title, run_daily_solve
@@ -21,6 +21,9 @@ class DailySolveTest(unittest.TestCase):
         self.finish = finish.start()
         self.addCleanup(begin.stop)
         self.addCleanup(finish.stop)
+        progress=patch("apps.api.daily_solve.update_daily_solve_run")
+        self.progress=progress.start()
+        self.addCleanup(progress.stop)
 
     def test_fallback_title_uses_official_level_label_when_catalog_is_unavailable(self):
         with (
@@ -56,7 +59,7 @@ class DailySolveTest(unittest.TestCase):
             ):
                 record = run_daily_solve(TARGET)
             resolve.assert_called_once_with(TARGET)
-            solve.assert_called_once_with(BOARD)
+            solve.assert_called_once_with(BOARD,on_push_complete=ANY)
             self.assertEqual(record["status"], "solved")
             self.assertEqual(record["parser_name"], parser_name)
             self.assertEqual(
