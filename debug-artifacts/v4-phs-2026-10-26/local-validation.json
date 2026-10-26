@@ -1,0 +1,37 @@
+{
+  "implementation_commit": "04d5cf560223e5be25f340675d645e39cbbd7df6",
+  "python": "3.12.13",
+  "numpy": "2.5.1",
+  "local": {
+    "python_tests": {
+      "passed": true,
+      "count": 185,
+      "isolated_postgres": true
+    },
+    "web_tests": {
+      "passed": true,
+      "count": 34
+    },
+    "web_lint": {
+      "passed": true
+    },
+    "ruff_new_modules_and_tests": {
+      "passed": true
+    },
+    "ruff_E9_F_existing_api_and_engine": {
+      "passed": true
+    },
+    "git_diff_check": {
+      "passed": true
+    }
+  },
+  "container": {
+    "python": "3.12.15",
+    "numpy": "2.5.4",
+    "cpus": 1,
+    "memory_bytes": 536870912,
+    "architecture": "arm64",
+    "deployment_matched": false
+  },
+  "scope": "Research validation only; current corpus and deployed runtime release gates fail."
+}

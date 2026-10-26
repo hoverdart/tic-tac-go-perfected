@@ -1,0 +1,7 @@
+{
+  "schema": "v4-push-softmax-v1",
+  "name": "uniform-control",
+  "weights": {},
+  "temperature": 1.0,
+  "uniform_mix": 1.0
+}

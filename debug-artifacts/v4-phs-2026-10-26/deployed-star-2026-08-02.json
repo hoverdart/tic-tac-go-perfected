@@ -1,0 +1,186 @@
+{
+  "scope": "Authenticated read-only deployed PHS* benchmark; no daily solve, fallback, or database writes.",
+  "http_status": 200,
+  "request_wall_seconds": 31.59971254100674,
+  "response": {
+    "puzzle_date": "2026-08-02",
+    "board_sha256": "78aec88cf698047202686cd6714a2ec436d473b28aa41161763260adbddc3bbd",
+    "version": "v4",
+    "verified": false,
+    "result": {
+      "solved": false,
+      "moves": null,
+      "final_board": null,
+      "pushes": [],
+      "nodes_expanded": 2819,
+      "peak_closed_size": 31684,
+      "elapsed_ms": 29780.610534999993,
+      "failure_reason": "timeout",
+      "strategy": null,
+      "attempts": [
+        {
+          "strategy": "phs_star",
+          "solved": false,
+          "nodes_expanded": 2819,
+          "peak_closed_size": 31684,
+          "elapsed_ms": 29590.750944999898,
+          "failure_reason": "timeout"
+        }
+      ],
+      "baseline_keystrokes": null,
+      "quality_improved": false,
+      "quality_nodes_expanded": 0,
+      "diagnostics": {
+        "strategies": {
+          "phs_star": {
+            "expansions": 2819,
+            "wall_ms": 29590.750944999898,
+            "cpu_ms": 29419.64563599999,
+            "peak_closed": 31684,
+            "frontier_size": 33255,
+            "peak_frontier": 33255,
+            "counters": {
+              "policy_evaluations": 2818,
+              "policy_actions": 43691,
+              "pruned_policy_dominance": 5351,
+              "pruned_closed_policy_state": 2268,
+              "geometry_computations": 20,
+              "route_computations": 192,
+              "score_computations": 38587,
+              "plans_materialized": 58320,
+              "successor_computations": 2819,
+              "score_hits": 10756,
+              "generated": 137208,
+              "pruned_illegal": 88915,
+              "deadlock_queries": 43747,
+              "geometry_hits": 44898,
+              "route_hits": 769105,
+              "generated_states": 43704,
+              "reverse_queries": 708,
+              "reverse_computations": 288,
+              "policy_computations": 2818,
+              "pruned_x_loss": 4546,
+              "deadlock_hits": 37115,
+              "frozen_hits": 10130,
+              "reverse_hits": 420,
+              "pruned_stale_policy_label": 1,
+              "pruned_deadlock": 43
+            }
+          }
+        },
+        "model_hashes": {
+          "push_policy": "29f274d208dd86a2d1dfc15af1aac303694330ea64db75d6cc12dfde4ac7be32"
+        },
+        "push_policy": {
+          "temperature": 1.2599210498948732,
+          "uniform_mix": 0.05
+        },
+        "cpu_clock": "thread_time",
+        "version": "push-v4",
+        "schedule": "rank",
+        "effective_schedule": "rank",
+        "initial_commitment_count": null,
+        "route_limit": 3,
+        "beam_mode": "interleaved",
+        "macro_mode": "straight",
+        "commitments": [],
+        "exact_hints": false,
+        "preprocessing_ms": 152.40793499999938,
+        "verification_ms": 0.0,
+        "search_ms": 29628.192029,
+        "wall_ms": 29780.610534999993,
+        "cpu_ms": 29556.697529,
+        "expanded_nodes": 2819,
+        "quality_nodes": 0,
+        "quality_ms": 0.010570999990022756,
+        "peak_frontier": 33255,
+        "counters": {
+          "geometry_computations": 20,
+          "route_computations": 192,
+          "score_computations": 38587,
+          "plans_materialized": 58320,
+          "successor_computations": 2819,
+          "score_hits": 10756,
+          "generated": 137208,
+          "pruned_illegal": 88915,
+          "deadlock_queries": 43747,
+          "geometry_hits": 44898,
+          "route_hits": 769105,
+          "generated_states": 43704,
+          "reverse_queries": 708,
+          "reverse_computations": 288,
+          "policy_computations": 2818,
+          "pruned_x_loss": 4546,
+          "deadlock_hits": 37115,
+          "frozen_hits": 10130,
+          "reverse_hits": 420,
+          "pruned_deadlock": 43
+        },
+        "runtime": {
+          "python": "3.12.14",
+          "platform": "Linux",
+          "peak_rss_bytes": 179134464,
+          "cgroup": {}
+        },
+        "limits": {
+          "seconds": 30,
+          "nodes": 500000
+        },
+        "cache_sizes": {
+          "reverse": 288,
+          "geometry": 20,
+          "score": 8192,
+          "deadlock": 301,
+          "edges": 32768,
+          "successors": 2819
+        }
+      }
+    },
+    "provenance": {
+      "sources": {
+        "solver/push_solver/__init__.py": "50a5af085c018476930508a47aefddbd6a2a1031ff761815685f8c0dfd9dceb7",
+        "solver/push_solver/bench.py": "4b65a80aed108aa17f19c8ec1429039d065936079281e1e9303dccb50b2b6ff7",
+        "solver/push_solver/benchmark_hard_tail.py": "24cccc782aa6652f227679b644eb11d5cec0d09e9776e2f31bcb3b6a12705056",
+        "solver/push_solver/benchmark_v4.py": "3101fd0e7e295a9ff87c953b2e3f030e72a5327e59290bff47f7e9e25a2a5974",
+        "solver/push_solver/core.py": "4d1c2e592e47d20c9b653a1b05829a4c67fce042b7b313c31a89bd409c4e48bf",
+        "solver/push_solver/coverage_guard.py": "32902f171fa26461bdae308e1a72eaff164d0194dafbefc7851b259584de50f7",
+        "solver/push_solver/deadlocks.py": "a5af3a770e1f4dfd366ca61e6730815d5b88c8638afee9ba05586807097deb85",
+        "solver/push_solver/debug_oracle_rank.py": "49f61e50592a99b5c902fa15c8a2d1a48ceccc89b5eb0ea37683f01e1d27e38a",
+        "solver/push_solver/heuristics.py": "ac491481e3fa0e95cfeee4206a5e855ea3053c035381022754ed75369d1619b5",
+        "solver/push_solver/models.py": "50249adf9145dc53f0f1ca114241722689b9d7e657d30a25afbe74ce395ae0dc",
+        "solver/push_solver/optimizer.py": "b630cbe076ca9b0ee220a7c8b84353f1c09fa30fdda72ddbf381c3bb7f4505e4",
+        "solver/push_solver/phs.py": "43dcdbf893f4a6ae88aa400347a918a9ac28fbef0d6efc4edd29df56449f7c02",
+        "solver/push_solver/policy_features.py": "55ca5f52c06f6910bce97217934256826bb74d26a61b8c3de37f03a906c15024",
+        "solver/push_solver/portfolio.py": "9f076aeddc62a1f0b97c8b6f673ffaa77a21246476faa2b2e8936a2bda13737a",
+        "solver/push_solver/push_policy.py": "7ab049e0ce2c0866217b9859af82b2da66543cd6fe1d157f9600a34da8604b4b",
+        "solver/push_solver/rank_policy.py": "879ba8c9442e846b96c11bfc860290a53df65640b1dc93255a340962c0acb0b5",
+        "solver/push_solver/reconstruction.py": "f3513732e8aa2392a7373a5ac212f5604a29a5c782c8fa6a80dae4b6c8de9477",
+        "solver/push_solver/search.py": "3dde31bb031c48d148797ae0044af3af39f939ac91f76c40454640e474a46c68",
+        "solver/push_solver/state.py": "6378607424e6fae9cfbaa564b1ea35fedb0907a2f64efc1a7cdd1cf533911661",
+        "solver/push_solver/successors.py": "f91171b01e1ec27b76ca845a1776e34d8e9b3c9530f35a846a811659343a2055",
+        "solver/push_solver/train_push_policy.py": "0a61a374954c470916ccf8c2bf8e4c6a94bcfea2d31fd7f1a7d41ee0e93588ff",
+        "solver/push_solver/train_v4_candidate.py": "69ad934175f0848909214be04f4c105f3b9417b5be0eb4fff8d594597234dd88",
+        "solver/push_solver/training_export.py": "3435aec12eea1180d9cd6b1b062df055ec501e9093a96d32b275484cbd509dbe",
+        "solver/push_solver/v4.py": "ac93c56e979e51bc9b1ca4c8498a165adb0cd7012d2a486dff2ab0d71aabb38a",
+        "solver/push_solver/v4_ranker.py": "e38f90b9ca49623093acfed92d426dac2f4ba57e218a5337570efd6b50a3be34",
+        "solver/push_solver/verify.py": "4e83d461014a57a50067ff5bf2251d663bc730322099f1f57d31533634f201f7"
+      },
+      "models": {
+        "linear_push_ranker_backfill_v1.json": "353b3742c1e91e27d7c9f89de2ae005ef0d699b3ae78779aa91dcf9ef75ee19b",
+        "linear_push_ranker_bookshelf_v1.json": "ce01d02258dda0a35eb254d83e8d782ff875cedfe109c52431fb896b948401ae",
+        "linear_push_ranker_hard_tail_v1.json": "2c50d843422945d62a5b3ba0d5ecb155db2c5f5f0e330d9c008de6de58b28cdb",
+        "linear_push_ranker_recovery_v1.json": "d9ba1c54befa9bf0ff24326233d287f3cec9f31219435f3adf3e97084ef5829b",
+        "linear_push_ranker_v1.json": "2c50d843422945d62a5b3ba0d5ecb155db2c5f5f0e330d9c008de6de58b28cdb"
+      },
+      "runtime": {
+        "python": "3.12.14",
+        "platform": "Linux",
+        "peak_rss_bytes": 179134464,
+        "cgroup": {}
+      }
+    },
+    "revision": null
+  },
+  "matches_current_engine": true,
+  "matches_current_model": true
+}

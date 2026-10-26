@@ -1,0 +1,996 @@
+{
+  "scope": "Single current-day probe, outside the frozen 397-board training/calibration/evaluation corpus. Model fixed before this probe; no generalization claim.",
+  "input": {
+    "id": "20261026",
+    "date": "2026-10-26",
+    "name": "Left Or Right",
+    "width": 8,
+    "height": 8,
+    "puzzle": "WWWWWWWWWWWWWWWWW-----WWWOX--XWWW-XPX-WWW--XO-WWW-X---WWWWWWWWWW",
+    "board_sha256": "78f51ced8dbb6367b120306f93c9c637dbfc2f4c4f0364cc19e0129f3cc96f40"
+  },
+  "catalog_source_sha256": "128674ad4e2d6c62b550e0f05bb58a78fd1983b82e14a0ac6aef3e447bca0b21",
+  "model_sha256": "29f274d208dd86a2d1dfc15af1aac303694330ea64db75d6cc12dfde4ac7be32",
+  "runs": [
+    {
+      "id": "20261026",
+      "board_sha256": "78f51ced8dbb6367b120306f93c9c637dbfc2f4c4f0364cc19e0129f3cc96f40",
+      "version": "v4",
+      "engine_sha256": "fd4841472ca3ad2da7880f4e88bfb719e94d03b8e1ae51cdf0fa7721e9b1048d",
+      "schedule": "beam8",
+      "beam_mode": "interleaved",
+      "macro_mode": "straight",
+      "exact_hints_enabled": false,
+      "routes": 3,
+      "strategy_requested": null,
+      "repeat": 0,
+      "process": "warm",
+      "limits": {
+        "seconds": 30.0,
+        "nodes": 500000
+      },
+      "wall_seconds": 0.021429500004160218,
+      "cpu_seconds": 0.021404000000000006,
+      "verified": true,
+      "result": {
+        "solved": true,
+        "moves": "DUUULLDDDUUURRRRDLLLRDDLULUDRURRRDDLLLUL",
+        "final_board": [
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "X",
+            "X",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "U",
+            "",
+            "",
+            "X",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "O",
+            "",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "O",
+            "X",
+            "X",
+            "",
+            "X",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ]
+        ],
+        "pushes": [
+          {
+            "piece": "X",
+            "cell": 43,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 25,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 33,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 41,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 29,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 26,
+            "move": "L"
+          },
+          {
+            "piece": "X",
+            "cell": 34,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 25,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 26,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 37,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 45,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 44,
+            "move": "L"
+          },
+          {
+            "piece": "O",
+            "cell": 43,
+            "move": "L"
+          },
+          {
+            "piece": "O",
+            "cell": 42,
+            "move": "L"
+          }
+        ],
+        "nodes_expanded": 90,
+        "peak_closed_size": 300,
+        "elapsed_ms": 21.029957992141135,
+        "failure_reason": null,
+        "strategy": "rank_discrepancy",
+        "attempts": [
+          {
+            "strategy": "rank_discrepancy",
+            "solved": true,
+            "nodes_expanded": 90,
+            "peak_closed_size": 300,
+            "elapsed_ms": 20.359582995297387,
+            "failure_reason": null
+          },
+          {
+            "strategy": "weighted",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          },
+          {
+            "strategy": "macro",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          },
+          {
+            "strategy": "committed_beam",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          }
+        ],
+        "baseline_keystrokes": 40,
+        "quality_improved": false,
+        "quality_nodes_expanded": 0,
+        "diagnostics": {
+          "strategies": {
+            "rank_discrepancy": {
+              "expansions": 90,
+              "wall_ms": 20.359582995297387,
+              "cpu_ms": 20.343209,
+              "peak_closed": 300,
+              "frontier_size": 222,
+              "peak_frontier": 222,
+              "counters": {
+                "pruned_dominance": 82,
+                "geometry_computations": 13,
+                "route_computations": 41,
+                "score_computations": 299,
+                "plans_materialized": 690,
+                "successor_computations": 89,
+                "score_hits": 183,
+                "generated": 1726,
+                "pruned_illegal": 1207,
+                "deadlock_queries": 503,
+                "geometry_hits": 482,
+                "route_hits": 2439,
+                "generated_states": 393,
+                "reverse_queries": 290,
+                "reverse_computations": 90,
+                "pruned_deadlock": 111,
+                "frozen_hits": 108,
+                "deadlock_hits": 273,
+                "reverse_hits": 200,
+                "pruned_x_loss": 15
+              }
+            },
+            "weighted": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            },
+            "macro": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            },
+            "committed_beam": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            }
+          },
+          "model_hashes": {},
+          "push_policy": null,
+          "cpu_clock": "thread_time",
+          "version": "push-v4",
+          "schedule": "beam8",
+          "effective_schedule": "beam8",
+          "initial_commitment_count": null,
+          "route_limit": 3,
+          "beam_mode": "interleaved",
+          "macro_mode": "straight",
+          "commitments": [],
+          "exact_hints": false,
+          "preprocessing_ms": 0.3128340031253174,
+          "verification_ms": 0.20029098959639668,
+          "search_ms": 20.515874988632277,
+          "wall_ms": 21.029957992141135,
+          "cpu_ms": 21.015124999999994,
+          "expanded_nodes": 90,
+          "quality_nodes": 0,
+          "quality_ms": 0.0009580107871443033,
+          "peak_frontier": 222,
+          "counters": {
+            "geometry_computations": 13,
+            "route_computations": 41,
+            "score_computations": 299,
+            "plans_materialized": 690,
+            "successor_computations": 89,
+            "score_hits": 183,
+            "generated": 1726,
+            "pruned_illegal": 1207,
+            "deadlock_queries": 503,
+            "geometry_hits": 482,
+            "route_hits": 2439,
+            "generated_states": 393,
+            "reverse_queries": 290,
+            "reverse_computations": 90,
+            "pruned_deadlock": 111,
+            "frozen_hits": 108,
+            "deadlock_hits": 273,
+            "reverse_hits": 200,
+            "pruned_x_loss": 15
+          },
+          "runtime": {
+            "python": "3.12.13",
+            "platform": "Darwin",
+            "peak_rss_bytes": 38797312,
+            "cgroup": {}
+          },
+          "limits": {
+            "seconds": 30.0,
+            "nodes": 500000
+          },
+          "cache_sizes": {
+            "reverse": 90,
+            "geometry": 13,
+            "score": 299,
+            "deadlock": 34,
+            "edges": 1726,
+            "successors": 89
+          }
+        }
+      }
+    },
+    {
+      "id": "20261026",
+      "board_sha256": "78f51ced8dbb6367b120306f93c9c637dbfc2f4c4f0364cc19e0129f3cc96f40",
+      "version": "v4",
+      "engine_sha256": "fd4841472ca3ad2da7880f4e88bfb719e94d03b8e1ae51cdf0fa7721e9b1048d",
+      "schedule": "rank",
+      "beam_mode": "interleaved",
+      "macro_mode": "straight",
+      "exact_hints_enabled": false,
+      "routes": 3,
+      "strategy_requested": "phs_star",
+      "repeat": 0,
+      "process": "warm",
+      "limits": {
+        "seconds": 30.0,
+        "nodes": 500000
+      },
+      "wall_seconds": 0.03537504200357944,
+      "cpu_seconds": 0.035319,
+      "verified": true,
+      "result": {
+        "solved": true,
+        "moves": "DUUULLDDUURRRRDDDLL",
+        "final_board": [
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "X",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "X",
+            "",
+            "X",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "O",
+            "O",
+            "U",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "X",
+            "X",
+            "",
+            "X",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ]
+        ],
+        "pushes": [
+          {
+            "piece": "X",
+            "cell": 43,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 25,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 33,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 29,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 37,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 45,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 44,
+            "move": "L"
+          },
+          {
+            "piece": "O",
+            "cell": 43,
+            "move": "L"
+          }
+        ],
+        "nodes_expanded": 25,
+        "peak_closed_size": 119,
+        "elapsed_ms": 35.20662499067839,
+        "failure_reason": null,
+        "strategy": "phs_star",
+        "attempts": [
+          {
+            "strategy": "phs_star",
+            "solved": true,
+            "nodes_expanded": 25,
+            "peak_closed_size": 119,
+            "elapsed_ms": 11.490999997477047,
+            "failure_reason": null
+          }
+        ],
+        "baseline_keystrokes": 19,
+        "quality_improved": false,
+        "quality_nodes_expanded": 0,
+        "diagnostics": {
+          "strategies": {
+            "phs_star": {
+              "expansions": 25,
+              "wall_ms": 11.490999997477047,
+              "cpu_ms": 11.476125000000003,
+              "peak_closed": 119,
+              "frontier_size": 98,
+              "peak_frontier": 98,
+              "counters": {
+                "policy_evaluations": 24,
+                "policy_actions": 143,
+                "pruned_closed_policy_state": 12,
+                "pruned_policy_dominance": 10,
+                "geometry_computations": 11,
+                "route_computations": 49,
+                "score_computations": 116,
+                "plans_materialized": 284,
+                "successor_computations": 24,
+                "score_hits": 73,
+                "generated": 524,
+                "pruned_illegal": 357,
+                "deadlock_queries": 160,
+                "geometry_hits": 231,
+                "route_hits": 1305,
+                "generated_states": 143,
+                "policy_computations": 24,
+                "reverse_queries": 278,
+                "reverse_computations": 37,
+                "pruned_deadlock": 20,
+                "frozen_hits": 25,
+                "deadlock_hits": 24,
+                "pruned_x_loss": 4,
+                "reverse_hits": 241
+              }
+            }
+          },
+          "model_hashes": {
+            "push_policy": "29f274d208dd86a2d1dfc15af1aac303694330ea64db75d6cc12dfde4ac7be32"
+          },
+          "push_policy": {
+            "temperature": 1.2599210498948732,
+            "uniform_mix": 0.05
+          },
+          "cpu_clock": "thread_time",
+          "version": "push-v4",
+          "schedule": "rank",
+          "effective_schedule": "rank",
+          "initial_commitment_count": null,
+          "route_limit": 3,
+          "beam_mode": "interleaved",
+          "macro_mode": "straight",
+          "commitments": [],
+          "exact_hints": false,
+          "preprocessing_ms": 23.559207998914644,
+          "verification_ms": 0.13049998960923404,
+          "search_ms": 11.515792008140124,
+          "wall_ms": 35.20662499067839,
+          "cpu_ms": 35.15708399999999,
+          "expanded_nodes": 25,
+          "quality_nodes": 0,
+          "quality_ms": 0.001124994014389813,
+          "peak_frontier": 98,
+          "counters": {
+            "geometry_computations": 11,
+            "route_computations": 49,
+            "score_computations": 116,
+            "plans_materialized": 284,
+            "successor_computations": 24,
+            "score_hits": 73,
+            "generated": 524,
+            "pruned_illegal": 357,
+            "deadlock_queries": 160,
+            "geometry_hits": 231,
+            "route_hits": 1305,
+            "generated_states": 143,
+            "policy_computations": 24,
+            "reverse_queries": 278,
+            "reverse_computations": 37,
+            "pruned_deadlock": 20,
+            "frozen_hits": 25,
+            "deadlock_hits": 24,
+            "pruned_x_loss": 4,
+            "reverse_hits": 241
+          },
+          "runtime": {
+            "python": "3.12.13",
+            "platform": "Darwin",
+            "peak_rss_bytes": 48414720,
+            "cgroup": {}
+          },
+          "limits": {
+            "seconds": 30.0,
+            "nodes": 500000
+          },
+          "cache_sizes": {
+            "reverse": 37,
+            "geometry": 11,
+            "score": 116,
+            "deadlock": 10,
+            "edges": 524,
+            "successors": 24
+          }
+        }
+      }
+    },
+    {
+      "id": "20261026",
+      "board_sha256": "78f51ced8dbb6367b120306f93c9c637dbfc2f4c4f0364cc19e0129f3cc96f40",
+      "version": "v4",
+      "engine_sha256": "fd4841472ca3ad2da7880f4e88bfb719e94d03b8e1ae51cdf0fa7721e9b1048d",
+      "schedule": "phs_adaptive",
+      "beam_mode": "interleaved",
+      "macro_mode": "straight",
+      "exact_hints_enabled": false,
+      "routes": 3,
+      "strategy_requested": null,
+      "repeat": 0,
+      "process": "warm",
+      "limits": {
+        "seconds": 30.0,
+        "nodes": 500000
+      },
+      "wall_seconds": 0.02128029099549167,
+      "cpu_seconds": 0.02123799999999998,
+      "verified": true,
+      "result": {
+        "solved": true,
+        "moves": "DUUULLDDDUUURRRRDLLLRDDLULUDRURRRDDLLLUL",
+        "final_board": [
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "X",
+            "X",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "U",
+            "",
+            "",
+            "X",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "O",
+            "",
+            "",
+            "",
+            "",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "O",
+            "X",
+            "X",
+            "",
+            "X",
+            "B",
+            "B"
+          ],
+          [
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B",
+            "B"
+          ]
+        ],
+        "pushes": [
+          {
+            "piece": "X",
+            "cell": 43,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 25,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 33,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 41,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 29,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 26,
+            "move": "L"
+          },
+          {
+            "piece": "X",
+            "cell": 34,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 25,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 26,
+            "move": "U"
+          },
+          {
+            "piece": "X",
+            "cell": 37,
+            "move": "D"
+          },
+          {
+            "piece": "X",
+            "cell": 45,
+            "move": "D"
+          },
+          {
+            "piece": "O",
+            "cell": 44,
+            "move": "L"
+          },
+          {
+            "piece": "O",
+            "cell": 43,
+            "move": "L"
+          },
+          {
+            "piece": "O",
+            "cell": 42,
+            "move": "L"
+          }
+        ],
+        "nodes_expanded": 90,
+        "peak_closed_size": 300,
+        "elapsed_ms": 21.060207989648916,
+        "failure_reason": null,
+        "strategy": "rank_discrepancy",
+        "attempts": [
+          {
+            "strategy": "rank_discrepancy",
+            "solved": true,
+            "nodes_expanded": 90,
+            "peak_closed_size": 300,
+            "elapsed_ms": 19.726916012587026,
+            "failure_reason": null
+          },
+          {
+            "strategy": "weighted",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          },
+          {
+            "strategy": "macro",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          },
+          {
+            "strategy": "committed_beam",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          },
+          {
+            "strategy": "phs_star",
+            "solved": false,
+            "nodes_expanded": 0,
+            "peak_closed_size": 1,
+            "elapsed_ms": 0.0,
+            "failure_reason": "incumbent_found"
+          }
+        ],
+        "baseline_keystrokes": 40,
+        "quality_improved": false,
+        "quality_nodes_expanded": 0,
+        "diagnostics": {
+          "strategies": {
+            "rank_discrepancy": {
+              "expansions": 90,
+              "wall_ms": 19.726916012587026,
+              "cpu_ms": 19.695416999999992,
+              "peak_closed": 300,
+              "frontier_size": 222,
+              "peak_frontier": 222,
+              "counters": {
+                "pruned_dominance": 82,
+                "geometry_computations": 12,
+                "route_computations": 21,
+                "reverse_queries": 290,
+                "reverse_computations": 90,
+                "geometry_hits": 483,
+                "route_hits": 2459,
+                "score_computations": 299,
+                "plans_materialized": 690,
+                "successor_computations": 89,
+                "score_hits": 183,
+                "generated": 1726,
+                "pruned_illegal": 1207,
+                "deadlock_queries": 503,
+                "generated_states": 393,
+                "pruned_deadlock": 111,
+                "frozen_hits": 108,
+                "deadlock_hits": 273,
+                "reverse_hits": 200,
+                "pruned_x_loss": 15
+              }
+            },
+            "weighted": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            },
+            "macro": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            },
+            "committed_beam": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            },
+            "phs_star": {
+              "expansions": 0,
+              "wall_ms": 0.0,
+              "cpu_ms": 0.0,
+              "peak_closed": 1,
+              "frontier_size": 1,
+              "peak_frontier": 1,
+              "counters": {}
+            }
+          },
+          "model_hashes": {
+            "push_policy": "29f274d208dd86a2d1dfc15af1aac303694330ea64db75d6cc12dfde4ac7be32"
+          },
+          "push_policy": {
+            "temperature": 1.2599210498948732,
+            "uniform_mix": 0.05
+          },
+          "cpu_clock": "thread_time",
+          "version": "push-v4",
+          "schedule": "phs_adaptive",
+          "effective_schedule": "phs_star_heavy",
+          "initial_commitment_count": 28,
+          "route_limit": 3,
+          "beam_mode": "interleaved",
+          "macro_mode": "straight",
+          "commitments": [],
+          "exact_hints": false,
+          "preprocessing_ms": 1.1224170011701062,
+          "verification_ms": 0.18770799215417355,
+          "search_ms": 19.74941599473823,
+          "wall_ms": 21.060207989648916,
+          "cpu_ms": 21.02720799999999,
+          "expanded_nodes": 90,
+          "quality_nodes": 0,
+          "quality_ms": 0.000667001586407423,
+          "peak_frontier": 222,
+          "counters": {
+            "geometry_computations": 13,
+            "route_computations": 41,
+            "reverse_queries": 305,
+            "reverse_computations": 105,
+            "pruned_impossible_commitments": 0,
+            "commitment_plans": 28,
+            "commitment_lines": 8,
+            "geometry_hits": 483,
+            "route_hits": 2459,
+            "score_computations": 299,
+            "plans_materialized": 690,
+            "successor_computations": 89,
+            "score_hits": 183,
+            "generated": 1726,
+            "pruned_illegal": 1207,
+            "deadlock_queries": 503,
+            "generated_states": 393,
+            "pruned_deadlock": 111,
+            "frozen_hits": 108,
+            "deadlock_hits": 273,
+            "reverse_hits": 200,
+            "pruned_x_loss": 15
+          },
+          "runtime": {
+            "python": "3.12.13",
+            "platform": "Darwin",
+            "peak_rss_bytes": 49905664,
+            "cgroup": {}
+          },
+          "limits": {
+            "seconds": 30.0,
+            "nodes": 500000
+          },
+          "cache_sizes": {
+            "reverse": 105,
+            "geometry": 13,
+            "score": 299,
+            "deadlock": 34,
+            "edges": 1726,
+            "successors": 89
+          }
+        }
+      }
+    }
+  ]
+}
