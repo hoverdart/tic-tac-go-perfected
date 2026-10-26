@@ -1,0 +1,515 @@
+{
+  "id": "20260913",
+  "board_sha256": "8434194cc87ae8fd02116c7c8d6548f870d7826673286c8282a4495e5fedc74f",
+  "scope": "Eight-second cProfile rank-discrepancy probes; profiling overhead changes work and is not coverage evidence.",
+  "reference_revision": "f02cc37",
+  "engines": {
+    "reference": {
+      "engine_sha256": "71161e6f5ebd725e0ccbe549b9bef4cb4a17d029a2b55547f8b06b72cb812874",
+      "solved": false,
+      "nodes": 2893,
+      "elapsed_ms": 7752.977042007842,
+      "counters": {
+        "geometry_computations": 17,
+        "route_computations": 226,
+        "score_computations": 22123,
+        "successor_computations": 2893,
+        "score_hits": 5216,
+        "generated": 97507,
+        "pruned_illegal": 70082,
+        "deadlock_queries": 24666,
+        "geometry_hits": 26937,
+        "route_hits": 307015,
+        "generated_states": 24445,
+        "reverse_queries": 1428,
+        "reverse_computations": 467,
+        "pruned_x_loss": 2759,
+        "deadlock_hits": 19524,
+        "frozen_hits": 3710,
+        "reverse_hits": 961,
+        "pruned_deadlock": 220
+      },
+      "top_cumulative": [
+        {
+          "file": "v4_profile_reference.py",
+          "line": 1135,
+          "name": "solve_v4",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 0.0030560860000000004,
+          "cumulative_seconds": 7.7564916660000005
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 1023,
+          "name": "advance",
+          "primitive_calls": 32,
+          "calls": 32,
+          "self_seconds": 0.072315975,
+          "cumulative_seconds": 7.748898707
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.next>",
+          "primitive_calls": 256978,
+          "calls": 535633,
+          "self_seconds": 0.07840400700000001,
+          "cumulative_seconds": 7.635609348000001
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 858,
+          "name": "search",
+          "primitive_calls": 256977,
+          "calls": 256977,
+          "self_seconds": 0.070207106,
+          "cumulative_seconds": 7.5993518710000005
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 738,
+          "name": "children",
+          "primitive_calls": 232386,
+          "calls": 232386,
+          "self_seconds": 0.038868097000000004,
+          "cumulative_seconds": 7.4839420610000005
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 701,
+          "name": "successors",
+          "primitive_calls": 256831,
+          "calls": 256831,
+          "self_seconds": 0.07552931900000001,
+          "cumulative_seconds": 7.437560402000001
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 557,
+          "name": "_produce_successors",
+          "primitive_calls": 256831,
+          "calls": 256831,
+          "self_seconds": 0.280587335,
+          "cumulative_seconds": 7.300670187000001
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 422,
+          "name": "score",
+          "primitive_calls": 146080,
+          "calls": 146080,
+          "self_seconds": 2.787295024,
+          "cumulative_seconds": 5.2731300370000005
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 281,
+          "name": "deadlock",
+          "primitive_calls": 37984,
+          "calls": 37984,
+          "self_seconds": 0.033149492,
+          "cumulative_seconds": 1.023494539
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'sort' of 'list' objects>",
+          "primitive_calls": 47202,
+          "calls": 47202,
+          "self_seconds": 0.6647929340000001,
+          "cumulative_seconds": 1.0228229050000002
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 194,
+          "name": "reachable",
+          "primitive_calls": 44503,
+          "calls": 44503,
+          "self_seconds": 0.278619428,
+          "cumulative_seconds": 0.658366866
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'bit_count' of 'int' objects>",
+          "primitive_calls": 11707305,
+          "calls": 11707305,
+          "self_seconds": 0.6313530970000001,
+          "cumulative_seconds": 0.6313530970000001
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 263,
+          "name": "frozen",
+          "primitive_calls": 24666,
+          "calls": 24666,
+          "self_seconds": 0.249726883,
+          "cumulative_seconds": 0.61067209
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 34,
+          "name": "cells",
+          "primitive_calls": 3240541,
+          "calls": 3240541,
+          "self_seconds": 0.478230984,
+          "cumulative_seconds": 0.603746014
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.min>",
+          "primitive_calls": 380616,
+          "calls": 389890,
+          "self_seconds": 0.100864676,
+          "cumulative_seconds": 0.341646685
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'append' of 'list' objects>",
+          "primitive_calls": 4131947,
+          "calls": 4131947,
+          "self_seconds": 0.24873053,
+          "cumulative_seconds": 0.24873053
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 450,
+          "name": "<lambda>",
+          "primitive_calls": 3396832,
+          "calls": 3396832,
+          "self_seconds": 0.229743349,
+          "cumulative_seconds": 0.229743349
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.all>",
+          "primitive_calls": 661633,
+          "calls": 661633,
+          "self_seconds": 0.069672866,
+          "cumulative_seconds": 0.161204169
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 467,
+          "name": "<lambda>",
+          "primitive_calls": 413653,
+          "calls": 413653,
+          "self_seconds": 0.133926657,
+          "cumulative_seconds": 0.15688828500000002
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 272,
+          "name": "<genexpr>",
+          "primitive_calls": 1315181,
+          "calls": 1315181,
+          "self_seconds": 0.131665727,
+          "cumulative_seconds": 0.131665727
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'bit_length' of 'int' objects>",
+          "primitive_calls": 2515384,
+          "calls": 2515384,
+          "self_seconds": 0.127228223,
+          "cumulative_seconds": 0.127228223
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 485,
+          "name": "<lambda>",
+          "primitive_calls": 3396832,
+          "calls": 3396832,
+          "self_seconds": 0.126618427,
+          "cumulative_seconds": 0.126618427
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 186,
+          "name": "put",
+          "primitive_calls": 141630,
+          "calls": 141630,
+          "self_seconds": 0.08488904600000001,
+          "cumulative_seconds": 0.12627643700000002
+        },
+        {
+          "file": "v4_profile_reference.py",
+          "line": 503,
+          "name": "o_push_count",
+          "primitive_calls": 27338,
+          "calls": 27338,
+          "self_seconds": 0.010345254,
+          "cumulative_seconds": 0.121128937
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.sum>",
+          "primitive_calls": 27501,
+          "calls": 27501,
+          "self_seconds": 0.014000199000000001,
+          "cumulative_seconds": 0.11092631
+        }
+      ]
+    },
+    "current": {
+      "engine_sha256": "66415a30be6a6531e3dba6b02c75bbf6339fd788bbed136ee9c81a2f4b72ca21",
+      "solved": false,
+      "nodes": 4202,
+      "elapsed_ms": 7754.078833007952,
+      "counters": {
+        "geometry_computations": 17,
+        "route_computations": 228,
+        "score_computations": 31650,
+        "plans_materialized": 53402,
+        "successor_computations": 4202,
+        "score_hits": 7228,
+        "generated": 140785,
+        "pruned_illegal": 101906,
+        "deadlock_queries": 35025,
+        "geometry_hits": 38376,
+        "route_hits": 456224,
+        "generated_states": 34675,
+        "reverse_queries": 2546,
+        "reverse_computations": 677,
+        "pruned_x_loss": 3854,
+        "deadlock_hits": 27882,
+        "frozen_hits": 4890,
+        "reverse_hits": 1869,
+        "pruned_deadlock": 349
+      },
+      "top_cumulative": [
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 1414,
+          "name": "solve_v4",
+          "primitive_calls": 1,
+          "calls": 1,
+          "self_seconds": 0.004197036,
+          "cumulative_seconds": 7.759660125000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 1152,
+          "name": "advance",
+          "primitive_calls": 35,
+          "calls": 35,
+          "self_seconds": 0.119519095,
+          "cumulative_seconds": 7.748875165
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.next>",
+          "primitive_calls": 428183,
+          "calls": 886840,
+          "self_seconds": 0.12865104500000002,
+          "cumulative_seconds": 7.562544214000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 991,
+          "name": "search",
+          "primitive_calls": 428182,
+          "calls": 428182,
+          "self_seconds": 0.13382944400000002,
+          "cumulative_seconds": 7.500256166000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 867,
+          "name": "children",
+          "primitive_calls": 393308,
+          "calls": 393308,
+          "self_seconds": 0.06269885900000001,
+          "cumulative_seconds": 7.300992445
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 830,
+          "name": "successors",
+          "primitive_calls": 427983,
+          "calls": 427983,
+          "self_seconds": 0.13246775600000002,
+          "cumulative_seconds": 7.227962643000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 670,
+          "name": "_produce_successors",
+          "primitive_calls": 427983,
+          "calls": 427983,
+          "self_seconds": 0.3242105,
+          "cumulative_seconds": 6.997613407
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 525,
+          "name": "score",
+          "primitive_calls": 269059,
+          "calls": 269059,
+          "self_seconds": 0.229106475,
+          "cumulative_seconds": 4.167212989
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 447,
+          "name": "ranked_rows",
+          "primitive_calls": 208429,
+          "calls": 208429,
+          "self_seconds": 2.2268028810000002,
+          "cumulative_seconds": 3.747240993
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 293,
+          "name": "deadlock",
+          "primitive_calls": 53239,
+          "calls": 53239,
+          "self_seconds": 0.048444066,
+          "cumulative_seconds": 1.5078046680000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 206,
+          "name": "reachable",
+          "primitive_calls": 63309,
+          "calls": 63309,
+          "self_seconds": 0.405665451,
+          "cumulative_seconds": 0.9501536500000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 275,
+          "name": "frozen",
+          "primitive_calls": 35025,
+          "calls": 35025,
+          "self_seconds": 0.37667584200000004,
+          "cumulative_seconds": 0.913768087
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 35,
+          "name": "cells",
+          "primitive_calls": 4632609,
+          "calls": 4632609,
+          "self_seconds": 0.6261943990000001,
+          "cumulative_seconds": 0.8056487640000001
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.min>",
+          "primitive_calls": 599357,
+          "calls": 613029,
+          "self_seconds": 0.15428139200000002,
+          "cumulative_seconds": 0.51010933
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'sort' of 'list' objects>",
+          "primitive_calls": 67565,
+          "calls": 67565,
+          "self_seconds": 0.43083556,
+          "cumulative_seconds": 0.433180536
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'append' of 'list' objects>",
+          "primitive_calls": 5702433,
+          "calls": 5702433,
+          "self_seconds": 0.327906517,
+          "cumulative_seconds": 0.327906517
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'bit_count' of 'int' objects>",
+          "primitive_calls": 4567219,
+          "calls": 4567219,
+          "self_seconds": 0.27174193700000004,
+          "cumulative_seconds": 0.27174193700000004
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<built-in method builtins.all>",
+          "primitive_calls": 963055,
+          "calls": 963055,
+          "self_seconds": 0.10185437300000001,
+          "cumulative_seconds": 0.24241716300000002
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 504,
+          "name": "<lambda>",
+          "primitive_calls": 611845,
+          "calls": 611845,
+          "self_seconds": 0.198104745,
+          "cumulative_seconds": 0.233354424
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 284,
+          "name": "<genexpr>",
+          "primitive_calls": 1914768,
+          "calls": 1914768,
+          "self_seconds": 0.20069725000000002,
+          "cumulative_seconds": 0.20069725000000002
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 198,
+          "name": "put",
+          "primitive_calls": 203933,
+          "calls": 203933,
+          "self_seconds": 0.11910725100000001,
+          "cumulative_seconds": 0.18551225200000002
+        },
+        {
+          "file": "~",
+          "line": 0,
+          "name": "<method 'bit_length' of 'int' objects>",
+          "primitive_calls": 3602274,
+          "calls": 3602274,
+          "self_seconds": 0.18190382000000002,
+          "cumulative_seconds": 0.18190382000000002
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 194,
+          "name": "checkpoint",
+          "primitive_calls": 856471,
+          "calls": 856471,
+          "self_seconds": 0.08774401100000001,
+          "cumulative_seconds": 0.17257232900000002
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 616,
+          "name": "o_push_count",
+          "primitive_calls": 38877,
+          "calls": 38877,
+          "self_seconds": 0.015696846,
+          "cumulative_seconds": 0.12465063000000001
+        },
+        {
+          "file": "/Users/shauryaverma/Documents/GitHub/tic-tac-go-perfected/solver/push_solver/v4.py",
+          "line": 753,
+          "name": "<genexpr>",
+          "primitive_calls": 238487,
+          "calls": 238487,
+          "self_seconds": 0.040142743,
+          "cumulative_seconds": 0.12386946400000001
+        }
+      ]
+    }
+  }
+}

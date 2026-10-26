@@ -1,0 +1,6819 @@
+{
+  "engine_sha256": "66415a30be6a6531e3dba6b02c75bbf6339fd788bbed136ee9c81a2f4b72ca21",
+  "implementation_commit": "be102877d0732aeada084d7ad50576596d83a4c3",
+  "scope": "Native Mac corpora and local Linux ARM64 container probes are research evidence. Each corpus ran sequentially, with independent experiments concurrently on the host. No deployment-matched 10 fresh + 10 warm repetition gate or unseen-board claim.",
+  "production_default": "v3",
+  "cohorts": {
+    "beam8-straight-ablation.jsonl": {
+      "records": 14,
+      "distinct_boards": 14,
+      "verified": 12,
+      "verified_within_budget": 12,
+      "failed_ids": [
+        "20260301",
+        "20260802"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.406673729499744,
+      "max_wall_seconds": 29.768826291008736,
+      "process_peak_rss_bytes": 177143808,
+      "common_v3_solved_move_comparison": {
+        "records": 7,
+        "median_v3_moves": 59,
+        "median_candidate_moves": 122,
+        "total_v3_moves": 682,
+        "total_candidate_moves": 930
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.073221125014243,
+          "max_seconds": 5.073221125014243
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.5243839580070926,
+          "max_seconds": 2.5243839580070926
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 12.799650957997073,
+          "max_seconds": 12.799650957997073
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.3692659590014955,
+          "max_seconds": 4.3692659590014955
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 26.124596624998958,
+          "max_seconds": 26.124596624998958
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.03844483399007,
+          "max_seconds": 1.03844483399007
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.203436708005029,
+          "max_seconds": 4.203436708005029
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.444081499997992,
+          "max_seconds": 4.444081499997992
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.1177964590024203,
+          "max_seconds": 2.1177964590024203
+        }
+      }
+    },
+    "container-straight-targets.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 9,
+      "verified_within_budget": 9,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.537912585000015,
+      "max_wall_seconds": 29.42680255600004,
+      "process_peak_rss_bytes": 145051648,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 126.5,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 574
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.905827294000005,
+          "max_seconds": 4.905827294000005
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.5831007510000177,
+          "max_seconds": 2.5831007510000177
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 15.12363984000001,
+          "max_seconds": 15.12363984000001
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.862019251999982,
+          "max_seconds": 4.862019251999982
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 29.42680255600004,
+          "max_seconds": 29.42680255600004
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.067185166999991,
+          "max_seconds": 1.067185166999991
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.427947710000012,
+          "max_seconds": 4.427947710000012
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.537912585000015,
+          "max_seconds": 4.537912585000015
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.1527565430000095,
+          "max_seconds": 2.1527565430000095
+        }
+      }
+    },
+    "container-targets.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 9,
+      "verified_within_budget": 9,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 5.1935658769999975,
+      "max_wall_seconds": 24.60638676100001,
+      "process_peak_rss_bytes": 137256960,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 107.5,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 487
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.738651543000003,
+          "max_seconds": 2.738651543000003
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 10.895170463999989,
+          "max_seconds": 10.895170463999989
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 21.525743968,
+          "max_seconds": 21.525743968
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 7.655149169999987,
+          "max_seconds": 7.655149169999987
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 24.60638676100001,
+          "max_seconds": 24.60638676100001
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.1935658769999975,
+          "max_seconds": 5.1935658769999975
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.081167294000011,
+          "max_seconds": 5.081167294000011
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.584648544000004,
+          "max_seconds": 4.584648544000004
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.3335419590000015,
+          "max_seconds": 3.3335419590000015
+        }
+      }
+    },
+    "corpus-beam8-forced.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 392,
+      "verified_within_budget": 392,
+      "failed_ids": [
+        "20250928",
+        "20251221",
+        "20260215",
+        "20260301",
+        "20260802"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20251221",
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": true,
+      "solved_median_seconds": 0.09879177149559837,
+      "max_wall_seconds": 29.767045208005584,
+      "process_peak_rss_bytes": 214482944,
+      "common_v3_solved_move_comparison": {
+        "records": 386,
+        "median_v3_moves": 53.0,
+        "median_candidate_moves": 57.0,
+        "total_v3_moves": 23517,
+        "total_candidate_moves": 25787
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.357104833004996,
+          "max_seconds": 2.357104833004996
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 9.209905665993574,
+          "max_seconds": 9.209905665993574
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 19.382515208009863,
+          "max_seconds": 19.382515208009863
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 7.274907582992455,
+          "max_seconds": 7.274907582992455
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 22.752955292002298,
+          "max_seconds": 22.752955292002298
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.66424966599152,
+          "max_seconds": 4.66424966599152
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.861329124993063,
+          "max_seconds": 4.861329124993063
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.384888583997963,
+          "max_seconds": 4.384888583997963
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.096050792009919,
+          "max_seconds": 3.096050792009919
+        }
+      },
+      "coverage_gate": {
+        "passed": false,
+        "v3_verified": 390,
+        "v4_verified": 392,
+        "coverage_losses": [
+          "20250928",
+          "20251221",
+          "20260301",
+          "20260802"
+        ],
+        "unsolved_targets": [],
+        "missing": [],
+        "baseline_boards": 397,
+        "stale_engine_inputs": [],
+        "invalid_budgets_or_individual_strategies": [],
+        "configuration_count": 1,
+        "invalid_record_count": false,
+        "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+      }
+    },
+    "corpus-beam8-straight.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 395,
+      "verified_within_budget": 395,
+      "failed_ids": [
+        "20260301",
+        "20260802"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": true,
+      "solved_median_seconds": 0.0865480420034146,
+      "max_wall_seconds": 29.76705395799945,
+      "process_peak_rss_bytes": 186122240,
+      "common_v3_solved_move_comparison": {
+        "records": 388,
+        "median_v3_moves": 53.0,
+        "median_candidate_moves": 56.0,
+        "total_v3_moves": 23632,
+        "total_candidate_moves": 24695
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.6409089590015355,
+          "max_seconds": 4.6409089590015355
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.172319666991825,
+          "max_seconds": 2.172319666991825
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 12.049789541008067,
+          "max_seconds": 12.049789541008067
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.062302999998792,
+          "max_seconds": 4.062302999998792
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 24.5499877090042,
+          "max_seconds": 24.5499877090042
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 0.7972880000015721,
+          "max_seconds": 0.7972880000015721
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.9020162079978036,
+          "max_seconds": 3.9020162079978036
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.083924624996143,
+          "max_seconds": 4.083924624996143
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.9236677500011865,
+          "max_seconds": 1.9236677500011865
+        }
+      },
+      "coverage_gate": {
+        "passed": false,
+        "v3_verified": 390,
+        "v4_verified": 395,
+        "coverage_losses": [
+          "20260301",
+          "20260802"
+        ],
+        "unsolved_targets": [],
+        "missing": [],
+        "baseline_boards": 397,
+        "stale_engine_inputs": [],
+        "invalid_budgets_or_individual_strategies": [],
+        "configuration_count": 1,
+        "invalid_record_count": false,
+        "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+      }
+    },
+    "corpus-final-forced.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 391,
+      "verified_within_budget": 391,
+      "failed_ids": [
+        "20250928",
+        "20251221",
+        "20260215",
+        "20260301",
+        "20260802",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20251221",
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": false,
+      "solved_median_seconds": 0.09782920799625572,
+      "max_wall_seconds": 29.825894833003986,
+      "process_peak_rss_bytes": 213532672,
+      "common_v3_solved_move_comparison": {
+        "records": 386,
+        "median_v3_moves": 53.0,
+        "median_candidate_moves": 57.0,
+        "total_v3_moves": 23517,
+        "total_candidate_moves": 25610
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.752861999993911,
+          "max_seconds": 2.752861999993911
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 9.890097042007255,
+          "max_seconds": 9.890097042007255
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 23.422738583001774,
+          "max_seconds": 23.422738583001774
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.147407583004679,
+          "max_seconds": 5.147407583004679
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.825894833003986,
+          "max_seconds": 29.825894833003986
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 6.015779082998051,
+          "max_seconds": 6.015779082998051
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.5886504579975735,
+          "max_seconds": 3.5886504579975735
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.023331374992267,
+          "max_seconds": 4.023331374992267
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.762952040997334,
+          "max_seconds": 3.762952040997334
+        }
+      },
+      "coverage_gate": {
+        "passed": false,
+        "v3_verified": 390,
+        "v4_verified": 391,
+        "coverage_losses": [
+          "20250928",
+          "20251221",
+          "20260301",
+          "20260802"
+        ],
+        "unsolved_targets": [
+          "20260913"
+        ],
+        "missing": [],
+        "baseline_boards": 397,
+        "stale_engine_inputs": [
+          "20250101",
+          "20250925",
+          "20250926",
+          "20250927",
+          "20250928",
+          "20250929",
+          "20250930",
+          "20251001",
+          "20251002",
+          "20251003",
+          "20251004",
+          "20251005",
+          "20251006",
+          "20251007",
+          "20251008",
+          "20251009",
+          "20251010",
+          "20251011",
+          "20251012",
+          "20251013",
+          "20251014",
+          "20251015",
+          "20251016",
+          "20251017",
+          "20251018",
+          "20251019",
+          "20251020",
+          "20251021",
+          "20251022",
+          "20251023",
+          "20251024",
+          "20251025",
+          "20251026",
+          "20251027",
+          "20251028",
+          "20251029",
+          "20251030",
+          "20251031",
+          "20251101",
+          "20251102",
+          "20251103",
+          "20251104",
+          "20251105",
+          "20251106",
+          "20251107",
+          "20251108",
+          "20251109",
+          "20251110",
+          "20251111",
+          "20251112",
+          "20251113",
+          "20251114",
+          "20251115",
+          "20251116",
+          "20251117",
+          "20251118",
+          "20251119",
+          "20251120",
+          "20251121",
+          "20251122",
+          "20251123",
+          "20251124",
+          "20251125",
+          "20251126",
+          "20251127",
+          "20251128",
+          "20251129",
+          "20251130",
+          "20251201",
+          "20251202",
+          "20251203",
+          "20251204",
+          "20251205",
+          "20251206",
+          "20251207",
+          "20251208",
+          "20251209",
+          "20251210",
+          "20251211",
+          "20251212",
+          "20251213",
+          "20251214",
+          "20251215",
+          "20251216",
+          "20251217",
+          "20251218",
+          "20251219",
+          "20251220",
+          "20251221",
+          "20251222",
+          "20251223",
+          "20251224",
+          "20251225",
+          "20251226",
+          "20251227",
+          "20251228",
+          "20251229",
+          "20251230",
+          "20251231",
+          "20260101",
+          "20260102",
+          "20260103",
+          "20260104",
+          "20260105",
+          "20260106",
+          "20260107",
+          "20260108",
+          "20260109",
+          "20260110",
+          "20260111",
+          "20260112",
+          "20260113",
+          "20260114",
+          "20260115",
+          "20260116",
+          "20260117",
+          "20260118",
+          "20260119",
+          "20260120",
+          "20260121",
+          "20260122",
+          "20260123",
+          "20260124",
+          "20260125",
+          "20260126",
+          "20260127",
+          "20260128",
+          "20260129",
+          "20260130",
+          "20260131",
+          "20260201",
+          "20260202",
+          "20260203",
+          "20260204",
+          "20260205",
+          "20260206",
+          "20260207",
+          "20260208",
+          "20260209",
+          "20260210",
+          "20260211",
+          "20260212",
+          "20260213",
+          "20260214",
+          "20260215",
+          "20260216",
+          "20260217",
+          "20260218",
+          "20260219",
+          "20260220",
+          "20260221",
+          "20260222",
+          "20260223",
+          "20260224",
+          "20260225",
+          "20260226",
+          "20260227",
+          "20260228",
+          "20260301",
+          "20260302",
+          "20260303",
+          "20260304",
+          "20260305",
+          "20260306",
+          "20260307",
+          "20260308",
+          "20260309",
+          "20260310",
+          "20260311",
+          "20260312",
+          "20260313",
+          "20260314",
+          "20260315",
+          "20260316",
+          "20260317",
+          "20260318",
+          "20260319",
+          "20260320",
+          "20260321",
+          "20260322",
+          "20260323",
+          "20260324",
+          "20260325",
+          "20260326",
+          "20260327",
+          "20260328",
+          "20260329",
+          "20260330",
+          "20260331",
+          "20260401",
+          "20260402",
+          "20260403",
+          "20260404",
+          "20260405",
+          "20260406",
+          "20260407",
+          "20260408",
+          "20260409",
+          "20260410",
+          "20260411",
+          "20260412",
+          "20260413",
+          "20260414",
+          "20260415",
+          "20260416",
+          "20260417",
+          "20260418",
+          "20260419",
+          "20260420",
+          "20260421",
+          "20260422",
+          "20260423",
+          "20260424",
+          "20260425",
+          "20260426",
+          "20260427",
+          "20260428",
+          "20260429",
+          "20260430",
+          "20260501",
+          "20260502",
+          "20260503",
+          "20260504",
+          "20260505",
+          "20260506",
+          "20260507",
+          "20260508",
+          "20260509",
+          "20260510",
+          "20260511",
+          "20260512",
+          "20260513",
+          "20260514",
+          "20260515",
+          "20260516",
+          "20260517",
+          "20260518",
+          "20260519",
+          "20260520",
+          "20260521",
+          "20260522",
+          "20260523",
+          "20260524",
+          "20260525",
+          "20260526",
+          "20260527",
+          "20260528",
+          "20260529",
+          "20260530",
+          "20260531",
+          "20260601",
+          "20260602",
+          "20260603",
+          "20260604",
+          "20260605",
+          "20260606",
+          "20260607",
+          "20260608",
+          "20260609",
+          "20260610",
+          "20260611",
+          "20260612",
+          "20260613",
+          "20260614",
+          "20260615",
+          "20260616",
+          "20260617",
+          "20260618",
+          "20260619",
+          "20260620",
+          "20260621",
+          "20260622",
+          "20260623",
+          "20260624",
+          "20260625",
+          "20260626",
+          "20260627",
+          "20260628",
+          "20260629",
+          "20260630",
+          "20260701",
+          "20260702",
+          "20260703",
+          "20260704",
+          "20260705",
+          "20260706",
+          "20260707",
+          "20260708",
+          "20260709",
+          "20260710",
+          "20260711",
+          "20260712",
+          "20260713",
+          "20260714",
+          "20260715",
+          "20260716",
+          "20260717",
+          "20260718",
+          "20260719",
+          "20260720",
+          "20260721",
+          "20260722",
+          "20260723",
+          "20260724",
+          "20260725",
+          "20260726",
+          "20260727",
+          "20260728",
+          "20260729",
+          "20260730",
+          "20260731",
+          "20260801",
+          "20260802",
+          "20260803",
+          "20260804",
+          "20260805",
+          "20260806",
+          "20260807",
+          "20260808",
+          "20260809",
+          "20260810",
+          "20260811",
+          "20260812",
+          "20260813",
+          "20260814",
+          "20260815",
+          "20260816",
+          "20260817",
+          "20260818",
+          "20260819",
+          "20260820",
+          "20260821",
+          "20260822",
+          "20260823",
+          "20260824",
+          "20260825",
+          "20260826",
+          "20260827",
+          "20260828",
+          "20260829",
+          "20260830",
+          "20260831",
+          "20260901",
+          "20260902",
+          "20260903",
+          "20260904",
+          "20260905",
+          "20260906",
+          "20260907",
+          "20260908",
+          "20260909",
+          "20260910",
+          "20260911",
+          "20260912",
+          "20260913",
+          "20260914",
+          "20260915",
+          "20260916",
+          "20260917",
+          "20260918",
+          "20260919",
+          "20260920",
+          "20260921",
+          "20260922",
+          "20260923",
+          "20260924",
+          "20260925",
+          "20260926",
+          "20260927",
+          "20260928",
+          "20260929",
+          "20260930",
+          "20261001",
+          "20261002",
+          "20261003",
+          "20261004",
+          "20261005",
+          "20261006",
+          "20261007",
+          "20261008",
+          "20261009",
+          "20261010",
+          "20261011",
+          "20261012",
+          "20261013",
+          "20261014",
+          "20261015",
+          "20261016",
+          "20261017",
+          "20261018",
+          "20261019",
+          "20261020",
+          "20261021",
+          "20261022",
+          "20261023",
+          "20261024",
+          "20261025"
+        ],
+        "invalid_budgets_or_individual_strategies": [],
+        "configuration_count": 1,
+        "invalid_record_count": false,
+        "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+      }
+    },
+    "corpus-round2-default.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 388,
+      "verified_within_budget": 388,
+      "failed_ids": [
+        "20251116",
+        "20251207",
+        "20260301",
+        "20260314",
+        "20260627",
+        "20260802",
+        "20260829",
+        "20260913",
+        "20261024"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20251116",
+        "20251207",
+        "20260301",
+        "20260627",
+        "20260802",
+        "20260829",
+        "20261024"
+      ],
+      "matches_current_engine": true,
+      "solved_median_seconds": 0.11352258299302775,
+      "max_wall_seconds": 29.94589541699679,
+      "process_peak_rss_bytes": 270696448,
+      "common_v3_solved_move_comparison": {
+        "records": 383,
+        "median_v3_moves": 53,
+        "median_candidate_moves": 60,
+        "total_v3_moves": 23026,
+        "total_candidate_moves": 25641
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 23.24081641699013,
+          "max_seconds": 23.24081641699013
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 6.203404542000499,
+          "max_seconds": 6.203404542000499
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.77345691699884,
+          "max_seconds": 29.77345691699884
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 0.7550181660044473,
+          "max_seconds": 0.7550181660044473
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.94589541699679,
+          "max_seconds": 29.94589541699679
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.1685842080041766,
+          "max_seconds": 3.1685842080041766
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.9246025839966023,
+          "max_seconds": 2.9246025839966023
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.617057833005674,
+          "max_seconds": 5.617057833005674
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.2824065829918254,
+          "max_seconds": 1.2824065829918254
+        }
+      },
+      "coverage_gate": {
+        "passed": false,
+        "v3_verified": 390,
+        "v4_verified": 388,
+        "coverage_losses": [
+          "20251116",
+          "20251207",
+          "20260301",
+          "20260627",
+          "20260802",
+          "20260829",
+          "20261024"
+        ],
+        "unsolved_targets": [
+          "20260314",
+          "20260913"
+        ],
+        "missing": [],
+        "baseline_boards": 397,
+        "stale_engine_inputs": [],
+        "invalid_budgets_or_individual_strategies": [],
+        "configuration_count": 1,
+        "invalid_record_count": false,
+        "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+      }
+    },
+    "corpus-round2-straight.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 393,
+      "verified_within_budget": 393,
+      "failed_ids": [
+        "20250928",
+        "20260301",
+        "20260802",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": true,
+      "solved_median_seconds": 0.10394716600421816,
+      "max_wall_seconds": 29.771215625005425,
+      "process_peak_rss_bytes": 196608000,
+      "common_v3_solved_move_comparison": {
+        "records": 387,
+        "median_v3_moves": 53,
+        "median_candidate_moves": 55,
+        "total_v3_moves": 23573,
+        "total_candidate_moves": 23965
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.7574346250039525,
+          "max_seconds": 5.7574346250039525
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.3314427910081577,
+          "max_seconds": 2.3314427910081577
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 17.357983041001717,
+          "max_seconds": 17.357983041001717
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.251735874990118,
+          "max_seconds": 5.251735874990118
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.771215625005425,
+          "max_seconds": 29.771215625005425
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.0029392079886748,
+          "max_seconds": 1.0029392079886748
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.032085166007164,
+          "max_seconds": 5.032085166007164
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.832194874994457,
+          "max_seconds": 5.832194874994457
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.524166167000658,
+          "max_seconds": 2.524166167000658
+        }
+      },
+      "coverage_gate": {
+        "passed": false,
+        "v3_verified": 390,
+        "v4_verified": 393,
+        "coverage_losses": [
+          "20250928",
+          "20260301",
+          "20260802"
+        ],
+        "unsolved_targets": [
+          "20260913"
+        ],
+        "missing": [],
+        "baseline_boards": 397,
+        "stale_engine_inputs": [],
+        "invalid_budgets_or_individual_strategies": [],
+        "configuration_count": 1,
+        "invalid_record_count": false,
+        "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+      }
+    },
+    "feature-ablation-forced.jsonl": {
+      "records": 4,
+      "distinct_boards": 4,
+      "verified": 2,
+      "verified_within_budget": 2,
+      "failed_ids": [
+        "20250928",
+        "20260301"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20260301"
+      ],
+      "matches_current_engine": false,
+      "solved_median_seconds": 24.023560041503515,
+      "max_wall_seconds": 29.758971834002296,
+      "process_peak_rss_bytes": 172113920,
+      "common_v3_solved_move_comparison": {
+        "records": 2,
+        "median_v3_moves": 39.0,
+        "median_candidate_moves": 127.0,
+        "total_v3_moves": 78,
+        "total_candidate_moves": 254
+      },
+      "targets": {
+        "20251212": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20251228": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260314": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260911": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260913": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261004": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261017": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261018": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261025": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        }
+      }
+    },
+    "focused-budgeted-v3.jsonl": {
+      "records": 5,
+      "distinct_boards": 5,
+      "verified": 2,
+      "verified_within_budget": 2,
+      "failed_ids": [
+        "20260301",
+        "20260802",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": false,
+      "solved_median_seconds": 18.521102145496116,
+      "max_wall_seconds": 29.770704833994387,
+      "process_peak_rss_bytes": 186466304,
+      "common_v3_solved_move_comparison": {
+        "records": 2,
+        "median_v3_moves": 45.0,
+        "median_candidate_moves": 137.0,
+        "total_v3_moves": 90,
+        "total_candidate_moves": 274
+      },
+      "targets": {
+        "20251212": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20251228": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260314": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260911": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.769740000003367,
+          "max_seconds": 29.769740000003367
+        },
+        "20261004": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261017": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261018": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261025": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        }
+      }
+    },
+    "focused-filtered-forced.jsonl": {
+      "records": 5,
+      "distinct_boards": 5,
+      "verified": 1,
+      "verified_within_budget": 1,
+      "failed_ids": [
+        "20250928",
+        "20260301",
+        "20260802",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": false,
+      "solved_median_seconds": 8.641417792008724,
+      "max_wall_seconds": 29.764960500004236,
+      "process_peak_rss_bytes": 207306752,
+      "common_v3_solved_move_comparison": {
+        "records": 1,
+        "median_v3_moves": 31,
+        "median_candidate_moves": 110,
+        "total_v3_moves": 31,
+        "total_candidate_moves": 110
+      },
+      "targets": {
+        "20251212": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20251228": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260314": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260911": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.763739000001806,
+          "max_seconds": 29.763739000001806
+        },
+        "20261004": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261017": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261018": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261025": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        }
+      }
+    },
+    "focused-filtered-straight.jsonl": {
+      "records": 5,
+      "distinct_boards": 5,
+      "verified": 1,
+      "verified_within_budget": 1,
+      "failed_ids": [
+        "20250928",
+        "20260301",
+        "20260802",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20260301",
+        "20260802"
+      ],
+      "matches_current_engine": false,
+      "solved_median_seconds": 8.570606958004646,
+      "max_wall_seconds": 29.76986687500903,
+      "process_peak_rss_bytes": 186531840,
+      "common_v3_solved_move_comparison": {
+        "records": 1,
+        "median_v3_moves": 31,
+        "median_candidate_moves": 102,
+        "total_v3_moves": 31,
+        "total_candidate_moves": 102
+      },
+      "targets": {
+        "20251212": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20251228": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260314": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260911": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.76986687500903,
+          "max_seconds": 29.76986687500903
+        },
+        "20261004": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261017": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261018": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        },
+        "20261025": {
+          "runs": 0,
+          "verified_within_budget": 0,
+          "min_seconds": null,
+          "max_seconds": null
+        }
+      }
+    },
+    "targets-beam8-forced.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 9,
+      "verified_within_budget": 9,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.977917917000013,
+      "max_wall_seconds": 23.60086845800106,
+      "process_peak_rss_bytes": 151339008,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 107.5,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 487
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.3120265409961576,
+          "max_seconds": 2.3120265409961576
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 9.370155750002596,
+          "max_seconds": 9.370155750002596
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 20.028182666996145,
+          "max_seconds": 20.028182666996145
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 7.601566917001037,
+          "max_seconds": 7.601566917001037
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 23.60086845800106,
+          "max_seconds": 23.60086845800106
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.970799957998679,
+          "max_seconds": 4.970799957998679
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.977917917000013,
+          "max_seconds": 4.977917917000013
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.535551666995161,
+          "max_seconds": 4.535551666995161
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.236166583999875,
+          "max_seconds": 3.236166583999875
+        }
+      }
+    },
+    "targets-beam8-fresh.jsonl": {
+      "records": 27,
+      "distinct_boards": 9,
+      "verified": 27,
+      "verified_within_budget": 27,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 5.038860332992044,
+      "max_wall_seconds": 23.824718749994645,
+      "process_peak_rss_bytes": 143474688,
+      "common_v3_solved_move_comparison": {
+        "records": 12,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 107.5,
+        "total_v3_moves": 1608,
+        "total_candidate_moves": 1461
+      },
+      "targets": {
+        "20251212": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 2.3885142090002773,
+          "max_seconds": 2.407935582989012
+        },
+        "20251228": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 9.176335833995836,
+          "max_seconds": 9.971913416986354
+        },
+        "20260314": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 18.52791945800709,
+          "max_seconds": 19.22096549998969
+        },
+        "20260911": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 7.240528250011266,
+          "max_seconds": 7.294504000004963
+        },
+        "20260913": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 22.451770792002208,
+          "max_seconds": 23.824718749994645
+        },
+        "20261004": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.745908999990206,
+          "max_seconds": 5.038860332992044
+        },
+        "20261017": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.841067875007866,
+          "max_seconds": 5.039188083988847
+        },
+        "20261018": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.4640572919888655,
+          "max_seconds": 4.618032541999128
+        },
+        "20261025": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 3.142958875003387,
+          "max_seconds": 3.266983000008622
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            0
+          ],
+          [
+            "20251212",
+            "warm",
+            1
+          ],
+          [
+            "20251212",
+            "warm",
+            2
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            0
+          ],
+          [
+            "20251228",
+            "warm",
+            1
+          ],
+          [
+            "20251228",
+            "warm",
+            2
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            0
+          ],
+          [
+            "20260314",
+            "warm",
+            1
+          ],
+          [
+            "20260314",
+            "warm",
+            2
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            0
+          ],
+          [
+            "20260911",
+            "warm",
+            1
+          ],
+          [
+            "20260911",
+            "warm",
+            2
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            0
+          ],
+          [
+            "20260913",
+            "warm",
+            1
+          ],
+          [
+            "20260913",
+            "warm",
+            2
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            0
+          ],
+          [
+            "20261004",
+            "warm",
+            1
+          ],
+          [
+            "20261004",
+            "warm",
+            2
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            0
+          ],
+          [
+            "20261017",
+            "warm",
+            1
+          ],
+          [
+            "20261017",
+            "warm",
+            2
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            0
+          ],
+          [
+            "20261018",
+            "warm",
+            1
+          ],
+          [
+            "20261018",
+            "warm",
+            2
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            0
+          ],
+          [
+            "20261025",
+            "warm",
+            1
+          ],
+          [
+            "20261025",
+            "warm",
+            2
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    },
+    "targets-beam8-straight-fresh.jsonl": {
+      "records": 27,
+      "distinct_boards": 9,
+      "verified": 27,
+      "verified_within_budget": 27,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.044157416006783,
+      "max_wall_seconds": 25.59799679099524,
+      "process_peak_rss_bytes": 157417472,
+      "common_v3_solved_move_comparison": {
+        "records": 12,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 126.5,
+        "total_v3_moves": 1608,
+        "total_candidate_moves": 1722
+      },
+      "targets": {
+        "20251212": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.32991320801375,
+          "max_seconds": 4.483552749996306
+        },
+        "20251228": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 2.106648834000225,
+          "max_seconds": 2.188651624994236
+        },
+        "20260314": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 11.941412208994734,
+          "max_seconds": 12.117764333001105
+        },
+        "20260911": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.083063499987475,
+          "max_seconds": 4.197259250009665
+        },
+        "20260913": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 24.824833124992438,
+          "max_seconds": 25.59799679099524
+        },
+        "20261004": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 0.797581541002728,
+          "max_seconds": 0.8181738749990473
+        },
+        "20261017": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 3.9313357080100104,
+          "max_seconds": 4.027901624998776
+        },
+        "20261018": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.029420083999867,
+          "max_seconds": 4.0942342080088565
+        },
+        "20261025": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 1.8287182089989074,
+          "max_seconds": 1.872454790995107
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            0
+          ],
+          [
+            "20251212",
+            "warm",
+            1
+          ],
+          [
+            "20251212",
+            "warm",
+            2
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            0
+          ],
+          [
+            "20251228",
+            "warm",
+            1
+          ],
+          [
+            "20251228",
+            "warm",
+            2
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            0
+          ],
+          [
+            "20260314",
+            "warm",
+            1
+          ],
+          [
+            "20260314",
+            "warm",
+            2
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            0
+          ],
+          [
+            "20260911",
+            "warm",
+            1
+          ],
+          [
+            "20260911",
+            "warm",
+            2
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            0
+          ],
+          [
+            "20260913",
+            "warm",
+            1
+          ],
+          [
+            "20260913",
+            "warm",
+            2
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            0
+          ],
+          [
+            "20261004",
+            "warm",
+            1
+          ],
+          [
+            "20261004",
+            "warm",
+            2
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            0
+          ],
+          [
+            "20261017",
+            "warm",
+            1
+          ],
+          [
+            "20261017",
+            "warm",
+            2
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            0
+          ],
+          [
+            "20261018",
+            "warm",
+            1
+          ],
+          [
+            "20261018",
+            "warm",
+            2
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            0
+          ],
+          [
+            "20261025",
+            "warm",
+            1
+          ],
+          [
+            "20261025",
+            "warm",
+            2
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    },
+    "targets-beam8-straight-warm.jsonl": {
+      "records": 27,
+      "distinct_boards": 9,
+      "verified": 27,
+      "verified_within_budget": 27,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.186448958993424,
+      "max_wall_seconds": 26.365674375003437,
+      "process_peak_rss_bytes": 160612352,
+      "common_v3_solved_move_comparison": {
+        "records": 12,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 126.5,
+        "total_v3_moves": 1608,
+        "total_candidate_moves": 1722
+      },
+      "targets": {
+        "20251212": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.557415207993472,
+          "max_seconds": 4.672645250000642
+        },
+        "20251228": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 2.1834727079985896,
+          "max_seconds": 2.329589834000217
+        },
+        "20260314": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 12.400284375005867,
+          "max_seconds": 12.974622250010725
+        },
+        "20260911": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.2289751250064,
+          "max_seconds": 4.382822792002116
+        },
+        "20260913": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 25.42632312499336,
+          "max_seconds": 26.365674375003437
+        },
+        "20261004": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 0.946891166997375,
+          "max_seconds": 0.9961599169910187
+        },
+        "20261017": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.023603334004292,
+          "max_seconds": 4.186448958993424
+        },
+        "20261018": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.148843999995734,
+          "max_seconds": 4.2524460420099786
+        },
+        "20261025": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 1.940114666998852,
+          "max_seconds": 2.005130208999617
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            0
+          ],
+          [
+            "20251212",
+            "fresh",
+            1
+          ],
+          [
+            "20251212",
+            "fresh",
+            2
+          ],
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            0
+          ],
+          [
+            "20251228",
+            "fresh",
+            1
+          ],
+          [
+            "20251228",
+            "fresh",
+            2
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            0
+          ],
+          [
+            "20260314",
+            "fresh",
+            1
+          ],
+          [
+            "20260314",
+            "fresh",
+            2
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            0
+          ],
+          [
+            "20260911",
+            "fresh",
+            1
+          ],
+          [
+            "20260911",
+            "fresh",
+            2
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            0
+          ],
+          [
+            "20260913",
+            "fresh",
+            1
+          ],
+          [
+            "20260913",
+            "fresh",
+            2
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            0
+          ],
+          [
+            "20261004",
+            "fresh",
+            1
+          ],
+          [
+            "20261004",
+            "fresh",
+            2
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            0
+          ],
+          [
+            "20261017",
+            "fresh",
+            1
+          ],
+          [
+            "20261017",
+            "fresh",
+            2
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            0
+          ],
+          [
+            "20261018",
+            "fresh",
+            1
+          ],
+          [
+            "20261018",
+            "fresh",
+            2
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            0
+          ],
+          [
+            "20261025",
+            "fresh",
+            1
+          ],
+          [
+            "20261025",
+            "fresh",
+            2
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    },
+    "targets-beam8-warm.jsonl": {
+      "records": 27,
+      "distinct_boards": 9,
+      "verified": 27,
+      "verified_within_budget": 27,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 5.822130750006181,
+      "max_wall_seconds": 24.39008058300533,
+      "process_peak_rss_bytes": 152338432,
+      "common_v3_solved_move_comparison": {
+        "records": 12,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 107.5,
+        "total_v3_moves": 1608,
+        "total_candidate_moves": 1461
+      },
+      "targets": {
+        "20251212": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 2.4261950420041103,
+          "max_seconds": 2.5999507079977775
+        },
+        "20251228": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 9.557061833998887,
+          "max_seconds": 10.31766095799685
+        },
+        "20260314": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 19.867659125011414,
+          "max_seconds": 20.301786333002383
+        },
+        "20260911": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 7.44907604099717,
+          "max_seconds": 7.769631458999356
+        },
+        "20260913": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 23.3847659160092,
+          "max_seconds": 24.39008058300533
+        },
+        "20261004": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 5.062240250001196,
+          "max_seconds": 5.3323930830083555
+        },
+        "20261017": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 5.083533208002336,
+          "max_seconds": 5.901533541997196
+        },
+        "20261018": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 4.576309374999255,
+          "max_seconds": 4.749898416994256
+        },
+        "20261025": {
+          "runs": 3,
+          "verified_within_budget": 3,
+          "min_seconds": 3.264567874997738,
+          "max_seconds": 3.3321444999892265
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            0
+          ],
+          [
+            "20251212",
+            "fresh",
+            1
+          ],
+          [
+            "20251212",
+            "fresh",
+            2
+          ],
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            0
+          ],
+          [
+            "20251228",
+            "fresh",
+            1
+          ],
+          [
+            "20251228",
+            "fresh",
+            2
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            0
+          ],
+          [
+            "20260314",
+            "fresh",
+            1
+          ],
+          [
+            "20260314",
+            "fresh",
+            2
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            0
+          ],
+          [
+            "20260911",
+            "fresh",
+            1
+          ],
+          [
+            "20260911",
+            "fresh",
+            2
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            0
+          ],
+          [
+            "20260913",
+            "fresh",
+            1
+          ],
+          [
+            "20260913",
+            "fresh",
+            2
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            0
+          ],
+          [
+            "20261004",
+            "fresh",
+            1
+          ],
+          [
+            "20261004",
+            "fresh",
+            2
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            0
+          ],
+          [
+            "20261017",
+            "fresh",
+            1
+          ],
+          [
+            "20261017",
+            "fresh",
+            2
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            0
+          ],
+          [
+            "20261018",
+            "fresh",
+            1
+          ],
+          [
+            "20261018",
+            "fresh",
+            2
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            0
+          ],
+          [
+            "20261025",
+            "fresh",
+            1
+          ],
+          [
+            "20261025",
+            "fresh",
+            2
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    },
+    "targets-budgeted-forced.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 9,
+      "verified_within_budget": 9,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": false,
+      "solved_median_seconds": 5.093610915995669,
+      "max_wall_seconds": 29.235343207998085,
+      "process_peak_rss_bytes": 163299328,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 122.0,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 517
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.57361687500088,
+          "max_seconds": 2.57361687500088
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 9.970706209001946,
+          "max_seconds": 9.970706209001946
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 23.213678000000073,
+          "max_seconds": 23.213678000000073
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.093610915995669,
+          "max_seconds": 5.093610915995669
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 29.235343207998085,
+          "max_seconds": 29.235343207998085
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.926199584006099,
+          "max_seconds": 5.926199584006099
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.6338162920001196,
+          "max_seconds": 3.6338162920001196
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 4.886525875001098,
+          "max_seconds": 4.886525875001098
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.363535166994552,
+          "max_seconds": 3.363535166994552
+        }
+      }
+    },
+    "targets-final-forced.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 8,
+      "verified_within_budget": 8,
+      "failed_ids": [
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": false,
+      "solved_median_seconds": 5.3449838335000095,
+      "max_wall_seconds": 29.764289958009613,
+      "process_peak_rss_bytes": 163577856,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 163.0,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 640
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.659618791003595,
+          "max_seconds": 2.659618791003595
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 10.29080858299858,
+          "max_seconds": 10.29080858299858
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 24.48062541699619,
+          "max_seconds": 24.48062541699619
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.203860084002372,
+          "max_seconds": 5.203860084002372
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.764289958009613,
+          "max_seconds": 29.764289958009613
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 6.209251166001195,
+          "max_seconds": 6.209251166001195
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.669144875006168,
+          "max_seconds": 3.669144875006168
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.486107582997647,
+          "max_seconds": 5.486107582997647
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 3.6882862919883337,
+          "max_seconds": 3.6882862919883337
+        }
+      }
+    },
+    "targets-focused-v2.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 8,
+      "verified_within_budget": 8,
+      "failed_ids": [
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": false,
+      "solved_median_seconds": 5.10490725049749,
+      "max_wall_seconds": 29.767804582996177,
+      "process_peak_rss_bytes": 173309952,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 127.5,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 570
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.057785958997556,
+          "max_seconds": 5.057785958997556
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.1629906659945846,
+          "max_seconds": 2.1629906659945846
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 10.831189374992391,
+          "max_seconds": 10.831189374992391
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.237328959003207,
+          "max_seconds": 5.237328959003207
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.767804582996177,
+          "max_seconds": 29.767804582996177
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 0.9915897920000134,
+          "max_seconds": 0.9915897920000134
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.152028541997424,
+          "max_seconds": 5.152028541997424
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 6.021082458013552,
+          "max_seconds": 6.021082458013552
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.5237317499995697,
+          "max_seconds": 2.5237317499995697
+        }
+      }
+    },
+    "targets-interleaved-v1.jsonl": {
+      "records": 9,
+      "distinct_boards": 9,
+      "verified": 5,
+      "verified_within_budget": 5,
+      "failed_ids": [
+        "20251212",
+        "20251228",
+        "20260314",
+        "20260913"
+      ],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": false,
+      "solved_median_seconds": 2.406116583995754,
+      "max_wall_seconds": 29.77364108299662,
+      "process_peak_rss_bytes": 316260352,
+      "common_v3_solved_move_comparison": {
+        "records": 4,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 95.0,
+        "total_v3_moves": 536,
+        "total_candidate_moves": 451
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.77364108299662,
+          "max_seconds": 29.77364108299662
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.760508749997825,
+          "max_seconds": 29.760508749997825
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.76407887499954,
+          "max_seconds": 29.76407887499954
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.6741351660020882,
+          "max_seconds": 2.6741351660020882
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 29.770491166011197,
+          "max_seconds": 29.770491166011197
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.6291635829984443,
+          "max_seconds": 1.6291635829984443
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.406116583995754,
+          "max_seconds": 2.406116583995754
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 5.616490417000023,
+          "max_seconds": 5.616490417000023
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 1.9993529579951428,
+          "max_seconds": 1.9993529579951428
+        }
+      }
+    },
+    "v3-hint-free.jsonl": {
+      "records": 397,
+      "distinct_boards": 397,
+      "verified": 376,
+      "verified_within_budget": 375,
+      "failed_ids": [
+        "20250928",
+        "20251005",
+        "20251116",
+        "20251212",
+        "20251228",
+        "20260124",
+        "20260208",
+        "20260215",
+        "20260219",
+        "20260220",
+        "20260301",
+        "20260314",
+        "20260524",
+        "20260614",
+        "20260627",
+        "20260701",
+        "20260705",
+        "20260802",
+        "20260823",
+        "20260913",
+        "20261004",
+        "20261025"
+      ],
+      "coverage_losses_present_in_cohort": [
+        "20250928",
+        "20251005",
+        "20251116",
+        "20260124",
+        "20260208",
+        "20260219",
+        "20260220",
+        "20260301",
+        "20260614",
+        "20260627",
+        "20260701",
+        "20260705",
+        "20260802",
+        "20260823",
+        "20261025"
+      ],
+      "matches_current_engine": null,
+      "solved_median_seconds": 0.2004980829951819,
+      "max_wall_seconds": 31.612848584001767,
+      "process_peak_rss_bytes": 0,
+      "common_v3_solved_move_comparison": {
+        "records": 375,
+        "median_v3_moves": 53,
+        "median_candidate_moves": 53,
+        "total_v3_moves": 22483,
+        "total_candidate_moves": 22642
+      },
+      "targets": {
+        "20251212": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.429200083002797,
+          "max_seconds": 30.429200083002797
+        },
+        "20251228": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.633621041997685,
+          "max_seconds": 30.633621041997685
+        },
+        "20260314": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.125247541989665,
+          "max_seconds": 30.125247541989665
+        },
+        "20260911": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.6067659580003237,
+          "max_seconds": 2.6067659580003237
+        },
+        "20260913": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.796303000010084,
+          "max_seconds": 30.796303000010084
+        },
+        "20261004": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.301029541995376,
+          "max_seconds": 30.301029541995376
+        },
+        "20261017": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 2.2103380000044126,
+          "max_seconds": 2.2103380000044126
+        },
+        "20261018": {
+          "runs": 1,
+          "verified_within_budget": 1,
+          "min_seconds": 6.579636458001914,
+          "max_seconds": 6.579636458001914
+        },
+        "20261025": {
+          "runs": 1,
+          "verified_within_budget": 0,
+          "min_seconds": 30.138933541005827,
+          "max_seconds": 30.138933541005827
+        }
+      }
+    }
+  },
+  "native_repetitions": {
+    "targets-beam8": {
+      "records": 54,
+      "distinct_boards": 9,
+      "verified": 54,
+      "verified_within_budget": 54,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 5.215374604005774,
+      "max_wall_seconds": 24.39008058300533,
+      "process_peak_rss_bytes": 152338432,
+      "common_v3_solved_move_comparison": {
+        "records": 24,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 107.5,
+        "total_v3_moves": 3216,
+        "total_candidate_moves": 2922
+      },
+      "targets": {
+        "20251212": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 2.3885142090002773,
+          "max_seconds": 2.5999507079977775
+        },
+        "20251228": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 9.176335833995836,
+          "max_seconds": 10.31766095799685
+        },
+        "20260314": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 18.52791945800709,
+          "max_seconds": 20.301786333002383
+        },
+        "20260911": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 7.240528250011266,
+          "max_seconds": 7.769631458999356
+        },
+        "20260913": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 22.451770792002208,
+          "max_seconds": 24.39008058300533
+        },
+        "20261004": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.745908999990206,
+          "max_seconds": 5.3323930830083555
+        },
+        "20261017": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.841067875007866,
+          "max_seconds": 5.901533541997196
+        },
+        "20261018": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.4640572919888655,
+          "max_seconds": 4.749898416994256
+        },
+        "20261025": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 3.142958875003387,
+          "max_seconds": 3.3321444999892265
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    },
+    "targets-beam8-straight": {
+      "records": 54,
+      "distinct_boards": 9,
+      "verified": 54,
+      "verified_within_budget": 54,
+      "failed_ids": [],
+      "coverage_losses_present_in_cohort": [],
+      "matches_current_engine": true,
+      "solved_median_seconds": 4.113348666505772,
+      "max_wall_seconds": 26.365674375003437,
+      "process_peak_rss_bytes": 160612352,
+      "common_v3_solved_move_comparison": {
+        "records": 24,
+        "median_v3_moves": 130.0,
+        "median_candidate_moves": 126.5,
+        "total_v3_moves": 3216,
+        "total_candidate_moves": 3444
+      },
+      "targets": {
+        "20251212": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.32991320801375,
+          "max_seconds": 4.672645250000642
+        },
+        "20251228": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 2.106648834000225,
+          "max_seconds": 2.329589834000217
+        },
+        "20260314": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 11.941412208994734,
+          "max_seconds": 12.974622250010725
+        },
+        "20260911": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.083063499987475,
+          "max_seconds": 4.382822792002116
+        },
+        "20260913": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 24.824833124992438,
+          "max_seconds": 26.365674375003437
+        },
+        "20261004": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 0.797581541002728,
+          "max_seconds": 0.9961599169910187
+        },
+        "20261017": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 3.9313357080100104,
+          "max_seconds": 4.186448958993424
+        },
+        "20261018": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 4.029420083999867,
+          "max_seconds": 4.2524460420099786
+        },
+        "20261025": {
+          "runs": 6,
+          "verified_within_budget": 6,
+          "min_seconds": 1.8287182089989074,
+          "max_seconds": 2.005130208999617
+        }
+      },
+      "required_180_run_gate": {
+        "passed": false,
+        "missing": [
+          [
+            "20251212",
+            "fresh",
+            3
+          ],
+          [
+            "20251212",
+            "fresh",
+            4
+          ],
+          [
+            "20251212",
+            "fresh",
+            5
+          ],
+          [
+            "20251212",
+            "fresh",
+            6
+          ],
+          [
+            "20251212",
+            "fresh",
+            7
+          ],
+          [
+            "20251212",
+            "fresh",
+            8
+          ],
+          [
+            "20251212",
+            "fresh",
+            9
+          ],
+          [
+            "20251212",
+            "warm",
+            3
+          ],
+          [
+            "20251212",
+            "warm",
+            4
+          ],
+          [
+            "20251212",
+            "warm",
+            5
+          ],
+          [
+            "20251212",
+            "warm",
+            6
+          ],
+          [
+            "20251212",
+            "warm",
+            7
+          ],
+          [
+            "20251212",
+            "warm",
+            8
+          ],
+          [
+            "20251212",
+            "warm",
+            9
+          ],
+          [
+            "20251228",
+            "fresh",
+            3
+          ],
+          [
+            "20251228",
+            "fresh",
+            4
+          ],
+          [
+            "20251228",
+            "fresh",
+            5
+          ],
+          [
+            "20251228",
+            "fresh",
+            6
+          ],
+          [
+            "20251228",
+            "fresh",
+            7
+          ],
+          [
+            "20251228",
+            "fresh",
+            8
+          ],
+          [
+            "20251228",
+            "fresh",
+            9
+          ],
+          [
+            "20251228",
+            "warm",
+            3
+          ],
+          [
+            "20251228",
+            "warm",
+            4
+          ],
+          [
+            "20251228",
+            "warm",
+            5
+          ],
+          [
+            "20251228",
+            "warm",
+            6
+          ],
+          [
+            "20251228",
+            "warm",
+            7
+          ],
+          [
+            "20251228",
+            "warm",
+            8
+          ],
+          [
+            "20251228",
+            "warm",
+            9
+          ],
+          [
+            "20260314",
+            "fresh",
+            3
+          ],
+          [
+            "20260314",
+            "fresh",
+            4
+          ],
+          [
+            "20260314",
+            "fresh",
+            5
+          ],
+          [
+            "20260314",
+            "fresh",
+            6
+          ],
+          [
+            "20260314",
+            "fresh",
+            7
+          ],
+          [
+            "20260314",
+            "fresh",
+            8
+          ],
+          [
+            "20260314",
+            "fresh",
+            9
+          ],
+          [
+            "20260314",
+            "warm",
+            3
+          ],
+          [
+            "20260314",
+            "warm",
+            4
+          ],
+          [
+            "20260314",
+            "warm",
+            5
+          ],
+          [
+            "20260314",
+            "warm",
+            6
+          ],
+          [
+            "20260314",
+            "warm",
+            7
+          ],
+          [
+            "20260314",
+            "warm",
+            8
+          ],
+          [
+            "20260314",
+            "warm",
+            9
+          ],
+          [
+            "20260911",
+            "fresh",
+            3
+          ],
+          [
+            "20260911",
+            "fresh",
+            4
+          ],
+          [
+            "20260911",
+            "fresh",
+            5
+          ],
+          [
+            "20260911",
+            "fresh",
+            6
+          ],
+          [
+            "20260911",
+            "fresh",
+            7
+          ],
+          [
+            "20260911",
+            "fresh",
+            8
+          ],
+          [
+            "20260911",
+            "fresh",
+            9
+          ],
+          [
+            "20260911",
+            "warm",
+            3
+          ],
+          [
+            "20260911",
+            "warm",
+            4
+          ],
+          [
+            "20260911",
+            "warm",
+            5
+          ],
+          [
+            "20260911",
+            "warm",
+            6
+          ],
+          [
+            "20260911",
+            "warm",
+            7
+          ],
+          [
+            "20260911",
+            "warm",
+            8
+          ],
+          [
+            "20260911",
+            "warm",
+            9
+          ],
+          [
+            "20260913",
+            "fresh",
+            3
+          ],
+          [
+            "20260913",
+            "fresh",
+            4
+          ],
+          [
+            "20260913",
+            "fresh",
+            5
+          ],
+          [
+            "20260913",
+            "fresh",
+            6
+          ],
+          [
+            "20260913",
+            "fresh",
+            7
+          ],
+          [
+            "20260913",
+            "fresh",
+            8
+          ],
+          [
+            "20260913",
+            "fresh",
+            9
+          ],
+          [
+            "20260913",
+            "warm",
+            3
+          ],
+          [
+            "20260913",
+            "warm",
+            4
+          ],
+          [
+            "20260913",
+            "warm",
+            5
+          ],
+          [
+            "20260913",
+            "warm",
+            6
+          ],
+          [
+            "20260913",
+            "warm",
+            7
+          ],
+          [
+            "20260913",
+            "warm",
+            8
+          ],
+          [
+            "20260913",
+            "warm",
+            9
+          ],
+          [
+            "20261004",
+            "fresh",
+            3
+          ],
+          [
+            "20261004",
+            "fresh",
+            4
+          ],
+          [
+            "20261004",
+            "fresh",
+            5
+          ],
+          [
+            "20261004",
+            "fresh",
+            6
+          ],
+          [
+            "20261004",
+            "fresh",
+            7
+          ],
+          [
+            "20261004",
+            "fresh",
+            8
+          ],
+          [
+            "20261004",
+            "fresh",
+            9
+          ],
+          [
+            "20261004",
+            "warm",
+            3
+          ],
+          [
+            "20261004",
+            "warm",
+            4
+          ],
+          [
+            "20261004",
+            "warm",
+            5
+          ],
+          [
+            "20261004",
+            "warm",
+            6
+          ],
+          [
+            "20261004",
+            "warm",
+            7
+          ],
+          [
+            "20261004",
+            "warm",
+            8
+          ],
+          [
+            "20261004",
+            "warm",
+            9
+          ],
+          [
+            "20261017",
+            "fresh",
+            3
+          ],
+          [
+            "20261017",
+            "fresh",
+            4
+          ],
+          [
+            "20261017",
+            "fresh",
+            5
+          ],
+          [
+            "20261017",
+            "fresh",
+            6
+          ],
+          [
+            "20261017",
+            "fresh",
+            7
+          ],
+          [
+            "20261017",
+            "fresh",
+            8
+          ],
+          [
+            "20261017",
+            "fresh",
+            9
+          ],
+          [
+            "20261017",
+            "warm",
+            3
+          ],
+          [
+            "20261017",
+            "warm",
+            4
+          ],
+          [
+            "20261017",
+            "warm",
+            5
+          ],
+          [
+            "20261017",
+            "warm",
+            6
+          ],
+          [
+            "20261017",
+            "warm",
+            7
+          ],
+          [
+            "20261017",
+            "warm",
+            8
+          ],
+          [
+            "20261017",
+            "warm",
+            9
+          ],
+          [
+            "20261018",
+            "fresh",
+            3
+          ],
+          [
+            "20261018",
+            "fresh",
+            4
+          ],
+          [
+            "20261018",
+            "fresh",
+            5
+          ],
+          [
+            "20261018",
+            "fresh",
+            6
+          ],
+          [
+            "20261018",
+            "fresh",
+            7
+          ],
+          [
+            "20261018",
+            "fresh",
+            8
+          ],
+          [
+            "20261018",
+            "fresh",
+            9
+          ],
+          [
+            "20261018",
+            "warm",
+            3
+          ],
+          [
+            "20261018",
+            "warm",
+            4
+          ],
+          [
+            "20261018",
+            "warm",
+            5
+          ],
+          [
+            "20261018",
+            "warm",
+            6
+          ],
+          [
+            "20261018",
+            "warm",
+            7
+          ],
+          [
+            "20261018",
+            "warm",
+            8
+          ],
+          [
+            "20261018",
+            "warm",
+            9
+          ],
+          [
+            "20261025",
+            "fresh",
+            3
+          ],
+          [
+            "20261025",
+            "fresh",
+            4
+          ],
+          [
+            "20261025",
+            "fresh",
+            5
+          ],
+          [
+            "20261025",
+            "fresh",
+            6
+          ],
+          [
+            "20261025",
+            "fresh",
+            7
+          ],
+          [
+            "20261025",
+            "fresh",
+            8
+          ],
+          [
+            "20261025",
+            "fresh",
+            9
+          ],
+          [
+            "20261025",
+            "warm",
+            3
+          ],
+          [
+            "20261025",
+            "warm",
+            4
+          ],
+          [
+            "20261025",
+            "warm",
+            5
+          ],
+          [
+            "20261025",
+            "warm",
+            6
+          ],
+          [
+            "20261025",
+            "warm",
+            7
+          ],
+          [
+            "20261025",
+            "warm",
+            8
+          ],
+          [
+            "20261025",
+            "warm",
+            9
+          ]
+        ],
+        "failures": [],
+        "configuration_count": 1,
+        "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+      }
+    }
+  }
+}

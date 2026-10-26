@@ -1,0 +1,28 @@
+{
+  "implementation_commit": "be102877d0732aeada084d7ad50576596d83a4c3",
+  "local": {
+    "python_unittest": {
+      "tests": 172,
+      "passed": true,
+      "postgres_integration": true
+    },
+    "web_vitest": {
+      "tests": 34,
+      "passed": true
+    },
+    "web_lint": {
+      "passed": true
+    },
+    "ruff_E9_F_changed_python": {
+      "passed": true
+    },
+    "git_diff_check": {
+      "passed": true
+    },
+    "artifact_integrity": {
+      "passed": true
+    }
+  },
+  "web_environment_note": "Initial local web test lacked the optional native Rollup dependency. npm ci restored it; tests and lint then passed without tracked dependency changes.",
+  "scope": "Native tests and research probes; release gates remain failed. Hosted exact-commit receipts are separate."
+}
