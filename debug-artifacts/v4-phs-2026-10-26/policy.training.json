@@ -1,0 +1,700 @@
+{
+  "dataset_sha256": "5138f1a643050cb3fa8e1d6326e31e253a31184de78e40713d4c4eee43bd2c4b",
+  "model_sha256": "ee6ef08064482c96eb633b4075847489842d0e25c6563b8f62a1b393bdf208a5",
+  "epochs": 80,
+  "seed": 20261026,
+  "uniform_mix": 0.05,
+  "temperature": 1.1486983549970349,
+  "forced_decisions_excluded_from_fit_and_metrics": 99,
+  "history": [
+    {
+      "epoch": 1,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5215527506549178,
+      "mean_teacher_nll": 1.4799452641543416,
+      "board_mean_teacher_nll": 1.3840773843972256,
+      "ece_10_bins": 0.1325626057031476
+    },
+    {
+      "epoch": 11,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5879971421767087,
+      "mean_teacher_nll": 1.204711417907894,
+      "board_mean_teacher_nll": 1.1005086854950044,
+      "ece_10_bins": 0.043612802639383504
+    },
+    {
+      "epoch": 21,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5987139795189331,
+      "mean_teacher_nll": 1.1876907251386384,
+      "board_mean_teacher_nll": 1.0813390431507532,
+      "ece_10_bins": 0.04388480448353209
+    },
+    {
+      "epoch": 31,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5996665872826864,
+      "mean_teacher_nll": 1.1828147344015731,
+      "board_mean_teacher_nll": 1.0753818642266395,
+      "ece_10_bins": 0.045279898679911834
+    },
+    {
+      "epoch": 41,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5991902834008097,
+      "mean_teacher_nll": 1.1808922165099982,
+      "board_mean_teacher_nll": 1.073165354963002,
+      "ece_10_bins": 0.046114623568644535
+    },
+    {
+      "epoch": 51,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5991902834008097,
+      "mean_teacher_nll": 1.1802709833122906,
+      "board_mean_teacher_nll": 1.0722776890503016,
+      "ece_10_bins": 0.040480151822351144
+    },
+    {
+      "epoch": 61,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.5989521314598714,
+      "mean_teacher_nll": 1.1800336340587625,
+      "board_mean_teacher_nll": 1.0714781299991567,
+      "ece_10_bins": 0.04781405683819526
+    },
+    {
+      "epoch": 71,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.6003810431055013,
+      "mean_teacher_nll": 1.1796335251765109,
+      "board_mean_teacher_nll": 1.0711068086032345,
+      "ece_10_bins": 0.044041266091963314
+    },
+    {
+      "epoch": 80,
+      "decisions": 4199,
+      "boards": 323,
+      "top1_accuracy": 0.600142891164563,
+      "mean_teacher_nll": 1.179289404884169,
+      "board_mean_teacher_nll": 1.0708085253411765,
+      "ece_10_bins": 0.044801054621333214
+    }
+  ],
+  "calibration_grid": [
+    {
+      "temperature": 0.25,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.6559440728900976,
+      "board_mean_teacher_nll": 1.6251368516813418,
+      "ece_10_bins": 0.30435547780087396
+    },
+    {
+      "temperature": 0.2618235307051567,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.6373585940230575,
+      "board_mean_teacher_nll": 1.607244642069113,
+      "ece_10_bins": 0.3003282031092983
+    },
+    {
+      "temperature": 0.2742062449236565,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.6184404023940278,
+      "board_mean_teacher_nll": 1.5890957114827224,
+      "ece_10_bins": 0.2961407888785983
+    },
+    {
+      "temperature": 0.2871745887492587,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.5992146114431096,
+      "board_mean_teacher_nll": 1.5707084434480805,
+      "ece_10_bins": 0.2899803436086438
+    },
+    {
+      "temperature": 0.30075625902052916,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.579708580411617,
+      "board_mean_teacher_nll": 1.552101654098544,
+      "ece_10_bins": 0.2855000726764556
+    },
+    {
+      "temperature": 0.3149802624737183,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.5599534975434481,
+      "board_mean_teacher_nll": 1.5332959341607437,
+      "ece_10_bins": 0.28082979630196814
+    },
+    {
+      "temperature": 0.32987697769322355,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.5399859398022875,
+      "board_mean_teacher_nll": 1.5143150679164001,
+      "ece_10_bins": 0.2787509854497327
+    },
+    {
+      "temperature": 0.345478219991944,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.5198489498933123,
+      "board_mean_teacher_nll": 1.4951872213341104,
+      "ece_10_bins": 0.2699086179099784
+    },
+    {
+      "temperature": 0.3618173093600945,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4995923597201186,
+      "board_mean_teacher_nll": 1.4759457153300801,
+      "ece_10_bins": 0.26587487320979586
+    },
+    {
+      "temperature": 0.3789291416275995,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4792723399353243,
+      "board_mean_teacher_nll": 1.4566293507492858,
+      "ece_10_bins": 0.2588577471666568
+    },
+    {
+      "temperature": 0.39685026299204984,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4589503798620247,
+      "board_mean_teacher_nll": 1.437282372815026,
+      "ece_10_bins": 0.25343350537811304
+    },
+    {
+      "temperature": 0.4156189480713938,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4386920431597252,
+      "board_mean_teacher_nll": 1.4179542325712209,
+      "ece_10_bins": 0.2467633577420819
+    },
+    {
+      "temperature": 0.43527528164806206,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.418565877018544,
+      "board_mean_teacher_nll": 1.3986993224466109,
+      "ece_10_bins": 0.23895819674564417
+    },
+    {
+      "temperature": 0.4558612442791084,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3986427819232672,
+      "board_mean_teacher_nll": 1.3795768403830562,
+      "ece_10_bins": 0.23312141120789842
+    },
+    {
+      "temperature": 0.47742080195520825,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3789960045650322,
+      "board_mean_teacher_nll": 1.3606508784437723,
+      "ece_10_bins": 0.22424854896604016
+    },
+    {
+      "temperature": 0.5,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3597017372556672,
+      "board_mean_teacher_nll": 1.3419907431230855,
+      "ece_10_bins": 0.21718921431012728
+    },
+    {
+      "temperature": 0.5236470614103134,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.340840129250773,
+      "board_mean_teacher_nll": 1.3236714063872501,
+      "ece_10_bins": 0.20921432806406715
+    },
+    {
+      "temperature": 0.548412489847313,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3224963703822579,
+      "board_mean_teacher_nll": 1.305773880891696,
+      "ece_10_bins": 0.20133646361101146
+    },
+    {
+      "temperature": 0.5743491774985174,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.304761427675125,
+      "board_mean_teacher_nll": 1.2883852441777788,
+      "ece_10_bins": 0.19632773592789823
+    },
+    {
+      "temperature": 0.6015125180410583,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2877320317738732,
+      "board_mean_teacher_nll": 1.2715980407367717,
+      "ece_10_bins": 0.1901124265052233
+    },
+    {
+      "temperature": 0.6299605249474366,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2715096349287114,
+      "board_mean_teacher_nll": 1.2555088845604891,
+      "ece_10_bins": 0.17843814079423398
+    },
+    {
+      "temperature": 0.6597539553864471,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2561982740016007,
+      "board_mean_teacher_nll": 1.2402162503661713,
+      "ece_10_bins": 0.16781218725661512
+    },
+    {
+      "temperature": 0.690956439983888,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2419015136875913,
+      "board_mean_teacher_nll": 1.2258176295822754,
+      "ece_10_bins": 0.15741745425331063
+    },
+    {
+      "temperature": 0.723634618720189,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2287188458680054,
+      "board_mean_teacher_nll": 1.2124063769355824,
+      "ece_10_bins": 0.1471192928850248
+    },
+    {
+      "temperature": 0.7578582832551991,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2167420228769221,
+      "board_mean_teacher_nll": 1.2000686380920869,
+      "ece_10_bins": 0.13871984332455428
+    },
+    {
+      "temperature": 0.7937005259840998,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2060517821411154,
+      "board_mean_teacher_nll": 1.188880712105444,
+      "ece_10_bins": 0.1255027588116493
+    },
+    {
+      "temperature": 0.8312378961427878,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1967152966182113,
+      "board_mean_teacher_nll": 1.1789070849814056,
+      "ece_10_bins": 0.11611733878197848
+    },
+    {
+      "temperature": 0.8705505632961241,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1887845124085985,
+      "board_mean_teacher_nll": 1.1701992204731215,
+      "ece_10_bins": 0.10372646958032544
+    },
+    {
+      "temperature": 0.9117224885582168,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1822953722369327,
+      "board_mean_teacher_nll": 1.1627950635337054,
+      "ece_10_bins": 0.09508031989512736
+    },
+    {
+      "temperature": 0.9548416039104166,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.177267812199998,
+      "board_mean_teacher_nll": 1.1567191330512039,
+      "ece_10_bins": 0.08020338571248083
+    },
+    {
+      "temperature": 1.0,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1737063690085114,
+      "board_mean_teacher_nll": 1.1519830564424336,
+      "ece_10_bins": 0.08495281458936986
+    },
+    {
+      "temperature": 1.0472941228206267,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1716012313297632,
+      "board_mean_teacher_nll": 1.1485864109123418,
+      "ece_10_bins": 0.0711976839057427
+    },
+    {
+      "temperature": 1.096824979694626,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1709295887901023,
+      "board_mean_teacher_nll": 1.1465177612648756,
+      "ece_10_bins": 0.06651314544757686
+    },
+    {
+      "temperature": 1.1486983549970349,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.171657157452089,
+      "board_mean_teacher_nll": 1.1457558064531863,
+      "ece_10_bins": 0.04933346816034804
+    },
+    {
+      "temperature": 1.2030250360821166,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1737397825071862,
+      "board_mean_teacher_nll": 1.1462705624112384,
+      "ece_10_bins": 0.05726383651946885
+    },
+    {
+      "temperature": 1.2599210498948732,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1771250366659252,
+      "board_mean_teacher_nll": 1.1480245205819894,
+      "ece_10_bins": 0.06424638970265258
+    },
+    {
+      "temperature": 1.3195079107728942,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1817537487204461,
+      "board_mean_teacher_nll": 1.150973734768504,
+      "ece_10_bins": 0.05797700795841522
+    },
+    {
+      "temperature": 1.381912879967776,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1875614130904155,
+      "board_mean_teacher_nll": 1.1550688053439244,
+      "ece_10_bins": 0.061784137636160974
+    },
+    {
+      "temperature": 1.447269237440378,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.1944794481797034,
+      "board_mean_teacher_nll": 1.1602557477151354,
+      "ece_10_bins": 0.08170259694569608
+    },
+    {
+      "temperature": 1.515716566510398,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2024362880433277,
+      "board_mean_teacher_nll": 1.1664767478577438,
+      "ece_10_bins": 0.09712912127748942
+    },
+    {
+      "temperature": 1.5874010519681994,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2113583068243436,
+      "board_mean_teacher_nll": 1.173670819089702,
+      "ece_10_bins": 0.09520971936217221
+    },
+    {
+      "temperature": 1.6624757922855755,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2211705876764456,
+      "board_mean_teacher_nll": 1.1817743803114797,
+      "ece_10_bins": 0.0949592610814855
+    },
+    {
+      "temperature": 1.741101126592248,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2317975569707451,
+      "board_mean_teacher_nll": 1.1907217776232475,
+      "ece_10_bins": 0.10051993680264262
+    },
+    {
+      "temperature": 1.8234449771164334,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.243163510348863,
+      "board_mean_teacher_nll": 1.200445770051302,
+      "ece_10_bins": 0.10950566511515657
+    },
+    {
+      "temperature": 1.9096832078208328,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2551930595996548,
+      "board_mean_teacher_nll": 1.2108779973179415,
+      "ece_10_bins": 0.11222310346093307
+    },
+    {
+      "temperature": 1.9999999999999998,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.2678115284566203,
+      "board_mean_teacher_nll": 1.2219494438125689,
+      "ece_10_bins": 0.12069267701770918
+    },
+    {
+      "temperature": 2.094588245641253,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.280945321491484,
+      "board_mean_teacher_nll": 1.2335909083739238,
+      "ece_10_bins": 0.13229158169476984
+    },
+    {
+      "temperature": 2.193649959389252,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.29452228391187,
+      "board_mean_teacher_nll": 1.2457334842996723,
+      "ece_10_bins": 0.14482863274303193
+    },
+    {
+      "temperature": 2.29739670999407,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3084720622280446,
+      "board_mean_teacher_nll": 1.2583090484745396,
+      "ece_10_bins": 0.1510332925204896
+    },
+    {
+      "temperature": 2.4060500721642337,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3227264676590271,
+      "board_mean_teacher_nll": 1.2712507532186241,
+      "ece_10_bins": 0.16282767347744598
+    },
+    {
+      "temperature": 2.5198420997897464,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3372198370356387,
+      "board_mean_teacher_nll": 1.2844935100994526,
+      "ece_10_bins": 0.17210607941619357
+    },
+    {
+      "temperature": 2.639015821545788,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3518893808021368,
+      "board_mean_teacher_nll": 1.2979744521396879,
+      "ece_10_bins": 0.18349357133907712
+    },
+    {
+      "temperature": 2.7638257599355525,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.3666755050404311,
+      "board_mean_teacher_nll": 1.31163335993536,
+      "ece_10_bins": 0.19375961170888556
+    },
+    {
+      "temperature": 2.8945384748807554,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.381522094251628,
+      "board_mean_teacher_nll": 1.32541303817109,
+      "ece_10_bins": 0.1981981033595491
+    },
+    {
+      "temperature": 3.0314331330207964,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.396376743507547,
+      "board_mean_teacher_nll": 1.339259631547752,
+      "ece_10_bins": 0.20733249810394636
+    },
+    {
+      "temperature": 3.1748021039363983,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4111909318476974,
+      "board_mean_teacher_nll": 1.3531228726821212,
+      "ece_10_bins": 0.216159149063603
+    },
+    {
+      "temperature": 3.3249515845711515,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.425920132694898,
+      "board_mean_teacher_nll": 1.3669562584900712,
+      "ece_10_bins": 0.22420065762557503
+    },
+    {
+      "temperature": 3.4822022531844956,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.440523860934549,
+      "board_mean_teacher_nll": 1.3807171553812396,
+      "ece_10_bins": 0.23145250645841145
+    },
+    {
+      "temperature": 3.646889954232867,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4549656596700073,
+      "board_mean_teacher_nll": 1.3943668368742965,
+      "ece_10_bins": 0.23933630327877664
+    },
+    {
+      "temperature": 3.819366415641665,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.4692130322584098,
+      "board_mean_teacher_nll": 1.4078704597603109,
+      "ece_10_bins": 0.2438901572844573
+    },
+    {
+      "temperature": 4.0,
+      "decisions": 433,
+      "boards": 38,
+      "top1_accuracy": 0.5635103926096998,
+      "mean_teacher_nll": 1.483237326960564,
+      "board_mean_teacher_nll": 1.4211969866260485,
+      "ece_10_bins": 0.2511053152482168
+    }
+  ],
+  "metrics": {
+    "fit": {
+      "uncalibrated": {
+        "decisions": 4199,
+        "boards": 323,
+        "top1_accuracy": 0.600142891164563,
+        "mean_teacher_nll": 1.179289404884169,
+        "board_mean_teacher_nll": 1.0708085253411765,
+        "ece_10_bins": 0.044801054621333214
+      },
+      "calibrated": {
+        "decisions": 4199,
+        "boards": 323,
+        "top1_accuracy": 0.600142891164563,
+        "mean_teacher_nll": 1.185864140108084,
+        "board_mean_teacher_nll": 1.0797379643036724,
+        "ece_10_bins": 0.03890200817515586
+      }
+    },
+    "calibration": {
+      "uncalibrated": {
+        "decisions": 433,
+        "boards": 38,
+        "top1_accuracy": 0.5635103926096998,
+        "mean_teacher_nll": 1.1737063690085114,
+        "board_mean_teacher_nll": 1.1519830564424336,
+        "ece_10_bins": 0.08495281458936986
+      },
+      "calibrated": {
+        "decisions": 433,
+        "boards": 38,
+        "top1_accuracy": 0.5635103926096998,
+        "mean_teacher_nll": 1.171657157452089,
+        "board_mean_teacher_nll": 1.1457558064531863,
+        "ece_10_bins": 0.04933346816034804
+      }
+    },
+    "evaluation": {
+      "uncalibrated": {
+        "decisions": 445,
+        "boards": 36,
+        "top1_accuracy": 0.6651685393258427,
+        "mean_teacher_nll": 1.008071954103367,
+        "board_mean_teacher_nll": 0.9353733217719495,
+        "ece_10_bins": 0.05247102626986267
+      },
+      "calibrated": {
+        "decisions": 445,
+        "boards": 36,
+        "top1_accuracy": 0.6651685393258427,
+        "mean_teacher_nll": 1.0366990379745755,
+        "board_mean_teacher_nll": 0.9609437086611111,
+        "ece_10_bins": 0.09514124344600094
+      }
+    }
+  },
+  "claim": "Evaluation identities excluded from fitting and temperature calibration; all corpus boards were previously used for solver benchmarking. No unseen-board generalization claim."
+}

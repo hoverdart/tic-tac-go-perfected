@@ -21,10 +21,19 @@ from pathlib import Path
 
 from apps.api.puzzle_catalog import CatalogEntry
 from solver.push_solver import solve_v3, solve_v4, verify_solution
-from solver.push_solver.v4 import STRATEGIES, runtime_environment
+from solver.push_solver.v4 import (
+    EXPERIMENTAL_STRATEGIES,
+    SCHEDULES,
+    STRATEGIES,
+    runtime_environment,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
-ENGINE_SHA256 = sha256((ROOT / "solver/push_solver/v4.py").read_bytes()).hexdigest()
+ENGINE_SOURCES = {
+    name: sha256((ROOT / "solver/push_solver" / name).read_bytes()).hexdigest()
+    for name in ("v4.py", "phs.py", "push_policy.py", "v4_ranker.py")
+}
+ENGINE_SHA256 = sha256(json.dumps(ENGINE_SOURCES, sort_keys=True).encode()).hexdigest()
 CORPUS = ROOT / "debug-artifacts/v4-2026-10-25/catalog.jsonl"
 TARGETS = (
     "20251212",
@@ -87,6 +96,7 @@ def run(
     beam_mode="interleaved",
     macro_mode="straight",
     no_exact_hints=False,
+    policy_path=None,
     repeat=0,
     process="warm",
 ):
@@ -110,6 +120,7 @@ def run(
             ranker_path=ranker_path,
             beam_mode=beam_mode,
             macro_mode=macro_mode,
+            policy_path=policy_path,
         )
     started = time.perf_counter()
     cpu = time.process_time()
@@ -248,7 +259,10 @@ def repetition_gate(rows):
     for r in rows:
         key = r["id"], r.get("process"), r.get("repeat")
         if key not in expected:
+            failures.append(key)
             continue
+        if key in found:
+            failures.append(key)
         found.add(key)
         configurations.add(
             (
@@ -299,7 +313,7 @@ def main():
     p.add_argument("--nodes", type=int, default=500000)
     p.add_argument(
         "--schedule",
-        choices=["rank", "uniform", "weighted", "beam", "beam8"],
+        choices=SCHEDULES,
         default="rank",
     )
     p.add_argument("--routes", type=int, default=3)
@@ -308,7 +322,12 @@ def main():
         type=Path,
         help="Offline feature-only candidate; never enabled by the daily selector",
     )
-    p.add_argument("--strategy", choices=STRATEGIES)
+    p.add_argument("--strategy", choices=EXPERIMENTAL_STRATEGIES)
+    p.add_argument(
+        "--policy",
+        type=Path,
+        help="Explicit feature-only probability model for PHS/Levin experiments",
+    )
     p.add_argument(
         "--beam-mode", choices=["serial", "interleaved"], default="interleaved"
     )
@@ -328,6 +347,10 @@ def main():
     p.add_argument("--gate-v3", type=Path)
     p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     a = p.parse_args()
+    if a.policy and (a.version != "v4" or a.sweep):
+        p.error(
+            "Select a V4 policy strategy/schedule explicitly; policy sweeps use separate benchmark files"
+        )
     catalog = corpus(a.corpus)
     selected = [
         r
@@ -352,6 +375,7 @@ def main():
                     beam_mode=a.beam_mode,
                     macro_mode=a.macro_mode,
                     no_exact_hints=a.no_exact_hints,
+                    policy_path=a.policy,
                     process="fresh",
                 )
             )
@@ -359,9 +383,32 @@ def main():
         return
     meta = a.output.with_suffix(".metadata.json")
     now = provenance()
-    if meta.exists() and json.loads(meta.read_text())["sources"] != now["sources"]:
+    now["engine_sources"] = ENGINE_SOURCES
+    now["experiment"] = {
+        "version": a.version,
+        "schedule": a.schedule,
+        "strategy": a.strategy,
+        "beam_mode": a.beam_mode,
+        "macro_mode": a.macro_mode,
+        "seconds": a.seconds,
+        "nodes": a.nodes,
+        "routes": a.routes,
+        "no_exact_hints": a.no_exact_hints,
+        "policy_sha256": sha256(a.policy.read_bytes()).hexdigest()
+        if a.policy
+        else None,
+        "ranker_sha256": sha256(a.ranker.read_bytes()).hexdigest()
+        if a.ranker
+        else None,
+        "fresh_process": a.fresh_process,
+        "sweep": a.sweep,
+    }
+    if meta.exists() and (
+        json.loads(meta.read_text())["sources"] != now["sources"]
+        or json.loads(meta.read_text()).get("experiment") != now["experiment"]
+    ):
         p.error(
-            "Source changed: use a new output path rather than mixing implementations"
+            "Source or configuration changed: use a new output path rather than mixing experiments"
         )
     meta.write_text(json.dumps(now, indent=2) + "\n")
     existing = read_rows(a.output) if a.output.exists() else []
@@ -408,6 +455,8 @@ def main():
                         cmd += ["--strategy", strategy]
                     if a.ranker:
                         cmd += ["--ranker", str(a.ranker)]
+                    if a.policy:
+                        cmd += ["--policy", str(a.policy)]
                     worker_started = time.perf_counter()
                     try:
                         result = json.loads(
@@ -448,6 +497,7 @@ def main():
                         beam_mode=a.beam_mode,
                         macro_mode=a.macro_mode,
                         no_exact_hints=a.no_exact_hints,
+                        policy_path=a.policy,
                         repeat=repeat,
                     )
                 with a.output.open("a") as out:

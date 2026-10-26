@@ -72,6 +72,30 @@ class V4EndpointsTest(unittest.TestCase):
             self.assertEqual(solve.call_args.kwargs["schedule"], "beam8")
             self.assertEqual(solve.call_args.kwargs["beam_mode"], "serial")
             self.assertEqual(solve.call_args.kwargs["macro_mode"], "forced")
+            for invalid in (
+                {"schedule": "phs_beam"},
+                {"policy": "phs-v1"},
+                {"policy": "../../private"},
+                {"version": "v3", "strategy": "phs_star"},
+            ):
+                self.assertEqual(
+                    self.client.post(
+                        "/debug/push-benchmark/2026-10-21",
+                        json=invalid,
+                        headers=self.auth,
+                    ).status_code,
+                    422,
+                )
+            response = self.client.post(
+                "/debug/push-benchmark/2026-10-21",
+                json={"strategy": "phs_star", "policy": "phs-mlp-v1"},
+                headers=self.auth,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(solve.call_args.kwargs["strategy"], "phs_star")
+            self.assertEqual(
+                solve.call_args.kwargs["policy_path"].name, "policy-mlp.json"
+            )
             daily.assert_not_called()
             fallback.assert_not_called()
 

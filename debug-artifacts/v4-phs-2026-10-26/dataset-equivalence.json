@@ -1,0 +1,11 @@
+{
+  "numeric_arrays_equal": {
+    "features": true,
+    "offsets": true,
+    "labels": true,
+    "boards": true
+  },
+  "original_sha256": "5138f1a643050cb3fa8e1d6326e31e253a31184de78e40713d4c4eee43bd2c4b",
+  "reproduced_sha256": "5138f1a643050cb3fa8e1d6326e31e253a31184de78e40713d4c4eee43bd2c4b",
+  "scope": "Re-exported all verified decisions with the final runtime feature code; model training input is numerically identical."
+}

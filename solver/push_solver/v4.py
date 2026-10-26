@@ -28,8 +28,15 @@ SCHEDULES = {
     "weighted": (2, 4, 1, 1),
     "beam": (1, 1, 1, 4),
     "beam8": (1, 1, 1, 8),
+    "phs_beam": (1, 1, 1, 8, 2),
+    "phs_heavy": (1, 1, 1, 2, 8),
+    "phs_star_beam": (1, 1, 1, 8, 2),
+    "phs_star_heavy": (1, 1, 1, 2, 8),
+    "phs_adaptive": (1, 1, 1, 2, 8),
 }
 STRATEGIES = ("rank_discrepancy", "weighted", "macro", "committed_beam")
+POLICY_STRATEGIES = ("phs", "levin", "phs_star")
+EXPERIMENTAL_STRATEGIES = (*STRATEGIES, *POLICY_STRATEGIES)
 
 
 def cells(mask: int):
@@ -177,6 +184,7 @@ class Context:
         self.cost_geometry_cache = OrderedDict()
         self.goal_cache = OrderedDict()
         self.score_cache = OrderedDict()
+        self.policy_cache = OrderedDict()
         self.successor_cache = OrderedDict()
         self.metrics = Counter()
         self.expanded = 0
@@ -184,6 +192,8 @@ class Context:
         self.peak_frontier = 0
         self.preprocess_ms = 0.0
         self.ranker = None
+        self.push_policy = None
+        self.initial_commitments = None
         self.beam_mode = "interleaved"
         self.macro_mode = "straight"
 
@@ -561,6 +571,8 @@ class Context:
         successors retain their reference-compatible top-24 scoring semantics.
         No winning line is removed by the ordinary score-cache prefix limit.
         """
+        if state == self.start and self.initial_commitments is not None:
+            return self.initial_commitments
         geometry, rows = yield from self.ranked_rows(state, full=True)
         os, xs, region = state
         frozen = self.frozen(os | xs)
@@ -611,7 +623,10 @@ class Context:
         ordered.extend(plan for index, plan in enumerate(plans) if index not in used)
         self.metrics["commitment_plans"] = len(ordered)
         self.metrics["commitment_lines"] = len(lines)
-        return tuple(ordered)
+        result = tuple(ordered)
+        if state == self.start:
+            self.initial_commitments = result
+        return result
 
     def o_push_count(self, state):
         os, xs, region = state
@@ -989,6 +1004,11 @@ class Session:
         self.nodes += 1
 
     def search(self):
+        if self.kind in POLICY_STRATEGIES:
+            from solver.push_solver.phs import search
+
+            yield from search(self)
+            return
         if self.kind == "committed_beam":
             yield from self.beam_search()
             return
@@ -1424,6 +1444,7 @@ def solve_v4(
     ranker_path=None,
     beam_mode="interleaved",
     macro_mode="straight",
+    policy_path=None,
 ) -> PushSolveResult:
     started, cpu = time.perf_counter(), time.thread_time()
     if beam_mode not in ("serial", "interleaved"):
@@ -1432,8 +1453,19 @@ def solve_v4(
         raise ValueError("Unknown macro mode")
     if schedule not in SCHEDULES:
         raise ValueError("Unknown V4 schedule")
-    if strategy is not None and strategy not in STRATEGIES:
+    if strategy is not None and strategy not in EXPERIMENTAL_STRATEGIES:
         raise ValueError("Unknown V4 strategy")
+    uses_policy = strategy in POLICY_STRATEGIES or (
+        strategy is None and schedule.startswith("phs_")
+    )
+    if uses_policy != (policy_path is not None):
+        raise ValueError(
+            "PHS/Levin requires an explicit policy model and a policy search strategy/schedule"
+        )
+    if policy_path is not None and ranker_path is not None:
+        raise ValueError(
+            "Keep push probabilities separate from the legacy feature-ranker ablation"
+        )
     if route_limit not in (1, 2, 3):
         raise ValueError("V4 route_limit must be 1, 2, or 3")
     deadline = None if timeout_seconds is None else started + max(0, timeout_seconds)
@@ -1449,6 +1481,8 @@ def solve_v4(
     verification_ms = 0.0
     reason = "exhausted"
     winner = None
+    effective_schedule = schedule
+    commitment_count = None
     try:
         context.check()
         if context.x_loss(context.xs):
@@ -1456,6 +1490,12 @@ def solve_v4(
         else:
             for _ in context.initialize():
                 pass
+            if policy_path is not None:
+                from solver.push_solver.push_policy import PushPolicy
+
+                context.push_policy = PushPolicy(policy_path)
+                context.check()
+                context.preprocess_ms = (time.perf_counter() - started) * 1000
             if ranker_path is not None:
                 from solver.push_solver.v4_ranker import FeatureRanker
 
@@ -1466,14 +1506,42 @@ def solve_v4(
                 incumbent = Found(context.start, yieldless[1], None)
                 winner = "precheck"
             else:
+                if strategy is None and schedule == "phs_adaptive":
+                    producer = context.beam_plans(context.start)
+                    while True:
+                        try:
+                            next(producer)
+                        except StopIteration as done:
+                            commitment_count = len(done.value)
+                            break
+                    # Development hypothesis: narrow goal pools favor beam focus.
+                    effective_schedule = (
+                        "beam8" if commitment_count <= 16 else "phs_star_heavy"
+                    )
+                    context.preprocess_ms = (time.perf_counter() - started) * 1000
+                policy_lane = uses_policy and effective_schedule != "beam8"
                 sessions = [
                     Session(context, kind, weight=weight)
-                    for kind in (STRATEGIES if strategy is None else (strategy,))
+                    for kind in (
+                        STRATEGIES
+                        + (
+                            (
+                                "phs_star"
+                                if effective_schedule.startswith("phs_star_")
+                                else "phs",
+                            )
+                            if policy_lane
+                            else ()
+                        )
+                        if strategy is None
+                        else (strategy,)
+                    )
                 ]
                 cycle = [
                     session
                     for session, n in zip(
-                        sessions, SCHEDULES[schedule] if strategy is None else (1,)
+                        sessions,
+                        SCHEDULES[effective_schedule] if strategy is None else (1,),
                     )
                     for _ in range(n)
                 ]
@@ -1582,10 +1650,25 @@ def solve_v4(
             }
             for s in sessions
         },
-        "model_hashes": {"candidate": context.ranker.hash} if context.ranker else {},
+        "model_hashes": {
+            **({"candidate": context.ranker.hash} if context.ranker else {}),
+            **(
+                {"push_policy": context.push_policy.hash} if context.push_policy else {}
+            ),
+        },
+        "push_policy": (
+            {
+                "temperature": context.push_policy.temperature,
+                "uniform_mix": context.push_policy.uniform_mix,
+            }
+            if context.push_policy
+            else None
+        ),
         "cpu_clock": "thread_time",
         "version": "push-v4",
         "schedule": schedule,
+        "effective_schedule": effective_schedule,
+        "initial_commitment_count": commitment_count,
         "route_limit": route_limit,
         "beam_mode": beam_mode,
         "macro_mode": macro_mode,

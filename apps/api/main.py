@@ -18,6 +18,7 @@ import os
 import logging
 import re
 from datetime import date
+from pathlib import Path
 from typing import Literal
 from threading import Lock
 
@@ -213,9 +214,15 @@ class PushBenchmarkRequest(BaseModel):
     version: Literal["v3", "v4"] = "v4"
     timeout_seconds: float = Field(default=30, gt=0, le=30)
     max_nodes: int = Field(default=500_000, gt=0, le=500_000)
-    schedule: Literal["rank", "uniform", "weighted", "beam", "beam8"] = "rank"
+    schedule: Literal[
+        "rank", "uniform", "weighted", "beam", "beam8",
+        "phs_beam", "phs_heavy", "phs_star_beam", "phs_star_heavy",
+        "phs_adaptive",
+    ] = "rank"
     beam_mode: Literal["serial", "interleaved"] = "interleaved"
     macro_mode: Literal["straight", "forced"] = "straight"
+    policy: Literal["phs-v1", "phs-mlp-v1"] | None = None
+    strategy: Literal["phs", "levin", "phs_star"] | None = None
 
 
 @app.post(
@@ -234,6 +241,16 @@ def debug_push_benchmark(
             status_code=409, detail="Another benchmark is running in this process."
         )
     try:
+        needs_policy = request.version == "v4" and (
+            request.schedule.startswith("phs_") or request.strategy is not None
+        )
+        if needs_policy != (request.policy is not None):
+            raise HTTPException(
+                status_code=422,
+                detail="PHS experiments require an explicit named policy and a PHS schedule.",
+            )
+        if request.version == "v3" and (request.strategy is not None or request.schedule.startswith("phs_")):
+            raise HTTPException(status_code=422, detail="Policy experiments require V4.")
         try:
             entry, _ = entry_for_date(puzzle_date)
         except CatalogError as exc:
@@ -247,6 +264,14 @@ def debug_push_benchmark(
             kwargs["schedule"] = request.schedule
             kwargs["beam_mode"] = request.beam_mode
             kwargs["macro_mode"] = request.macro_mode
+            if request.strategy is not None:
+                kwargs["strategy"] = request.strategy
+            if request.policy is not None:
+                filename = "policy.json" if request.policy == "phs-v1" else "policy-mlp.json"
+                kwargs["policy_path"] = (
+                    Path(__file__).resolve().parents[2]
+                    / "debug-artifacts/v4-phs-2026-10-26" / filename
+                )
         result = (solve_v4 if request.version == "v4" else solve_v3)(
             entry.board(), **kwargs
         )

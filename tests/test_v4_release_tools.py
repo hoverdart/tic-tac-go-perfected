@@ -119,6 +119,7 @@ class V4ReleaseToolsTest(unittest.TestCase):
             for repeat in range(10)
         ]
         self.assertTrue(repetition_gate(matrix)["passed"])
+        self.assertFalse(repetition_gate(matrix + [matrix[0]])["passed"])
         matrix[-1]["schedule"] = "mixed"
         self.assertFalse(repetition_gate(matrix)["passed"])
         matrix[-1]["schedule"] = None
