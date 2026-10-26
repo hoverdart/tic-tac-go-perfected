@@ -1,9 +1,11 @@
+import unittest
 from datetime import date
 from pathlib import Path
-import unittest
 from unittest.mock import patch
+
 from fastapi.testclient import TestClient
-from apps.api.main import app, _benchmark_lock
+
+from apps.api.main import _benchmark_lock, app
 from apps.api.puzzle_catalog import parse_catalog
 
 
@@ -57,6 +59,19 @@ class V4EndpointsTest(unittest.TestCase):
             self.assertTrue(response.json()["verified"])
             self.assertEqual(response.headers["cache-control"], "no-store")
             self.assertEqual(solve.call_args.kwargs["quality_timeout_seconds"], 0)
+            response = self.client.post(
+                "/debug/push-benchmark/2026-10-21",
+                json={
+                    "schedule": "beam8",
+                    "beam_mode": "serial",
+                    "macro_mode": "forced",
+                },
+                headers=self.auth,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(solve.call_args.kwargs["schedule"], "beam8")
+            self.assertEqual(solve.call_args.kwargs["beam_mode"], "serial")
+            self.assertEqual(solve.call_args.kwargs["macro_mode"], "forced")
             daily.assert_not_called()
             fallback.assert_not_called()
 

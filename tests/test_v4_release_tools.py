@@ -1,21 +1,60 @@
-from copy import deepcopy
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from copy import deepcopy
+from pathlib import Path
 
 from solver.push_solver import solve_v4
 from solver.push_solver.benchmark_v4 import (
+    ENGINE_SHA256,
+    TARGETS,
     corpus,
     gate,
     repetition_gate,
-    TARGETS,
-    ENGINE_SHA256,
 )
 from solver.push_solver.train_v4_candidate import identity, splits
 
 
 class V4ReleaseToolsTest(unittest.TestCase):
+    def test_hint_free_v3_adapter_clones_every_policy_and_restores_on_failure(self):
+        from unittest.mock import patch
+
+        from solver.push_solver import rank_policy
+        from solver.push_solver.benchmark_v4 import run
+
+        leaf = rank_policy.LinearPushRankPolicy(
+            "test",
+            {"hand_score": 2.0},
+            {},
+            {"remembered": 100.0},
+            priority_recovery=True,
+        )
+        for original in (leaf, rank_policy.EnsemblePushRankPolicy((leaf, leaf))):
+
+            def inspect(*args, **kwargs):
+                cloned = rank_policy.default_policy()
+                policies = (
+                    cloned.policies
+                    if isinstance(cloned, rank_policy.EnsemblePushRankPolicy)
+                    else (cloned,)
+                )
+                for policy in policies:
+                    self.assertEqual(policy.state_action_hints, {})
+                    self.assertFalse(policy.priority_recovery)
+                    self.assertEqual(policy.weights, leaf.weights)
+                raise RuntimeError("solver interrupted")
+
+            with patch.object(rank_policy, "default_policy", return_value=original):
+                with (
+                    patch(
+                        "solver.push_solver.benchmark_v4.solve_v3", side_effect=inspect
+                    ),
+                    self.assertRaisesRegex(RuntimeError, "solver interrupted"),
+                ):
+                    run(corpus()[0], version="v3", no_exact_hints=True)
+                self.assertIs(rank_policy.default_policy(), original)
+            self.assertEqual(leaf.state_action_hints, {"remembered": 100.0})
+
     def test_corpus_hashes_and_release_gates_fail_closed(self):
         boards = corpus()
         self.assertEqual(len(boards), 397)
@@ -83,6 +122,9 @@ class V4ReleaseToolsTest(unittest.TestCase):
         matrix[-1]["schedule"] = "mixed"
         self.assertFalse(repetition_gate(matrix)["passed"])
         matrix[-1]["schedule"] = None
+        matrix[-1]["macro_mode"] = "forced"
+        self.assertFalse(repetition_gate(matrix)["passed"])
+        matrix[-1]["macro_mode"] = None
         matrix[-1]["verified"] = False
         self.assertFalse(repetition_gate(matrix)["passed"])
 

@@ -7,15 +7,17 @@ verification. Saved paths are evidence only; V4 never loads action hints.
 """
 
 from __future__ import annotations
+
 import argparse
-from dataclasses import asdict
-from datetime import date
-from hashlib import sha256
 import json
-from pathlib import Path
 import subprocess
 import sys
 import time
+from contextlib import nullcontext
+from dataclasses import asdict
+from datetime import date
+from hashlib import sha256
+from pathlib import Path
 
 from apps.api.puzzle_catalog import CatalogEntry
 from solver.push_solver import solve_v3, solve_v4, verify_solution
@@ -82,6 +84,9 @@ def run(
     routes=3,
     strategy=None,
     ranker_path=None,
+    beam_mode="interleaved",
+    macro_mode="straight",
+    no_exact_hints=False,
     repeat=0,
     process="warm",
 ):
@@ -103,10 +108,36 @@ def run(
             route_limit=routes,
             strategy=strategy,
             ranker_path=ranker_path,
+            beam_mode=beam_mode,
+            macro_mode=macro_mode,
         )
     started = time.perf_counter()
     cpu = time.process_time()
-    result = (solve_v4 if version == "v4" else solve_v3)(board, **kwargs)
+    guard = nullcontext()
+    if version == "v3" and no_exact_hints:
+        from dataclasses import replace
+        from unittest.mock import patch
+
+        from solver.push_solver.rank_policy import (
+            EnsemblePushRankPolicy,
+            default_policy,
+        )
+
+        policy = default_policy()
+        if isinstance(policy, EnsemblePushRankPolicy):
+            policy = EnsemblePushRankPolicy(
+                tuple(
+                    replace(p, state_action_hints={}, priority_recovery=False)
+                    for p in policy.policies
+                )
+            )
+        elif policy is not None:
+            policy = replace(policy, state_action_hints={}, priority_recovery=False)
+        guard = patch(
+            "solver.push_solver.rank_policy.default_policy", return_value=policy
+        )
+    with guard:
+        result = (solve_v4 if version == "v4" else solve_v3)(board, **kwargs)
     verified = bool(result.solved and verify_solution(board, result.moves).ok)
     return {
         "id": row["id"],
@@ -114,6 +145,9 @@ def run(
         "version": version,
         "engine_sha256": ENGINE_SHA256 if version == "v4" else None,
         "schedule": schedule,
+        "beam_mode": beam_mode if version == "v4" else None,
+        "macro_mode": macro_mode if version == "v4" else None,
+        "exact_hints_enabled": version == "v3" and not no_exact_hints,
         "routes": routes,
         "strategy_requested": strategy,
         "repeat": repeat,
@@ -157,6 +191,8 @@ def gate(rows, baseline, catalog):
             r.get("schedule"),
             r.get("routes"),
             r.get("strategy_requested"),
+            r.get("beam_mode"),
+            r.get("macro_mode"),
             json.dumps(
                 r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                 sort_keys=True,
@@ -219,6 +255,8 @@ def repetition_gate(rows):
                 r.get("schedule"),
                 r.get("routes"),
                 r.get("strategy_requested"),
+                r.get("beam_mode"),
+                r.get("macro_mode"),
                 json.dumps(
                     r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                     sort_keys=True,
@@ -260,7 +298,9 @@ def main():
     p.add_argument("--seconds", type=float, default=30)
     p.add_argument("--nodes", type=int, default=500000)
     p.add_argument(
-        "--schedule", choices=["rank", "uniform", "weighted", "beam"], default="rank"
+        "--schedule",
+        choices=["rank", "uniform", "weighted", "beam", "beam8"],
+        default="rank",
     )
     p.add_argument("--routes", type=int, default=3)
     p.add_argument(
@@ -269,6 +309,15 @@ def main():
         help="Offline feature-only candidate; never enabled by the daily selector",
     )
     p.add_argument("--strategy", choices=STRATEGIES)
+    p.add_argument(
+        "--beam-mode", choices=["serial", "interleaved"], default="interleaved"
+    )
+    p.add_argument("--macro-mode", choices=["straight", "forced"], default="straight")
+    p.add_argument(
+        "--no-exact-hints",
+        action="store_true",
+        help="V3 comparison only; keep feature weights, remove every exact action hint",
+    )
     p.add_argument("--repeats", type=int, default=1)
     p.add_argument("--fresh-process", action="store_true")
     p.add_argument(
@@ -300,6 +349,9 @@ def main():
                     routes=a.routes,
                     strategy=a.strategy,
                     ranker_path=a.ranker,
+                    beam_mode=a.beam_mode,
+                    macro_mode=a.macro_mode,
+                    no_exact_hints=a.no_exact_hints,
                     process="fresh",
                 )
             )
@@ -349,6 +401,9 @@ def main():
                         "--routes",
                         str(a.routes),
                     ]
+                    cmd += ["--beam-mode", a.beam_mode, "--macro-mode", a.macro_mode]
+                    if a.no_exact_hints:
+                        cmd += ["--no-exact-hints"]
                     if strategy:
                         cmd += ["--strategy", strategy]
                     if a.ranker:
@@ -390,6 +445,9 @@ def main():
                         routes=a.routes,
                         strategy=strategy,
                         ranker_path=a.ranker,
+                        beam_mode=a.beam_mode,
+                        macro_mode=a.macro_mode,
+                        no_exact_hints=a.no_exact_hints,
                         repeat=repeat,
                     )
                 with a.output.open("a") as out:

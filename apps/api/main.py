@@ -213,7 +213,9 @@ class PushBenchmarkRequest(BaseModel):
     version: Literal["v3", "v4"] = "v4"
     timeout_seconds: float = Field(default=30, gt=0, le=30)
     max_nodes: int = Field(default=500_000, gt=0, le=500_000)
-    schedule: Literal["rank", "uniform", "weighted", "beam"] = "rank"
+    schedule: Literal["rank", "uniform", "weighted", "beam", "beam8"] = "rank"
+    beam_mode: Literal["serial", "interleaved"] = "interleaved"
+    macro_mode: Literal["straight", "forced"] = "straight"
 
 
 @app.post(
@@ -243,6 +245,8 @@ def debug_push_benchmark(
         )
         if request.version == "v4":
             kwargs["schedule"] = request.schedule
+            kwargs["beam_mode"] = request.beam_mode
+            kwargs["macro_mode"] = request.macro_mode
         result = (solve_v4 if request.version == "v4" else solve_v3)(
             entry.board(), **kwargs
         )

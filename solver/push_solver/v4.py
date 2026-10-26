@@ -27,6 +27,7 @@ SCHEDULES = {
     "uniform": (1, 1, 1, 1),
     "weighted": (2, 4, 1, 1),
     "beam": (1, 1, 1, 4),
+    "beam8": (1, 1, 1, 8),
 }
 STRATEGIES = ("rank_discrepancy", "weighted", "macro", "committed_beam")
 
@@ -54,6 +55,14 @@ class Plan:
     assignment: tuple[tuple[int, int], tuple[int, int]]
     route: int
     stands: int
+
+
+@dataclass(slots=True)
+class ScoreEntry:
+    h: float
+    geometry: tuple
+    rows: tuple
+    plans: tuple[Plan, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -165,6 +174,7 @@ class Context:
         self.deadlock_cache = OrderedDict()
         self.edge_cache = OrderedDict()
         self.geometry_cache = OrderedDict()
+        self.cost_geometry_cache = OrderedDict()
         self.goal_cache = OrderedDict()
         self.score_cache = OrderedDict()
         self.successor_cache = OrderedDict()
@@ -174,6 +184,8 @@ class Context:
         self.peak_frontier = 0
         self.preprocess_ms = 0.0
         self.ranker = None
+        self.beam_mode = "interleaved"
+        self.macro_mode = "straight"
 
     def check(self):
         if self.deadline is not None and time.perf_counter() >= self.deadline:
@@ -419,43 +431,68 @@ class Context:
         self.metrics["geometry_computations"] += 1
         return self.put(self.geometry_cache, os, tuple(result), 256)
 
-    def score(self, state):
-        if self.goal(state)[0]:
-            return 0.0, ()
-        os, xs, region = state
-        key = os, xs
-        if key in self.score_cache:
-            self.metrics["score_hits"] += 1
-            self.score_cache.move_to_end(key)
-            return self.score_cache[key]
+    @staticmethod
+    def materialize_plan(geometry, row):
+        score, index, route_a, route_b = row
+        line, target, oa, a, ob, b, _, _ = geometry[index]
+        return Plan(
+            score,
+            line,
+            target,
+            ((oa, a), (ob, b)),
+            route_a[1] | route_b[1],
+            route_a[2] | route_b[2],
+        )
+
+    def ranked_rows(self, state, *, full=False):
+        os, xs, _ = state
         geometry = yield from self.geometry(os)
+        compiled = self.cost_geometry_cache.get(os)
+        if compiled is None:
+            compiled = tuple(
+                (
+                    row[0],
+                    1 << row[1],
+                    row[6][0]
+                    + row[7][0]
+                    + bool(row[6][1] & (1 << row[4]))
+                    + bool(row[7][1] & (1 << row[2])),
+                    row[6][1],
+                    row[7][1],
+                )
+                for row in geometry
+            )
+            compiled = (
+                compiled,
+                tuple({row[0] for row in compiled}),
+                tuple({mask for row in compiled for mask in row[3:]}),
+            )
+            self.put(self.cost_geometry_cache, os, compiled, 256)
+        else:
+            self.cost_geometry_cache.move_to_end(os)
+        compiled, lines, masks = compiled
+        line_costs = {line: 0.5 * (xs & line).bit_count() for line in lines}
+        route_counts = {mask: (xs & mask).bit_count() for mask in masks}
         candidates = []
-        for index, (line, target, oa, a, ob, b, route_a, route_b) in enumerate(
-            geometry
+        for index, (line, target_bit, base, route_mask_a, route_mask_b) in enumerate(
+            compiled
         ):
             if index % 32 == 0:
                 yield from self.checkpoint()
-            penalty = 0.5 * (xs & line).bit_count() + (2.0 if xs & (1 << target) else 0)
-            cost_a = (
-                route_a[0]
-                + (xs & route_a[1]).bit_count()
-                + bool(route_a[1] & (1 << ob))
+            score = (
+                base
+                + route_counts[route_mask_a]
+                + route_counts[route_mask_b]
+                + line_costs[line]
+                + (2.0 if xs & target_bit else 0.0)
             )
-            cost_b = (
-                route_b[0]
-                + (xs & route_b[1]).bit_count()
-                + bool(route_b[1] & (1 << oa))
-            )
-            candidates.append((cost_a + cost_b + penalty, index, route_a, route_b))
-        candidates.sort(key=lambda row: (row[0], row[1]))
+            candidates.append((score, index, geometry[index][6], geometry[index][7]))
+        candidates.sort()
         # Refine only promising obstructed candidates; static route alternatives
         # are cached and remain ordering evidence, never a pruning condition.
         refined = []
         choices = {}
-        for position, (score, index, route_a, route_b) in enumerate(candidates):
-            if position >= 24:
-                refined.extend(candidates[position:])
-                break
+        for score, index, route_a, route_b in candidates if full else candidates[:24]:
             line, target, oa, a, ob, b, _, _ = geometry[index]
             if self.route_limit > 1 and xs & (route_a[1] | route_b[1]):
                 for source, route_target, other in ((oa, a, ob), (ob, b, oa)):
@@ -482,23 +519,99 @@ class Context:
                     + (2.0 if xs & (1 << target) else 0)
                 )
             refined.append((score, index, route_a, route_b))
-        refined.sort(key=lambda row: (row[0], row[1]))
+        refined.sort()
+        return geometry, tuple(refined)
+
+    def score(self, state, limit=24):
+        """Cache scored rows once; allocate only the requested plan prefix.
+
+        The current component determines terminal reachability, while all
+        nonterminal plan scores depend only on O/X occupancy. A cached result
+        with fewer than `limit` plans is still complete, including an empty one.
+        """
+        if not 1 <= limit <= 24:
+            raise ValueError("Plan prefix must be between 1 and 24")
+        if self.goal(state)[0]:
+            return 0.0, ()
+        key = state[:2]
+        entry = self.score_cache.get(key)
+        if entry is None:
+            geometry, rows = yield from self.ranked_rows(state)
+            entry = ScoreEntry(rows[0][0] if rows else math.inf, geometry, rows)
+            self.put(self.score_cache, key, entry, 8192)
+            self.metrics["score_computations"] += 1
+        else:
+            self.metrics["score_hits"] += 1
+            self.score_cache.move_to_end(key)
+        wanted = min(limit, len(entry.rows))
+        while len(entry.plans) < wanted:
+            yield from self.checkpoint()
+            # Another session can have extended the same prefix at this yield.
+            index = len(entry.plans)
+            if index >= wanted:
+                break
+            entry.plans += (self.materialize_plan(entry.geometry, entry.rows[index]),)
+            self.metrics["plans_materialized"] += 1
+        return entry.h, entry.plans[:limit]
+
+    def beam_plans(self, state):
+        """Cover distinct lines, then player targets, then O assignments.
+
+        Full refinement is confined to the initial commitment pool; ordinary
+        successors retain their reference-compatible top-24 scoring semantics.
+        No winning line is removed by the ordinary score-cache prefix limit.
+        """
+        geometry, rows = yield from self.ranked_rows(state, full=True)
+        os, xs, region = state
+        frozen = self.frozen(os | xs)
+        frozen_os, frozen_xs = os & frozen, xs & frozen
+        accessible = self.reachable(next(cells(region)), frozen)
+        blockers = self.walls | frozen
+        reaches = {}
         plans = []
-        for score, index, route_a, route_b in refined[:24]:
-            line, target, oa, a, ob, b, _, _ = geometry[index]
-            plans.append(
-                Plan(
-                    score,
-                    line,
-                    target,
-                    ((oa, a), (ob, b)),
-                    route_a[1] | route_b[1],
-                    route_a[2] | route_b[2],
-                )
-            )
-        result = (plans[0].score if plans else math.inf, tuple(plans))
-        self.metrics["score_computations"] += 1
-        return self.put(self.score_cache, key, result, 8192)
+        for row in rows:
+            yield from self.checkpoint()
+            plan = self.materialize_plan(geometry, row)
+            if plan.line & frozen_xs:
+                continue
+            if os.bit_count() == 2 and not accessible & (1 << plan.target):
+                continue
+            viable = True
+            for source, target in plan.assignment:
+                if source == target:
+                    continue
+                if frozen_os & (1 << source):
+                    viable = False
+                    break
+                if target not in reaches:
+                    reaches[target] = yield from self.reverse_map(blockers, target)
+                if not reaches[target] & (1 << source):
+                    viable = False
+                    break
+            if viable:
+                plans.append(plan)
+        self.metrics["pruned_impossible_commitments"] += len(rows) - len(plans)
+        self.initial_anchor_plans = tuple(plans[:24])
+        ordered = []
+        used = set()
+        lines = set()
+        targets = set()
+        for index, plan in enumerate(plans):
+            yield from self.checkpoint()
+            if plan.line not in lines:
+                lines.add(plan.line)
+                targets.add((plan.line, plan.target))
+                used.add(index)
+                ordered.append(plan)
+        for index, plan in enumerate(plans):
+            if (plan.line, plan.target) not in targets:
+                targets.add((plan.line, plan.target))
+                used.add(index)
+                ordered.append(plan)
+        ordered.extend(plan for index, plan in enumerate(plans) if index not in used)
+        self.metrics["commitment_plans"] = len(ordered)
+        self.metrics["commitment_lines"] = len(lines)
+        return tuple(ordered)
 
     def o_push_count(self, state):
         os, xs, region = state
@@ -556,7 +669,7 @@ class Context:
 
     def _produce_successors(self, state, only=None):
         os, xs, region = state
-        parent_h, parent_plans = yield from self.score(state)
+        parent_h, parent_plans = yield from self.score(state, limit=8)
         occupied = os | xs
         parent_o_count = self.o_push_count(state)
         for piece, pieces in (("O", os), ("X", xs)):
@@ -599,7 +712,7 @@ class Context:
                         self.metrics["pruned_deadlock"] += 1
                         self.put(self.edge_cache, key, None, 32768)
                         continue
-                    h, plans = yield from self.score(child_state)
+                    h, plans = yield from self.score(child_state, limit=1)
                     push = Push(piece, cell, move)
                     bias = 0.35 if piece == "X" else -0.1
                     if h < parent_h:
@@ -655,6 +768,22 @@ class Context:
             else:
                 child = item
         return child
+
+    def macro_continuation(self, state, push):
+        if self.macro_mode == "straight":
+            return (yield from self.single_successor(state, push))
+        legal = []
+        for move, _, _ in self.transitions[push.cell]:
+            child = yield from self.single_successor(
+                state, Push(push.piece, push.cell, move)
+            )
+            if child is not None:
+                legal.append(child)
+                if len(legal) > 1:
+                    return None
+        if len(legal) == 1 and legal[0].pushes[0].move == push.move:
+            return legal[0]
+        return None
 
     def commitment_bias(self, plan, parent, child, parent_h):
         """V3 commitment objective; independent from primitive move ordering."""
@@ -749,7 +878,7 @@ class Context:
                 cell = self.push_lookup[chain[0].cell, chain[0].move][1]
                 bias = child.bias
                 for _ in range(4):
-                    continuation = yield from self.single_successor(
+                    continuation = yield from self.macro_continuation(
                         current, Push(chain[0].piece, cell, chain[0].move)
                     )
                     if continuation is None:
@@ -759,7 +888,7 @@ class Context:
                     cell = self.push_lookup[cell, chain[0].move][1]
                     bias += continuation.bias
                 if len(chain) > 1:
-                    h, _ = yield from self.score(current)
+                    h, _ = yield from self.score(current, limit=1)
                     items.append(
                         Child(
                             chain,
@@ -770,7 +899,7 @@ class Context:
                     )
         items.sort(key=lambda c: (c.h + c.bias, c.h))
         if self.ranker is not None:
-            parent_h, _ = yield from self.score(state)
+            parent_h, _ = yield from self.score(state, limit=1)
             ranked = []
             for rank, child in enumerate(items, 1):
                 yield from self.checkpoint()
@@ -846,6 +975,10 @@ class Session:
         self.found = None
         self.iterator = self.search()
         self.counter = itertools.count()
+        self.goals = []
+        self.anchor_goals = []
+        self.slice_node_limit = None
+        self.slice_deadline = None
 
     def expand(self):
         ctx = self.context
@@ -860,7 +993,7 @@ class Session:
             yield from self.beam_search()
             return
         ctx = self.context
-        h, _ = yield from ctx.score(ctx.start)
+        h, _ = yield from ctx.score(ctx.start, limit=1)
         queue = [(self.weight * h, 0, 0, next(self.counter), ctx.start, None)]
         best = {ctx.start: (0, 0)}
         while queue:
@@ -914,117 +1047,115 @@ class Session:
             ctx.peak_frontier = max(ctx.peak_frontier, len(queue))
 
     def beam_search(self):
+        if self.context.beam_mode == "serial":
+            yield from self.serial_beam_search()
+            return
         ctx = self.context
-        _, plans = yield from ctx.score(ctx.start)
-        for width, depth_limit in ((48, 60), (96, 90), (160, 120), (256, 160)):
-            for plan in plans:
-                seen = {ctx.start: 0}
-                frontier = [(0.0, 0, next(self.counter), ctx.start, None)]
-                important = plan.line | plan.route | plan.stands | (1 << plan.target)
-                for _depth in range(depth_limit):
-                    if not frontier:
+        plans = yield from ctx.beam_plans(ctx.start)
+        # A focused lane retains the established beam policy. A separate,
+        # narrower lane explores diverse commitments without resetting either
+        # frontier. Both lanes debit this session and the same global budget.
+        anchor = self.serial_beam_search()
+        anchor_done = False
+        pending = iter(enumerate(plans))
+        self.goals = []
+
+        def activate(count):
+            for _ in range(count):
+                try:
+                    index, plan = next(pending)
+                except StopIteration:
+                    return
+                self.goals.append(GoalSession(self, plan, index, narrow=True))
+
+        activate(8)
+        cursor = 0
+        exploration_turns = 0
+        while not anchor_done or any(not g.done for g in self.goals):
+            if not anchor_done:
+                for _ in range(3):
+                    spent = 0.0
+                    before = self.nodes
+                    try:
+                        while True:
+                            tick = time.perf_counter()
+                            item = next(anchor)
+                            spent += time.perf_counter() - tick
+                            if isinstance(item, Found):
+                                yield item
+                                return
+                            yield None
+                            if self.nodes - before >= 32 or spent >= 0.025:
+                                break
+                    except StopIteration:
+                        anchor_done = True
                         break
-                    candidates = []
-                    signatures = Counter()
-                    for _, cost, _, current, link in frontier:
-                        yield from ctx.checkpoint()
-                        self.expand()
-                        won, target = ctx.goal(current)
-                        if won:
-                            yield Found(current, target, link)
-                            return
-                        children = yield from ctx.children(current, True)
-                        parent_h, _ = yield from ctx.score(current)
-                        scored = []
-                        for child in children:
-                            yield from ctx.checkpoint()
-                            g = cost + len(child.pushes)
-                            if g >= seen.get(child.state, math.inf):
-                                continue
-                            bias = ctx.commitment_bias(plan, current, child, parent_h)
-                            score = (
-                                child.h
-                                + 1.2 * (child.bias + 1.5 * bias)
-                                - 2.0 * child.policy
-                                + 0.08 * len(child.pushes)
-                            )
-                            push = child.pushes[0]
-                            dest = ctx.push_lookup[push.cell, push.move][1]
-                            relevant = (
-                                bias < 0
-                                or important & ((1 << push.cell) | (1 << dest))
-                                or child.h <= parent_h
-                            )
-                            signature = (
-                                child.state[0],
-                                child.state[1] & important,
-                                bool(child.state[2] & (1 << plan.target)),
-                                int(child.h // 2) if math.isfinite(child.h) else -1,
-                            )
-                            scored.append(
-                                (
-                                    relevant,
-                                    (
-                                        score,
-                                        g,
-                                        next(self.counter),
-                                        child.state,
-                                        Link(link, child.pushes),
-                                        signature,
-                                    ),
-                                )
-                            )
-                        # Commitment filtering belongs only to this session.
-                        # The three unfiltered searches retain every primitive.
-                        relevant = [row for keep, row in scored if keep]
-                        escape = sorted(
-                            (row for keep, row in scored if not keep),
-                            key=lambda row: (row[0], row[2]),
-                        )[:8]
-                        candidates.extend(
-                            relevant + escape
-                            if relevant
-                            else [row for _, row in scored]
-                        )
-                    candidates.sort(key=lambda c: (c[0], c[2]))
-                    diversified = []
-                    for score, g, tie, state, link, signature in candidates:
-                        novelty = signatures[signature]
-                        signatures[signature] += 1
-                        diversified.append(
-                            (
-                                score + 0.25 * novelty + 0.75 * max(0, novelty - 1),
-                                g,
-                                tie,
-                                state,
-                                link,
-                                signature,
-                            )
-                        )
-                    diversified.sort(key=lambda c: (c[0], c[2]))
-                    frontier = []
-                    for score, g, tie, state, link, signature in diversified:
-                        yield from ctx.checkpoint()
-                        if g >= seen.get(state, math.inf):
-                            continue
-                        seen[state] = g
-                        won, target = ctx.goal(state)
-                        if won:
-                            yield Found(state, target, link)
-                            return
-                        frontier.append((score, g, tie, state, link))
-                        if len(frontier) >= width:
-                            break
-                    self.peak = max(self.peak, len(seen))
-                    self.frontier_size = len(frontier)
-                    self.frontier_peak = max(self.frontier_peak, len(frontier))
-                    ctx.peak_frontier = max(ctx.peak_frontier, len(frontier))
+            if not self.goals or all(g.done for g in self.goals):
+                before = len(self.goals)
+                activate(8)
+                if len(self.goals) == before:
+                    if anchor_done:
+                        return
+                    continue
+            for _ in range(len(self.goals)):
+                goal = self.goals[cursor % len(self.goals)]
+                cursor += 1
+                if not goal.done:
+                    break
+            quantum = 0.025 if anchor_done else 0.0125
+            if self.slice_deadline is not None:
+                quantum = min(
+                    quantum, max(0.0, self.slice_deadline - time.perf_counter())
+                )
+            expansions = (
+                8
+                if self.slice_node_limit is None
+                else min(8, max(1, self.slice_node_limit - self.nodes))
+            )
+            found = goal.advance(quantum=quantum, expansions=expansions)
+            if found is not None:
+                yield found
+                return
+            exploration_turns += 1
+            if all(g.done or g.nodes >= 64 for g in self.goals):
+                activate(4)
+            yield from ctx.checkpoint()
+
+    def serial_beam_search(self):
+        """Reference allocation uses the same per-goal transition kernel."""
+        ctx = self.context
+        if ctx.beam_mode == "interleaved":
+            plans = ctx.initial_anchor_plans
+        else:
+            _, plans = yield from ctx.score(ctx.start)
+        for phase, (width, depth_limit) in enumerate(
+            ((48, 60), (96, 90), (160, 120), (256, 160))
+        ):
+            for index, plan in enumerate(plans):
+                goal = GoalSession(self, plan, index, widths=((width, depth_limit),))
+                goal.restarts = phase
+                self.anchor_goals.append(goal)
+                while True:
+                    tick = time.perf_counter()
+                    try:
+                        item = next(goal.iterator)
+                    except StopIteration:
+                        goal.done = True
+                        break
+                    goal.elapsed += time.perf_counter() - tick
+                    self.frontier_size = goal.frontier_size
+                    self.frontier_peak = max(self.frontier_peak, goal.frontier_peak)
+                    yield item
+                    if isinstance(item, Found):
+                        return
 
     def advance(self, *, quantum=0.25, expansions=128):
         started = time.perf_counter()
-        cpu = time.process_time()
+        cpu = time.thread_time()
         counters = self.context.metrics.copy()
         before = self.nodes
+        self.slice_node_limit = before + expansions
+        self.slice_deadline = started + quantum
         try:
             while not self.done:
                 item = next(self.iterator)
@@ -1041,7 +1172,7 @@ class Session:
             self.done = True
         finally:
             self.elapsed += time.perf_counter() - started
-            self.cpu += time.process_time() - cpu
+            self.cpu += time.thread_time() - cpu
             self.counters.update(
                 {
                     k: v - counters[k]
@@ -1052,10 +1183,158 @@ class Session:
         return None
 
 
+class GoalSession:
+    """A commitment owns its frontier, depth, novelty and dominance tables."""
+
+    def __init__(self, parent, plan, index, *, narrow=False, widths=None):
+        self.parent, self.plan, self.index = parent, plan, index
+        self.widths = widths or (
+            ((8, 60), (24, 90), (48, 120), (96, 160))
+            if narrow
+            else ((48, 60), (96, 90), (160, 120), (256, 160))
+        )
+        self.nodes = 0
+        self.peak = 1
+        self.frontier_size = 1
+        self.frontier_peak = 1
+        self.elapsed = 0.0
+        self.done = False
+        self.depth = 0
+        self.restarts = 0
+        self.iterator = self.search()
+
+    def search(self):
+        ctx = self.parent.context
+        plan = self.plan
+        for phase, (width, depth_limit) in enumerate(self.widths):
+            self.restarts += int(phase > 0)
+            seen = {ctx.start: 0}
+            frontier = [(0.0, 0, next(self.parent.counter), ctx.start, None)]
+            important = plan.line | plan.route | plan.stands | (1 << plan.target)
+            for _depth in range(depth_limit):
+                if not frontier:
+                    break
+                candidates = []
+                signatures = Counter()
+                for _, cost, _, current, link in frontier:
+                    yield from ctx.checkpoint()
+                    self.parent.expand()
+                    self.nodes += 1
+                    won, target = ctx.goal(current)
+                    if won:
+                        yield Found(current, target, link)
+                        return
+                    children = yield from ctx.children(current, True)
+                    parent_h, _ = yield from ctx.score(current, limit=1)
+                    scored = []
+                    for child in children:
+                        yield from ctx.checkpoint()
+                        g = cost + len(child.pushes)
+                        if g >= seen.get(child.state, math.inf):
+                            continue
+                        bias = ctx.commitment_bias(plan, current, child, parent_h)
+                        score = (
+                            child.h
+                            + 1.2 * (child.bias + 1.5 * bias)
+                            - 2.0 * child.policy
+                            + 0.08 * len(child.pushes)
+                        )
+                        push = child.pushes[0]
+                        dest = ctx.push_lookup[push.cell, push.move][1]
+                        relevant = (
+                            bias < 0
+                            or important & ((1 << push.cell) | (1 << dest))
+                            or child.h <= parent_h
+                        )
+                        signature = (
+                            child.state[0],
+                            child.state[1] & important,
+                            bool(child.state[2] & (1 << plan.target)),
+                            int(child.h // 2) if math.isfinite(child.h) else -1,
+                        )
+                        scored.append(
+                            (
+                                relevant,
+                                (
+                                    score,
+                                    g,
+                                    next(self.parent.counter),
+                                    child.state,
+                                    Link(link, child.pushes),
+                                    signature,
+                                ),
+                            )
+                        )
+                    # Commitment filtering belongs only to this session.
+                    # The three unfiltered searches retain every primitive.
+                    relevant = [row for keep, row in scored if keep]
+                    escape = sorted(
+                        (row for keep, row in scored if not keep),
+                        key=lambda row: (row[0], row[2]),
+                    )[:8]
+                    candidates.extend(
+                        relevant + escape if relevant else [row for _, row in scored]
+                    )
+                candidates.sort(key=lambda c: (c[0], c[2]))
+                diversified = []
+                for score, g, tie, state, link, signature in candidates:
+                    novelty = signatures[signature]
+                    signatures[signature] += 1
+                    diversified.append(
+                        (
+                            score + 0.25 * novelty + 0.75 * max(0, novelty - 1),
+                            g,
+                            tie,
+                            state,
+                            link,
+                            signature,
+                        )
+                    )
+                diversified.sort(key=lambda c: (c[0], c[2]))
+                frontier = []
+                for score, g, tie, state, link, signature in diversified:
+                    yield from ctx.checkpoint()
+                    if g >= seen.get(state, math.inf):
+                        continue
+                    seen[state] = g
+                    won, target = ctx.goal(state)
+                    if won:
+                        yield Found(state, target, link)
+                        return
+                    frontier.append((score, g, tie, state, link))
+                    if len(frontier) >= width:
+                        break
+                self.peak = max(self.peak, len(seen))
+                self.parent.peak = max(self.parent.peak, self.peak)
+                self.frontier_size = len(frontier)
+                self.frontier_peak = max(self.frontier_peak, len(frontier))
+                ctx.peak_frontier = max(ctx.peak_frontier, len(frontier))
+
+    def advance(self, *, quantum=0.0125, expansions=8):
+        started = time.perf_counter()
+        before = self.nodes
+        try:
+            while not self.done:
+                item = next(self.iterator)
+                if isinstance(item, Found):
+                    self.done = True
+                    return item
+                if (
+                    self.nodes - before >= expansions
+                    or time.perf_counter() - started >= quantum
+                ):
+                    return None
+        except StopIteration:
+            self.done = True
+        finally:
+            self.elapsed += time.perf_counter() - started
+        return None
+
+
 def improve_keystrokes(ctx, incumbent, *, weight=4.0):
     """Anytime exact-player-position search with V3's keystroke cost objective."""
     counter = itertools.count()
-    h, _ = yield from ctx.score(ctx.start)
+    h, _ = yield from ctx.score(ctx.start, limit=1)
     queue = [(weight * h, 0, next(counter), ctx.start, ctx.player, None)]
     best = {(ctx.start, ctx.player): 0}
     best_length = len(incumbent[0])
@@ -1143,8 +1422,14 @@ def solve_v4(
     route_limit=3,
     strategy=None,
     ranker_path=None,
+    beam_mode="interleaved",
+    macro_mode="straight",
 ) -> PushSolveResult:
-    started, cpu = time.perf_counter(), time.process_time()
+    started, cpu = time.perf_counter(), time.thread_time()
+    if beam_mode not in ("serial", "interleaved"):
+        raise ValueError("Unknown beam mode")
+    if macro_mode not in ("straight", "forced"):
+        raise ValueError("Unknown macro mode")
     if schedule not in SCHEDULES:
         raise ValueError("Unknown V4 schedule")
     if strategy is not None and strategy not in STRATEGIES:
@@ -1157,6 +1442,8 @@ def solve_v4(
     )
     search_deadline = None if deadline is None else deadline - reserve
     context = Context(board, search_deadline, max_nodes, route_limit=route_limit)
+    context.beam_mode = beam_mode
+    context.macro_mode = macro_mode
     sessions = []
     incumbent = None
     verification_ms = 0.0
@@ -1296,9 +1583,26 @@ def solve_v4(
             for s in sessions
         },
         "model_hashes": {"candidate": context.ranker.hash} if context.ranker else {},
+        "cpu_clock": "thread_time",
         "version": "push-v4",
         "schedule": schedule,
         "route_limit": route_limit,
+        "beam_mode": beam_mode,
+        "macro_mode": macro_mode,
+        "commitments": [
+            {
+                "index": g.index,
+                "line": g.plan.line,
+                "target": g.plan.target,
+                "expansions": g.nodes,
+                "wall_ms": g.elapsed * 1000,
+                "peak_closed": g.peak,
+                "done": g.done,
+                "restarts": g.restarts,
+            }
+            for session in sessions
+            for g in session.goals + session.anchor_goals
+        ],
         "exact_hints": False,
         "preprocessing_ms": context.preprocess_ms,
         "verification_ms": verification_ms,
@@ -1306,7 +1610,7 @@ def solve_v4(
             0, elapsed - context.preprocess_ms - verification_ms - quality_ms
         ),
         "wall_ms": elapsed,
-        "cpu_ms": (time.process_time() - cpu) * 1000,
+        "cpu_ms": (time.thread_time() - cpu) * 1000,
         "expanded_nodes": search_nodes,
         "quality_nodes": quality_nodes,
         "quality_ms": quality_ms,
