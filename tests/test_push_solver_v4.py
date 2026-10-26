@@ -29,6 +29,30 @@ def context(board):
 
 
 class PushSolverV4Test(unittest.TestCase):
+    def test_quality_window_matches_v3_and_starts_at_solve_start(self):
+        original = Session.advance
+        deadlines = []
+
+        def delayed(session, **kwargs):
+            time.sleep(0.05)
+            return original(session, **kwargs)
+
+        def capture(context, incumbent, **kwargs):
+            deadlines.append(context.deadline)
+            return iter(())
+
+        started = time.perf_counter()
+        with (
+            patch.object(Session, "advance", delayed),
+            patch("solver.push_solver.v4.improve_keystrokes", capture),
+        ):
+            result = solve_v4(
+                [["U", "O", "", "O"]], timeout_seconds=2, quality_timeout_seconds=0.2
+            )
+        self.assertTrue(result.solved)
+        self.assertEqual(len(deadlines), 1)
+        self.assertLessEqual(deadlines[0], started + 0.22)
+
     def test_route_alternative_scoring_keeps_player_target_x_penalty(self):
         ctx = context(
             [["U", "", "", ""], ["", "X", "O", ""], ["", "O", "", ""], ["", "", "", ""]]

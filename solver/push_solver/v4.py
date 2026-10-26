@@ -1230,7 +1230,7 @@ def solve_v4(
     quality_end = (
         None
         if quality_timeout_seconds is None
-        else quality_started + max(0, quality_timeout_seconds)
+        else started + max(0, quality_timeout_seconds)
     )
     if search_deadline is not None:
         quality_end = (

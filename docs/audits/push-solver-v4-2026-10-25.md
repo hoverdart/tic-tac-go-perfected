@@ -145,7 +145,12 @@ Tee Off finished in 28.2s, showing limited runtime margin. This is not the compl
 180-run deployment-matched release matrix. The ordinary matrix remains gated on
 complete target and corpus coverage.
 
-Local validation now passes **162 Python tests**. The final corpus runs and
+Local validation now passes **163 Python tests**. The quality window retains V3's semantics: it ends at solve-start plus the
+requested quality timeout, capped by the overall deadline. A regression test
+covers this clock behavior. Earlier post-incumbent quality-window experiments
+are superseded and cannot be used as matching-argument comparisons.
+
+The final corpus runs and
 hosted/deployed receipts are indexed in the artifact directory; only receipts
 matching the final engine fingerprint and exact budget/configuration can satisfy
 the gate. Earlier experiments remain audit evidence, not release evidence.
