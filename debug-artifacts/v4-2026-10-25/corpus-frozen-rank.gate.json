@@ -1,0 +1,29 @@
+{
+  "passed": false,
+  "v3_verified": 390,
+  "v4_verified": 383,
+  "coverage_losses": [
+    "20250928",
+    "20251116",
+    "20251207",
+    "20251221",
+    "20260219",
+    "20260220",
+    "20260301",
+    "20260627",
+    "20260802",
+    "20260829",
+    "20261024"
+  ],
+  "unsolved_targets": [
+    "20260314",
+    "20260913"
+  ],
+  "missing": [],
+  "baseline_boards": 397,
+  "stale_engine_inputs": [],
+  "invalid_budgets_or_individual_strategies": [],
+  "configuration_count": 1,
+  "invalid_record_count": false,
+  "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+}

@@ -4,6 +4,39 @@ V4 is experimental. `DAILY_PUSH_SOLVER_VERSION` still defaults to `v3`; direct
 and custom solving retain their existing routing. Neither archive replacements
 nor a V4 daily cutover is authorized by the evidence below.
 
+## Final acceptance result
+
+The final source is `55c943e` (163 Python tests and 34 web tests passed in hosted
+validation; lint/build and the separate Cloud Run deployment also passed).
+The final sequential coverage runs used quality search disabled for both
+versions, with the same 30-second / 500,000-node limits.
+
+| Configuration | Verified corpus | Mandatory nine | Lost V3-covered boards |
+| --- | ---: | ---: | ---: |
+| V3 reference | 390/397 | 4/9 | — |
+| V4 default, 4:2:1:1 | 381/397 | 6/9 | 12 |
+| V4 beam-heavy, 1:1:1:4 | 392/397 | 8/9 | 4 |
+
+The beam-heavy candidate still fails Peninsula Problems (September 13), and loses
+September 28, March 1, August 2, and August 23 against V3. The default schedule
+also misses Surrounded and Tee Off in the final run. Earlier cohorts sometimes
+solved an additional board, reinforcing the need for the repeatability gate.
+The release gates fail; no schedule, ranker, daily selector, or archive repair
+has been promoted.
+
+The complete 180-run deployment-matched repetition matrix was not executed
+because the prerequisite coverage gates failed. The controlled Linux nine-target
+probe solved 8/9, with Tee Off at 28.2s, but it does not establish Vercel CPU
+quota equivalence. The read-only deployed probes are retained with their exact
+source hashes; hard cases failed there as recorded in those receipts.
+
+`summary.json`, `corpus-final-*.gate.json`, and `mandatory-targets.csv` are the
+final numerical index. `verified-path-corpus.jsonl` contains independently
+replayed supervision paths for **all 397 boards**, with original provenance;
+these paths never substitute for search acceptance. CPU clocks measure process
+time, so concurrent work in the same server process can contribute. RSS fields
+are process-lifetime peaks.
+
 ## Inputs and reference
 
 The immutable [corpus](../../debug-artifacts/v4-2026-10-25/catalog.jsonl) contains
@@ -82,7 +115,7 @@ Initial V4 production-target coverage was **4/9**: September 11 and October
 The initial full-corpus run found losses against V3, including committed-beam
 recovery cases. Commitment scoring and novelty handling were subsequently
 corrected; both initial and corrected corpus evidence are retained separately.
-The corrected local target portfolio solved **5/9**, including Cup of Tea. The
+An earlier corrected local target portfolio solved **5/9**, including Cup of Tea. The
 read-only deployed nine-target run solved **4/9**: Cup of Tea exhausted its push
 budget there. None of these results meets the release requirement.
 
@@ -133,8 +166,8 @@ against the current player component. Route choices are reused within each score
 calculation. These are invocation-local caches, not stored solution hints.
 
 This reduced direct beam research solves for -_- from 32.8s to 3.8s and Tee Off
-from 42.8s to 6.8s in local intermediate measurements. The final pinned default
-4:2:1:1 schedule solved **7/9** mandatory dates locally; Tee Off and Peninsula
+from 42.8s to 6.8s in local intermediate measurements. An intermediate default
+4:2:1:1 cohort solved **7/9** mandatory dates locally; Tee Off and Peninsula
 Problems exhausted their budgets. Uniform also solved 7/9. Weighted-search-heavy
 allocation lost -_- and did not improve coverage. An additional explicit
 1:1:1:4 beam-heavy alternative solved **8/9**, still missing Peninsula Problems.

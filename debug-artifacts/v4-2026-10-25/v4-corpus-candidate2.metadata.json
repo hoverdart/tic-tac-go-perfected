@@ -1,0 +1,40 @@
+{
+  "sources": {
+    "solver/push_solver/__init__.py": "50a5af085c018476930508a47aefddbd6a2a1031ff761815685f8c0dfd9dceb7",
+    "solver/push_solver/bench.py": "4b65a80aed108aa17f19c8ec1429039d065936079281e1e9303dccb50b2b6ff7",
+    "solver/push_solver/benchmark_hard_tail.py": "24cccc782aa6652f227679b644eb11d5cec0d09e9776e2f31bcb3b6a12705056",
+    "solver/push_solver/benchmark_v4.py": "355d6f947c5a332552eea1106169763343fbc9fb5ad9ca392615980c2f3db408",
+    "solver/push_solver/core.py": "4d1c2e592e47d20c9b653a1b05829a4c67fce042b7b313c31a89bd409c4e48bf",
+    "solver/push_solver/coverage_guard.py": "32902f171fa26461bdae308e1a72eaff164d0194dafbefc7851b259584de50f7",
+    "solver/push_solver/deadlocks.py": "a5af3a770e1f4dfd366ca61e6730815d5b88c8638afee9ba05586807097deb85",
+    "solver/push_solver/debug_oracle_rank.py": "49f61e50592a99b5c902fa15c8a2d1a48ceccc89b5eb0ea37683f01e1d27e38a",
+    "solver/push_solver/heuristics.py": "ac491481e3fa0e95cfeee4206a5e855ea3053c035381022754ed75369d1619b5",
+    "solver/push_solver/models.py": "50249adf9145dc53f0f1ca114241722689b9d7e657d30a25afbe74ce395ae0dc",
+    "solver/push_solver/optimizer.py": "b630cbe076ca9b0ee220a7c8b84353f1c09fa30fdda72ddbf381c3bb7f4505e4",
+    "solver/push_solver/policy_features.py": "55ca5f52c06f6910bce97217934256826bb74d26a61b8c3de37f03a906c15024",
+    "solver/push_solver/portfolio.py": "9f076aeddc62a1f0b97c8b6f673ffaa77a21246476faa2b2e8936a2bda13737a",
+    "solver/push_solver/rank_policy.py": "879ba8c9442e846b96c11bfc860290a53df65640b1dc93255a340962c0acb0b5",
+    "solver/push_solver/reconstruction.py": "f3513732e8aa2392a7373a5ac212f5604a29a5c782c8fa6a80dae4b6c8de9477",
+    "solver/push_solver/search.py": "3dde31bb031c48d148797ae0044af3af39f939ac91f76c40454640e474a46c68",
+    "solver/push_solver/state.py": "6378607424e6fae9cfbaa564b1ea35fedb0907a2f64efc1a7cdd1cf533911661",
+    "solver/push_solver/successors.py": "f91171b01e1ec27b76ca845a1776e34d8e9b3c9530f35a846a811659343a2055",
+    "solver/push_solver/train_v4_candidate.py": "9e0907346504937d3f271598923c7cc6487f34d2f275f41e575e08f93d517090",
+    "solver/push_solver/training_export.py": "3435aec12eea1180d9cd6b1b062df055ec501e9093a96d32b275484cbd509dbe",
+    "solver/push_solver/v4.py": "98af59cf66f2dfc19ebd2b12c90bcd2850d82958c14efc6f5562e42bc5d5377f",
+    "solver/push_solver/v4_ranker.py": "b417dcca20ef5e7f882e3aea0ffebf6c174af8480ff2743f07c2b265002cadc1",
+    "solver/push_solver/verify.py": "4e83d461014a57a50067ff5bf2251d663bc730322099f1f57d31533634f201f7"
+  },
+  "models": {
+    "linear_push_ranker_backfill_v1.json": "353b3742c1e91e27d7c9f89de2ae005ef0d699b3ae78779aa91dcf9ef75ee19b",
+    "linear_push_ranker_bookshelf_v1.json": "ce01d02258dda0a35eb254d83e8d782ff875cedfe109c52431fb896b948401ae",
+    "linear_push_ranker_hard_tail_v1.json": "2c50d843422945d62a5b3ba0d5ecb155db2c5f5f0e330d9c008de6de58b28cdb",
+    "linear_push_ranker_recovery_v1.json": "d9ba1c54befa9bf0ff24326233d287f3cec9f31219435f3adf3e97084ef5829b",
+    "linear_push_ranker_v1.json": "2c50d843422945d62a5b3ba0d5ecb155db2c5f5f0e330d9c008de6de58b28cdb"
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "platform": "Darwin",
+    "peak_rss_bytes": 29769728,
+    "cgroup": {}
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "engine_commit": "55c943e5b32fd4824dd5e63bea57c4c931072a32",
+  "engine_sha256": "71161e6f5ebd725e0ccbe549b9bef4cb4a17d029a2b55547f8b06b72cb812874",
+  "daily_selector_default": "v3",
+  "release_accepted": false,
+  "archive_replacements": 0,
+  "baseline": {
+    "boards": 397,
+    "verified": 390
+  },
+  "coverage": {
+    "rank": {
+      "passed": false,
+      "v3_verified": 390,
+      "v4_verified": 381,
+      "coverage_losses": [
+        "20250928",
+        "20251116",
+        "20251207",
+        "20251221",
+        "20260219",
+        "20260220",
+        "20260301",
+        "20260627",
+        "20260802",
+        "20260823",
+        "20260829",
+        "20261024"
+      ],
+      "unsolved_targets": [
+        "20251228",
+        "20260314",
+        "20260913"
+      ],
+      "missing": [],
+      "baseline_boards": 397,
+      "stale_engine_inputs": [],
+      "invalid_budgets_or_individual_strategies": [],
+      "configuration_count": 1,
+      "invalid_record_count": false,
+      "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+    },
+    "beam": {
+      "passed": false,
+      "v3_verified": 390,
+      "v4_verified": 392,
+      "coverage_losses": [
+        "20250928",
+        "20260301",
+        "20260802",
+        "20260823"
+      ],
+      "unsolved_targets": [
+        "20260913"
+      ],
+      "missing": [],
+      "baseline_boards": 397,
+      "stale_engine_inputs": [],
+      "invalid_budgets_or_individual_strategies": [],
+      "configuration_count": 1,
+      "invalid_record_count": false,
+      "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+    }
+  },
+  "target_cohorts": {
+    "rank": {
+      "verified": 6,
+      "total": 9,
+      "failed": [
+        "20251228",
+        "20260314",
+        "20260913"
+      ]
+    },
+    "beam": {
+      "verified": 8,
+      "total": 9,
+      "failed": [
+        "20260913"
+      ]
+    },
+    "container-frozen-beam": {
+      "scope": "Preceding source fingerprint; controlled Linux probe, not release-equivalent",
+      "verified": 8,
+      "total": 9,
+      "failed": [
+        "20260913"
+      ]
+    }
+  },
+  "known_verified_paths": 397,
+  "release_repetitions": {
+    "executed": false,
+    "reason": "Mandatory coverage and zero-regression gates failed. Controlled Linux probes do not establish Vercel CPU equivalence."
+  },
+  "validation": {
+    "local_python_tests": 163,
+    "hosted_python_tests": 163,
+    "hosted_web_tests": 34,
+    "hosted_lint_build": "passed",
+    "cloud_run_workflow": "passed",
+    "deployed_probes": "read-only; actual public Vercel API, source fingerprint verified",
+    "hosted_commit": "55c943e5b32fd4824dd5e63bea57c4c931072a32"
+  },
+  "latest_deployed_default_bubble": {
+    "elapsed_ms": 5102.938010000003,
+    "moves": 204,
+    "source_matches": true,
+    "quality_seconds": 0
+  },
+  "cpu_clock": "time.process_time deltas; concurrent work in the same server process can contribute."
+}

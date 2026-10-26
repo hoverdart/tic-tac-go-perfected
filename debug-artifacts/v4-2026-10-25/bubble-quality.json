@@ -1,0 +1,447 @@
+{
+  "id": "20261025",
+  "board_sha256": "697ab063486bdffd0a5f4c516acf975bcf4dbe706804c03de63b7c48a6de5735",
+  "verified": true,
+  "result": {
+    "solved": true,
+    "moves": "RRRDULLLDDDRRDRDDLRUULULLUUURRDLRRRDRDDRRDDDLLLLULLRRDRRRRUUULULUUDDDRRDDDLLLLUUULULLUUDDDRULUURRRRDRDDRRDDDLLLLULLUUDDRRUULULRDRDDLLUULUUDDRDDRRDRRRRUUUUDDDDLLLLUUULULDLUDRDDRUUDDRRDLLRRRRRUUUUUULLLLULLD",
+    "final_board": [
+      [
+        "X",
+        "",
+        "",
+        "",
+        "X",
+        "X",
+        "",
+        "X"
+      ],
+      [
+        "O",
+        "U",
+        "O",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "B",
+        "B",
+        "X",
+        "",
+        "",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "B",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "B",
+        "",
+        "",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "B",
+        "B",
+        "X",
+        ""
+      ],
+      [
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "X",
+        "X",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "pushes": [
+      {
+        "piece": "X",
+        "cell": 11,
+        "move": "D"
+      },
+      {
+        "piece": "X",
+        "cell": 50,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 9,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 59,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 49,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 13,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 8,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 32,
+        "move": "D"
+      },
+      {
+        "piece": "X",
+        "cell": 33,
+        "move": "R"
+      },
+      {
+        "piece": "O",
+        "cell": 41,
+        "move": "U"
+      },
+      {
+        "piece": "O",
+        "cell": 33,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 34,
+        "move": "L"
+      },
+      {
+        "piece": "O",
+        "cell": 25,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 33,
+        "move": "U"
+      },
+      {
+        "piece": "O",
+        "cell": 24,
+        "move": "U"
+      },
+      {
+        "piece": "O",
+        "cell": 16,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 31,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 25,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 24,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 42,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 34,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 52,
+        "move": "R"
+      },
+      {
+        "piece": "X",
+        "cell": 58,
+        "move": "L"
+      },
+      {
+        "piece": "X",
+        "cell": 23,
+        "move": "U"
+      },
+      {
+        "piece": "X",
+        "cell": 15,
+        "move": "U"
+      },
+      {
+        "piece": "O",
+        "cell": 14,
+        "move": "L"
+      },
+      {
+        "piece": "O",
+        "cell": 13,
+        "move": "L"
+      },
+      {
+        "piece": "O",
+        "cell": 12,
+        "move": "L"
+      },
+      {
+        "piece": "O",
+        "cell": 11,
+        "move": "L"
+      }
+    ],
+    "nodes_expanded": 1385,
+    "peak_closed_size": 5063,
+    "elapsed_ms": 11793.120208007167,
+    "failure_reason": null,
+    "strategy": "rank_discrepancy",
+    "attempts": [
+      {
+        "strategy": "rank_discrepancy",
+        "solved": true,
+        "nodes_expanded": 615,
+        "peak_closed_size": 5063,
+        "elapsed_ms": 888.6860839847941,
+        "failure_reason": null
+      },
+      {
+        "strategy": "weighted",
+        "solved": false,
+        "nodes_expanded": 256,
+        "peak_closed_size": 2356,
+        "elapsed_ms": 380.93908299924806,
+        "failure_reason": "incumbent_found"
+      },
+      {
+        "strategy": "macro",
+        "solved": false,
+        "nodes_expanded": 8,
+        "peak_closed_size": 103,
+        "elapsed_ms": 250.0827079929877,
+        "failure_reason": "incumbent_found"
+      },
+      {
+        "strategy": "committed_beam",
+        "solved": false,
+        "nodes_expanded": 14,
+        "peak_closed_size": 60,
+        "elapsed_ms": 270.9745829924941,
+        "failure_reason": "incumbent_found"
+      }
+    ],
+    "baseline_keystrokes": 204,
+    "quality_improved": false,
+    "quality_nodes_expanded": 492,
+    "diagnostics": {
+      "strategies": {
+        "rank_discrepancy": {
+          "expansions": 615,
+          "wall_ms": 888.6860839847941,
+          "cpu_ms": 882.8430000000001,
+          "peak_closed": 5063,
+          "frontier_size": 4602,
+          "peak_frontier": 4602,
+          "counters": {
+            "pruned_dominance": 453,
+            "geometry_computations": 25,
+            "route_computations": 274,
+            "route_hits": 183982,
+            "score_computations": 4973,
+            "successor_computations": 607,
+            "score_hits": 1230,
+            "generated": 22130,
+            "pruned_illegal": 15660,
+            "deadlock_queries": 6130,
+            "geometry_hits": 6090,
+            "generated_states": 5596,
+            "reverse_queries": 68866,
+            "reverse_computations": 548,
+            "reverse_hits": 68318,
+            "pruned_x_loss": 339,
+            "frozen_hits": 679,
+            "pruned_deadlock": 535,
+            "successor_hits": 7
+          }
+        },
+        "weighted": {
+          "expansions": 256,
+          "wall_ms": 380.93908299924806,
+          "cpu_ms": 380.8300000000001,
+          "peak_closed": 2356,
+          "frontier_size": 2101,
+          "peak_frontier": 2101,
+          "counters": {
+            "pruned_dominance": 321,
+            "geometry_computations": 2,
+            "route_computations": 22,
+            "route_hits": 81336,
+            "score_computations": 1702,
+            "successor_computations": 207,
+            "score_hits": 546,
+            "generated": 9128,
+            "pruned_illegal": 6881,
+            "deadlock_queries": 2075,
+            "geometry_hits": 2627,
+            "generated_states": 2040,
+            "reverse_queries": 18566,
+            "reverse_computations": 56,
+            "reverse_hits": 18510,
+            "pruned_x_loss": 172,
+            "frozen_hits": 379,
+            "pruned_deadlock": 35,
+            "successor_hits": 49
+          }
+        },
+        "macro": {
+          "expansions": 8,
+          "wall_ms": 250.0827079929877,
+          "cpu_ms": 250.01399999999995,
+          "peak_closed": 103,
+          "frontier_size": 96,
+          "peak_frontier": 96,
+          "counters": {
+            "pruned_dominance": 10,
+            "geometry_computations": 1,
+            "route_computations": 9,
+            "route_hits": 37139,
+            "score_computations": 774,
+            "successor_computations": 103,
+            "score_hits": 499,
+            "generated": 4834,
+            "pruned_illegal": 3583,
+            "deadlock_queries": 1136,
+            "geometry_hits": 1191,
+            "generated_states": 1136,
+            "reverse_queries": 2606,
+            "reverse_computations": 13,
+            "reverse_hits": 2593,
+            "pruned_x_loss": 115,
+            "frozen_hits": 374,
+            "successor_hits": 53
+          }
+        },
+        "committed_beam": {
+          "expansions": 14,
+          "wall_ms": 270.9745829924941,
+          "cpu_ms": 270.772,
+          "peak_closed": 60,
+          "frontier_size": 48,
+          "peak_frontier": 48,
+          "counters": {
+            "geometry_computations": 1,
+            "route_computations": 12,
+            "route_hits": 37764,
+            "score_computations": 787,
+            "successor_computations": 99,
+            "score_hits": 517,
+            "generated": 4584,
+            "pruned_illegal": 3365,
+            "deadlock_queries": 1136,
+            "geometry_hits": 1040,
+            "generated_states": 1136,
+            "reverse_queries": 1768,
+            "reverse_computations": 20,
+            "reverse_hits": 1748,
+            "pruned_x_loss": 83,
+            "frozen_hits": 363,
+            "successor_hits": 154
+          }
+        }
+      },
+      "model_hashes": {},
+      "version": "push-v4",
+      "schedule": "rank",
+      "route_limit": 3,
+      "exact_hints": false,
+      "preprocessing_ms": 0.5369170103222132,
+      "verification_ms": 0.6684580002911389,
+      "search_ms": 1790.888375006034,
+      "wall_ms": 11793.120208007167,
+      "cpu_ms": 11739.601999999999,
+      "expanded_nodes": 893,
+      "quality_nodes": 492,
+      "quality_ms": 10001.02645799052,
+      "peak_frontier": 4602,
+      "counters": {
+        "geometry_computations": 47,
+        "route_computations": 432,
+        "route_hits": 1918836,
+        "score_computations": 41525,
+        "successor_computations": 5776,
+        "score_hits": 22869,
+        "generated": 252136,
+        "pruned_illegal": 188540,
+        "deadlock_queries": 57070,
+        "geometry_hits": 58730,
+        "generated_states": 56477,
+        "reverse_queries": 539396,
+        "reverse_computations": 1436,
+        "reverse_hits": 537960,
+        "pruned_x_loss": 6525,
+        "frozen_hits": 18274,
+        "pruned_deadlock": 593,
+        "successor_hits": 4327
+      },
+      "runtime": {
+        "python": "3.12.13",
+        "platform": "Darwin",
+        "peak_rss_bytes": 145768448,
+        "cgroup": {}
+      },
+      "limits": {
+        "seconds": 30.0,
+        "nodes": 500000
+      },
+      "cache_sizes": {
+        "reverse": 1436,
+        "geometry": 47,
+        "score": 8192,
+        "successors": 5776
+      }
+    }
+  }
+}

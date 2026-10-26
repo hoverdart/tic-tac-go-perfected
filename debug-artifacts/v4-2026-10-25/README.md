@@ -5,8 +5,10 @@ V4 remains experimental. Input truth is `catalog.jsonl` (397 boards) and
 metadata receipt. Historical and parser-repair paths remain in the separate
 October 22 audit directory.
 
-Final candidate search receipts use `targets-frozen-*`, `corpus-frozen-*`, and
-`container-frozen-beam.*`. Their metadata pins the source and model files. Gate
+Final coverage receipts use `corpus-final-*` after the quality-clock
+compatibility correction. `targets-frozen-*`, `corpus-frozen-*`, and
+`container-frozen-beam.*` pin the preceding source; quality was disabled in
+those coverage probes. They are retained as separate cohorts. Their metadata pins the source and model files. Gate
 reports are generated separately and must fail on stale engine hashes, mixed
 configurations, research budgets, hints, missing boards, or lost V3 coverage.
 The default schedule is `rank` (4:2:1:1); `beam` (1:1:1:4) is an explicit
@@ -38,3 +40,18 @@ read-only probes of the initial pushed engine (a9470d5), served by the actual
 Vercel API. No daily row or archive record was changed. Their source hashes are
 included; later engine probes are stored separately. The controlled Docker
 runs are not claimed to match Vercel CPU quotas, which were not exposed.
+
+`verified-path-corpus.jsonl` indexes independently replayed paths for all 397
+boards, with source provenance. Original evidence stays in place. It is for
+supervision and verification only, never exact-action search hints.
+
+CPU deltas use `time.process_time`; concurrent work in the same server process
+can contribute. Memory fields are process-lifetime RSS peaks, not per-board
+allocations. The API probe HTTP time also includes catalog/network overhead.
+
+`bubble-matched-quality.jsonl` uses equal 30-second / 500,000-node budgets and
+V3-compatible solve-start quality windows. `bubble_matched_quality.py` reproduces
+one fresh-process measurement (`PYTHONPATH=. .venv/bin/python <script> v3|v4`).
+Earlier post-incumbent quality-window experiments are superseded. Their shorter
+replay-verified paths remain supervision evidence, not a matching-argument
+performance comparison.
