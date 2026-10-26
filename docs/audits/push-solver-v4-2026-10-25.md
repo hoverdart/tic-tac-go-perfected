@@ -114,8 +114,41 @@ No saved path is loaded as a search hint by V4.
 trainer. Original board identity (including rotations/reflections) determines
 splits. The nine targets are development data. The candidate stays in the artifact
 directory, has no exact-action keys, and is never selected by the daily pipeline.
-The first candidate's held-out *action-ranking* accuracy was 440/1071 (41.1%);
-that is not held-out search coverage or evidence of unseen-board generalization.
+Initial fits were rejected after nonfinite legacy-export features produced NaN
+coefficients. Their metrics are invalid and their artifacts are quarantined under
+`invalid-candidates/`. The corrected exporter sanitizes, bounds, and scales
+features; model loading rejects nonfinite coefficients and scoring rejects
+nonfinite predictions. The corrected candidate's held-out *action-ranking*
+accuracy is 439/1071 (41.0%). This is not held-out search coverage or evidence of
+unseen-board generalization. It remains outside the production model path.
+
+## Final cache refinements and candidate status
+
+Macro continuation now computes the requested legal push directly, reusing an
+edge cache, instead of constructing unrelated sibling successor lists. Frozen
+constraint decisions are cached by O mask, permanent-blocker mask, and the player
+component after removing movable pieces. Goal geometry is cached by O positions;
+nonterminal plan scores depend on O/X masks, with goal reachability still checked
+against the current player component. Route choices are reused within each score
+calculation. These are invocation-local caches, not stored solution hints.
+
+This reduced direct beam research solves for -_- from 32.8s to 3.8s and Tee Off
+from 42.8s to 6.8s in local intermediate measurements. The final pinned default
+4:2:1:1 schedule solved **7/9** mandatory dates locally; Tee Off and Peninsula
+Problems exhausted their budgets. Uniform also solved 7/9. Weighted-search-heavy
+allocation lost -_- and did not improve coverage. An additional explicit
+1:1:1:4 beam-heavy alternative solved **8/9**, still missing Peninsula Problems.
+No alternative has been promoted to the daily path.
+
+The final one-CPU/512 MiB Linux beam-heavy probe also failed Peninsula Problems;
+Tee Off finished in 28.2s, showing limited runtime margin. This is not the complete
+180-run deployment-matched release matrix. The ordinary matrix remains gated on
+complete target and corpus coverage.
+
+Local validation now passes **162 Python tests**. The final corpus runs and
+hosted/deployed receipts are indexed in the artifact directory; only receipts
+matching the final engine fingerprint and exact budget/configuration can satisfy
+the gate. Earlier experiments remain audit evidence, not release evidence.
 
 ## Reproduction and release gates
 

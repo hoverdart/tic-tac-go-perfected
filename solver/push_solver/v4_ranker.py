@@ -4,11 +4,21 @@ from collections import OrderedDict
 from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
+import math
 
 from solver.push_solver.models import State
 from solver.push_solver.policy_features import features_for_child
 from solver.push_solver.rank_policy import load_policy
 from solver.push_solver.state import parse_board
+
+
+def sanitize_features(features):
+    """Exclude nonfinite legacy-export features and bound numeric magnitudes."""
+    return {
+        k: max(-50.0, min(50.0, float(v)))
+        for k, v in features.items()
+        if math.isfinite(float(v))
+    }
 
 
 class FeatureRanker:
@@ -19,6 +29,15 @@ class FeatureRanker:
             raise ValueError(
                 "V4 only accepts feature-only candidates without exact action hints"
             )
+        coefficients = [
+            *self.policy.weights.values(),
+            *self.policy.value_weights.values(),
+            self.policy.intercept,
+            self.policy.value_intercept,
+            self.policy.value_weight,
+        ]
+        if not all(math.isfinite(v) for v in coefficients):
+            raise ValueError("V4 candidate coefficients must be finite")
         static, _, _, _ = parse_board(board)
         self.context = SimpleNamespace(
             static=static,
@@ -65,7 +84,9 @@ class FeatureRanker:
         )
         features["sibling_rank"] = rank / max(1, count)
         features["sibling_count"] = count / 32.0
-        value = self.policy.score(features)
+        value = self.policy.score(sanitize_features(features))
+        if not math.isfinite(value):
+            raise ValueError("V4 candidate produced a nonfinite score")
         self.cache[key] = value
         if len(self.cache) > 8192:
             self.cache.popitem(last=False)

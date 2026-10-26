@@ -22,7 +22,12 @@ from solver.push_solver.models import DIRECTIONS, Push, PushSolveResult, SearchA
 from solver.push_solver.verify import verify_solution
 
 StateKey = tuple[int, int, int]  # O occupancy, X occupancy, player-reachable region
-SCHEDULES = {"rank": (4, 2, 1, 1), "uniform": (1, 1, 1, 1), "weighted": (2, 4, 1, 1)}
+SCHEDULES = {
+    "rank": (4, 2, 1, 1),
+    "uniform": (1, 1, 1, 1),
+    "weighted": (2, 4, 1, 1),
+    "beam": (1, 1, 1, 4),
+}
 STRATEGIES = ("rank_discrepancy", "weighted", "macro", "committed_beam")
 
 
@@ -157,7 +162,10 @@ class Context:
         self.route_cache = OrderedDict()
         self.reverse_cache = OrderedDict()
         self.frozen_cache = OrderedDict()
+        self.deadlock_cache = OrderedDict()
+        self.edge_cache = OrderedDict()
         self.geometry_cache = OrderedDict()
+        self.goal_cache = OrderedDict()
         self.score_cache = OrderedDict()
         self.successor_cache = OrderedDict()
         self.metrics = Counter()
@@ -213,14 +221,18 @@ class Context:
 
     def goal(self, state):
         os, xs, region = state
-        for line in self.lines:
-            count = (os & line).bit_count()
-            if count == 3:
-                return True, None
-            if count == 2:
-                target = line & ~os
-                if target & region and not target & xs:
-                    return True, target.bit_length() - 1
+        if os not in self.goal_cache:
+            targets = []
+            for line in self.lines:
+                count = (os & line).bit_count()
+                if count == 3:
+                    targets.append(None)
+                elif count == 2:
+                    targets.append((line & ~os).bit_length() - 1)
+            self.put(self.goal_cache, os, tuple(targets), 256)
+        for target in self.goal_cache[os]:
+            if target is None or region & (1 << target):
+                return True, target
         return False, None
 
     def x_loss(self, xs, dest=None):
@@ -274,10 +286,19 @@ class Context:
         frozen = self.frozen(os | xs)
         if not frozen:
             return os.bit_count() == 2 and not (yield from self.geometry(os))
-        frozen_os, frozen_xs = os & frozen, xs & frozen
-        blockers = self.walls | frozen
         start = (region & -region).bit_length() - 1
         accessible = self.reachable(start, frozen)
+        key = os, frozen, accessible
+        if key in self.deadlock_cache:
+            self.metrics["deadlock_hits"] += 1
+            self.deadlock_cache.move_to_end(key)
+            return self.deadlock_cache[key]
+        result = yield from self.frozen_deadlock(os, frozen, accessible)
+        return self.put(self.deadlock_cache, key, result, 8192)
+
+    def frozen_deadlock(self, os, frozen, accessible):
+        frozen_os, frozen_xs = os & frozen, frozen & ~os
+        blockers = self.walls | frozen
         for line in self.lines:
             yield from self.checkpoint()
             if frozen_xs & line:
@@ -399,13 +420,14 @@ class Context:
         return self.put(self.geometry_cache, os, tuple(result), 256)
 
     def score(self, state):
-        if state in self.score_cache:
-            self.metrics["score_hits"] += 1
-            self.score_cache.move_to_end(state)
-            return self.score_cache[state]
-        os, xs, region = state
         if self.goal(state)[0]:
-            return self.put(self.score_cache, state, (0.0, ()), 8192)
+            return 0.0, ()
+        os, xs, region = state
+        key = os, xs
+        if key in self.score_cache:
+            self.metrics["score_hits"] += 1
+            self.score_cache.move_to_end(key)
+            return self.score_cache[key]
         geometry = yield from self.geometry(os)
         candidates = []
         for index, (line, target, oa, a, ob, b, route_a, route_b) in enumerate(
@@ -429,26 +451,26 @@ class Context:
         # Refine only promising obstructed candidates; static route alternatives
         # are cached and remain ordering evidence, never a pruning condition.
         refined = []
+        choices = {}
         for position, (score, index, route_a, route_b) in enumerate(candidates):
             if position >= 24:
                 refined.extend(candidates[position:])
                 break
             line, target, oa, a, ob, b, _, _ = geometry[index]
             if self.route_limit > 1 and xs & (route_a[1] | route_b[1]):
-                routes_a = yield from self.routes(oa, a)
-                routes_b = yield from self.routes(ob, b)
-                route_a = min(
-                    routes_a,
-                    key=lambda r: (
-                        r[0] + (xs & r[1]).bit_count() + bool(r[1] & (1 << ob))
-                    ),
-                )
-                route_b = min(
-                    routes_b,
-                    key=lambda r: (
-                        r[0] + (xs & r[1]).bit_count() + bool(r[1] & (1 << oa))
-                    ),
-                )
+                for source, route_target, other in ((oa, a, ob), (ob, b, oa)):
+                    route_key = source, route_target, other
+                    if route_key not in choices:
+                        alternatives = yield from self.routes(source, route_target)
+                        choices[route_key] = min(
+                            alternatives,
+                            key=lambda r: (
+                                r[0]
+                                + (xs & r[1]).bit_count()
+                                + bool(r[1] & (1 << other))
+                            ),
+                        )
+                route_a, route_b = choices[oa, a, ob], choices[ob, b, oa]
                 score = (
                     route_a[0]
                     + route_b[0]
@@ -476,7 +498,7 @@ class Context:
             )
         result = (plans[0].score if plans else math.inf, tuple(plans))
         self.metrics["score_computations"] += 1
-        return self.put(self.score_cache, state, result, 8192)
+        return self.put(self.score_cache, key, result, 8192)
 
     def o_push_count(self, state):
         os, xs, region = state
@@ -532,7 +554,7 @@ class Context:
             bias += 0.5
         return bias
 
-    def _produce_successors(self, state):
+    def _produce_successors(self, state, only=None):
         os, xs, region = state
         parent_h, parent_plans = yield from self.score(state)
         occupied = os | xs
@@ -540,10 +562,25 @@ class Context:
         for piece, pieces in (("O", os), ("X", xs)):
             for cell in cells(pieces):
                 for move, stand, dest in self.transitions[cell]:
+                    if only is not None and (piece, cell, move) != (
+                        only.piece,
+                        only.cell,
+                        only.move,
+                    ):
+                        continue
+                    key = state, piece, cell, move
                     yield from self.checkpoint()
+                    if key in self.edge_cache:
+                        self.metrics["edge_hits"] += 1
+                        self.edge_cache.move_to_end(key)
+                        cached = self.edge_cache[key]
+                        if cached is not None:
+                            yield cached
+                        continue
                     self.metrics["generated"] += 1
                     if not region & (1 << stand) or occupied & (1 << dest):
                         self.metrics["pruned_illegal"] += 1
+                        self.put(self.edge_cache, key, None, 32768)
                         continue
                     new_os, new_xs = os, xs
                     if piece == "O":
@@ -552,6 +589,7 @@ class Context:
                         new_xs = (xs ^ (1 << cell)) | (1 << dest)
                         if self.x_loss(new_xs, dest):
                             self.metrics["pruned_x_loss"] += 1
+                            self.put(self.edge_cache, key, None, 32768)
                             continue
                     next_region = self.reachable(cell, new_os | new_xs)
                     child_state = new_os, new_xs, next_region
@@ -559,6 +597,7 @@ class Context:
                         yield from self.deadlock(child_state)
                     ):
                         self.metrics["pruned_deadlock"] += 1
+                        self.put(self.edge_cache, key, None, 32768)
                         continue
                     h, plans = yield from self.score(child_state)
                     push = Push(piece, cell, move)
@@ -603,7 +642,19 @@ class Context:
                             for p in parent_plans[:8]
                         )
                     self.metrics["generated_states"] += 1
-                    yield Child((push,), child_state, h, bias)
+                    child = Child((push,), child_state, h, bias)
+                    self.put(self.edge_cache, key, child, 32768)
+                    yield child
+
+    def single_successor(self, state, push):
+        """Extend a macro without generating unrelated pushes and their scores."""
+        child = None
+        for item in self._produce_successors(state, only=push):
+            if item is None:
+                yield None
+            else:
+                child = item
+        return child
 
     def commitment_bias(self, plan, parent, child, parent_h):
         """V3 commitment objective; independent from primitive move ordering."""
@@ -698,16 +749,9 @@ class Context:
                 cell = self.push_lookup[chain[0].cell, chain[0].move][1]
                 bias = child.bias
                 for _ in range(4):
-                    continuation = None
-                    for nxt in self.successors(current):
-                        if nxt is None:
-                            yield None
-                        elif (
-                            nxt.pushes[0].cell == cell
-                            and nxt.pushes[0].move == chain[0].move
-                            and nxt.pushes[0].piece == chain[0].piece
-                        ):
-                            continuation = nxt
+                    continuation = yield from self.single_successor(
+                        current, Push(chain[0].piece, cell, chain[0].move)
+                    )
                     if continuation is None:
                         break
                     chain += continuation.pushes
@@ -1274,6 +1318,8 @@ def solve_v4(
             "reverse": len(context.reverse_cache),
             "geometry": len(context.geometry_cache),
             "score": len(context.score_cache),
+            "deadlock": len(context.deadlock_cache),
+            "edges": len(context.edge_cache),
             "successors": len(context.successor_cache),
         },
     }

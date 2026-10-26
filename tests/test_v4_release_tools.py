@@ -80,6 +80,9 @@ class V4ReleaseToolsTest(unittest.TestCase):
             for repeat in range(10)
         ]
         self.assertTrue(repetition_gate(matrix)["passed"])
+        matrix[-1]["schedule"] = "mixed"
+        self.assertFalse(repetition_gate(matrix)["passed"])
+        matrix[-1]["schedule"] = None
         matrix[-1]["verified"] = False
         self.assertFalse(repetition_gate(matrix)["passed"])
 
@@ -117,6 +120,13 @@ class V4ReleaseToolsTest(unittest.TestCase):
             result = solve_v4(
                 [["U", "O", "", "O"]], ranker_path=path, quality_timeout_seconds=0
             )
+            path.write_text(
+                json.dumps(
+                    {"weights": {"hand_score": float("nan")}, "state_action_hints": {}}
+                )
+            )
+            with self.assertRaisesRegex(ValueError, "must be finite"):
+                solve_v4([["U", "O", "O"]], ranker_path=path, quality_timeout_seconds=0)
             self.assertTrue(result.solved)
             self.assertTrue(result.diagnostics["model_hashes"]["candidate"])
             self.assertFalse(result.diagnostics["exact_hints"])

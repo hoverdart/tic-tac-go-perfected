@@ -29,6 +29,82 @@ def context(board):
 
 
 class PushSolverV4Test(unittest.TestCase):
+    def test_route_alternative_scoring_keeps_player_target_x_penalty(self):
+        ctx = context(
+            [["U", "", "", ""], ["", "X", "O", ""], ["", "O", "", ""], ["", "", "", ""]]
+        )
+        ctx.route_limit = 3
+        _, plans = consume(ctx.score(ctx.start))
+        for plan in plans:
+            costs = []
+            (oa, a), (ob, b) = plan.assignment
+            ca, cb = ctx.canonical_route(oa, a), ctx.canonical_route(ob, b)
+            refine = bool(ctx.xs & (ca[1] | cb[1]))
+            for source, target, other, canonical in ((oa, a, ob, ca), (ob, b, oa, cb)):
+                routes = consume(ctx.routes(source, target)) if refine else (canonical,)
+                costs.append(
+                    min(
+                        r[0] + (ctx.xs & r[1]).bit_count() + bool(r[1] & (1 << other))
+                        for r in routes
+                    )
+                )
+            expected = (
+                sum(costs)
+                + 0.5 * (ctx.xs & plan.line).bit_count()
+                + 2 * bool(ctx.xs & (1 << plan.target))
+            )
+            self.assertEqual(plan.score, expected)
+
+    def test_goal_cache_still_checks_the_players_actual_component(self):
+        ctx = context([["U", "O", "O"], ["B", "B", "B"], ["", "", ""]])
+        top = (ctx.os, ctx.xs, ctx.reachable(0, ctx.os | ctx.xs))
+        bottom = (ctx.os, ctx.xs, ctx.reachable(6, ctx.os | ctx.xs))
+        self.assertTrue(ctx.goal(top)[0])
+        self.assertFalse(ctx.goal(bottom)[0])
+        self.assertEqual(consume(ctx.score(top)), (0.0, ()))
+        score, plans = consume(ctx.score(bottom))
+        self.assertEqual(score, 0.0)
+        self.assertTrue(plans)
+        self.assertEqual(consume(ctx.score(top)), (0.0, ()))
+
+    def test_direct_macro_edges_match_complete_legal_successors(self):
+        from solver.push_solver.models import Push
+
+        board = [
+            ["U", "", "", ""],
+            ["", "X", "O", ""],
+            ["", "O", "", ""],
+            ["", "", "", ""],
+        ]
+        ctx = context(board)
+        expected = {c.pushes[0]: c for c in consume(ctx.children(ctx.start))}
+        for piece, positions in [("O", ctx.os), ("X", ctx.xs)]:
+            from solver.push_solver.v4 import cells
+
+            for cell in cells(positions):
+                for move, _, _ in ctx.transitions[cell]:
+                    push = Push(piece, cell, move)
+                    self.assertEqual(
+                        consume(ctx.single_successor(ctx.start, push)),
+                        expected.get(push),
+                    )
+        self.assertGreater(ctx.metrics["edge_hits"], 0)
+
+    def test_frozen_deadlock_cache_separates_player_components(self):
+        ctx = context(
+            [["U", "", "B", "", "X"], ["O", "O", "B", "", ""], ["", "", "B", "", ""]]
+        )
+        answers = []
+        for player in (0, 3):
+            state = (ctx.os, ctx.xs, ctx.reachable(player, ctx.os | ctx.xs))
+            first = consume(ctx.deadlock(state))
+            before = ctx.metrics["reverse_queries"]
+            self.assertEqual(consume(ctx.deadlock(state)), first)
+            self.assertEqual(ctx.metrics["reverse_queries"], before)
+            answers.append(first)
+        self.assertEqual(len(ctx.deadlock_cache), 2)
+        self.assertEqual(ctx.metrics["deadlock_hits"], 2)
+
     def test_bubble_wrap_gets_early_rank_search_without_action_hints(self):
         from datetime import date
         from apps.api.puzzle_catalog import CatalogEntry

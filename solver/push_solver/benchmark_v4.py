@@ -208,11 +208,23 @@ def repetition_gate(rows):
     }
     found = set()
     failures = []
+    configurations = set()
     for r in rows:
         key = r["id"], r.get("process"), r.get("repeat")
         if key not in expected:
             continue
         found.add(key)
+        configurations.add(
+            (
+                r.get("schedule"),
+                r.get("routes"),
+                r.get("strategy_requested"),
+                json.dumps(
+                    r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
+                    sort_keys=True,
+                ),
+            )
+        )
         if not (
             r.get("verified")
             and r.get("engine_sha256") == ENGINE_SHA256
@@ -230,9 +242,10 @@ def repetition_gate(rows):
         ):
             failures.append(key)
     return {
-        "passed": found == expected and not failures,
+        "passed": found == expected and not failures and len(configurations) == 1,
         "missing": sorted(expected - found),
         "failures": failures,
+        "configuration_count": len(configurations),
         "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified.",
     }
 
@@ -247,7 +260,7 @@ def main():
     p.add_argument("--seconds", type=float, default=30)
     p.add_argument("--nodes", type=int, default=500000)
     p.add_argument(
-        "--schedule", choices=["rank", "uniform", "weighted"], default="rank"
+        "--schedule", choices=["rank", "uniform", "weighted", "beam"], default="rank"
     )
     p.add_argument("--routes", type=int, default=3)
     p.add_argument(

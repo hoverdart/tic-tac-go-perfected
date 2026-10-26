@@ -213,7 +213,7 @@ class PushBenchmarkRequest(BaseModel):
     version: Literal["v3", "v4"] = "v4"
     timeout_seconds: float = Field(default=30, gt=0, le=30)
     max_nodes: int = Field(default=500_000, gt=0, le=500_000)
-    schedule: Literal["rank", "uniform", "weighted"] = "rank"
+    schedule: Literal["rank", "uniform", "weighted", "beam"] = "rank"
 
 
 @app.post(

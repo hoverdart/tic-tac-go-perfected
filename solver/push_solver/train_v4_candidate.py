@@ -21,6 +21,17 @@ from solver.push_solver.training_export import (
     dot,
 )
 from solver.push_solver.verify import verify_solution
+from solver.push_solver.v4_ranker import sanitize_features
+
+FEATURE_SCALES = {
+    "bias": 50.0,
+    "hand_score": 50.0,
+    "parent_h": 50.0,
+    "child_h": 50.0,
+    "h_delta": 20.0,
+    "assigned_o_progress": 20.0,
+    "x_threat_delta": 8.0,
+}
 
 
 def identity(row):
@@ -126,6 +137,7 @@ def main():
         # before fitting or writing any V4 candidate artifact.
         for example in examples:
             example.pop("state_action_key", None)
+            example["features"] = sanitize_features(example["features"])
         datasets[split[board_id]].extend(examples)
         manifest.append(
             {
@@ -140,7 +152,19 @@ def main():
     fit = datasets["train"] + datasets["development"]
     if not fit:
         p.error("No verified training paths")
-    weights = train_pairwise_ranker(fit, epochs=a.epochs, learning_rate=0.02, seed=4)
+    normalized = [
+        {
+            **r,
+            "features": {
+                k: v / FEATURE_SCALES.get(k, 1.0) for k, v in r["features"].items()
+            },
+        }
+        for r in fit
+    ]
+    normalized_weights = train_pairwise_ranker(
+        normalized, epochs=a.epochs, learning_rate=0.02, seed=4
+    )
+    weights = {k: v / FEATURE_SCALES.get(k, 1.0) for k, v in normalized_weights.items()}
     payload = {
         "name": "push-v4-feature-candidate",
         "weights": weights,
@@ -151,6 +175,8 @@ def main():
         "training": {
             "seed": 4,
             "epochs": a.epochs,
+            "feature_scales": FEATURE_SCALES,
+            "feature_clamp": 50.0,
             "manifest": manifest,
             "validation": ranking_accuracy(datasets["validation"], weights),
             "training": ranking_accuracy(fit, weights),
@@ -158,7 +184,7 @@ def main():
         },
     }
     a.output.parent.mkdir(parents=True, exist_ok=True)
-    a.output.write_text(json.dumps(payload, indent=2) + "\n")
+    a.output.write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n")
     print(json.dumps(payload["training"]["validation"]))
 
 
