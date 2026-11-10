@@ -166,6 +166,36 @@ rebuilding. Evidence/documentation-only pushes preserve the tested image rather
 than replacing it during qualification. Runtime configuration/workflow changes
 still trigger deployment. The actual hosted gates remain required.
 
+### Restored global lane and immutable-image promotion
+
+The five-lane/two-route candidate solves 397/397 locally at 38.24 mean moves,
+passes all 180 local repetitions, and passes its hosted smoke and original
+regression guards. An additional hosted Grand Meridian (October 24) probe still
+times out on the exact frozen board. Its failed receipt is preserved, and
+the coordinator is stopped before starting obsolete full hosted cohorts.
+
+The six-lane follow-up retains the original global width-48 stream alongside
+the five streams above. It reduces Grand Meridian from 13.01 seconds to an
+8.52-second compiled local smoke, while retaining the faster narrow searches.
+Grand Meridian becomes a permanent extra guard: twelve hosted smoke boards,
+eighteen extra guard repetitions, the unchanged 180 mandatory repetitions,
+and the complete frozen 397-board corpus must all pass.
+
+Both Python and compiled PostgreSQL suites pass **215 tests with no skips**.
+The six new selection-workflow tests reject failed/incomplete evidence, changed
+source files, mismatched worker binaries, incorrect revisions and external paths.
+
+The selection workflow checks committed complete hosted cohorts before cloud
+authentication, compares their source hashes with the checkout, and promotes
+the qualified revision's immutable image digest by setting the existing daily
+version selector. V3 remains the source fallback and an explicit rollback option.
+This avoids rebuilding a different native artifact while enabling V4. Subsequent
+evidence-only pushes preserve the selected production image.
+
+Six-lane kernel: `83f0c9ddbeecf30c7436e966660c5376664faf2f92c8f05f726364950390e39a`.
+Runner remains `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
+Its cohorts are recorded separately in `six-lane-linux`.
+
 With the existing cron secret available locally:
 
 ```sh

@@ -1291,6 +1291,7 @@ class Session:
             self.serial_beam_search(objective="goal"),
             self.serial_beam_search(wide=True),
             self.serial_beam_search(narrow_width=24),
+            self.serial_beam_search(),
         ]
         done = set()
         while len(done) < len(lanes):

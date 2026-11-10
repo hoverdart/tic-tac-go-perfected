@@ -1,0 +1,49 @@
+name: Select qualified daily solver
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Daily solver version
+        type: choice
+        options: [v4, v3]
+        required: true
+      qualified_revision:
+        description: Cloud Run revision with complete passing qualification
+        required: true
+        type: string
+      evidence_dir:
+        description: Committed hosted qualification directory
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-run-production
+  cancel-in-progress: false
+
+jobs:
+  select:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      SOLVER_VERSION: ${{ inputs.version }}
+      QUALIFIED_REVISION: ${{ inputs.qualified_revision }}
+      EVIDENCE_DIR: ${{ inputs.evidence_dir }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify committed qualification before authentication
+        run: python scripts/select_daily_solver.py --version "$SOLVER_VERSION" --qualified-revision "$QUALIFIED_REVISION" --evidence-dir "$EVIDENCE_DIR" --verify-only
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Select solver using the qualified immutable image
+        run: python scripts/select_daily_solver.py --version "$SOLVER_VERSION" --qualified-revision "$QUALIFIED_REVISION" --evidence-dir "$EVIDENCE_DIR"

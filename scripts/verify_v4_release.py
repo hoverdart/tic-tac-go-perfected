@@ -25,7 +25,7 @@ from solver.push_solver.benchmark_v4 import (
     repetition_gate,
 )
 
-REGRESSIONS = ("20260301", "20260802")
+GUARDS = ("20260301", "20260802", "20261024")
 
 
 def main():
@@ -85,9 +85,9 @@ def main():
     if args.mode == "corpus":
         work = [(row["id"], "warm", 0) for row in catalog]
     else:
-        ids = REGRESSIONS if args.mode == "guards" else TARGETS
+        ids = GUARDS if args.mode == "guards" else TARGETS
         if args.mode == "smoke":
-            ids = (*TARGETS, *REGRESSIONS)
+            ids = (*TARGETS, *GUARDS)
         repeats = 10 if args.mode == "matrix" else 3 if args.mode == "guards" else 1
         processes = ("fresh", "warm") if args.mode in ("matrix", "guards") else ("warm",)
         work = [(key, process, repeat) for process in processes for repeat in range(repeats) for key in ids]

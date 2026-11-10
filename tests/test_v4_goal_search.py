@@ -170,6 +170,7 @@ class GoalSearchTest(unittest.TestCase):
         self.assertEqual({g.objective for g in parent.anchor_goals}, {"global", "goal"})
         self.assertTrue(any(g.widths[0][0] == 96 for g in parent.anchor_goals))
         self.assertEqual({g.widths[0][0] for g in parent.anchor_goals}, {16, 24, 32, 48, 96})
+        self.assertEqual(len(parent.anchor_goals), 6)
 
     def test_lazy_prefixes_exactly_match_frozen_prechange_scoring(self):
         rows = json.loads(
