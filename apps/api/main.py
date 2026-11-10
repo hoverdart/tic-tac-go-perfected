@@ -216,6 +216,7 @@ class PushBenchmarkRequest(BaseModel):
     max_nodes: int = Field(default=500_000, gt=0, le=500_000)
     quality_timeout_seconds: float = Field(default=0, ge=0, le=30)
     process: Literal["warm", "fresh"] = "warm"
+    route_limit: int = Field(default=3, ge=1, le=3)
     schedule: Literal[
         "rank", "uniform", "weighted", "beam", "beam8", "coverage",
         "phs_beam", "phs_heavy", "phs_star_beam", "phs_star_heavy",
@@ -256,6 +257,8 @@ def debug_push_benchmark(
             )
         if request.version == "v3" and (request.strategy is not None or request.schedule.startswith("phs_")):
             raise HTTPException(status_code=422, detail="Policy experiments require V4.")
+        if request.version == "v3" and request.route_limit != 3:
+            raise HTTPException(status_code=422, detail="Route ablations require V4.")
         try:
             entry, _ = entry_for_date(puzzle_date)
         except CatalogError as exc:
@@ -267,6 +270,7 @@ def debug_push_benchmark(
         )
         if request.version == "v4":
             kwargs["schedule"] = request.schedule
+            kwargs["route_limit"] = request.route_limit
             kwargs["beam_mode"] = request.beam_mode
             kwargs["macro_mode"] = request.macro_mode
             if request.strategy is not None:
@@ -284,6 +288,7 @@ def debug_push_benchmark(
                 beam_mode=request.beam_mode, macro_mode=request.macro_mode,
                 strategy=request.strategy,
                 policy_path=str(kwargs["policy_path"]) if "policy_path" in kwargs else None,
+                routes=request.route_limit,
             )
             try:
                 receipt = run_fresh(row_for_entry(entry), **options)
@@ -308,7 +313,7 @@ def debug_push_benchmark(
             "runner_sha256": RUNNER_SHA256,
             "process": "warm", "repeat": 0, "wall_seconds": wall_seconds,
             "limits": {"seconds": request.timeout_seconds, "nodes": request.max_nodes},
-            "schedule": request.schedule, "routes": 3,
+            "schedule": request.schedule, "routes": request.route_limit,
             "beam_mode": request.beam_mode, "macro_mode": request.macro_mode,
             "strategy_requested": request.strategy,
             "quality_timeout_seconds": request.quality_timeout_seconds,

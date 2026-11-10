@@ -25,6 +25,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.event.workflow_run.head_sha }}
+        fetch-depth: 0
 
     - name: Confirm tested commit is still main
       id: current
@@ -48,8 +49,22 @@ jobs:
       if: steps.current.outputs.deploy == 'true'
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Build and Deploy to Cloud Run
+    - name: Check whether runtime inputs changed
+      id: runtime
       if: steps.current.outputs.deploy == 'true'
+      env:
+        CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+      run: |
+        deployed="$(gcloud run services describe tic-tac-go --region us-west2 --format='json(metadata.labels)' | python -c 'import json,sys; print(json.load(sys.stdin).get("metadata", {}).get("labels", {}).get("commit-sha", ""))')"
+        if [[ "$deployed" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$deployed^{commit}" && git diff --quiet "$deployed" "$CANDIDATE_SHA" -- Dockerfile .dockerignore pyproject.toml apps/api solver scripts/build_solver.py .github/workflows/deploy.yml debug-artifacts/v4-phs-2026-10-26/policy.json debug-artifacts/v4-phs-2026-10-26/policy-mlp.json; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Runtime inputs are unchanged; preserving the deployed image."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Build and Deploy to Cloud Run
+      if: steps.current.outputs.deploy == 'true' && steps.runtime.outputs.changed == 'true'
       uses: google-github-actions/deploy-cloudrun@v2
       with:
         service: tic-tac-go

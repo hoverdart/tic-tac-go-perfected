@@ -111,6 +111,9 @@ def run_fresh(row, **options):
         "quality_timeout_seconds": options.get("quality_seconds", 0),
         "schedule": options.get("schedule", "rank"),
         "strategy_requested": options.get("strategy"),
+        "routes": options.get("routes", 3),
+        "beam_mode": options.get("beam_mode", "interleaved") if options.get("version", "v4") == "v4" else None,
+        "macro_mode": options.get("macro_mode", "straight") if options.get("version", "v4") == "v4" else None,
     }
     if (
         receipt.get("id") != row["id"]

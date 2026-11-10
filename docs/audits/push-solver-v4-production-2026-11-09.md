@@ -137,12 +137,41 @@ budgets and V3 daily selection, and records CPU/memory/concurrency settings.
 Its complete cohorts must pass on that new revision before promotion. Local
 development hardware is not treated as a substitute for that evidence.
 
+### Beam-width follow-up
+
+The three-lane compiled candidate passes its complete local 397-board corpus
+(38.26 mean moves), all 180 repetitions and twelve regression guards. Its hosted
+smoke still fails Immovable Objects, so no promotion follows. All failures and
+timings are retained under `cloudrun-24fa433`.
+
+Route-count and beam-width ablations identify complementary narrow frontiers.
+The next coverage portfolio shares expansions equally among global widths
+16, 32 and 24, the focused width-48 goal stream, and the existing width-96
+stream. Each narrow stream retains wider restart phases. The daily V4 settings
+explicitly choose two static routes. These choices apply to every board; there
+is no date, board-hash, or saved-path condition.
+
+The final compiled local smoke passes all eleven boards, with the slowest at
+5.58 seconds. Both Python and compiled PostgreSQL suites still pass 209 tests,
+including exact route configuration and all five lanes sharing one node budget.
+An increased finish reserve leaves room within the same 30-second limit for
+releasing the larger caches and recording the result.
+
+Kernel: `81977675498a97dbf236d47e51d2a68c603e31971a7fc8398d64d1e925a9050e`.
+Runner: `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
+The complete current cohorts are recorded separately in `release-linux`.
+
+Deployment now compares runtime inputs with the deployed source commit before
+rebuilding. Evidence/documentation-only pushes preserve the tested image rather
+than replacing it during qualification. Runtime configuration/workflow changes
+still trigger deployment. The actual hosted gates remain required.
+
 With the existing cron secret available locally:
 
 ```sh
 PYTHONPATH=. .venv/bin/python scripts/verify_v4_release.py \
   --api-base https://tic-tac-go-834303913000.us-west2.run.app \
-  --output-dir /tmp/v4-hosted-release --mode smoke
+  --output-dir /tmp/v4-hosted-release --mode smoke --require-native --routes 2
 ```
 
 Use `--mode matrix`, `--mode guards`, and `--mode corpus` for complete cohorts.

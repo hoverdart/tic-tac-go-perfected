@@ -1283,16 +1283,18 @@ class Session:
             yield from ctx.checkpoint()
 
     def coverage_beam_search(self):
-        """Keep global, committed-line and wider frontiers alive together."""
+        """Share work across narrow widths, committed-line and wider frontiers."""
         yield from self.context.beam_plans(self.context.start)
         lanes = [
-            self.serial_beam_search(),
+            self.serial_beam_search(narrow_width=16),
+            self.serial_beam_search(narrow_width=32),
             self.serial_beam_search(objective="goal"),
             self.serial_beam_search(wide=True),
+            self.serial_beam_search(narrow_width=24),
         ]
         done = set()
         while len(done) < len(lanes):
-            for index in (0, 1, 0, 1, 2):
+            for index in range(len(lanes)):
                 if index in done:
                     continue
                 before = self.nodes
@@ -1307,7 +1309,7 @@ class Session:
                 except StopIteration:
                     done.add(index)
 
-    def serial_beam_search(self, *, objective="global", wide=False):
+    def serial_beam_search(self, *, objective="global", wide=False, narrow_width=None):
         """Reference allocation uses the same per-goal transition kernel."""
         ctx = self.context
         if ctx.beam_mode == "interleaved" or ctx.goal_portfolio:
@@ -1315,6 +1317,8 @@ class Session:
         else:
             _, plans = yield from ctx.score(ctx.start)
         widths = ((48, 60), (96, 90), (160, 120), (256, 160))
+        if narrow_width is not None:
+            widths = ((narrow_width, 60), (48, 90), (96, 120), (160, 160))
         if wide:
             widths = widths[1:]
         for phase, (width, depth_limit) in enumerate(widths):
@@ -1700,7 +1704,7 @@ def solve_v4(
         raise ValueError("V4 route_limit must be 1, 2, or 3")
     deadline = None if timeout_seconds is None else started + max(0, timeout_seconds)
     reserve = (
-        0 if timeout_seconds is None else min(0.25, max(0, timeout_seconds) * 0.05)
+        0 if timeout_seconds is None else min(1.0, max(0, timeout_seconds) * 0.05)
     )
     search_deadline = None if deadline is None else deadline - reserve
     context = Context(board, search_deadline, max_nodes, route_limit=route_limit)

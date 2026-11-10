@@ -35,6 +35,7 @@ def main():
     parser.add_argument("--mode", choices=("smoke", "matrix", "guards", "corpus"), required=True)
     parser.add_argument("--env-file", default=".env")
     parser.add_argument("--require-native", action="store_true")
+    parser.add_argument("--routes", type=int, choices=(1, 2, 3), default=3)
     args = parser.parse_args()
     load_env_file(args.env_file)
     secret = os.environ["CRON_SECRET"]
@@ -70,11 +71,12 @@ def main():
         "api_base": base, "mode": args.mode, "engine_sha256": ENGINE_SHA256,
         "runner_sha256": RUNNER_SHA256, "revision": config.get("revision"),
         "config": config, "started_at": datetime.now(UTC).isoformat(),
+        "routes": args.routes,
     }
     meta_path = args.output_dir / (args.mode + ".metadata.json")
     if meta_path.exists():
         previous = json.loads(meta_path.read_text())
-        if any(previous[key] != metadata[key] for key in ("api_base", "mode", "engine_sha256", "runner_sha256", "revision")):
+        if any(previous.get(key) != metadata[key] for key in ("api_base", "mode", "engine_sha256", "runner_sha256", "revision", "routes")):
             raise SystemExit("Use a new output directory for a different revision or configuration")
     else:
         meta_path.write_text(json.dumps(metadata, indent=2) + "\n")
@@ -101,6 +103,7 @@ def main():
             receipt = request("/debug/push-benchmark/" + entry["date"], {
                 "version": "v4", "schedule": "coverage", "process": process,
                 "timeout_seconds": 30, "max_nodes": 500000, "quality_timeout_seconds": 30,
+                "route_limit": args.routes,
             })
             if (
                 receipt.get("engine_sha256") != ENGINE_SHA256
@@ -112,6 +115,7 @@ def main():
                 or receipt.get("limits") != {"seconds": 30, "nodes": 500000}
                 or receipt.get("schedule") != "coverage"
                 or receipt.get("strategy_requested") is not None
+                or receipt.get("routes") != args.routes
             ):
                 raise ValueError("Mismatched deployment, board, process, or quality configuration")
             board = CatalogEntry(
@@ -123,6 +127,7 @@ def main():
             if (
                 solved_runtime.get("implementation") != runtime.get("implementation")
                 or solved_runtime.get("native_build") != native
+                or receipt["result"]["diagnostics"].get("route_limit") != args.routes
             ):
                 raise ValueError("Worker implementation differs from the deployed build")
             if replay.ok != receipt["verified"]:

@@ -28,7 +28,7 @@ class V4EndpointsTest(unittest.TestCase):
         ):
             response = self.client.post(
                 "/debug/push-benchmark/2026-10-21",
-                json={"process": "fresh", "schedule": "coverage", "timeout_seconds": 5, "max_nodes": 1000},
+                json={"process": "fresh", "schedule": "coverage", "route_limit": 2, "timeout_seconds": 5, "max_nodes": 1000},
                 headers=self.auth,
             )
         self.assertEqual(response.status_code, 200, response.text)
@@ -37,6 +37,8 @@ class V4EndpointsTest(unittest.TestCase):
         self.assertEqual(receipt["process"], "fresh")
         self.assertGreater(receipt["process_wall_seconds"], receipt["wall_seconds"])
         self.assertEqual(receipt["limits"], {"seconds": 5, "nodes": 1000})
+        self.assertEqual(receipt["routes"], 2)
+        self.assertEqual(receipt["result"]["diagnostics"]["route_limit"], 2)
         daily.assert_not_called()
         fallback.assert_not_called()
 
@@ -47,7 +49,7 @@ class V4EndpointsTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["cache-control"], "no-store")
         daily = response.json()["daily"]
-        self.assertEqual(daily, {"version": "v4", "schedule": "coverage", "timeout_seconds": 30, "quality_timeout_seconds": 30, "max_nodes": 500000})
+        self.assertEqual(daily, {"version": "v4", "schedule": "coverage", "route_limit": 2, "timeout_seconds": 30, "quality_timeout_seconds": 30, "max_nodes": 500000})
 
     def test_benchmark_auth_limits_and_no_persistence_or_fallback(self):
         from solver.push_solver import solve_v4

@@ -156,7 +156,7 @@ class GoalSearchTest(unittest.TestCase):
             date.fromisoformat(row["date"]), row["name"],
             row["width"], row["height"], row["puzzle"],
         ).board())
-        ctx.max_nodes = 128
+        ctx.max_nodes = 192
         ctx.goal_portfolio = True
         parent = Session(ctx, "committed_beam")
         with self.assertRaises(BudgetExpired):
@@ -164,11 +164,12 @@ class GoalSearchTest(unittest.TestCase):
                 before = ctx.expanded
                 parent.advance(quantum=0.005, expansions=1)
                 self.assertLessEqual(ctx.expanded - before, 1)
-        self.assertEqual(ctx.expanded, 128)
+        self.assertEqual(ctx.expanded, 192)
         self.assertEqual(ctx.expanded, parent.nodes)
         self.assertEqual(ctx.expanded, sum(g.nodes for g in parent.anchor_goals))
         self.assertEqual({g.objective for g in parent.anchor_goals}, {"global", "goal"})
         self.assertTrue(any(g.widths[0][0] == 96 for g in parent.anchor_goals))
+        self.assertEqual({g.widths[0][0] for g in parent.anchor_goals}, {16, 24, 32, 48, 96})
 
     def test_lazy_prefixes_exactly_match_frozen_prechange_scoring(self):
         rows = json.loads(

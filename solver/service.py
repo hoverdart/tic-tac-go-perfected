@@ -189,7 +189,7 @@ def daily_push_settings(version: str) -> dict[str, Any]:
         "quality_timeout_seconds": DAILY_PUSH_QUALITY_TIMEOUT_SECONDS,
     }
     if version == "v4":
-        settings.update(schedule="coverage", quality_timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS)
+        settings.update(schedule="coverage", route_limit=2, quality_timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS)
     return settings
 
 
