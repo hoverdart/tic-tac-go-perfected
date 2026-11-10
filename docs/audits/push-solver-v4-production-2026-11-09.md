@@ -1,6 +1,6 @@
 # V4 production qualification — November 9, 2026
 
-The release candidate solves all **397/397** frozen official boards in a
+The initial release candidate solves all **397/397** frozen official boards in a
 one-CPU, 512 MiB Linux container. Mean total direction keystrokes are **38.36**,
 median 31, and the longest solve is **17.87 seconds**. Independent replay checks
 every path and final board. The original V3 reference remains 390/397; the
@@ -74,6 +74,45 @@ against an isolated local API and PostgreSQL database. No production database
 was used for tests. Kernel lint checks for syntax/undefined-name errors and
 `git diff --check` pass. Full style lint has existing import/order diagnostics
 and intentionally does not rewrite a fingerprinted benchmark candidate.
+
+## Compiled follow-up candidate
+
+Second-generation execution alone still times out on Peninsula Problems and
+Immovable Objects. Its complete failed cohort is retained in `cloudrun-508f670`.
+The deployment confirms **one CPU, 4 GiB RAM, concurrency 1**. Local 512 MiB
+measurements were conservative controls, not an exact resource match.
+
+The follow-up kernel reuses completed macro successor lists, bounds coverage
+caches at 65,536 entries, batches small cooperative checkpoints, and allocates
+the three coverage beams by 32 expansions rather than short wall-time slices.
+Every node boundary still yields and checks the shared deadline/node cap;
+strict one-expansion scheduler slices remain tested. Cache publication is atomic
+at completion, and callers receive separate lists. Optional feature rankers
+retain their uncached path. The larger caches apply only to the coverage portfolio.
+
+Docker compiles the same two Python kernels with pinned Cython 3.3.1 and
+`annotation_typing=False`, using a separate build stage. The runtime image
+contains the extensions and source files, without the compiler toolchain.
+[Cython's pure Python documentation](https://docs.cython.org/en/latest/src/tutorial/pure.html)
+describes this supported source workflow and disabling annotation-based typing.
+No fixed-width replacement for arbitrary-precision puzzle masks is introduced.
+
+Runtime provenance includes compiler version, flags, builder/source hashes,
+architecture, and both binary hashes. The runtime validates source and binary
+hashes before reporting a compiled build. Release gates reject mixed native
+artifacts; the hosted client independently checks the actual fresh worker's
+implementation against the deployed manifest.
+
+Both Python and compiled images pass **209 tests against PostgreSQL with no
+skips**. All eleven local compiled smoke boards pass, with a longest solve of
+11.08 seconds in the initial constrained run. The new complete local corpus,
+repetitions and hosted checks must finish before promotion.
+
+Follow-up kernel SHA-256:
+`d5ef67ca4fd81415b224b6c0f79b15a804b79e7a00f855cb1095af4d33513c84`.
+
+Follow-up runner SHA-256:
+`f0de0ef90fddf36324a65dc15ec87d9c85a35bedf16557649e3fab0f3bda0191`.
 
 ## Reproduce hosted qualification
 

@@ -252,6 +252,8 @@ def gate(rows, baseline, catalog):
             r.get("beam_mode"),
             r.get("macro_mode"),
             r.get("quality_timeout_seconds", 0.0),
+            r.get("result", {}).get("diagnostics", {}).get("runtime", {}).get("implementation"),
+            json.dumps(r.get("result", {}).get("diagnostics", {}).get("runtime", {}).get("native_build"), sort_keys=True),
             json.dumps(
                 r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                 sort_keys=True,
@@ -320,6 +322,8 @@ def repetition_gate(rows):
                 r.get("beam_mode"),
                 r.get("macro_mode"),
                 r.get("quality_timeout_seconds", 0.0),
+                r.get("result", {}).get("diagnostics", {}).get("runtime", {}).get("implementation"),
+                json.dumps(r.get("result", {}).get("diagnostics", {}).get("runtime", {}).get("native_build"), sort_keys=True),
                 json.dumps(
                     r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                     sort_keys=True,

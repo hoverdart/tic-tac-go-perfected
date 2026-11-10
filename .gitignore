@@ -17,3 +17,6 @@ coverage/
 .vercel
 .env*
 gha-creds-*.json
+solver/push_solver/*.so
+solver/push_solver/native-build.json
+build/

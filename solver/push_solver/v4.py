@@ -7,15 +7,18 @@ retain partial work at every scheduling boundary, including reverse BFS queries.
 
 from __future__ import annotations
 
-from collections import Counter, OrderedDict
-from dataclasses import dataclass
 import heapq
 import itertools
+import json
 import math
 import platform
-from pathlib import Path
 import resource
 import time
+from collections import Counter, OrderedDict
+from dataclasses import dataclass
+from functools import lru_cache
+from hashlib import sha256
+from pathlib import Path
 
 from solver.board_utils import normalize_board
 from solver.push_solver.models import DIRECTIONS, Push, PushSolveResult, SearchAttempt
@@ -199,6 +202,8 @@ class Context:
         self.score_cache = OrderedDict()
         self.policy_cache = OrderedDict()
         self.successor_cache = OrderedDict()
+        self.children_cache = OrderedDict()
+        self.checkpoints = 0
         self.metrics = Counter()
         self.expanded = 0
         self.route_limit = route_limit
@@ -215,12 +220,17 @@ class Context:
         if self.deadline is not None and time.perf_counter() >= self.deadline:
             raise BudgetExpired("timeout")
 
-    def checkpoint(self):
-        self.check()
-        yield None
+    def checkpoint(self, *, force=False):
+        # A bounded batch avoids propagating every small operation through all
+        # portfolio generators. Expansions still check the deadline/node cap.
+        self.checkpoints += 1
+        if force or not self.goal_portfolio or self.checkpoints & 15 == 1:
+            self.check()
+            yield None
 
-    @staticmethod
-    def put(cache, key, value, limit=8192):
+    def put(self, cache, key, value, limit=8192):
+        if self.goal_portfolio and limit >= 8192:
+            limit = max(limit, 65536)
         cache[key] = value
         cache.move_to_end(key)
         if len(cache) > limit:
@@ -242,7 +252,7 @@ class Context:
         return seen
 
     def initialize(self):
-        for target in sorted(set(i for line in self.lines for i in cells(line))):
+        for target in sorted({i for line in self.lines for i in cells(line)}):
             yield from self.checkpoint()
             distances = [-1] * self.size
             distances[target] = 0
@@ -259,7 +269,7 @@ class Context:
         self.preprocess_ms = (time.perf_counter() - self.started) * 1000
 
     def goal(self, state):
-        os, xs, region = state
+        os, _xs, region = state
         if os not in self.goal_cache:
             targets = []
             for line in self.lines:
@@ -952,7 +962,7 @@ class Context:
         # Consumers retain their own index into one shared, progressive producer.
         # A scheduling yield never publishes an incomplete list as complete.
         if state not in self.successor_cache:
-            if len(self.successor_cache) >= 8192:
+            if len(self.successor_cache) >= (65536 if self.goal_portfolio else 8192):
                 # Never evict partial producers: other sessions may be suspended
                 # inside them. Completed entries can be safely recomputed.
                 for key, value in self.successor_cache.items():
@@ -986,6 +996,12 @@ class Context:
                     entry[0].append(item)
 
     def children(self, state, macros=False):
+        cache_key = state, macros, self.macro_mode
+        cacheable = self.goal_portfolio and self.ranker is None
+        if cacheable and cache_key in self.children_cache:
+            self.check()
+            self.metrics["complete_children_hits"] += 1
+            return list(self.children_cache[cache_key])
         items = []
         for child in self.successors(state):
             if child is None:
@@ -1038,6 +1054,10 @@ class Context:
                 )
             ranked.sort(key=lambda row: (row[0], row[1]))
             items = [row[2] for row in ranked]
+        if cacheable:
+            # Only publish complete immutable values. A suspended producer is
+            # never mistaken for a complete list by another portfolio lane.
+            self.put(self.children_cache, cache_key, tuple(items), 16384)
         return items
 
     def walk(self, start, target, occupied):
@@ -1135,7 +1155,7 @@ class Session:
         queue = [(self.weight * h, 0, 0, next(self.counter), ctx.start, None)]
         best = {ctx.start: (0, 0)}
         while queue:
-            yield from ctx.checkpoint()
+            yield from ctx.checkpoint(force=True)
             _, rank, cost, _, current, link = heapq.heappop(queue)
             key = (rank, cost) if self.kind == "rank_discrepancy" else (0, cost)
             if best.get(current) != key:
@@ -1276,16 +1296,13 @@ class Session:
                 if index in done:
                     continue
                 before = self.nodes
-                spent = 0.0
                 try:
                     while True:
-                        started = time.perf_counter()
                         item = next(lanes[index])
-                        spent += time.perf_counter() - started
                         yield item
                         if isinstance(item, Found):
                             return
-                        if self.nodes - before >= 32 or spent >= 0.025:
+                        if self.nodes - before >= 32:
                             break
                 except StopIteration:
                     done.add(index)
@@ -1390,7 +1407,7 @@ class GoalSession:
                 candidates = []
                 signatures = Counter()
                 for _, cost, _, current, link in frontier:
-                    yield from ctx.checkpoint()
+                    yield from ctx.checkpoint(force=True)
                     self.parent.expand()
                     self.nodes += 1
                     won, target = ctx.goal(current)
@@ -1605,6 +1622,24 @@ def improve_keystrokes(ctx, incumbent, *, weight=4.0):
             )
 
 
+@lru_cache(maxsize=1)
+def native_build_metadata():
+    if Path(__file__).suffix != ".so":
+        return None
+    root = Path(__file__).parent
+    manifest = json.loads((root / "native-build.json").read_text())
+    if (
+        set(manifest["sources"]) != {"v4.py", "path_optimizer.py"}
+        or len(manifest["extensions"]) != 2
+        or Path(__file__).name not in manifest["extensions"]
+    ):
+        raise RuntimeError("Incomplete native solver build provenance")
+    for name, digest in {**manifest["sources"], **manifest["extensions"]}.items():
+        if Path(name).name != name or sha256((root / name).read_bytes()).hexdigest() != digest:
+            raise RuntimeError("Native solver build provenance mismatch")
+    return manifest
+
+
 def runtime_environment():
     limits = {}
     for name, path in [
@@ -1621,6 +1656,8 @@ def runtime_environment():
         "platform": platform.system(),
         "peak_rss_bytes": rss if platform.system() == "Darwin" else rss * 1024,
         "cgroup": limits,
+        "implementation": "cython" if native_build_metadata() else "python",
+        "native_build": native_build_metadata(),
     }
 
 
@@ -1805,7 +1842,7 @@ def solve_v4(
                     improved = True
         except (StopIteration, BudgetExpired):
             pass
-        except Exception:
+        except Exception:  # noqa: BLE001 -- retain the verified incumbent on quality-pass failure
             context.metrics["optimizer_errors"] += 1
     quality_nodes = context.expanded - search_nodes
     quality_ms = (time.perf_counter() - quality_started) * 1000 - (

@@ -1,0 +1,8 @@
+{
+  "source": "GitHub Actions deployment job 129636157751, Record execution capacity; values transcribed from masked JSON log",
+  "url": "https://github.com/hoverdart/tic-tac-go-perfected/actions/runs/42757805862",
+  "cpu": "1000m",
+  "memory": "4Gi",
+  "concurrency": 1,
+  "execution_environment": "gen2"
+}

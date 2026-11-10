@@ -1,0 +1,36 @@
+{
+  "engine": "d5ef67ca4fd81415b224b6c0f79b15a804b79e7a00f855cb1095af4d33513c84",
+  "runner": "f0de0ef90fddf36324a65dc15ec87d9c85a35bedf16557649e3fab0f3bda0191",
+  "runtime": {
+    "python": "3.12.16",
+    "platform": "Linux",
+    "peak_rss_bytes": 25640960,
+    "cgroup": {
+      "cpu_max": "max 100000",
+      "memory_max": "max"
+    },
+    "implementation": "cython",
+    "native_build": {
+      "cython": "3.3.1",
+      "python": "3.12.16",
+      "architecture": "aarch64",
+      "directives": {
+        "language_level": 3,
+        "annotation_typing": false
+      },
+      "compile_args": [
+        "-O3",
+        "-g0"
+      ],
+      "builder_sha256": "0e0af41cf150f6447cd83727d6259be06669c37a5cfcb913046b378423b4c0ce",
+      "sources": {
+        "v4.py": "2960400446088a337c5a5b57cb93fc6dc32ad3aa2d51ff9b21183bf5586bcf93",
+        "path_optimizer.py": "bf136bbb4b2987aeba9944ebbf782704492a62e772340ea0adae27e037d2c372"
+      },
+      "extensions": {
+        "path_optimizer.cpython-312-aarch64-linux-gnu.so": "9b2660916f2c5b420b68f06219fc03008d2b7f585112f87fc6b9b5c452ccbf0e",
+        "v4.cpython-312-aarch64-linux-gnu.so": "c393dce3b6e3cc7fce9014b0fd71ad8f5d5e025f5e6cc4a2e010b2449f965124"
+      }
+    }
+  }
+}

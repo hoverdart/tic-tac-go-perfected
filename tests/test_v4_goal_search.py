@@ -33,6 +33,37 @@ def context(board, routes=3):
 
 
 class GoalSearchTest(unittest.TestCase):
+    def test_complete_macro_cache_is_isolated_and_never_publishes_partial_work(self):
+        board = [[""] * 6 for _ in range(6)]
+        board[0][0], board[1][1], board[3][2], board[2][3] = "U", "O", "O", "X"
+        ctx = context(board)
+        ctx.goal_portfolio = True
+        first = ctx.children(ctx.start, True)
+        next(first)
+        self.assertFalse(ctx.children_cache)
+        second = consume(ctx.children(ctx.start, True))
+        self.assertTrue(second)
+        self.assertEqual(consume(first), second)
+        expected = list(second)
+        second.clear()
+        self.assertEqual(consume(ctx.children(ctx.start, True)), expected)
+        self.assertGreater(ctx.metrics["complete_children_hits"], 0)
+        primitives = consume(ctx.children(ctx.start, False))
+        self.assertTrue(all(len(child.pushes) == 1 for child in primitives))
+        ctx.deadline = time.perf_counter() - 1
+        with self.assertRaises(BudgetExpired):
+            consume(ctx.children(ctx.start, True))
+
+    def test_batched_coverage_checkpoints_keep_forced_boundaries_and_expiry(self):
+        ctx = context([["U", "O", "O"]])
+        ctx.goal_portfolio = True
+        ctx.checkpoints = 0
+        self.assertEqual(sum(len(list(ctx.checkpoint())) for _ in range(32)), 2)
+        self.assertEqual(len(list(ctx.checkpoint(force=True))), 1)
+        ctx.deadline = time.perf_counter() - 1
+        with self.assertRaises(BudgetExpired):
+            list(ctx.checkpoint(force=True))
+
     def test_compiled_freeze_axes_match_the_reference_fixed_point(self):
         rng = random.Random(9126)
         for rows, cols in ((4, 4), (3, 7), (8, 8)):

@@ -61,4 +61,4 @@ jobs:
       if: steps.current.outputs.deploy == 'true'
       run: |
         gcloud run services describe tic-tac-go --region us-west2 --format=json |
-          python -c 'import json,sys; s=json.load(sys.stdin)["spec"]["template"]; print(json.dumps({"resources": s["spec"]["containers"][0].get("resources"), "concurrency": s["spec"].get("containerConcurrency"), "execution_environment": s["metadata"].get("annotations", {}).get("run.googleapis.com/execution-environment")}))'
+          python -c 'import json,sys; s=json.load(sys.stdin)["spec"]["template"]; r=s["spec"]["containers"][0]["resources"]["limits"]; print("cpu=" + r["cpu"]); print("memory=" + r["memory"]); print("concurrency=" + str(s["spec"].get("containerConcurrency"))); print("execution_environment=" + s["metadata"].get("annotations", {}).get("run.googleapis.com/execution-environment", "unspecified"))'

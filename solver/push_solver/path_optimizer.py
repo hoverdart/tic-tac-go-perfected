@@ -8,10 +8,10 @@ or board identities enter the optimizer.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from itertools import count, groupby
 import heapq
 import time
+from dataclasses import dataclass
+from itertools import count, groupby
 
 from solver.push_solver.models import Push
 from solver.push_solver.verify import verify_solution

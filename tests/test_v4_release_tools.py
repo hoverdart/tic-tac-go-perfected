@@ -91,6 +91,7 @@ class V4ReleaseToolsTest(unittest.TestCase):
             "budget",
             "strategy",
             "quality",
+            "runtime",
         ):
             altered = deepcopy(rows)
             if invalid == "missing":
@@ -111,6 +112,8 @@ class V4ReleaseToolsTest(unittest.TestCase):
                 altered[-1]["strategy_requested"] = "rank_discrepancy"
             if invalid == "quality":
                 altered[-1]["quality_timeout_seconds"] = 10
+            if invalid == "runtime":
+                altered[-1]["result"]["diagnostics"]["runtime"] = {"implementation": "other"}
             self.assertFalse(gate(altered, baseline, boards)["passed"], invalid)
         self.assertFalse(repetition_gate(rows)["passed"])
         matrix = [
@@ -134,6 +137,10 @@ class V4ReleaseToolsTest(unittest.TestCase):
         matrix[-1]["runner_sha256"] = "different worker"
         self.assertFalse(repetition_gate(matrix)["passed"])
         matrix[-1]["runner_sha256"] = RUNNER_SHA256
+        matrix[-1]["result"] = deepcopy(matrix[-1]["result"])
+        matrix[-1]["result"]["diagnostics"]["runtime"] = {"implementation": "other"}
+        self.assertFalse(repetition_gate(matrix)["passed"])
+        matrix[-1]["result"]["diagnostics"].pop("runtime")
         matrix[-1]["verified"] = False
         self.assertFalse(repetition_gate(matrix)["passed"])
 

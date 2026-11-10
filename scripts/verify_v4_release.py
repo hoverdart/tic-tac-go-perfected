@@ -34,6 +34,7 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--mode", choices=("smoke", "matrix", "guards", "corpus"), required=True)
     parser.add_argument("--env-file", default=".env")
+    parser.add_argument("--require-native", action="store_true")
     args = parser.parse_args()
     load_env_file(args.env_file)
     secret = os.environ["CRON_SECRET"]
@@ -53,6 +54,18 @@ def main():
         raise SystemExit("Deployed kernel/runner differs from this release candidate")
     if config["provenance"]["sources"] != provenance()["sources"]:
         raise SystemExit("Deployed runtime sources differ from this release candidate")
+    runtime = config["provenance"]["runtime"]
+    native = runtime.get("native_build")
+    if args.require_native and (
+        runtime.get("implementation") != "cython" or not native
+        or native.get("cython") != "3.3.1"
+        or len(native.get("extensions", {})) != 2
+        or native.get("sources") != {
+            name: config["provenance"]["sources"]["solver/push_solver/" + name]
+            for name in ("v4.py", "path_optimizer.py")
+        }
+    ):
+        raise SystemExit("Expected the verified compiled production kernel")
     metadata = {
         "api_base": base, "mode": args.mode, "engine_sha256": ENGINE_SHA256,
         "runner_sha256": RUNNER_SHA256, "revision": config.get("revision"),
@@ -106,6 +119,12 @@ def main():
                 entry["width"], entry["height"], entry["puzzle"],
             ).board()
             replay = verify_solution(board, receipt["result"]["moves"])
+            solved_runtime = receipt["result"]["diagnostics"]["runtime"]
+            if (
+                solved_runtime.get("implementation") != runtime.get("implementation")
+                or solved_runtime.get("native_build") != native
+            ):
+                raise ValueError("Worker implementation differs from the deployed build")
             if replay.ok != receipt["verified"]:
                 raise ValueError("Independent replay disagrees with deployed verification")
             if replay.ok and replay.final_board != tuple(tuple(line) for line in receipt["result"]["final_board"]):
