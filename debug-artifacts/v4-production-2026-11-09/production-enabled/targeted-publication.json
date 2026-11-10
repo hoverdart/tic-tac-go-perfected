@@ -1,0 +1,21 @@
+{
+  "changes": [
+    {
+      "puzzle_date": "2026-11-07",
+      "previous_moves": 77,
+      "verified_v4_moves": 44,
+      "replaced": true
+    },
+    {
+      "puzzle_date": "2026-11-08",
+      "previous_moves": 91,
+      "verified_v4_moves": 71,
+      "replaced": true
+    }
+  ],
+  "qualified_revision": "tic-tac-go-00060-wkd",
+  "engine_sha256": "e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0",
+  "basis": "qualified deployed V4 paths independently replayed into per-move boards before persistence; original source URLs and titles retained",
+  "cache_publication": "success",
+  "live_revision": "tic-tac-go-00061-qkk"
+}

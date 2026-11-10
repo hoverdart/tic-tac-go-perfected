@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "backend_status": 200,
+  "backend_status_text": "OK",
+  "backend_url": "https://tic-tac-go-834303913000.us-west2.run.app/jobs/daily-solve",
+  "result": {
+    "status": "solved",
+    "puzzle_date": "2026-11-10",
+    "parser_name": "catalog",
+    "solver_name": "push-v4",
+    "states_checked": 440,
+    "elapsed_ms": 1482.111783000164,
+    "error_message": null
+  },
+  "cache_published": true
+}

@@ -11,7 +11,7 @@ configuration to obtain these results.
 | --- | ---: | ---: | ---: |
 | Frozen corpus | 397/397 | 24.30s | — |
 | Nine targets, ten fresh and ten warm trials each | 180/180 | 19.43s | 19.46s |
-| Five extra guards, three fresh and three warm trials each | 30/30 | 25.72s | 25.80s |
+| Five extra guards, three fresh and three warm trials each | 30/30 | 25.71s | 25.79s |
 | Smoke | 14/14 | 26.89s | — |
 
 All **621 hosted receipts** use revision `tic-tac-go-00060-wkd`, the same source
@@ -30,10 +30,27 @@ Qualified source commit: `4470409d1facb9f7917e48763407f5c934e422ff`.
 Kernel: `e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0`.
 Runner: `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
 
-Activation uses the qualified immutable container digest and the existing daily
-version environment selector. V3 stays selected until that workflow completes;
-custom/direct solving is unchanged. Completed hosted evidence is under
+**V4 is enabled for production daily solves** on revision `tic-tac-go-00061-qkk`.
+The selection workflow promotes the qualified immutable container digest and
+sets the existing daily version environment selector. The live source and both
+native binary hashes exactly match the qualified revision. All **14/14**
+post-rollout smoke boards pass. Custom/direct solving is unchanged, and V3
+remains the explicit rollback choice and source fallback.
+
+The normal website manual-daily-job route also runs `push-v4`, stores a verified
+November 10 solution, and publishes its caches. The requested November 7–8
+records shorten from **77 to 44** and **91 to 71** moves. Their original source
+URLs and titles are retained; before-records are backed up, all stored paths and
+per-move boards are verified, and both public APIs and HTML pages show the new
+paths. Historical failed V3 attempts are not rewritten. No bulk backfill runs.
+
+Promotion: [workflow run 42774173925](https://github.com/hoverdart/tic-tac-go-perfected/actions/runs/42774173925).
+Qualified image digest: `sha256:27dc7672c33495943a08efb8e6664edecd49bb3e1c4a985c27a008767a1da2d8`.
+
+Completed hosted evidence is under
 `debug-artifacts/v4-production-2026-11-09/cloudrun-4470409`.
+Rollout configuration, public readback, backed-up records and post-rollout smoke
+receipts are under `debug-artifacts/v4-production-2026-11-09/production-enabled`.
 
 The earlier [quality report](push-solver-v4-quality-2026-11-09.md) records the
 research and separate native cohorts, including the matched V3 comparison.

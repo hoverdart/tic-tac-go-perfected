@@ -1,0 +1,11 @@
+{
+  "website_status": 200,
+  "daily_version": "v4",
+  "live_revision": "tic-tac-go-00061-qkk",
+  "public_today": {
+    "puzzle_date": "2026-11-10",
+    "solver_name": "push-v4",
+    "moves": 27,
+    "independently_verified": true
+  }
+}

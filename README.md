@@ -1,6 +1,6 @@
 # Tic Tac Go Perfected
 
-Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a 3-in-a-row configuration, with a Next.js frontend and FastAPI backend. The daily pipeline runs Push Solver V3 first, then heuristic/CNN beam search when needed, and independently verifies returned paths.
+Solver for Tic-Tac-Go, a push-puzzle game where an agent maneuvers pieces into a 3-in-a-row configuration, with a Next.js frontend and FastAPI backend. The production daily pipeline runs Push Solver V4 first, then heuristic/CNN beam search when needed, and independently verifies returned paths.
 
 The September 8, 2026 production audit found **348 daily boards marked solved out of 351 stored (99.15%)**. The 51 successful records attributed to push-v3 all had recorded times below 30 seconds, with a **5.08-second median**. These are historical stored outcomes, not an attempt-level benchmark or proof that captures matched the official boards; 211 other solved records have no timing measurements. An October 22 comparison subsequently found ten stored solutions that fail against Google's current official layouts. See the [metrics and indexing audit](docs/audits/project-metrics-and-indexing-2026-09-08.md) for definitions, limitations, and evidence.
 
@@ -15,10 +15,11 @@ The September 8, 2026 production audit found **348 daily boards marked solved ou
 - [Catalog ingestion and V4 evidence](docs/audits/catalog-ingestion-and-v4-data-2026-10-22.md):
   input contract, archive mismatches, verified recovery paths, and reproducible benchmarks.
 
-## Qualified push solver V4
+## Production push solver V4
 
-Daily jobs accept `DAILY_PUSH_SOLVER_VERSION=v3|v4` (source fallback `v3`). V4
-has passed production qualification; custom/direct routing is unchanged. The push budget remains
+Production selects `DAILY_PUSH_SOLVER_VERSION=v4`. Daily jobs also accept `v3`
+for rollback; the source fallback remains `v3` when the variable is absent.
+Custom/direct routing is unchanged. The push budget remains
 30 seconds / 500,000 nodes, followed by the existing Beam/CNN fallback.
 
 Implementation, reproducible corpus benchmarks, and the release gates are in
@@ -30,11 +31,12 @@ archive records or changes the daily selector.
 The November 9 candidate's explicit `schedule="coverage"` combines six global,
 focused, and wider beam streams. With two routes and a 30-second quality window,
 its compiled one-CPU / 4 GiB Linux run solves **397/397** at **38.29 mean moves**,
-median 31, with a 7.94-second maximum and no lost V3 solutions. All 180 mandatory
+median 31, with a 7.93-second maximum and no lost V3 solutions. All 180 mandatory
 local repetitions and 30 extra guard trials pass. Matching actual Cloud Run
 qualification also passes **397/397**, **180/180 repetitions**, and **30/30 guard
-trials**, at **40.47 mean moves** and a 24.30-second corpus maximum. Activation
-uses the qualified immutable image through the daily-selector workflow.
+trials**, at **40.47 mean moves** and a 24.30-second corpus maximum. The live
+daily selector uses that qualified immutable image, and all fourteen post-rollout
+smoke boards pass. November 7–8 are publicly verified with 44 and 71 moves.
 
 An earlier controlled development comparison with matching 10-second quality
 windows used 18.10% fewer moves than V3 on their 383 shared verified boards.
@@ -87,11 +89,11 @@ experiments are archived under `solver/boardParsers/archive/opencv/`.
 Catalog records preserve Google's board coordinates and store the versioned bundle
 URL as provenance. A failed daily retry cannot replace a solved row.
 
-The daily cron job runs Push Solver V3 first. V3 gives the coverage-preserving
-V2 portfolio the complete 500,000-node/30-second budget, then uses time left in
-the first 10 seconds to improve any verified incumbent by total keystrokes. If
-push search does not solve the board, it falls back to the heuristic beam solver
-and then CNN-guided beam search. Every returned path is independently verified.
+The production daily cron selects Push Solver V4 with `coverage`, two routes,
+and a quality window within the complete 500,000-node/30-second budget. V3 remains
+available through the selector and retains its original 10-second quality window.
+If push search does not solve the board, the existing heuristic beam and
+CNN-guided fallback follows. Every returned path is independently verified.
 
 The direct `POST /solve` API remains configurable. Boards that are at least
 `6x6` route to the heuristic-CNN beam solver. Smaller boards use the legacy

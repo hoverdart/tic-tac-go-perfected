@@ -1,0 +1,18 @@
+[
+  {
+    "puzzle_date": "2026-11-07",
+    "solver_name": "push-v4",
+    "moves": 44,
+    "public_api_matches": true,
+    "html_contains_verified_moves": true,
+    "html_sha256": "2b473fe1816367ecc97b48e30587b5160b7933278a891d6b323b80080ea2703a"
+  },
+  {
+    "puzzle_date": "2026-11-08",
+    "solver_name": "push-v4",
+    "moves": 71,
+    "public_api_matches": true,
+    "html_contains_verified_moves": true,
+    "html_sha256": "7583051c6e073baeac91ec1e11542d298bf60188e9620fa7585b33eace05f946"
+  }
+]
