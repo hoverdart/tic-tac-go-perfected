@@ -222,6 +222,12 @@ PostgreSQL suites still pass 215 tests. This candidate's local cohorts are in
 Weighted kernel: `e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0`.
 Runner remains `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
 
+The completed weighted local corpus passes **397/397**, averaging **38.29 moves**
+(median 31), with a **7.94-second** maximum and 616.32 MiB peak process RSS.
+All 180 mandatory repetitions and thirty additional guard trials pass. Every
+path, final board and push trace is independently replayed; no optimizer errors
+are recorded. This remains separate from hosted qualification.
+
 With the existing cron secret available locally:
 
 ```sh

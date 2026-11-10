@@ -1,0 +1,81 @@
+{
+  "engine_sha256": "e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0",
+  "runner_sha256": "9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3",
+  "cohorts": {
+    "corpus": {
+      "receipts": 397,
+      "independently_replayed_paths_and_push_traces": 397,
+      "mean_moves": 38.2896725440806,
+      "median_moves": 31,
+      "max_seconds": 7.930691418936476,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 646254592
+    },
+    "fresh": {
+      "receipts": 90,
+      "independently_replayed_paths_and_push_traces": 90,
+      "mean_moves": 97.55555555555556,
+      "median_moves": 107.0,
+      "max_seconds": 6.355929585988633,
+      "max_process_seconds": 6.83667912799865,
+      "peak_process_rss_bytes": 435286016
+    },
+    "warm": {
+      "receipts": 90,
+      "independently_replayed_paths_and_push_traces": 90,
+      "mean_moves": 97.62222222222222,
+      "median_moves": 107.0,
+      "max_seconds": 6.608225710922852,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 489611264
+    },
+    "guards-fresh": {
+      "receipts": 15,
+      "independently_replayed_paths_and_push_traces": 15,
+      "mean_moves": 88.6,
+      "median_moves": 92,
+      "max_seconds": 8.220313711906783,
+      "max_process_seconds": 8.92992596293334,
+      "peak_process_rss_bytes": 526716928
+    },
+    "guards-warm": {
+      "receipts": 15,
+      "independently_replayed_paths_and_push_traces": 15,
+      "mean_moves": 88.6,
+      "median_moves": 92,
+      "max_seconds": 9.583323713042773,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 598003712
+    },
+    "smoke": {
+      "receipts": 14,
+      "independently_replayed_paths_and_push_traces": 14,
+      "mean_moves": 94.35714285714286,
+      "median_moves": 97.5,
+      "max_seconds": 8.125038378988393,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 634638336
+    }
+  },
+  "repetition_gate": {
+    "passed": true,
+    "missing": [],
+    "failures": [],
+    "configuration_count": 1,
+    "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+  },
+  "coverage_gate": {
+    "passed": true,
+    "v3_verified": 390,
+    "v4_verified": 397,
+    "coverage_losses": [],
+    "unsolved_targets": [],
+    "missing": [],
+    "baseline_boards": 397,
+    "stale_engine_inputs": [],
+    "invalid_budgets_or_individual_strategies": [],
+    "configuration_count": 1,
+    "invalid_record_count": false,
+    "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+  }
+}
