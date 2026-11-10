@@ -1,16 +1,45 @@
 # V4 production qualification — November 9, 2026
 
-The initial release candidate solves all **397/397** frozen official boards in a
-one-CPU, 512 MiB Linux container. Mean total direction keystrokes are **38.36**,
-median 31, and the longest solve is **17.87 seconds**. Independent replay checks
-every path and final board. The original V3 reference remains 390/397; the
-coverage gate reports no lost V3 solutions and all nine mandatory targets pass.
+The weighted V4 release is **qualified on actual Cloud Run**: all **397/397**
+frozen boards solve with **40.47 mean moves**, median 32, and a **24.30-second**
+maximum. The original V3 reference is 390/397, with **zero coverage losses**.
+All **180/180** mandatory repetitions, **30/30** extra guard trials, and **14/14**
+smoke boards pass. No failed invocation is dropped or combined with a different
+configuration to obtain these results.
+
+| Hosted cohort | Verified | Maximum solve time | Maximum fresh-process time |
+| --- | ---: | ---: | ---: |
+| Frozen corpus | 397/397 | 24.30s | — |
+| Nine targets, ten fresh and ten warm trials each | 180/180 | 19.43s | 19.46s |
+| Five extra guards, three fresh and three warm trials each | 30/30 | 25.72s | 25.80s |
+| Smoke | 14/14 | 26.89s | — |
+
+All **621 hosted receipts** use revision `tic-tac-go-00060-wkd`, the same source
+and native binary hashes, and the same 30-second / 500,000-expansion budget.
+Every path, final board and push trace is independently replayed. There are no
+optimizer errors. The optimizer reduces the same corpus calls' first incumbents
+from 66.32 to 40.47 mean moves (**38.98% fewer direction keystrokes**).
+
+Production qualification uses one CPU, 4 GiB RAM, concurrency one, generation
+two, Cython 3.3.1, `coverage`, two static routes and a 30-second quality window
+inside the overall deadline. No fallback, saved answers or exact hints are used.
+The matching compiled ARM64 Linux control solves 397/397 at 38.29 mean moves;
+that development timing is separate from the hosted results.
+
+Qualified source commit: `4470409d1facb9f7917e48763407f5c934e422ff`.
+Kernel: `e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0`.
+Runner: `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
+
+Activation uses the qualified immutable container digest and the existing daily
+version environment selector. V3 stays selected until that workflow completes;
+custom/direct solving is unchanged. Completed hosted evidence is under
+`debug-artifacts/v4-production-2026-11-09/cloudrun-4470409`.
 
 The earlier [quality report](push-solver-v4-quality-2026-11-09.md) records the
 research and separate native cohorts, including the matched V3 comparison.
 Those historical measurements have not been overwritten by this release run.
 
-## Kernel and configuration
+## Initial kernel and configuration
 
 The daily V4 configuration is `schedule="coverage"`, 30 seconds total,
 500,000 expansions, and a quality window ending at solve-start plus 30 seconds.
@@ -30,14 +59,14 @@ Kernel SHA-256:
 Runner SHA-256:
 `9e5604875e41fa580f5e8754d533981d95083b4b346dc6d4e369698c4cb4e3f2`.
 
-The full Linux corpus started before the fresh-worker transport additions;
+The initial full Linux corpus started before the fresh-worker transport additions;
 its metadata retains that earlier runner fingerprint. Its five-file kernel is
-identical to this release. The separate repetition matrices use the final
+identical to that initial candidate. Its separate repetition matrices use the final
 runner and independently fingerprint both kernel and runner. All **180/180**
 local receipts pass, with a maximum fresh-process time of **17.41 seconds**
 including startup and a maximum warm solve of **17.94 seconds**.
 
-## Deployment and validation
+## Initial deployment and validation
 
 The website calls **Cloud Run**, not the Vercel Python function, for daily solves.
 Local constrained-container results therefore cannot alone establish production

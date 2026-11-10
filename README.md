@@ -15,10 +15,10 @@ The September 8, 2026 production audit found **348 daily boards marked solved ou
 - [Catalog ingestion and V4 evidence](docs/audits/catalog-ingestion-and-v4-data-2026-10-22.md):
   input contract, archive mismatches, verified recovery paths, and reproducible benchmarks.
 
-## Experimental push solver V4
+## Qualified push solver V4
 
-Daily jobs accept `DAILY_PUSH_SOLVER_VERSION=v3|v4` (default `v3`). V4 is
-experimental; custom/direct routing is unchanged. The push budget remains
+Daily jobs accept `DAILY_PUSH_SOLVER_VERSION=v3|v4` (source fallback `v3`). V4
+has passed production qualification; custom/direct routing is unchanged. The push budget remains
 30 seconds / 500,000 nodes, followed by the existing Beam/CNN fallback.
 
 Implementation, reproducible corpus benchmarks, and the release gates are in
@@ -31,8 +31,10 @@ The November 9 candidate's explicit `schedule="coverage"` combines six global,
 focused, and wider beam streams. With two routes and a 30-second quality window,
 its compiled one-CPU / 4 GiB Linux run solves **397/397** at **38.29 mean moves**,
 median 31, with a 7.94-second maximum and no lost V3 solutions. All 180 mandatory
-local repetitions and 30 extra guard trials pass. The daily selector stays on
-V3 until complete matching Cloud Run qualification passes.
+local repetitions and 30 extra guard trials pass. Matching actual Cloud Run
+qualification also passes **397/397**, **180/180 repetitions**, and **30/30 guard
+trials**, at **40.47 mean moves** and a 24.30-second corpus maximum. Activation
+uses the qualified immutable image through the daily-selector workflow.
 
 An earlier controlled development comparison with matching 10-second quality
 windows used 18.10% fewer moves than V3 on their 383 shared verified boards.

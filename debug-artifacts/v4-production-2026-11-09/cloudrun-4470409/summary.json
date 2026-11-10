@@ -1,0 +1,91 @@
+{
+  "engine_sha256": "e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0",
+  "runner_sha256": "9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3",
+  "revision": "tic-tac-go-00060-wkd",
+  "native_build": {
+    "cython": "3.3.1",
+    "python": "3.12.16",
+    "architecture": "x86_64",
+    "directives": {
+      "language_level": 3,
+      "annotation_typing": false
+    },
+    "compile_args": [
+      "-O3",
+      "-g0"
+    ],
+    "builder_sha256": "0e0af41cf150f6447cd83727d6259be06669c37a5cfcb913046b378423b4c0ce",
+    "sources": {
+      "v4.py": "347aeb88a061b90a5abc12468e00982c02032a53cd3a75ccc396d246b7139c22",
+      "path_optimizer.py": "bf136bbb4b2987aeba9944ebbf782704492a62e772340ea0adae27e037d2c372"
+    },
+    "extensions": {
+      "path_optimizer.cpython-312-x86_64-linux-gnu.so": "ad534d949543af57e7e23ef6067eb4fdbb293ea7c4df16120dc05db3dfec25d8",
+      "v4.cpython-312-x86_64-linux-gnu.so": "8db262fc50f9c01faaf5eae7ca77cb920d9ea40c68668e39fbddd636450e9c8b"
+    }
+  },
+  "cohorts": {
+    "smoke": {
+      "receipts": 14,
+      "independently_replayed_paths_and_push_traces": 14,
+      "mean_moves": 96.28571428571429,
+      "median_moves": 97.5,
+      "first_incumbent_mean_moves": 158.07142857142858,
+      "quality_reduction_percent": 39.08721192950746,
+      "max_seconds": 26.88649199800011,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 536080384,
+      "optimizer_errors": 0
+    },
+    "guards": {
+      "receipts": 30,
+      "independently_replayed_paths_and_push_traces": 30,
+      "mean_moves": 92.86666666666666,
+      "median_moves": 92.0,
+      "first_incumbent_mean_moves": 143.0,
+      "quality_reduction_percent": 35.05827505827506,
+      "max_seconds": 25.71390474600048,
+      "max_process_seconds": 25.79031760299995,
+      "peak_process_rss_bytes": 620703744,
+      "optimizer_errors": 0
+    },
+    "matrix": {
+      "receipts": 180,
+      "independently_replayed_paths_and_push_traces": 180,
+      "mean_moves": 98.21666666666667,
+      "median_moves": 107.0,
+      "first_incumbent_mean_moves": 166.44444444444446,
+      "quality_reduction_percent": 40.9913217623498,
+      "max_seconds": 19.42953867899996,
+      "max_process_seconds": 19.458300799000426,
+      "peak_process_rss_bytes": 641286144,
+      "optimizer_errors": 0
+    },
+    "corpus": {
+      "receipts": 397,
+      "independently_replayed_paths_and_push_traces": 397,
+      "mean_moves": 40.468513853904284,
+      "median_moves": 32,
+      "first_incumbent_mean_moves": 66.3249370277078,
+      "quality_reduction_percent": 38.984466978086665,
+      "max_seconds": 24.30224775699935,
+      "max_process_seconds": 0,
+      "peak_process_rss_bytes": 641286144,
+      "optimizer_errors": 0
+    }
+  },
+  "coverage_gate": {
+    "passed": true,
+    "v3_verified": 390,
+    "v4_verified": 397,
+    "coverage_losses": [],
+    "unsolved_targets": [],
+    "missing": [],
+    "baseline_boards": 397,
+    "stale_engine_inputs": [],
+    "invalid_budgets_or_individual_strategies": [],
+    "configuration_count": 1,
+    "invalid_record_count": false,
+    "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+  }
+}
