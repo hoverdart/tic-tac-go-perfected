@@ -1,3 +1,3 @@
 google-genai
-numpy
+numpy>=2.0
 pyautogui

@@ -1,0 +1,120 @@
+{
+  "gate": {
+    "passed": true,
+    "v3_verified": 390,
+    "v4_verified": 397,
+    "coverage_losses": [],
+    "unsolved_targets": [],
+    "missing": [],
+    "baseline_boards": 397,
+    "stale_engine_inputs": [],
+    "invalid_budgets_or_individual_strategies": [],
+    "configuration_count": 1,
+    "invalid_record_count": false,
+    "scope": "Single corpus coverage gate only; container repetitions and hosted/deployed checks remain separate."
+  },
+  "independently_replayed_solutions": 397,
+  "coverage_losses": [],
+  "unsolved_targets": [],
+  "gains_over_v3": [
+    {
+      "id": "20251212",
+      "name": "-_-"
+    },
+    {
+      "id": "20251228",
+      "name": "Surrounded"
+    },
+    {
+      "id": "20260215",
+      "name": "Full Steam Ahead"
+    },
+    {
+      "id": "20260314",
+      "name": "Tee Off"
+    },
+    {
+      "id": "20260524",
+      "name": "Gears"
+    },
+    {
+      "id": "20260913",
+      "name": "Peninsula Problems"
+    },
+    {
+      "id": "20261004",
+      "name": "Cup of Tea"
+    }
+  ],
+  "total_native_wall_seconds": 543.2206823769957,
+  "max_native_wall_seconds": 26.975693166954443,
+  "peak_process_rss_bytes": 176652288,
+  "shared_v3_success_move_quality": {
+    "boards": 390,
+    "v3_median": 53.0,
+    "v4_median": 56.0,
+    "v3_total": 23773,
+    "v4_total": 25062,
+    "total_change_percent": 5.422117528288384,
+    "quality_optimization": "disabled for both versions"
+  },
+  "fresh_native_cases": [
+    {
+      "id": "20260301",
+      "name": "Immovable Objects",
+      "verified": false,
+      "wall_seconds": 29.76317433291115,
+      "moves": 0,
+      "nodes": 15716,
+      "cpu_ms": 20549.270167000002
+    },
+    {
+      "id": "20260802",
+      "name": "Cold Feet",
+      "verified": true,
+      "wall_seconds": 12.855184499989264,
+      "moves": 172,
+      "nodes": 4244,
+      "cpu_ms": 12818.130958
+    },
+    {
+      "id": "20260913",
+      "name": "Peninsula Problems",
+      "verified": true,
+      "wall_seconds": 26.09544566704426,
+      "moves": 169,
+      "nodes": 17835,
+      "cpu_ms": 25972.545665999998
+    }
+  ],
+  "linux_cases": [
+    {
+      "id": "20260301",
+      "name": "Immovable Objects",
+      "verified": true,
+      "wall_seconds": 25.02338397107087,
+      "moves": 240,
+      "nodes": 19204,
+      "cpu_ms": 24761.554486999998
+    },
+    {
+      "id": "20260802",
+      "name": "Cold Feet",
+      "verified": true,
+      "wall_seconds": 14.653779548942111,
+      "moves": 172,
+      "nodes": 4203,
+      "cpu_ms": 14575.395110000003
+    },
+    {
+      "id": "20260913",
+      "name": "Peninsula Problems",
+      "verified": false,
+      "wall_seconds": 29.772752305027097,
+      "moves": 0,
+      "nodes": 17443,
+      "cpu_ms": 29626.848011
+    }
+  ],
+  "scope": "Native development corpus only; deployment/repetition gates remain separate."
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "date": "2026-11-07",
+    "status": "solved",
+    "solver_name": "push-v4",
+    "moves": 77,
+    "steps": 77,
+    "verified": true,
+    "solution_page_http": 200,
+    "solution_page_metadata_verified": true,
+    "elapsed_ms": 4887.031323000002
+  },
+  {
+    "date": "2026-11-08",
+    "status": "solved",
+    "solver_name": "push-v4",
+    "moves": 91,
+    "steps": 91,
+    "verified": true,
+    "solution_page_http": 200,
+    "solution_page_metadata_verified": true,
+    "elapsed_ms": 2979.871023000001
+  }
+]

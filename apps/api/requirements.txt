@@ -1,6 +1,6 @@
 fastapi
 google-genai
 playwright
-numpy
+numpy>=2.0
 psycopg[binary,pool]
 uvicorn[standard]

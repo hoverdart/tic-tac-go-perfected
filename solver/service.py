@@ -182,6 +182,17 @@ def daily_push_version() -> str:
     return version
 
 
+def daily_push_settings(version: str) -> dict[str, Any]:
+    settings = {
+        "max_nodes": DAILY_PUSH_MAX_NODES,
+        "timeout_seconds": DAILY_PUSH_TIMEOUT_SECONDS,
+        "quality_timeout_seconds": DAILY_PUSH_QUALITY_TIMEOUT_SECONDS,
+    }
+    if version == "v4":
+        settings.update(schedule="coverage", quality_timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS)
+    return settings
+
+
 def solve_daily_board(
     board: list[list[str]],
     *,
@@ -204,9 +215,7 @@ def solve_daily_board(
     push_started = time.perf_counter()
     push_result = runner(
         start_board,
-        max_nodes=DAILY_PUSH_MAX_NODES,
-        timeout_seconds=DAILY_PUSH_TIMEOUT_SECONDS,
-        quality_timeout_seconds=DAILY_PUSH_QUALITY_TIMEOUT_SECONDS,
+        **daily_push_settings(version),
     )
     moves = push_result.moves
     final_board = push_result.final_board

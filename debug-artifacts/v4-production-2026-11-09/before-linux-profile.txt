@@ -1,0 +1,40 @@
+         26428041 function calls (25543762 primitive calls) in 7.552 seconds
+
+   Ordered by: internal time
+   List reduced from 774 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    36723    1.265    0.000    2.453    0.000 /workspace/solver/push_solver/v4.py:472(ranked_rows)
+   424328    0.497    0.000    5.651    0.000 /workspace/solver/push_solver/v4.py:727(_produce_successors)
+  2159107    0.406    0.000    0.526    0.000 /workspace/solver/push_solver/v4.py:43(cells)
+    31254    0.341    0.000    0.869    0.000 /workspace/solver/push_solver/v4.py:294(frozen)
+   289881    0.303    0.000    3.219    0.000 /workspace/solver/push_solver/v4.py:577(score)
+    54684    0.291    0.000    0.291    0.000 /workspace/solver/push_solver/v4.py:222(reachable)
+   688915    0.225    0.000    0.272    0.000 /workspace/solver/push_solver/v4.py:556(<lambda>)
+  1091928    0.211    0.000    0.312    0.000 /workspace/solver/push_solver/v4.py:676(<genexpr>)
+  1470833    0.207    0.000    0.207    0.000 /workspace/solver/push_solver/v4.py:303(<genexpr>)
+809190/791246    0.203    0.000    0.618    0.000 {built-in method builtins.min}
+1244474/380566    0.198    0.000    7.568    0.000 {built-in method builtins.next}
+   349479    0.196    0.000    6.405    0.000 /workspace/solver/push_solver/v4.py:1260(serial_beam_search)
+  2738490    0.193    0.000    0.193    0.000 {method 'bit_count' of 'int' objects}
+  2174085    0.186    0.000    0.186    0.000 {built-in method time.perf_counter}
+   351678    0.156    0.000    6.708    0.000 /workspace/solver/push_solver/v4.py:1232(coverage_beam_search)
+   349477    0.149    0.000    6.024    0.000 /workspace/solver/push_solver/v4.py:1346(search)
+    21192    0.143    0.000    0.143    0.000 {method 'argsort' of 'numpy.ndarray' objects}
+   571184    0.127    0.000    0.129    0.000 /workspace/solver/push_solver/v4.py:384(routes)
+  1849714    0.122    0.000    0.122    0.000 {method 'bit_length' of 'int' objects}
+   151525    0.119    0.000    0.173    0.000 /workspace/solver/push_solver/v4.py:214(put)
+       34    0.112    0.003    7.749    0.228 /workspace/solver/push_solver/v4.py:1291(advance)
+   338192    0.111    0.000    5.996    0.000 /workspace/solver/push_solver/v4.py:955(children)
+      5/4    0.097    0.019    0.157    0.039 {built-in method _imp.exec_dynamic}
+   742971    0.094    0.000    0.242    0.000 {built-in method builtins.all}
+   232544    0.093    0.000    0.097    0.000 /workspace/solver/push_solver/v4.py:682(plan_bias)
+  1084909    0.088    0.000    0.089    0.000 {built-in method builtins.isinstance}
+   761233    0.085    0.000    0.173    0.000 /workspace/solver/push_solver/v4.py:210(checkpoint)
+   139050    0.081    0.000    0.394    0.000 {built-in method builtins.sum}
+   187423    0.079    0.000    0.220    0.000 /workspace/solver/push_solver/v4.py:459(materialize_plan)
+1045287/1045236    0.073    0.000    0.073    0.000 {built-in method builtins.len}
+
+
+
+{"nodes": 3076, "diagnostics": {"strategies": {"rank_discrepancy": {"expansions": 15, "wall_ms": 260.70379198063165, "cpu_ms": 87.100456, "peak_closed": 190, "frontier_size": 177, "peak_frontier": 177, "counters": {"pruned_dominance": 2, "geometry_computations": 9, "route_computations": 114, "score_computations": 191, "plans_materialized": 247, "successor_computations": 15, "score_hits": 19, "generated": 539, "pruned_illegal": 320, "deadlock_queries": 194, "geometry_hits": 264, "route_hits": 2391, "generated_states": 193, "reverse_queries": 22, "reverse_computations": 10, "pruned_x_loss": 25, "deadlock_hits": 101, "frozen_hits": 3, "reverse_hits": 12}}, "weighted": {"expansions": 128, "wall_ms": 215.7222080277279, "cpu_ms": 212.08737399999995, "peak_closed": 1567, "frontier_size": 1440, "peak_frontier": 1440, "counters": {"pruned_dominance": 182, "geometry_computations": 2, "route_computations": 36, "score_computations": 1430, "plans_materialized": 2100, "successor_computations": 119, "score_hits": 314, "generated": 4506, "pruned_illegal": 2672, "deadlock_queries": 1626, "geometry_hits": 2519, "route_hits": 25831, "generated_states": 1624, "reverse_queries": 38, "reverse_computations": 19, "pruned_x_loss": 208, "deadlock_hits": 517, "frozen_hits": 194, "reverse_hits": 19, "successor_hits": 9, "pruned_deadlock": 2}}, "macro": {"expansions": 76, "wall_ms": 250.00975001603365, "cpu_ms": 249.986, "peak_closed": 1403, "frontier_size": 1328, "peak_frontier": 1328, "counters": {"pruned_dominance": 144, "route_computations": 12, "score_computations": 1456, "plans_materialized": 9358, "successor_computations": 43, "score_hits": 2661, "generated": 2818, "pruned_illegal": 1142, "deadlock_queries": 1548, "geometry_hits": 2131, "route_hits": 21032, "generated_states": 1540, "reverse_queries": 198, "reverse_computations": 70, "pruned_x_loss": 128, "deadlock_hits": 833, "frozen_hits": 84, "reverse_hits": 128, "successor_hits": 33, "pruned_deadlock": 7, "edge_hits": 142}}, "committed_beam": {"expansions": 2857, "wall_ms": 7021.784420590848, "cpu_ms": 6995.164553, "peak_closed": 1478, "frontier_size": 96, "peak_frontier": 96, "counters": {"geometry_computations": 17, "route_computations": 199, "score_computations": 23891, "plans_materialized": 175370, "successor_computations": 2242, "score_hits": 63071, "generated": 89258, "pruned_illegal": 58503, "deadlock_queries": 27885, "geometry_hits": 29852, "route_hits": 521526, "generated_states": 27805, "reverse_queries": 7438, "reverse_computations": 1000, "pruned_x_loss": 2870, "deadlock_hits": 21373, "frozen_hits": 5698, "reverse_hits": 6438, "successor_hits": 615, "edge_hits": 15146, "commitment_plans": 348, "commitment_lines": 58, "pruned_deadlock": 78}}}, "model_hashes": {}, "push_policy": null, "cpu_clock": "thread_time", "version": "push-v4", "schedule": "coverage", "effective_schedule": "coverage", "initial_commitment_count": null, "route_limit": 3, "beam_mode": "interleaved", "macro_mode": "straight", "commitments": [{"index": 0, "objective": "global", "widths": [[48, 60]], "line": 1077952512, "target": 22, "expansions": 1493, "wall_ms": 2432.8414388000965, "peak_closed": 1478, "done": false, "restarts": 0}, {"index": 0, "objective": "goal", "widths": [[48, 60]], "line": 1077952512, "target": 22, "expansions": 919, "wall_ms": 2527.6873369002715, "peak_closed": 920, "done": false, "restarts": 0}, {"index": 0, "objective": "global", "widths": [[96, 90]], "line": 1077952512, "target": 22, "expansions": 445, "wall_ms": 1216.5887003066018, "peak_closed": 461, "done": false, "restarts": 0}], "exact_hints": false, "preprocessing_ms": 1.058374997228384, "verification_ms": 0.0, "search_ms": 7749.8897111508995, "wall_ms": 7750.950211076997, "cpu_ms": 7546.9938409999995, "expanded_nodes": 3076, "quality_nodes": 0, "quality_timeout_seconds": 0.0, "quality_ms": 0.002124928869307041, "peak_frontier": 1440, "counters": {"geometry_computations": 28, "route_computations": 361, "score_computations": 26968, "plans_materialized": 187075, "successor_computations": 2419, "score_hits": 66065, "generated": 97121, "pruned_illegal": 62637, "deadlock_queries": 31253, "geometry_hits": 34766, "route_hits": 570780, "generated_states": 31162, "reverse_queries": 7696, "reverse_computations": 1099, "pruned_x_loss": 3231, "deadlock_hits": 22824, "frozen_hits": 5979, "reverse_hits": 6597, "successor_hits": 657, "pruned_deadlock": 87, "edge_hits": 15288, "pruned_impossible_commitments": 0, "commitment_plans": 348, "commitment_lines": 58}, "runtime": {"python": "3.12.15", "platform": "Linux", "peak_rss_bytes": 116269056, "cgroup": {"cpu_max": "100000 100000", "memory_max": "536870912"}}, "limits": {"seconds": 8, "nodes": 500000}, "cache_sizes": {"reverse": 1098, "geometry": 28, "score": 8192, "deadlock": 603, "edges": 32768, "successors": 2419}}}

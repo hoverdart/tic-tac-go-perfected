@@ -214,8 +214,10 @@ class PushBenchmarkRequest(BaseModel):
     version: Literal["v3", "v4"] = "v4"
     timeout_seconds: float = Field(default=30, gt=0, le=30)
     max_nodes: int = Field(default=500_000, gt=0, le=500_000)
+    quality_timeout_seconds: float = Field(default=0, ge=0, le=30)
+    process: Literal["warm", "fresh"] = "warm"
     schedule: Literal[
-        "rank", "uniform", "weighted", "beam", "beam8",
+        "rank", "uniform", "weighted", "beam", "beam8", "coverage",
         "phs_beam", "phs_heavy", "phs_star_beam", "phs_star_heavy",
         "phs_adaptive",
     ] = "rank"
@@ -233,7 +235,10 @@ def debug_push_benchmark(
 ):
     """Read-only search receipt: no fallback or write; V4 never uses exact hints."""
     from solver.push_solver import solve_v3, solve_v4, verify_solution
-    from solver.push_solver.benchmark_v4 import provenance
+    from solver.push_solver.benchmark_v4 import ENGINE_SHA256, RUNNER_SHA256, provenance, row_for_entry, run_fresh
+    import json
+    import subprocess
+    import time
 
     response.headers["Cache-Control"] = "no-store"
     if not _benchmark_lock.acquire(blocking=False):
@@ -258,7 +263,7 @@ def debug_push_benchmark(
         kwargs = dict(
             timeout_seconds=request.timeout_seconds,
             max_nodes=request.max_nodes,
-            quality_timeout_seconds=0,
+            quality_timeout_seconds=request.quality_timeout_seconds,
         )
         if request.version == "v4":
             kwargs["schedule"] = request.schedule
@@ -272,22 +277,64 @@ def debug_push_benchmark(
                     Path(__file__).resolve().parents[2]
                     / "debug-artifacts/v4-phs-2026-10-26" / filename
                 )
-        result = (solve_v4 if request.version == "v4" else solve_v3)(
-            entry.board(), **kwargs
-        )
+        if request.process == "fresh":
+            options = dict(
+                version=request.version, seconds=request.timeout_seconds, nodes=request.max_nodes,
+                quality_seconds=request.quality_timeout_seconds, schedule=request.schedule,
+                beam_mode=request.beam_mode, macro_mode=request.macro_mode,
+                strategy=request.strategy,
+                policy_path=str(kwargs["policy_path"]) if "policy_path" in kwargs else None,
+            )
+            try:
+                receipt = run_fresh(row_for_entry(entry), **options)
+            except (subprocess.SubprocessError, json.JSONDecodeError, ValueError) as exc:
+                raise HTTPException(status_code=503, detail="Fresh benchmark worker failed") from exc
+            receipt["verified"] = bool(
+                receipt["result"]["solved"]
+                and verify_solution(entry.board(), receipt["result"]["moves"]).ok
+            )
+            return {**receipt, "puzzle_date": puzzle_date, "provenance": provenance(), "revision": os.getenv("K_REVISION")}
+        started = time.perf_counter()
+        result = (solve_v4 if request.version == "v4" else solve_v3)(entry.board(), **kwargs)
+        verified = bool(result.solved and verify_solution(entry.board(), result.moves).ok)
+        wall_seconds = time.perf_counter() - started
         return {
+            **row_for_entry(entry),
             "puzzle_date": puzzle_date,
             "board_sha256": entry.board_sha256,
             "version": request.version,
-            "verified": bool(
-                result.solved and verify_solution(entry.board(), result.moves).ok
-            ),
+            "verified": verified,
+            "engine_sha256": ENGINE_SHA256 if request.version == "v4" else None,
+            "runner_sha256": RUNNER_SHA256,
+            "process": "warm", "repeat": 0, "wall_seconds": wall_seconds,
+            "limits": {"seconds": request.timeout_seconds, "nodes": request.max_nodes},
+            "schedule": request.schedule, "routes": 3,
+            "beam_mode": request.beam_mode, "macro_mode": request.macro_mode,
+            "strategy_requested": request.strategy,
+            "quality_timeout_seconds": request.quality_timeout_seconds,
             "result": asdict(result),
             "provenance": provenance(),
             "revision": os.getenv("K_REVISION"),
         }
     finally:
         _benchmark_lock.release()
+
+
+@app.get("/debug/solver-config", dependencies=[Depends(require_cron_secret)])
+def debug_solver_config(response: Response):
+    import platform
+    import numpy as np
+    from solver.service import daily_push_version, daily_push_settings
+    from solver.push_solver.benchmark_v4 import ENGINE_SHA256, RUNNER_SHA256, provenance
+
+    response.headers["Cache-Control"] = "no-store"
+    version = daily_push_version()
+    return {
+        "daily": {"version": version, **daily_push_settings(version)},
+        "engine_sha256": ENGINE_SHA256, "runner_sha256": RUNNER_SHA256,
+        "provenance": provenance(), "architecture": platform.machine(), "numpy": np.__version__,
+        "revision": os.getenv("K_REVISION"), "deployment_id": os.getenv("VERCEL_DEPLOYMENT_ID"),
+    }
 
 
 @app.get("/debug/solve-runs/{puzzle_date}", dependencies=[Depends(require_cron_secret)])

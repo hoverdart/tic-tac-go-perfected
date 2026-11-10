@@ -1,0 +1,189 @@
+{
+  "source_url": "https://www.gstatic.com/_/mss/boq-search/_/js/k=boq-search.GoogleGamesPlatformUi.en_US.5hBQxiEUuJI.2018.O/d=1/excm=_b/ed=1/dg=0/wt=2/ujg=1/rs=AH7-fg6VPwpF_6WfopVZ74VP5Ebmd8zpAA/ee=Pjplud:PoEs9b;QGR0gd:Mlhmy;ScI3Yc:e7Hzgb;Uvc8o:VDovNc;YIZmRd:A1yn5d;cEt90b:ws9Tlc;dowIGb:ebZ3mb;lOO0Vd:OTA3Ae/dti=1/m=Aeygpd",
+  "source_sha256": "4442d8aade8f50a46c574b72ab4eb746f003918336ee4537675988cd7eef17fd",
+  "fetched_at": "2026-11-10T01:36:57.569963+00:00",
+  "entries": [
+    {
+      "id": "20261107",
+      "puzzle_date": "2026-11-07",
+      "title": "Windmill",
+      "width": 8,
+      "height": 8,
+      "level": "--X------O--X-X---X-WX---X--WP--X-WWWWWX-X--W-X--X--W-O---X---X-",
+      "board": [
+        [
+          "",
+          "",
+          "X",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "O",
+          "",
+          "",
+          "X",
+          "",
+          "X",
+          ""
+        ],
+        [
+          "",
+          "",
+          "X",
+          "",
+          "B",
+          "X",
+          "",
+          ""
+        ],
+        [
+          "",
+          "X",
+          "",
+          "",
+          "B",
+          "U",
+          "",
+          ""
+        ],
+        [
+          "X",
+          "",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "X"
+        ],
+        [
+          "",
+          "X",
+          "",
+          "",
+          "B",
+          "",
+          "X",
+          ""
+        ],
+        [
+          "",
+          "X",
+          "",
+          "",
+          "B",
+          "",
+          "O",
+          ""
+        ],
+        [
+          "",
+          "",
+          "X",
+          "",
+          "",
+          "",
+          "X",
+          ""
+        ]
+      ],
+      "board_sha256": "f7d4c44da0a18734f19592800dac2bf82c3005b652c19b182afa90b804d3098b"
+    },
+    {
+      "id": "20261108",
+      "puzzle_date": "2026-11-08",
+      "title": "Mind The Gap",
+      "width": 8,
+      "height": 8,
+      "level": "-X-------XXP-X-X---W-X--XX-WW-X--O-W-----XX--WX--X--X-O---X-X-X-",
+      "board": [
+        [
+          "",
+          "X",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "X",
+          "X",
+          "U",
+          "",
+          "X",
+          "",
+          "X"
+        ],
+        [
+          "",
+          "",
+          "",
+          "B",
+          "",
+          "X",
+          "",
+          ""
+        ],
+        [
+          "X",
+          "X",
+          "",
+          "B",
+          "B",
+          "",
+          "X",
+          ""
+        ],
+        [
+          "",
+          "O",
+          "",
+          "B",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "X",
+          "X",
+          "",
+          "",
+          "B",
+          "X",
+          ""
+        ],
+        [
+          "",
+          "X",
+          "",
+          "",
+          "X",
+          "",
+          "O",
+          ""
+        ],
+        [
+          "",
+          "",
+          "X",
+          "",
+          "X",
+          "",
+          "X",
+          ""
+        ]
+      ],
+      "board_sha256": "94c2d475135c832afe78e6d08b6d08efda38b619e8ca751caed5e348613fd46b"
+    }
+  ]
+}

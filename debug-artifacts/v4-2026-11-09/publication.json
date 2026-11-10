@@ -1,0 +1,10 @@
+{
+  "dates": [
+    "2026-11-07",
+    "2026-11-08"
+  ],
+  "cache_publication": "success",
+  "solver_name": "push-v4",
+  "schedule": "beam8",
+  "basis": "deployed read-only benchmark paths independently replay-verified before persistence"
+}

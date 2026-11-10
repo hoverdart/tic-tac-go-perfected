@@ -7,3 +7,7 @@ apps/web/node_modules
 .env
 .env.*
 apps/web/.next
+.vercel
+**/.env
+**/.env.*
+gha-creds-*.json

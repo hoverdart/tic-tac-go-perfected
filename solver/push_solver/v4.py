@@ -28,6 +28,7 @@ SCHEDULES = {
     "weighted": (2, 4, 1, 1),
     "beam": (1, 1, 1, 4),
     "beam8": (1, 1, 1, 8),
+    "coverage": (1, 1, 1, 32),
     "phs_beam": (1, 1, 1, 8, 2),
     "phs_heavy": (1, 1, 1, 2, 8),
     "phs_star_beam": (1, 1, 1, 8, 2),
@@ -109,6 +110,8 @@ class Context:
             if self.board[i // self.cols][i % self.cols] == "B"
         )
         self.floor = self.all ^ self.walls
+        self.left_columns = mask_of(r * self.cols for r in range(self.rows))
+        self.right_columns = self.left_columns << (self.cols - 1)
         self.os = mask_of(
             i
             for i in range(self.size)
@@ -143,6 +146,11 @@ class Context:
                                 self.reverse[dest].append((i, stand))
                                 self.push_lookup[i, move] = stand, dest
         self.adj_masks = [mask_of(j for _, j in row) for row in self.adj]
+        self.freeze_axes = [
+            tuple(dict.fromkeys((1 << stand) | (1 << dest) for _, stand, dest in edges))
+            for edges in self.transitions
+        ]
+        self.wall_frozen = mask_of(i for i in cells(self.floor) if not self.freeze_axes[i])
         # Match the reference's U/D/L/R reverse-BFS tie order. Canonical route
         # ties affect successor ranks, even though they do not affect legality.
         for dest, edges in enumerate(self.reverse):
@@ -175,13 +183,18 @@ class Context:
         self.start = (self.os, self.xs, self.reachable(self.player, self.os | self.xs))
         self.distances = {}
         self.next_cells = {}
+        self.canonical_routes = {}
         self.route_cache = OrderedDict()
+        self.route_options_cache = OrderedDict()
+        self.route_choice_cache = OrderedDict()
+        self.o_mobility_cache = OrderedDict()
         self.reverse_cache = OrderedDict()
         self.frozen_cache = OrderedDict()
         self.deadlock_cache = OrderedDict()
         self.edge_cache = OrderedDict()
         self.geometry_cache = OrderedDict()
         self.cost_geometry_cache = OrderedDict()
+        self.numeric_geometry_cache = OrderedDict()
         self.goal_cache = OrderedDict()
         self.score_cache = OrderedDict()
         self.policy_cache = OrderedDict()
@@ -196,6 +209,7 @@ class Context:
         self.initial_commitments = None
         self.beam_mode = "interleaved"
         self.macro_mode = "straight"
+        self.goal_portfolio = False
 
     def check(self):
         if self.deadline is not None and time.perf_counter() >= self.deadline:
@@ -217,9 +231,12 @@ class Context:
         allowed = self.floor & ~occupied
         seen = frontier = (1 << start) & allowed
         while frontier:
-            neighbors = 0
-            for i in cells(frontier):
-                neighbors |= self.adj_masks[i]
+            neighbors = (
+                (frontier << self.cols)
+                | (frontier >> self.cols)
+                | ((frontier & ~self.right_columns) << 1)
+                | ((frontier & ~self.left_columns) >> 1)
+            )
             frontier = neighbors & allowed & ~seen
             seen |= frontier
         return seen
@@ -286,15 +303,13 @@ class Context:
         if occupied in self.frozen_cache:
             self.metrics["frozen_hits"] += 1
             return self.frozen_cache[occupied]
-        frozen = 0
+        frozen = self.wall_frozen & occupied
         while True:
             before = frozen
-            blockers = self.walls | frozen
+            blockers = frozen
             for i in cells(occupied & ~frozen):
-                if all(
-                    blockers & ((1 << stand) | (1 << dest))
-                    for _, stand, dest in self.transitions[i]
-                ):
+                axes = self.freeze_axes[i]
+                if blockers & axes[0] and (len(axes) == 1 or blockers & axes[1]):
                     frozen |= 1 << i
             if before == frozen:
                 break
@@ -352,8 +367,12 @@ class Context:
         return True
 
     def canonical_route(self, source, target):
+        key = source, target
+        if key in self.canonical_routes:
+            return self.canonical_routes[key]
         distance = self.distances[target][source]
         if distance < 0:
+            self.canonical_routes[key] = None
             return None
         route = 1 << source
         stands = 0
@@ -364,7 +383,9 @@ class Context:
             stands |= 1 << stand
             route |= (1 << nxt) | (1 << stand)
             current = nxt
-        return distance, route, stands
+        result = distance, route, stands
+        self.canonical_routes[key] = result
+        return result
 
     def routes(self, source, target):
         key = source, target
@@ -441,6 +462,34 @@ class Context:
         self.metrics["geometry_computations"] += 1
         return self.put(self.geometry_cache, os, tuple(result), 256)
 
+    def best_route(self, source, target, other, xs):
+        """Only X intersections with these static alternatives affect selection."""
+        key = source, target, other
+        prepared = self.route_options_cache.get(key)
+        if prepared is None:
+            alternatives = yield from self.routes(source, target)
+            union = 0
+            choices = []
+            for route in alternatives:
+                union |= route[1]
+                choices.append((route[0] + bool(route[1] & (1 << other)), route))
+            prepared = union, tuple(choices)
+            self.put(self.route_options_cache, key, prepared, 8192)
+        union, choices = prepared
+        choice_key = (*key, xs & union)
+        cached = self.route_choice_cache.get(choice_key)
+        if cached is not None:
+            self.metrics["route_choice_hits"] += 1
+            return cached
+        best_cost = math.inf
+        best = None
+        for base, route in choices:
+            cost = base + (xs & route[1]).bit_count()
+            if cost < best_cost:
+                best_cost, best = cost, route
+        self.metrics["route_choice_computations"] += 1
+        return self.put(self.route_choice_cache, choice_key, best, 16384)
+
     @staticmethod
     def materialize_plan(geometry, row):
         score, index, route_a, route_b = row
@@ -481,23 +530,50 @@ class Context:
         else:
             self.cost_geometry_cache.move_to_end(os)
         compiled, lines, masks = compiled
-        line_costs = {line: 0.5 * (xs & line).bit_count() for line in lines}
-        route_counts = {mask: (xs & mask).bit_count() for mask in masks}
-        candidates = []
-        for index, (line, target_bit, base, route_mask_a, route_mask_b) in enumerate(
-            compiled
-        ):
-            if index % 32 == 0:
-                yield from self.checkpoint()
-            score = (
-                base
-                + route_counts[route_mask_a]
-                + route_counts[route_mask_b]
-                + line_costs[line]
-                + (2.0 if xs & target_bit else 0.0)
+        # Batch the canonical costs without changing score/index tie order.
+        # Bound each atomic sort; larger boards/pools keep cooperative Python
+        # scoring and arbitrary-precision masks.
+        if self.size <= 64 and 64 <= len(compiled) <= 4096:
+            import numpy as np
+
+            numeric = self.numeric_geometry_cache.get(os)
+            if numeric is None:
+                numeric = np.asarray(compiled, dtype=np.uint64).T
+                self.put(self.numeric_geometry_cache, os, numeric, 128)
+            line_masks, targets, bases, routes_a, routes_b = numeric
+            xbits = np.uint64(xs)
+            scores = (
+                bases
+                + np.bitwise_count(xbits & routes_a)
+                + np.bitwise_count(xbits & routes_b)
+                + 0.5 * np.bitwise_count(xbits & line_masks)
+                + 2 * ((xbits & targets) != 0)
             )
-            candidates.append((score, index, geometry[index][6], geometry[index][7]))
-        candidates.sort()
+            indices = np.argsort(scores, kind="stable")
+            if not full:
+                indices = indices[:24]
+            candidates = [
+                (float(scores[i]), int(i), geometry[i][6], geometry[i][7])
+                for i in indices
+            ]
+        else:
+            line_costs = {line: 0.5 * (xs & line).bit_count() for line in lines}
+            route_counts = {mask: (xs & mask).bit_count() for mask in masks}
+            candidates = []
+            for index, (line, target_bit, base, route_mask_a, route_mask_b) in enumerate(
+                compiled
+            ):
+                if index % 32 == 0:
+                    yield from self.checkpoint()
+                score = (
+                    base
+                    + route_counts[route_mask_a]
+                    + route_counts[route_mask_b]
+                    + line_costs[line]
+                    + (2.0 if xs & target_bit else 0.0)
+                )
+                candidates.append((score, index, geometry[index][6], geometry[index][7]))
+            candidates.sort()
         # Refine only promising obstructed candidates; static route alternatives
         # are cached and remain ordering evidence, never a pruning condition.
         refined = []
@@ -508,14 +584,8 @@ class Context:
                 for source, route_target, other in ((oa, a, ob), (ob, b, oa)):
                     route_key = source, route_target, other
                     if route_key not in choices:
-                        alternatives = yield from self.routes(source, route_target)
-                        choices[route_key] = min(
-                            alternatives,
-                            key=lambda r: (
-                                r[0]
-                                + (xs & r[1]).bit_count()
-                                + bool(r[1] & (1 << other))
-                            ),
+                        choices[route_key] = yield from self.best_route(
+                            source, route_target, other, xs
                         )
                 route_a, route_b = choices[oa, a, ob], choices[ob, b, oa]
                 score = (
@@ -629,13 +699,17 @@ class Context:
         return result
 
     def o_push_count(self, state):
+        cached = self.o_mobility_cache.get(state)
+        if cached is not None:
+            return cached
         os, xs, region = state
         occupied = os | xs
-        return sum(
+        result = sum(
             bool(region & (1 << stand)) and not occupied & (1 << dest)
             for i in cells(os)
             for _, stand, dest in self.transitions[i]
         )
+        return self.put(self.o_mobility_cache, state, result, 16384)
 
     def plan_bias(self, plan, push, dest, before, after):
         bit, dbit = 1 << push.cell, 1 << dest
@@ -659,7 +733,8 @@ class Context:
             elif dbit & plan.stands:
                 bias += 1.5
         else:
-            assigned = dict(plan.assignment).get(push.cell)
+            (oa, ta), (ob, tb) = plan.assignment
+            assigned = ta if oa == push.cell else tb if ob == push.cell else None
             if assigned is not None:
                 old, new = (
                     self.distances[assigned][push.cell],
@@ -800,7 +875,37 @@ class Context:
             return legal[0]
         return None
 
-    def commitment_bias(self, plan, parent, child, parent_h):
+    def commitment_score(self, plan, state):
+        """Order a focused search by its own line, reassigning movable O pieces.
+
+        This is guidance only: canonical-route congestion is not a deadlock
+        proof, and primitive successors remain available in the other lanes.
+        """
+        if self.goal(state)[0]:
+            return 0.0
+        os, xs, _ = state
+        target_bit = 1 << plan.target
+        a, b = tuple(cells(plan.line & ~target_bit))
+        best = math.inf
+        for index, (oa, ob) in enumerate(itertools.permutations(cells(os), 2)):
+            if index % 32 == 0:
+                self.check()
+            ra = self.canonical_route(oa, a)
+            rb = self.canonical_route(ob, b)
+            if ra is None or rb is None:
+                continue
+            best = min(
+                best,
+                ra[0]
+                + rb[0]
+                + (xs & ra[1]).bit_count()
+                + (xs & rb[1]).bit_count()
+                + bool(ra[1] & (1 << ob))
+                + bool(rb[1] & (1 << oa)),
+            )
+        return best + 0.5 * (xs & plan.line).bit_count() + 2 * bool(xs & target_bit)
+
+    def commitment_bias(self, plan, parent, child, parent_h, child_h=None):
         """V3 commitment objective; independent from primitive move ordering."""
         important = plan.line | plan.route | plan.stands | (1 << plan.target)
         before, after = parent[2], child.state[2]
@@ -816,8 +921,9 @@ class Context:
         gain = self.o_push_count(child.state) - self.o_push_count(parent)
         if gain > 0:
             bias -= min(gain, 4) * 0.75
-        if child.h < parent_h:
-            bias -= min(parent_h - child.h, 4.0) * 0.35
+        estimate = child.h if child_h is None else child_h
+        if estimate < parent_h:
+            bias -= min(parent_h - estimate, 4.0) * 0.35
         push = child.pushes[0]
         dest = self.push_lookup[push.cell, push.move][1]
         if push.piece == "X":
@@ -949,6 +1055,18 @@ class Context:
                 queue.append(nxt)
         raise RuntimeError("V4 reconstruction could not reach a stand cell")
 
+    def walk_distances(self, start, occupied):
+        distances = {start: 0}
+        queue = [start]
+        for current in queue:
+            distance = distances[current] + 1
+            for _, nxt in self.adj[current]:
+                if occupied & (1 << nxt) or nxt in distances:
+                    continue
+                distances[nxt] = distance
+                queue.append(nxt)
+        return distances
+
     def reconstruct(self, found, deadline=None):
         chunks = []
         link = found.link
@@ -1067,6 +1185,9 @@ class Session:
             ctx.peak_frontier = max(ctx.peak_frontier, len(queue))
 
     def beam_search(self):
+        if self.context.goal_portfolio:
+            yield from self.coverage_beam_search()
+            return
         if self.context.beam_mode == "serial":
             yield from self.serial_beam_search()
             return
@@ -1141,18 +1262,49 @@ class Session:
                 activate(4)
             yield from ctx.checkpoint()
 
-    def serial_beam_search(self):
+    def coverage_beam_search(self):
+        """Keep global, committed-line and wider frontiers alive together."""
+        yield from self.context.beam_plans(self.context.start)
+        lanes = [
+            self.serial_beam_search(),
+            self.serial_beam_search(objective="goal"),
+            self.serial_beam_search(wide=True),
+        ]
+        done = set()
+        while len(done) < len(lanes):
+            for index in (0, 1, 0, 1, 2):
+                if index in done:
+                    continue
+                before = self.nodes
+                spent = 0.0
+                try:
+                    while True:
+                        started = time.perf_counter()
+                        item = next(lanes[index])
+                        spent += time.perf_counter() - started
+                        yield item
+                        if isinstance(item, Found):
+                            return
+                        if self.nodes - before >= 32 or spent >= 0.025:
+                            break
+                except StopIteration:
+                    done.add(index)
+
+    def serial_beam_search(self, *, objective="global", wide=False):
         """Reference allocation uses the same per-goal transition kernel."""
         ctx = self.context
-        if ctx.beam_mode == "interleaved":
+        if ctx.beam_mode == "interleaved" or ctx.goal_portfolio:
             plans = ctx.initial_anchor_plans
         else:
             _, plans = yield from ctx.score(ctx.start)
-        for phase, (width, depth_limit) in enumerate(
-            ((48, 60), (96, 90), (160, 120), (256, 160))
-        ):
+        widths = ((48, 60), (96, 90), (160, 120), (256, 160))
+        if wide:
+            widths = widths[1:]
+        for phase, (width, depth_limit) in enumerate(widths):
             for index, plan in enumerate(plans):
-                goal = GoalSession(self, plan, index, widths=((width, depth_limit),))
+                goal = GoalSession(
+                    self, plan, index, widths=((width, depth_limit),), objective=objective
+                )
                 goal.restarts = phase
                 self.anchor_goals.append(goal)
                 while True:
@@ -1206,8 +1358,9 @@ class Session:
 class GoalSession:
     """A commitment owns its frontier, depth, novelty and dominance tables."""
 
-    def __init__(self, parent, plan, index, *, narrow=False, widths=None):
+    def __init__(self, parent, plan, index, *, narrow=False, widths=None, objective="global"):
         self.parent, self.plan, self.index = parent, plan, index
+        self.objective = objective
         self.widths = widths or (
             ((8, 60), (24, 90), (48, 120), (96, 160))
             if narrow
@@ -1245,16 +1398,26 @@ class GoalSession:
                         yield Found(current, target, link)
                         return
                     children = yield from ctx.children(current, True)
-                    parent_h, _ = yield from ctx.score(current, limit=1)
+                    if self.objective == "goal":
+                        parent_h = ctx.commitment_score(plan, current)
+                    else:
+                        parent_h, _ = yield from ctx.score(current, limit=1)
                     scored = []
                     for child in children:
                         yield from ctx.checkpoint()
                         g = cost + len(child.pushes)
                         if g >= seen.get(child.state, math.inf):
                             continue
-                        bias = ctx.commitment_bias(plan, current, child, parent_h)
+                        goal_h = (
+                            ctx.commitment_score(plan, child.state)
+                            if self.objective == "goal"
+                            else child.h
+                        )
+                        bias = ctx.commitment_bias(
+                            plan, current, child, parent_h, goal_h
+                        )
                         score = (
-                            child.h
+                            goal_h
                             + 1.2 * (child.bias + 1.5 * bias)
                             - 2.0 * child.policy
                             + 0.08 * len(child.pushes)
@@ -1264,13 +1427,13 @@ class GoalSession:
                         relevant = (
                             bias < 0
                             or important & ((1 << push.cell) | (1 << dest))
-                            or child.h <= parent_h
+                            or goal_h <= parent_h
                         )
                         signature = (
                             child.state[0],
                             child.state[1] & important,
                             bool(child.state[2] & (1 << plan.target)),
-                            int(child.h // 2) if math.isfinite(child.h) else -1,
+                            int(goal_h // 2) if math.isfinite(goal_h) else -1,
                         )
                         scored.append(
                             (
@@ -1353,12 +1516,29 @@ class GoalSession:
 
 def improve_keystrokes(ctx, incumbent, *, weight=4.0):
     """Anytime exact-player-position search with V3's keystroke cost objective."""
+    from solver.push_solver.path_optimizer import PathRewriter, improve_vicinity
+
+    rewrite_end = time.perf_counter() + 0.1
+    if ctx.deadline is not None:
+        rewrite_end = min(rewrite_end, ctx.deadline)
+    rewritten = PathRewriter(ctx, rewrite_end).optimize(incumbent[0], incumbent[1])
+    ctx.metrics["rewrite_evaluations"] += rewritten.evaluations
+    ctx.metrics["rewrite_improvements"] += rewritten.improvements
+    if len(rewritten.moves) < len(incumbent[0]):
+        incumbent = rewritten.moves, rewritten.pushes, incumbent[2]
+        yield rewritten.moves, rewritten.pushes
+    vicinity_end = time.perf_counter() + 0.2
+    if ctx.deadline is not None:
+        vicinity_end = min(vicinity_end, ctx.deadline)
+    for moves, pushes in improve_vicinity(ctx, incumbent[0], incumbent[1], vicinity_end):
+        incumbent = moves, pushes, incumbent[2]
+        yield moves, pushes
     counter = itertools.count()
     h, _ = yield from ctx.score(ctx.start, limit=1)
     queue = [(weight * h, 0, next(counter), ctx.start, ctx.player, None)]
     best = {(ctx.start, ctx.player): 0}
     best_length = len(incumbent[0])
-    last_improvement = None
+    last_improvement = time.perf_counter()
     while queue:
         yield from ctx.checkpoint()
         if (
@@ -1372,9 +1552,16 @@ def improve_keystrokes(ctx, incumbent, *, weight=4.0):
         if ctx.max_nodes is not None and ctx.expanded >= ctx.max_nodes:
             raise BudgetExpired("node_cap")
         ctx.expanded += 1
+        ctx.metrics["keystroke_search_expansions"] += 1
+        distances = ctx.walk_distances(player, state[0] | state[1])
         won, target = ctx.goal(state)
         if won:
-            found = Found(state, target, link)
+            _, target = min(
+                (0, -1) if target is None else (distances[target], target)
+                for target in ctx.goal_cache[state[0]]
+                if target is None or target in distances
+            )
+            found = Found(state, None if target == -1 else target, link)
             moves, pushes = ctx.reconstruct(found, ctx.deadline)
             if len(moves) < best_length:
                 best_length = len(moves)
@@ -1385,14 +1572,20 @@ def improve_keystrokes(ctx, incumbent, *, weight=4.0):
             yield from ctx.checkpoint()
             os, xs = state[:2]
             actual, segment = player, 0
+            walks = distances
             for push in child.pushes:
                 stand, dest = ctx.push_lookup[push.cell, push.move]
-                segment += len(ctx.walk(actual, stand, os | xs)) + 1
+                if stand != actual:
+                    if walks is None:
+                        walks = ctx.walk_distances(actual, os | xs)
+                    segment += walks[stand]
+                segment += 1
                 if push.piece == "O":
                     os = (os ^ (1 << push.cell)) | (1 << dest)
                 else:
                     xs = (xs ^ (1 << push.cell)) | (1 << dest)
                 actual = push.cell
+                walks = None
             g = cost + segment
             key = child.state, actual
             if g >= best_length or g >= best.get(key, math.inf):
@@ -1476,6 +1669,7 @@ def solve_v4(
     context = Context(board, search_deadline, max_nodes, route_limit=route_limit)
     context.beam_mode = beam_mode
     context.macro_mode = macro_mode
+    context.goal_portfolio = schedule == "coverage" and strategy is None
     sessions = []
     incumbent = None
     verification_ms = 0.0
@@ -1675,6 +1869,8 @@ def solve_v4(
         "commitments": [
             {
                 "index": g.index,
+                "objective": g.objective,
+                "widths": g.widths,
                 "line": g.plan.line,
                 "target": g.plan.target,
                 "expansions": g.nodes,
@@ -1696,6 +1892,7 @@ def solve_v4(
         "cpu_ms": (time.thread_time() - cpu) * 1000,
         "expanded_nodes": search_nodes,
         "quality_nodes": quality_nodes,
+        "quality_timeout_seconds": quality_timeout_seconds,
         "quality_ms": quality_ms,
         "peak_frontier": context.peak_frontier,
         "counters": dict(context.metrics),

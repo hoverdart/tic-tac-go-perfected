@@ -1,0 +1,12 @@
+{
+  "python": "3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "numpy": "2.5.1",
+  "python_tests": {
+    "run": 189,
+    "skipped": 4,
+    "result": "OK"
+  },
+  "targeted_lint": "passed",
+  "endpoint_tests_after_schedule_added": "2 passed",
+  "git_diff_check": "passed"
+}

@@ -24,6 +24,8 @@ class SolverServiceTest(unittest.TestCase):
             self.assertEqual(daily["solver_name"], "push-v4")
             self.assertEqual(daily["diagnostics"]["fallback_reported_transitions"], 0)
             v4.assert_called_once()
+            self.assertEqual(v4.call_args.kwargs["schedule"], "coverage")
+            self.assertEqual(v4.call_args.kwargs["quality_timeout_seconds"], 30)
             custom = solve_custom_board([["U", "O", "O"], ["", "", ""], ["", "", ""]])
             self.assertEqual(custom["solver_name"], "push-v3-custom")
             v3.assert_called_once()

@@ -1,26 +1,55 @@
 name: Deploy to Cloud Run
 
 on:
-  push:
-    branches:
-      - main # Change this to your deployment branch if different
+  workflow_run:
+    workflows: [Validate parser and archive]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-run-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_sha }}
+
+    - name: Confirm tested commit is still main
+      id: current
+      env:
+        CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+      run: |
+        latest="$(git ls-remote origin refs/heads/main | cut -f1)"
+        if [ "$latest" = "$CANDIDATE_SHA" ]; then
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "Skipping a superseded tested commit."
+        fi
 
     - name: Authenticate to Google Cloud
+      if: steps.current.outputs.deploy == 'true'
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
 
     - name: Set up Cloud SDK
+      if: steps.current.outputs.deploy == 'true'
       uses: google-github-actions/setup-gcloud@v2
 
     - name: Build and Deploy to Cloud Run
+      if: steps.current.outputs.deploy == 'true'
       uses: google-github-actions/deploy-cloudrun@v2
       with:
         service: tic-tac-go

@@ -15,3 +15,5 @@ out/
 dist/
 coverage/
 .vercel
+.env*
+gha-creds-*.json

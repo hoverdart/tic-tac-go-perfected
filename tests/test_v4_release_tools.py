@@ -7,6 +7,7 @@ from pathlib import Path
 from solver.push_solver import solve_v4
 from solver.push_solver.benchmark_v4 import (
     ENGINE_SHA256,
+    RUNNER_SHA256,
     TARGETS,
     corpus,
     gate,
@@ -64,6 +65,7 @@ class V4ReleaseToolsTest(unittest.TestCase):
                 "board_sha256": r["board_sha256"],
                 "version": "v4",
                 "engine_sha256": ENGINE_SHA256,
+                "runner_sha256": RUNNER_SHA256,
                 "limits": {"seconds": 30, "nodes": 500000},
                 "process_wall_seconds": 1.0,
                 "verified": True,
@@ -88,6 +90,7 @@ class V4ReleaseToolsTest(unittest.TestCase):
             "engine",
             "budget",
             "strategy",
+            "quality",
         ):
             altered = deepcopy(rows)
             if invalid == "missing":
@@ -106,6 +109,8 @@ class V4ReleaseToolsTest(unittest.TestCase):
                 altered[-1]["limits"]["seconds"] = 300
             if invalid == "strategy":
                 altered[-1]["strategy_requested"] = "rank_discrepancy"
+            if invalid == "quality":
+                altered[-1]["quality_timeout_seconds"] = 10
             self.assertFalse(gate(altered, baseline, boards)["passed"], invalid)
         self.assertFalse(repetition_gate(rows)["passed"])
         matrix = [
@@ -126,8 +131,42 @@ class V4ReleaseToolsTest(unittest.TestCase):
         matrix[-1]["macro_mode"] = "forced"
         self.assertFalse(repetition_gate(matrix)["passed"])
         matrix[-1]["macro_mode"] = None
+        matrix[-1]["runner_sha256"] = "different worker"
+        self.assertFalse(repetition_gate(matrix)["passed"])
+        matrix[-1]["runner_sha256"] = RUNNER_SHA256
         matrix[-1]["verified"] = False
         self.assertFalse(repetition_gate(matrix)["passed"])
+
+    def test_fresh_worker_reads_only_its_json_board_input(self):
+        import io
+        from unittest.mock import patch
+
+        from solver.push_solver.benchmark_v4 import main
+
+        row = corpus()[0]
+        payload = {"row": row, "options": {"version": "v4", "seconds": 2, "nodes": 1000, "schedule": "coverage"}}
+        with (
+            patch("sys.argv", ["benchmark", "--worker", "--worker-input", "--output", "-"]),
+            patch("sys.stdin", io.StringIO(json.dumps(payload))),
+            patch("sys.stdout", io.StringIO()) as output,
+            patch("solver.push_solver.benchmark_v4.corpus", side_effect=AssertionError("archive read")),
+        ):
+            main()
+        receipt = json.loads(output.getvalue())
+        self.assertTrue(receipt["verified"])
+        self.assertEqual(receipt["process"], "fresh")
+        self.assertEqual(receipt["runner_sha256"], RUNNER_SHA256)
+
+    def test_fresh_worker_round_trip_keeps_identity_limits_and_provenance(self):
+        from solver.push_solver.benchmark_v4 import run_fresh
+
+        row = corpus()[0]
+        receipt = run_fresh(row, version="v4", seconds=5, nodes=1000, schedule="coverage", quality_seconds=0)
+        self.assertTrue(receipt["verified"])
+        self.assertEqual(receipt["id"], row["id"])
+        self.assertEqual(receipt["limits"], {"seconds": 5, "nodes": 1000})
+        self.assertEqual(receipt["engine_sha256"], ENGINE_SHA256)
+        self.assertLess(receipt["process_wall_seconds"], 5)
 
     def test_transforms_and_duplicates_share_split_and_targets_are_development(self):
         rows = corpus()

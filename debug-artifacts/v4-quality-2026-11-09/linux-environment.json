@@ -1,0 +1,14 @@
+{
+  "image_id": "sha256:72d5dd4ded89f7933537903630f360691118ea9e1c3cbf389716135511e6fc4f",
+  "architecture": "arm64",
+  "os": "linux",
+  "cpus": 1,
+  "memory_bytes": 536870912,
+  "network": "none",
+  "source": "repository bind-mounted read-only at /workspace; image runtime dependencies retained",
+  "note": "Controlled local Linux ARM64 probe; not deployment-matched acceptance.",
+  "dependencies": {
+    "python": "3.12.15 (main, Oct 21 2026, 01:13:23) [GCC 14.2.0]",
+    "numpy": "2.5.4"
+  }
+}

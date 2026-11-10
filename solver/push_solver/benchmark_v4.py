@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -31,9 +32,10 @@ from solver.push_solver.v4 import (
 ROOT = Path(__file__).resolve().parents[2]
 ENGINE_SOURCES = {
     name: sha256((ROOT / "solver/push_solver" / name).read_bytes()).hexdigest()
-    for name in ("v4.py", "phs.py", "push_policy.py", "v4_ranker.py")
+    for name in ("v4.py", "path_optimizer.py", "phs.py", "push_policy.py", "v4_ranker.py")
 }
 ENGINE_SHA256 = sha256(json.dumps(ENGINE_SOURCES, sort_keys=True).encode()).hexdigest()
+RUNNER_SHA256 = sha256(Path(__file__).read_bytes()).hexdigest()
 CORPUS = ROOT / "debug-artifacts/v4-2026-10-25/catalog.jsonl"
 TARGETS = (
     "20251212",
@@ -83,6 +85,48 @@ def provenance():
     return {"sources": sources, "models": models, "runtime": runtime_environment()}
 
 
+def row_for_entry(entry):
+    return {
+        "id": entry.puzzle_date.strftime("%Y%m%d"),
+        "date": entry.puzzle_date.isoformat(), "name": entry.title,
+        "width": entry.width, "height": entry.height, "puzzle": entry.level,
+        "board_sha256": entry.board_sha256,
+    }
+
+
+def run_fresh(row, **options):
+    """Run only our allowlisted worker; input is JSON, never shell code."""
+    started = time.perf_counter()
+    completed = subprocess.run(
+        [sys.executable, "-m", "solver.push_solver.benchmark_v4", "--worker", "--worker-input", "--output", "-"],
+        input=json.dumps({"row": row, "options": options}),
+        capture_output=True, text=True, check=True, timeout=options.get("seconds", 30),
+        cwd=ROOT,
+        env={**os.environ, "PYTHONPATH": os.pathsep.join([str(ROOT), *(str(path) for path in sys.path if path)])},
+    )
+    receipt = json.loads(completed.stdout)
+    receipt["process_wall_seconds"] = time.perf_counter() - started
+    expected = {
+        "limits": {"seconds": options.get("seconds", 30), "nodes": options.get("nodes", 500000)},
+        "quality_timeout_seconds": options.get("quality_seconds", 0),
+        "schedule": options.get("schedule", "rank"),
+        "strategy_requested": options.get("strategy"),
+    }
+    if (
+        receipt.get("id") != row["id"]
+        or receipt.get("board_sha256") != row["board_sha256"]
+        or receipt.get("version") != options.get("version", "v4")
+        or receipt.get("runner_sha256") != RUNNER_SHA256
+        or receipt.get("process") != "fresh"
+        or any(receipt.get(key) != value for key, value in expected.items())
+        or not isinstance(receipt.get("result"), dict)
+    ):
+        raise ValueError("Fresh worker returned mismatched provenance")
+    if receipt["version"] == "v4" and receipt.get("engine_sha256") != ENGINE_SHA256:
+        raise ValueError("Fresh worker returned a different engine")
+    return receipt
+
+
 def run(
     row,
     *,
@@ -99,6 +143,7 @@ def run(
     policy_path=None,
     repeat=0,
     process="warm",
+    quality_seconds=0.0,
 ):
     board = CatalogEntry(
         date.fromisoformat(row["date"]),
@@ -110,7 +155,7 @@ def run(
     kwargs = {
         "timeout_seconds": seconds,
         "max_nodes": nodes,
-        "quality_timeout_seconds": 0,
+        "quality_timeout_seconds": quality_seconds,
     }
     if version == "v4":
         kwargs.update(
@@ -155,11 +200,13 @@ def run(
         "board_sha256": row["board_sha256"],
         "version": version,
         "engine_sha256": ENGINE_SHA256 if version == "v4" else None,
+        "runner_sha256": RUNNER_SHA256,
         "schedule": schedule,
         "beam_mode": beam_mode if version == "v4" else None,
         "macro_mode": macro_mode if version == "v4" else None,
         "exact_hints_enabled": version == "v3" and not no_exact_hints,
         "routes": routes,
+        "quality_timeout_seconds": quality_seconds,
         "strategy_requested": strategy,
         "repeat": repeat,
         "process": process,
@@ -204,6 +251,7 @@ def gate(rows, baseline, catalog):
             r.get("strategy_requested"),
             r.get("beam_mode"),
             r.get("macro_mode"),
+            r.get("quality_timeout_seconds", 0.0),
             json.dumps(
                 r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                 sort_keys=True,
@@ -271,6 +319,7 @@ def repetition_gate(rows):
                 r.get("strategy_requested"),
                 r.get("beam_mode"),
                 r.get("macro_mode"),
+                r.get("quality_timeout_seconds", 0.0),
                 json.dumps(
                     r.get("result", {}).get("diagnostics", {}).get("model_hashes", {}),
                     sort_keys=True,
@@ -280,6 +329,7 @@ def repetition_gate(rows):
         if not (
             r.get("verified")
             and r.get("engine_sha256") == ENGINE_SHA256
+            and r.get("runner_sha256") == RUNNER_SHA256
             and r.get("board_sha256") == hashes[r["id"]]
             and r.get("limits") == {"seconds": 30, "nodes": 500000}
             and r.get("strategy_requested") is None
@@ -311,6 +361,7 @@ def main():
     p.add_argument("--ids", nargs="+")
     p.add_argument("--seconds", type=float, default=30)
     p.add_argument("--nodes", type=int, default=500000)
+    p.add_argument("--quality-seconds", type=float, default=0.0)
     p.add_argument(
         "--schedule",
         choices=SCHEDULES,
@@ -346,7 +397,20 @@ def main():
     )
     p.add_argument("--gate-v3", type=Path)
     p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
+    p.add_argument("--worker-input", action="store_true", help=argparse.SUPPRESS)
     a = p.parse_args()
+    if a.worker_input:
+        if not a.worker:
+            p.error("worker-input requires worker mode")
+        payload = json.load(sys.stdin)
+        row = payload["row"]
+        entry = CatalogEntry(date.fromisoformat(row["date"]), row["name"], row["width"], row["height"], row["puzzle"])
+        if row_for_entry(entry) != row:
+            p.error("worker input does not match its official board identity")
+        print(json.dumps(run(row, process="fresh", **payload["options"])))
+        return
+    if not 0 <= a.quality_seconds <= a.seconds:
+        p.error("quality-seconds must be between zero and the total time budget")
     if a.policy and (a.version != "v4" or a.sweep):
         p.error(
             "Select a V4 policy strategy/schedule explicitly; policy sweeps use separate benchmark files"
@@ -377,6 +441,7 @@ def main():
                     no_exact_hints=a.no_exact_hints,
                     policy_path=a.policy,
                     process="fresh",
+                    quality_seconds=a.quality_seconds,
                 )
             )
         )
@@ -393,6 +458,7 @@ def main():
         "seconds": a.seconds,
         "nodes": a.nodes,
         "routes": a.routes,
+        "quality_seconds": a.quality_seconds,
         "no_exact_hints": a.no_exact_hints,
         "policy_sha256": sha256(a.policy.read_bytes()).hexdigest()
         if a.policy
@@ -449,6 +515,7 @@ def main():
                         str(a.routes),
                     ]
                     cmd += ["--beam-mode", a.beam_mode, "--macro-mode", a.macro_mode]
+                    cmd += ["--quality-seconds", str(a.quality_seconds)]
                     if a.no_exact_hints:
                         cmd += ["--no-exact-hints"]
                     if strategy:
@@ -499,6 +566,7 @@ def main():
                         no_exact_hints=a.no_exact_hints,
                         policy_path=a.policy,
                         repeat=repeat,
+                        quality_seconds=a.quality_seconds,
                     )
                 with a.output.open("a") as out:
                     out.write(json.dumps(result) + "\n")

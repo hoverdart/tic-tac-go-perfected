@@ -27,6 +27,17 @@ Implementation, reproducible corpus benchmarks, and the release gates are in
 `GET /debug/solve-runs/{date}` reads retry diagnostics. Neither endpoint repairs
 archive records or changes the daily selector.
 
+The November 9 candidate's explicit `schedule="coverage"` combines global,
+committed-line, and wider beam searches. With `--quality-seconds 30`, it solves
+397/397 native corpus boards and reduces mean keystrokes from 66.20 to 39.17,
+within the same total 30-second budget. The matching 10-second quality-window
+comparison uses 18.10% fewer moves than V3 on their 383 shared verified boards.
+The subsequent one-CPU Linux corpus solves 397/397 at 38.36 mean moves;
+actual Cloud Run qualification precedes changing the daily default. See
+[the production qualification report](docs/audits/push-solver-v4-production-2026-11-09.md),
+[the quality report](docs/audits/push-solver-v4-quality-2026-11-09.md) and
+[the preceding coverage work](docs/audits/push-solver-v4-regressions-2026-11-09.md).
+
 ## Local Development
 
 ### Solver

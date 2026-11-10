@@ -1,0 +1,53 @@
+{
+  "engine_sha256": "bab886c4b478abf071a7e5c97aa75d5e0cdeb7afb1a30a29202297625410e4d1",
+  "runner_sha256": "9e5604875e41fa580f5e8754d533981d95083b4b346dc6d4e369698c4cb4e3f2",
+  "cohorts": {
+    "linux-corpus.jsonl": {
+      "receipts": 397,
+      "independently_replayed_paths_and_push_traces": 397,
+      "mean_moves": 38.357682619647356,
+      "median_moves": 31,
+      "max_seconds": 17.86882667511236,
+      "max_process_seconds": 0
+    },
+    "linux-fresh.jsonl": {
+      "receipts": 90,
+      "independently_replayed_paths_and_push_traces": 90,
+      "mean_moves": 100.26666666666667,
+      "median_moves": 107.0,
+      "max_seconds": 17.140635882969946,
+      "max_process_seconds": 17.40838313405402
+    },
+    "linux-warm.jsonl": {
+      "receipts": 90,
+      "independently_replayed_paths_and_push_traces": 90,
+      "mean_moves": 100,
+      "median_moves": 107.0,
+      "max_seconds": 17.931111383019015,
+      "max_process_seconds": 0
+    },
+    "linux-guards-fresh.jsonl": {
+      "receipts": 6,
+      "independently_replayed_paths_and_push_traces": 6,
+      "mean_moves": 85.33333333333333,
+      "median_moves": 84.0,
+      "max_seconds": 17.19870763202198,
+      "max_process_seconds": 17.438320298912004
+    },
+    "linux-guards-warm.jsonl": {
+      "receipts": 6,
+      "independently_replayed_paths_and_push_traces": 6,
+      "mean_moves": 84,
+      "median_moves": 84.0,
+      "max_seconds": 17.52426175796427,
+      "max_process_seconds": 0
+    }
+  },
+  "repetition_gate": {
+    "passed": true,
+    "missing": [],
+    "failures": [],
+    "configuration_count": 1,
+    "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+  }
+}

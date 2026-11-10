@@ -1,0 +1,98 @@
+{
+  "puzzle_date": "2026-11-07",
+  "source_url": "https://www.gstatic.com/_/mss/boq-search/_/js/k=boq-search.GoogleGamesPlatformUi.en_US.cw2vv8YYGfw.2018.O/d=1/excm=_b/ed=1/dg=0/wt=2/ujg=1/rs=AH7-fg6-TPJZjsm-gUcGgLHmqwGhsCYQHg/ee=Pjplud:PoEs9b;QGR0gd:Mlhmy;ScI3Yc:e7Hzgb;Uvc8o:VDovNc;YIZmRd:A1yn5d;cEt90b:ws9Tlc;dowIGb:ebZ3mb;lOO0Vd:OTA3Ae/dti=1/m=Aeygpd",
+  "parser_name": "catalog",
+  "solver_name": "heuristic-CNN",
+  "board": [
+    [
+      "",
+      "",
+      "X",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "O",
+      "",
+      "",
+      "X",
+      "",
+      "X",
+      ""
+    ],
+    [
+      "",
+      "",
+      "X",
+      "",
+      "B",
+      "X",
+      "",
+      ""
+    ],
+    [
+      "",
+      "X",
+      "",
+      "",
+      "B",
+      "U",
+      "",
+      ""
+    ],
+    [
+      "X",
+      "",
+      "B",
+      "B",
+      "B",
+      "B",
+      "B",
+      "X"
+    ],
+    [
+      "",
+      "X",
+      "",
+      "",
+      "B",
+      "",
+      "X",
+      ""
+    ],
+    [
+      "",
+      "X",
+      "",
+      "",
+      "B",
+      "",
+      "O",
+      ""
+    ],
+    [
+      "",
+      "",
+      "X",
+      "",
+      "",
+      "",
+      "X",
+      ""
+    ]
+  ],
+  "moves": null,
+  "final_board": null,
+  "step_boards": [],
+  "states_checked": 615,
+  "elapsed_ms": 639408.310963,
+  "status": "unsolved",
+  "error_message": "Solver did not find a solution.",
+  "created_at": "2026-11-07 00:30:42.889550+00:00",
+  "updated_at": "2026-11-07 00:30:42.889550+00:00",
+  "puzzle_title": "Windmill"
+}

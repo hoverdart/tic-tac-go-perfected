@@ -1,0 +1,29 @@
+{
+  "python": "3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "numpy": "2.5.1",
+  "tests": {
+    "run": 199,
+    "skipped": 4,
+    "status": "OK"
+  },
+  "targeted_lint": "passed",
+  "diff_check": "passed",
+  "native_execution": "each cohort sequential; independent V3/V4 cohorts overlap on the native host",
+  "total_budget": {
+    "seconds": 30,
+    "expansions": 500000
+  },
+  "quality_windows": [
+    10,
+    30
+  ],
+  "final_engine_sha256": "f5d266384ea055cae3831c58d38f4c683d12a46edd6a89408338cf4fbb902bb8",
+  "control_source_checks": {
+    "basic-v4.py": "db30ebbfe2a99695d02ce49eaba3581d2331bdcae808cf248938a287f13e37b2",
+    "basic-path-optimizer.py": "3261d733a421c494b6ddff49c352ba4935f279397b02b41680cf7d095bca9147",
+    "coverage-only-v4.py": "06289e0cff971628be55fc5ef75063f54f889814fee196ebfd4cbbef7b5a694c"
+  },
+  "final_cohort_source_and_model_hashes": "match current workspace",
+  "full_independent_replay": "all successful final paths, final boards and push traces verified",
+  "monotonic_quality_and_node_accounting": "verified per result"
+}
