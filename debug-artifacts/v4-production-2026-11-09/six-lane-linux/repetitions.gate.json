@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "missing": [],
+  "failures": [],
+  "configuration_count": 1,
+  "scope": "180 search receipts; deployment/container equivalence and hosted checks must also be verified."
+}

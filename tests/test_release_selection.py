@@ -35,7 +35,7 @@ class ReleaseSelectionTest(unittest.TestCase):
                 "exact_hints": False, "route_limit": 2, "runtime": {"implementation": "cython", "native_build": native},
             }},
         }
-        for name, count in (("smoke", 12), ("guards", 18), ("matrix", 180), ("corpus", 397)):
+        for name, count in (("smoke", 14), ("guards", 30), ("matrix", 180), ("corpus", 397)):
             (self.directory / (name + ".gate.json")).write_text(json.dumps({"passed": True, "v4_verified": 397}))
             (self.directory / (name + ".metadata.json")).write_text(json.dumps(metadata))
             (self.directory / (name + ".jsonl")).write_text((json.dumps(row) + "\n") * count)

@@ -24,7 +24,7 @@ def validate_evidence(directory, revision, *, root=ROOT):
     if not directory.is_relative_to(root / "debug-artifacts"):
         raise ValueError("Evidence must be inside the repository's debug-artifacts directory")
     identities = []
-    for name, expected in (("smoke", 12), ("guards", 18), ("matrix", 180), ("corpus", 397)):
+    for name, expected in (("smoke", 14), ("guards", 30), ("matrix", 180), ("corpus", 397)):
         gate = json.loads((directory / (name + ".gate.json")).read_text())
         metadata = json.loads((directory / (name + ".metadata.json")).read_text())
         rows = [json.loads(line) for line in (directory / (name + ".jsonl")).read_text().splitlines() if line]

@@ -25,7 +25,7 @@ from solver.push_solver.benchmark_v4 import (
     repetition_gate,
 )
 
-GUARDS = ("20260301", "20260802", "20261024")
+GUARDS = ("20260301", "20260802", "20261024", "20260705", "20250928")
 
 
 def main():

@@ -1295,7 +1295,9 @@ class Session:
         ]
         done = set()
         while len(done) < len(lanes):
-            for index in range(len(lanes)):
+            # Preserve CPU for the original global stream, with two slices for
+            # width 32, the focused stream and width 96. All lanes stay live.
+            for index in (0, 5, 1, 2, 3, 4, 5, 1, 2, 3, 5):
                 if index in done:
                     continue
                 before = self.nodes

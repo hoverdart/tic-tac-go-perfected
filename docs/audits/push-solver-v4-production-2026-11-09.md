@@ -196,6 +196,32 @@ Six-lane kernel: `83f0c9ddbeecf30c7436e966660c5376664faf2f92c8f05f726364950390e3
 Runner remains `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
 Its cohorts are recorded separately in `six-lane-linux`.
 
+### Weighted allocation follow-up
+
+The equal six-lane candidate passes 397/397 locally (38.33 mean moves, 8.95s
+maximum), all local repetitions and hosted smoke. Its hosted Grand Meridian
+guard passes only one of three warm trials, and all three fresh trials reach
+the 30-second process cap. The complete failed guard cohort remains in
+`cloudrun-3bc7245`; full hosted cohorts do not start after that failed gate.
+The four extra November 7–10 official boards all verify in read-only hosted
+probes, including both originally requested dates.
+
+Winner instrumentation shows different difficult boards depend on different
+streams. The next allocation gives the original global width-48 stream three
+slices, width 32 / focused width 48 / width 96 two each, and widths 16 / 24 one
+each. Every slice still ends after 32 expansions and all share the same node
+and absolute time budgets. This cuts the Grand Meridian local probe to 5.83s
+while preserving the other slow probes. No board-specific branch is added.
+
+The hosted guard set now also includes July 5 and September 28: fourteen smoke
+boards, thirty extra fresh/warm guard trials, the original 180 mandatory trials
+and the complete 397-board corpus are required. Both Python and compiled
+PostgreSQL suites still pass 215 tests. This candidate's local cohorts are in
+`balanced-linux`.
+
+Weighted kernel: `e9260b91e7f2cd4104d61a591ce22f5d046a46df325f4b659c158f6ba41932b0`.
+Runner remains `9bf23c9c58e1f62f4dc083b08b3f1a2063990a710759d95780f675fe18e13fb3`.
+
 With the existing cron secret available locally:
 
 ```sh
