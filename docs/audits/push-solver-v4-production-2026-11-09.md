@@ -77,6 +77,27 @@ and intentionally does not rewrite a fingerprinted benchmark candidate.
 
 ## Reproduce hosted qualification
 
+### Initial hosted failure and execution environment follow-up
+
+The first code deployment (`4175abb`, Cloud Run revision `00055-2tg`) passes CI
+but fails the hosted smoke gate: March 14, Peninsula Problems, and Immovable
+Objects time out. The full matrix and corpus do not run after that failed gate.
+V3 stays selected. The complete failed cohort is retained in `cloudrun-4175abb`.
+
+Local checkpoint batching, quadrupling the score cache, and compiling the Python
+modules provide only modest improvements. Vectorizing refined route selection
+also fails to produce a material speedup. These explicitly monkeypatched
+experiments are diagnostic controls, not release receipts. Their scripts and
+outputs are under `experiments/`; no experimental kernel was promoted.
+
+Cloud Run's [execution environment documentation](https://docs.cloud.google.com/run/docs/configuring/execution-environments)
+recommends its second-generation microVM for CPU-intensive workloads and states
+that it provides faster sustained CPU performance and full Linux compatibility.
+The follow-up deployment explicitly selects `gen2`, retains the same kernel,
+budgets and V3 daily selection, and records CPU/memory/concurrency settings.
+Its complete cohorts must pass on that new revision before promotion. Local
+development hardware is not treated as a substitute for that evidence.
+
 With the existing cron secret available locally:
 
 ```sh

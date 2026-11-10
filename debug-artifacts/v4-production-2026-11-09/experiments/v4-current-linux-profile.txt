@@ -1,0 +1,59 @@
+True 28.828893681056798
+         93615301 function calls (89261144 primitive calls) in 28.155 seconds
+
+   Ordered by: internal time
+   List reduced from 797 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   149442    4.761    0.000    8.367    0.000 v4.py:506(ranked_rows)
+  1893636    2.411    0.000   20.383    0.000 v4.py:760(_produce_successors)
+  7181285    1.546    0.000    1.985    0.000 v4.py:43(cells)
+  1085748    1.132    0.000   11.503    0.000 v4.py:605(score)
+   195859    0.998    0.000    0.998    0.000 v4.py:230(reachable)
+  1788188    0.988    0.000    1.506    0.000 v4.py:465(best_route)
+5988749/1783249    0.982    0.000   27.964    0.000 {built-in method builtins.next}
+  1605902    0.941    0.000   23.063    0.000 v4.py:1293(serial_beam_search)
+ 10062099    0.852    0.000    0.852    0.000 {built-in method time.perf_counter}
+  1008695    0.847    0.000    1.346    0.000 v4.py:222(put)
+  4737250    0.745    0.000    0.745    0.000 {method 'get' of 'dict' objects}
+  1608896    0.732    0.000   24.467    0.000 v4.py:1265(coverage_beam_search)
+  1605910    0.675    0.000   21.261    0.000 v4.py:1379(search)
+  8698636    0.655    0.000    0.655    0.000 {method 'bit_count' of 'int' objects}
+    67699    0.602    0.000    0.602    0.000 {method 'argsort' of 'numpy.ndarray' objects}
+  3566603    0.538    0.000    0.937    0.000 v4.py:218(checkpoint)
+      153    0.532    0.003   28.809    0.188 v4.py:1324(advance)
+   501654    0.523    0.000    1.173    0.000 v4.py:701(o_push_count)
+  1609422    0.490    0.000   22.001    0.000 v4.py:988(children)
+  6586856    0.448    0.000    0.448    0.000 {method 'bit_length' of 'int' objects}
+  5001184    0.404    0.000    0.405    0.000 {built-in method builtins.isinstance}
+   818784    0.349    0.000    0.365    0.000 v4.py:714(plan_bias)
+   913429    0.348    0.000    9.986    0.000 v4.py:951(successors)
+  4111869    0.347    0.000    0.347    0.000 {method 'append' of 'list' objects}
+4777042/4776991    0.346    0.000    0.346    0.000 {built-in method builtins.len}
+   915677    0.339    0.000    0.339    0.000 {method 'popitem' of 'collections.OrderedDict' objects}
+   102349    0.329    0.000    0.996    0.000 v4.py:302(frozen)
+   709525    0.302    0.000    0.764    0.000 v4.py:493(materialize_plan)
+  1783245    0.275    0.000   27.671    0.000 v4.py:1124(search)
+  1854948    0.264    0.000    0.414    0.000 v4.py:214(check)
+    52716    0.248    0.000    0.436    0.000 v4.py:878(commitment_score)
+  1946535    0.241    0.000    0.241    0.000 {built-in method builtins.max}
+  1608896    0.220    0.000   24.687    0.000 v4.py:1187(beam_search)
+   503407    0.209    0.000    0.387    0.000 v4.py:707(<genexpr>)
+905232/759720    0.206    0.000    0.740    0.000 {built-in method builtins.min}
+  1594675    0.206    0.000    0.206    0.000 {method 'move_to_end' of 'collections.OrderedDict' objects}
+   969122    0.201    0.000   11.174    0.000 v4.py:852(single_successor)
+   140629    0.193    0.000    0.237    0.000 {method 'sort' of 'list' objects}
+   566278    0.190    0.000    0.190    0.000 v4.py:278(<genexpr>)
+   921132    0.185    0.000    0.550    0.000 v4.py:843(<genexpr>)
+   113156    0.167    0.000    0.342    0.000 v4.py:908(commitment_bias)
+   105266    0.164    0.000    0.194    0.000 v4.py:439(geometry)
+   130172    0.156    0.000    1.718    0.000 v4.py:318(deadlock)
+   969122    0.143    0.000   11.318    0.000 v4.py:862(macro_continuation)
+      5/4    0.111    0.022    0.112    0.028 {built-in method _imp.exec_dynamic}
+   129637    0.104    0.000    0.349    0.000 v4.py:277(x_loss)
+   512789    0.098    0.000    0.098    0.000 v4.py:261(goal)
+   129715    0.056    0.000    0.243    0.000 {built-in method builtins.any}
+    82532    0.055    0.000    0.443    0.000 {built-in method builtins.sum}
+   236847    0.033    0.000    0.033    0.000 v4.py:369(canonical_route)
+
+
