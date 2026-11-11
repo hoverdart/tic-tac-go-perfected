@@ -71,11 +71,13 @@ function SolutionSummary({
   isDemo,
   isTodayPage,
   isOptimizedPage = false,
+  optimalityProven = false,
 }: {
   solution: SolutionRecord;
   isDemo: boolean;
   isTodayPage: boolean;
   isOptimizedPage?: boolean;
+  optimalityProven?: boolean;
 }) {
   const date = formatLongDate(solution.puzzle_date);
   const subject = isTodayPage
@@ -99,6 +101,11 @@ function SolutionSummary({
           above follows the recorded solution from the starting board to the
           completed line.
         </p>
+        {isOptimizedPage && (
+          <p>
+            {optimalityProven ? "Shortest path verified." : "Best verified path found so far; a shorter path may exist."} Every walk and push counts as one move.
+          </p>
+        )}
         <p className="solution-moves">
           <strong>Move sequence:</strong> <code>{moveSequence}</code>
           {directions && <span>{directions}</span>}
@@ -173,22 +180,24 @@ export function GameView({
           <time dateTime={currentSolution.puzzle_date}>{formatDate(currentSolution.puzzle_date)}</time>
           <span>{statusText(currentSolution.status, isDemo, currentSolution.puzzle_title)}</span>
         </div>
-      </header>
-
-      {optimized && (
-        <div className="optimized-navigation">
-          {isOptimizedPage ? (
-            <>
-              <p>{optimized.optimalityProven ? "Shortest path verified." : "Best verified path found so far; a shorter path may exist."} Every walk and push counts as one move.</p>
-              <GardenLink href={`/solutions/${currentSolution.puzzle_date}`}>View daily solution</GardenLink>
-            </>
-          ) : (
-            <GardenLink href={`/solutions/${currentSolution.puzzle_date}/optimized`}>
-              Optimized solution <span>· {optimized.moveCount} moves{optimized.optimalityProven ? " · shortest path verified" : ""}</span>
+        {optimized && (
+          <nav className="solution-version-nav" aria-label="Solution version">
+            <GardenLink
+              href={isTodayPage ? "/" : `/solutions/${currentSolution.puzzle_date}`}
+              aria-current={isOptimizedPage ? undefined : "page"}
+            >
+              Daily solution
             </GardenLink>
-          )}
-        </div>
-      )}
+            <GardenLink
+              href={`/solutions/${currentSolution.puzzle_date}/optimized`}
+              aria-current={isOptimizedPage ? "page" : undefined}
+            >
+              <span>Optimized solution</span>
+              <span className="solution-version-count">{optimized.moveCount} moves</span>
+            </GardenLink>
+          </nav>
+        )}
+      </header>
 
       <SolveDashboard
         board={currentSolution.board}
@@ -208,6 +217,7 @@ export function GameView({
         isDemo={isDemo}
         isTodayPage={isTodayPage}
         isOptimizedPage={isOptimizedPage}
+        optimalityProven={optimized?.optimalityProven}
       />
       {!isTodayPage && <SolutionHintsSection solution={currentSolution} />}
 

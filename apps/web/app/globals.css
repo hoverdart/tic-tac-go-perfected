@@ -981,30 +981,52 @@ a:focus-visible {
 .optimized-archive li a:hover > span:first-child { text-decoration-thickness: 2px; }
 .optimized-archive li a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
-.optimized-navigation {
-  width: min(calc(100% - 40px), 68ch);
-  margin: 0 auto 24px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #2f4129;
-  text-align: center;
-  color: #fff4eb;
-  font-size: 14px;
-  line-height: 1.6;
+.optimized-archive-header .garden-nav {
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0 0;
+  text-shadow: none;
 }
 
-.optimized-navigation p { margin: 0 0 8px; }
-.optimized-navigation a {
-  display: inline-block;
-  padding: 10px 12px;
-  color: #fff4eb;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  border-radius: 8px;
+.solution-version-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  width: min(calc(100% - 32px), 380px);
+  margin-top: 24px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--paper);
+  text-shadow: none;
 }
-.optimized-navigation a:hover { background: rgba(255, 244, 235, 0.12); }
-.optimized-navigation a:focus-visible { outline: 2px solid #fff4eb; outline-offset: 3px; }
-.optimized-navigation span { white-space: normal; }
+
+.solution-version-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+  transition: background 160ms ease;
+}
+
+.solution-version-nav a:hover { background: #e1ead4; }
+.solution-version-nav a[aria-current="page"] { background: #30412f; color: var(--paper); }
+.solution-version-nav a:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.solution-version-count { font-size: 12px; font-weight: 500; }
+
+@media (max-width: 350px) {
+  .solution-version-nav a { font-size: 13px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .garden-leaves, .garden-controls { display: none; }

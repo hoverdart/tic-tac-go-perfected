@@ -18,8 +18,10 @@ export default async function OptimizedSolutionsPage() {
   const months = [...new Set(solutions.map((row) => row.puzzle_date.slice(0, 7)))];
   return (
     <main className="guide-page">
-      <GardenNav current="optimized" />
-      <header className="garden-page-header"><h1>Optimized solutions</h1></header>
+      <header className="garden-page-header optimized-archive-header">
+        <h1>Optimized solutions</h1>
+        <GardenNav current="optimized" />
+      </header>
       <article className="guide-paper optimized-archive">
         <p className="guide-lead">Explore {solutions.length} verified paths from optimized-v1. Every walk and push counts as one move. “Shortest path verified” means no shorter solution exists; other paths are the best we’ve found so far.</p>
         {months.map((month) => (
