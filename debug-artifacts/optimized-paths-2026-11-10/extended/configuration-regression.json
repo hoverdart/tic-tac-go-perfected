@@ -1,0 +1,16 @@
+{
+  "baseline_commit": "d639cdc2ca9cf21bc281a3f630a33331faab9651",
+  "before": {
+    "mixed_case": "20250927",
+    "replacement_mode": "repair",
+    "cohort_mode": "exact",
+    "accepted_by_v1_checker": true,
+    "changed_budget_regression_test": "failed_as_expected_before_fix"
+  },
+  "fix": "v2 binds schema, engine, archive inputs, options, and recorded runtime in metadata, every result row, and summary",
+  "regressions": [
+    "test_receipt_verifier_rejects_changed_configuration",
+    "test_receipt_verifier_rejects_row_from_other_configuration"
+  ],
+  "after": "both regression tests pass"
+}

@@ -16,6 +16,7 @@ from solver.board_utils import normalize_board
 from solver.legacy_solver import apply_single_move, lost_check, solved
 from solver.optimized_paths import optimize
 from solver.optimized_paths.bank import load_bank
+from solver.optimized_paths.benchmark import configuration_sha256
 from solver.optimized_paths.lower_bound import build_pattern_database
 from solver.optimized_paths.model import Budget, Geometry, LimitReached
 from solver.optimized_paths.search import bounded_astar
@@ -413,6 +414,36 @@ class BankTest(unittest.TestCase):
             metadata = json.loads(path.read_text())
             metadata["engine_sources"]["solver/optimized_paths/search.py"] = "wrong"
             path.write_text(json.dumps(metadata))
+            with self.assertRaises(ValueError):
+                verify_cohort(output, manifest)
+
+    def test_receipt_verifier_rejects_changed_configuration(self):
+        with TemporaryDirectory() as directory:
+            manifest, output = self.make_cohort(Path(directory))
+            path = output / "metadata.json"
+            metadata = json.loads(path.read_text())
+            metadata["options"]["seconds"] = 2
+            path.write_text(json.dumps(metadata))
+            with self.assertRaises(ValueError):
+                verify_cohort(output, manifest)
+
+    def test_receipt_verifier_rejects_row_from_other_configuration(self):
+        with TemporaryDirectory() as directory:
+            manifest, output = self.make_cohort(Path(directory))
+            path = output / "metadata.json"
+            metadata = json.loads(path.read_text())
+            metadata["options"]["seconds"] = 2
+            metadata["configuration_sha256"] = configuration_sha256(
+                metadata["engine_sha256"],
+                metadata["inputs"],
+                metadata["options"],
+                metadata["runtime"],
+            )
+            path.write_text(json.dumps(metadata))
+            summary_path = output / "summary.json"
+            summary = json.loads(summary_path.read_text())
+            summary["configuration_sha256"] = metadata["configuration_sha256"]
+            summary_path.write_text(json.dumps(summary))
             with self.assertRaises(ValueError):
                 verify_cohort(output, manifest)
 

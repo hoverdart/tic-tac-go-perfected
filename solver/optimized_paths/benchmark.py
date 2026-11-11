@@ -33,6 +33,19 @@ def engine_sources():
     }
 
 
+def configuration_sha256(engine_sha256, inputs, options, runtime):
+    payload = {
+        "schema": "optimized-path-benchmark-v2",
+        "engine_sha256": engine_sha256,
+        "inputs": inputs,
+        "options": options,
+        "runtime": runtime,
+    }
+    return sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, required=True)
@@ -59,7 +72,7 @@ def main():
     }
     sources = engine_sources()
     metadata = {
-        "schema": "optimized-path-benchmark-v1",
+        "schema": "optimized-path-benchmark-v2",
         "scope": "archive_seeded_optimization",
         "fresh_solver_benchmark": False,
         "options": options,
@@ -79,6 +92,9 @@ def main():
             "reused_v4": runtime_environment(),
         },
     }
+    metadata["configuration_sha256"] = configuration_sha256(
+        metadata["engine_sha256"], metadata["inputs"], options, metadata["runtime"]
+    )
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "metadata.json").write_text(
         json.dumps(metadata, indent=2) + "\n"
@@ -94,6 +110,7 @@ def main():
                 "board_sha256": case.board_sha256,
                 "seed_count": len(seeds),
                 "engine_sha256": metadata["engine_sha256"],
+                "configuration_sha256": metadata["configuration_sha256"],
             }
             if not seeds:
                 row.update(status="missing_seed", verified=False)
@@ -121,6 +138,7 @@ def main():
     summary = {
         "scope": metadata["scope"],
         "engine_sha256": metadata["engine_sha256"],
+        "configuration_sha256": metadata["configuration_sha256"],
         "expected_boards": len(selected),
         "verified": len(valid),
         "errors": sum(row["status"] == "error" for row in receipts),

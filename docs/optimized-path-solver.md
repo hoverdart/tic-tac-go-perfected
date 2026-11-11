@@ -136,11 +136,54 @@ An earlier pre-formatting development cohort was retained locally in
 `/tmp/tictacgo-paths-initial-20bffa13`; the table above uses only the final
 fingerprinted cohorts checked into this branch.
 
+## Extended correctness testing
+
+The original implementation passes CI at `d639cdc`: **242 Python tests** pass
+against PostgreSQL, the same 242 pass in the compiled production container,
+and all **34 web tests**, lint, and the isolated web build pass.
+
+Two independently generated batches cover **1,200 boards** across 3x3, 3x4,
+4x3, 4x4, and 2x4 geometries, with two/three movable Os, walls, and up to three
+Xs. The independent legacy unit-step BFS finds 573 solvable cases, exhausts
+619 unsolvable cases, and rejects eight initial X losses. Of the solvable cases,
+294 deliberately supply a longer-than-optimal seed. The optimizer passes:
+
+- 2,292 checks at four different expansion caps;
+- 424 rotation/reflection checks;
+- 7,632 deterministic checkpoint interruptions during exact search.
+
+Every returned interval contains the independent minimum; every completed proof
+agrees with it. The relaxed starting bound also never exceeds the oracle cost.
+All 282 original corpus certificates were attempted with independent unit-step
+BFS: **115 are independently confirmed**, and 167 hit the 20,000-node oracle cap
+and remain **inconclusive**, with no contradictions. Evidence is in `stress/`
+and `extended/stress-xs3/`. The original harness snapshot is retained with its
+source fingerprint. These are correctness probes, not timing measurements.
+
+### Receipt configuration regression
+
+Testing found that v1 could accept one case copied from a different mode when
+its counts happened to match. A concrete reproduction replaces exact-mode
+case `20250927` with its repair-mode receipt. A separate regression changing
+the recorded time budget also failed to raise before the fix.
+
+Schema **v2** binds the engine, complete archive inputs, options, and recorded
+runtime in a configuration digest included in metadata, **every case**, and the
+summary. Tests reject both changed metadata and a row with another configuration
+even after the metadata/summary digest is updated. All **109 related tests**
+pass after the fix. This is consistency checking, not a cryptographic signature.
+The optimization/geometry/lower-bound kernels are unchanged by this repair.
+
+The original v1 cohorts remain preserved at `d639cdc` with their original source
+fingerprints. The current verifier intentionally requires v2; use a separate
+worktree at `d639cdc` to replay v1 evidence with its matching verifier. New
+cohorts under `extended/` use v2 and a frozen source snapshot in `run-plan.json`.
+
 ## Next milestones
 
 The first implementation reproduces the graph baseline, improves beyond the
 best inputs, and cross-checks its exact mode/lower bounds against independent
-unit-step BFS. Completed measurements are recorded below.
+unit-step BFS. Completed measurements are recorded above.
 
 - Compare 10-, 60-, and 300-second cohorts with the one-second baseline; do not
   tune board-specific routing from the evaluation results.
@@ -185,6 +228,11 @@ PYTHONPATH=. .venv/bin/python -m unittest tests.test_optimized_paths
 
 PYTHONPATH=. .venv/bin/python -m solver.optimized_paths.verify_benchmark \
   /tmp/optimized-paths-exact \
+  --manifest debug-artifacts/optimized-paths-2026-11-10/inputs.json
+
+PYTHONPATH=. .venv/bin/python scripts/stress_optimized_paths.py \
+  --output-dir /tmp/optimized-paths-stress --generated 600 --max-xs 3 \
+  --cohort /tmp/optimized-paths-exact \
   --manifest debug-artifacts/optimized-paths-2026-11-10/inputs.json
 ```
 

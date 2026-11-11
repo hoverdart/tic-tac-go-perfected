@@ -9,7 +9,7 @@ from pathlib import Path
 from solver.push_solver.verify import verify_solution
 
 from .bank import ROOT, load_bank
-from .benchmark import engine_sources
+from .benchmark import configuration_sha256, engine_sources
 
 
 def require(condition, message):
@@ -27,6 +27,10 @@ def verify_cohort(output_dir, manifest, *, root=ROOT):
     ]
     bank = load_bank(manifest, root=root)
     require(
+        metadata["schema"] == "optimized-path-benchmark-v2",
+        "Unsupported receipt schema",
+    )
+    require(
         metadata["engine_sources"] == engine_sources(), "Source fingerprints changed"
     )
     require(
@@ -40,6 +44,17 @@ def verify_cohort(output_dir, manifest, *, root=ROOT):
         summary["engine_sha256"] == metadata["engine_sha256"]
         and summary["scope"] == metadata["scope"],
         "Mixed summary identity",
+    )
+    require(
+        metadata["configuration_sha256"]
+        == configuration_sha256(
+            metadata["engine_sha256"],
+            metadata["inputs"],
+            metadata["options"],
+            metadata["runtime"],
+        )
+        and summary["configuration_sha256"] == metadata["configuration_sha256"],
+        "Configuration fingerprint differs",
     )
     require(metadata["inputs"] == bank.manifest, "Bank inputs changed")
     require(
@@ -68,7 +83,8 @@ def verify_cohort(output_dir, manifest, *, root=ROOT):
         )
         require(
             row["board_sha256"] == bank.cases[key].board_sha256
-            and row["engine_sha256"] == metadata["engine_sha256"],
+            and row["engine_sha256"] == metadata["engine_sha256"]
+            and row["configuration_sha256"] == metadata["configuration_sha256"],
             "Mixed case identity",
         )
         if row["status"] != "verified":
