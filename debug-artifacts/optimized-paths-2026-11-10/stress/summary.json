@@ -1,0 +1,36 @@
+{
+  "scope": "independent_correctness_stress_not_timing_benchmark",
+  "seed": 20261110,
+  "generated_requested": 600,
+  "oracle_node_cap": 20000,
+  "counts": {
+    "generated_solved": 304,
+    "nonoptimal_seeds": 158,
+    "generated_optimizer_checks": 1216,
+    "symmetry_checks": 264,
+    "generated_unsolvable": 296,
+    "checkpoint_checks": 3816,
+    "corpus_independently_confirmed": 115,
+    "corpus_inconclusive_node_cap": 167
+  },
+  "elapsed_seconds": 260.8127919159597,
+  "engine_sources": {
+    "apps/api/puzzle_catalog.py": "3ddf963c30946aabc2a96a486dbf17189f4d591d2789a4ab8140bf3b3caad6f7",
+    "solver/board_utils.py": "52cb77ef542e8bc1a267e454c6dc1ee58a3cb4ea7f7963594b9ff25bd77c3658",
+    "solver/optimized_paths/__init__.py": "ba4264cdd6a6d0e4652f4aba9f3de9f0c601a9785fd3bb86e8f3aa483e1c8c91",
+    "solver/optimized_paths/__main__.py": "c8c717ffd912a702f5b96ea1feb5eb2cbe26b646bf16373bcd477851d39e7506",
+    "solver/optimized_paths/bank.py": "eb059a81f5d95829966fde8d3d9c76f82b3517526f8b44d421946465958a2c90",
+    "solver/optimized_paths/benchmark.py": "a090be36c2fd9ea966e4865933cf3b72a0d8fc82e4a90a7b79ac8ddacd449fc6",
+    "solver/optimized_paths/lower_bound.py": "2cb352b7dad2d861cf86f67b9ff4cb94124e5ccd30c183bbd48fd48c7b2954e5",
+    "solver/optimized_paths/model.py": "e01b5c8c00c9d8ea208878cf0dc5198fee631a0d3870767deb8abed635197ff4",
+    "solver/optimized_paths/search.py": "fe1e9327ca7b4fe6dd847e8df65e6d78f5bcc8c00e037bfd0ae6f77e30831557",
+    "solver/optimized_paths/verify_benchmark.py": "12d1039f4e952760a0aa9408b1930eb24a313a07051ebb0ca82e479cff3e1b7c",
+    "solver/push_solver/models.py": "50249adf9145dc53f0f1ca114241722689b9d7e657d30a25afbe74ce395ae0dc",
+    "solver/push_solver/path_optimizer.py": "bf136bbb4b2987aeba9944ebbf782704492a62e772340ea0adae27e037d2c372",
+    "solver/push_solver/v4.py": "347aeb88a061b90a5abc12468e00982c02032a53cd3a75ccc396d246b7139c22",
+    "solver/push_solver/verify.py": "4e83d461014a57a50067ff5bf2251d663bc730322099f1f57d31533634f201f7"
+  },
+  "harness_sha256": "ed1178e319f4a5a89ddfd9d95df1858bd7007d04d8985f7b7a76c8c138bfa036",
+  "oracle_source_sha256": "86a6f718141ea52b74b753c858b2d293c070b8d28c12000b212ca55513cc9ccf",
+  "all_checks_passed": true
+}

@@ -4,6 +4,7 @@ import { formatLongDate } from "./solution-data";
 import { HistoryCarousel } from "./history-carousel";
 import { buildSolutionExplanation } from "./solution-explanation";
 import { SolutionHints } from "./solution-hints";
+import { GardenLink } from "./garden-shell";
 
 type SolveStep = {
   move: string;
@@ -40,6 +41,8 @@ type Props = {
   isDemo: boolean;
   isTodayPage: boolean;
   loadSharedHistory?: boolean;
+  optimized?: { moveCount: number; optimalityProven: boolean };
+  isOptimizedPage?: boolean;
 };
 
 function formatDate(date: string): string {
@@ -67,10 +70,12 @@ function SolutionSummary({
   solution,
   isDemo,
   isTodayPage,
+  isOptimizedPage = false,
 }: {
   solution: SolutionRecord;
   isDemo: boolean;
   isTodayPage: boolean;
+  isOptimizedPage?: boolean;
 }) {
   const date = formatLongDate(solution.puzzle_date);
   const subject = isTodayPage
@@ -88,7 +93,7 @@ function SolutionSummary({
       .join(", ");
     return (
       <section className="solution-summary" aria-labelledby="solution-summary-title">
-        <h2 id="solution-summary-title">Solution summary</h2>
+        <h2 id="solution-summary-title">{isOptimizedPage ? "Optimized solution" : "Solution summary"}</h2>
         <p>
           {namedSubject} was solved in {solution.moves.length} moves. The replay
           above follows the recorded solution from the starting board to the
@@ -131,10 +136,14 @@ export function GameView({
   isDemo,
   isTodayPage,
   loadSharedHistory = false,
+  optimized,
+  isOptimizedPage = false,
 }: Props) {
   const currentSolution = initialSolution;
   const titleSuffix = currentSolution.puzzle_title ? `: ${currentSolution.puzzle_title}` : "";
-  const heading = isTodayPage
+  const heading = isOptimizedPage
+    ? `Tic Tac Go Optimized Solution: ${formatLongDate(currentSolution.puzzle_date)}${titleSuffix}`
+    : isTodayPage
     ? "Tic Tac Go Solution Today"
     : `Tic Tac Go Solution: ${formatLongDate(currentSolution.puzzle_date)}${titleSuffix}`;
   const jsonLd = {
@@ -159,12 +168,27 @@ export function GameView({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <header className="game-header">
         <h1 className={isTodayPage ? undefined : "historical-heading"}>{heading}</h1>
-        <p>{isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
+        <p>{isOptimizedPage ? "optimized-v1" : isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
         <div className="date-pill">
           <time dateTime={currentSolution.puzzle_date}>{formatDate(currentSolution.puzzle_date)}</time>
           <span>{statusText(currentSolution.status, isDemo, currentSolution.puzzle_title)}</span>
         </div>
       </header>
+
+      {optimized && (
+        <div className="optimized-navigation">
+          {isOptimizedPage ? (
+            <>
+              <p>{optimized.optimalityProven ? "Shortest path verified." : "Best verified path found so far; a shorter path may exist."} Every walk and push counts as one move.</p>
+              <GardenLink href={`/solutions/${currentSolution.puzzle_date}`}>View daily solution</GardenLink>
+            </>
+          ) : (
+            <GardenLink href={`/solutions/${currentSolution.puzzle_date}/optimized`}>
+              Optimized solution <span>· {optimized.moveCount} moves{optimized.optimalityProven ? " · shortest path verified" : ""}</span>
+            </GardenLink>
+          )}
+        </div>
+      )}
 
       <SolveDashboard
         board={currentSolution.board}
@@ -183,6 +207,7 @@ export function GameView({
         solution={currentSolution}
         isDemo={isDemo}
         isTodayPage={isTodayPage}
+        isOptimizedPage={isOptimizedPage}
       />
       {!isTodayPage && <SolutionHintsSection solution={currentSolution} />}
 
@@ -191,6 +216,7 @@ export function GameView({
         currentDate={currentSolution.puzzle_date}
         isTodayPage={isTodayPage}
         loadSharedHistory={loadSharedHistory}
+        optimized={isOptimizedPage}
       />
     </>
   );

@@ -1,0 +1,1694 @@
+[
+  {
+    "id": "20250101",
+    "moves": 6,
+    "status": "independently_confirmed",
+    "oracle_expanded": 23
+  },
+  {
+    "id": "20260302",
+    "moves": 6,
+    "status": "independently_confirmed",
+    "oracle_expanded": 98
+  },
+  {
+    "id": "20261020",
+    "moves": 6,
+    "status": "independently_confirmed",
+    "oracle_expanded": 175
+  },
+  {
+    "id": "20251208",
+    "moves": 7,
+    "status": "independently_confirmed",
+    "oracle_expanded": 62
+  },
+  {
+    "id": "20260722",
+    "moves": 7,
+    "status": "independently_confirmed",
+    "oracle_expanded": 102
+  },
+  {
+    "id": "20260908",
+    "moves": 7,
+    "status": "independently_confirmed",
+    "oracle_expanded": 134
+  },
+  {
+    "id": "20251117",
+    "moves": 8,
+    "status": "independently_confirmed",
+    "oracle_expanded": 134
+  },
+  {
+    "id": "20260209",
+    "moves": 8,
+    "status": "independently_confirmed",
+    "oracle_expanded": 52
+  },
+  {
+    "id": "20260720",
+    "moves": 8,
+    "status": "independently_confirmed",
+    "oracle_expanded": 56
+  },
+  {
+    "id": "20251201",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 115
+  },
+  {
+    "id": "20251222",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 42
+  },
+  {
+    "id": "20260810",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 185
+  },
+  {
+    "id": "20260825",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 323
+  },
+  {
+    "id": "20260921",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 436
+  },
+  {
+    "id": "20261005",
+    "moves": 9,
+    "status": "independently_confirmed",
+    "oracle_expanded": 418
+  },
+  {
+    "id": "20250929",
+    "moves": 10,
+    "status": "independently_confirmed",
+    "oracle_expanded": 361
+  },
+  {
+    "id": "20260223",
+    "moves": 10,
+    "status": "independently_confirmed",
+    "oracle_expanded": 911
+  },
+  {
+    "id": "20260316",
+    "moves": 10,
+    "status": "independently_confirmed",
+    "oracle_expanded": 239
+  },
+  {
+    "id": "20260713",
+    "moves": 10,
+    "status": "independently_confirmed",
+    "oracle_expanded": 299
+  },
+  {
+    "id": "20260528",
+    "moves": 11,
+    "status": "independently_confirmed",
+    "oracle_expanded": 492
+  },
+  {
+    "id": "20251023",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1180
+  },
+  {
+    "id": "20251103",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1002
+  },
+  {
+    "id": "20260112",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 289
+  },
+  {
+    "id": "20260216",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 211
+  },
+  {
+    "id": "20260413",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1762
+  },
+  {
+    "id": "20260618",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2554
+  },
+  {
+    "id": "20260907",
+    "moves": 12,
+    "status": "independently_confirmed",
+    "oracle_expanded": 3084
+  },
+  {
+    "id": "20251006",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 305
+  },
+  {
+    "id": "20251027",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 773
+  },
+  {
+    "id": "20251029",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 235
+  },
+  {
+    "id": "20260119",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 113
+  },
+  {
+    "id": "20260126",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 625
+  },
+  {
+    "id": "20260608",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 776
+  },
+  {
+    "id": "20260803",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1495
+  },
+  {
+    "id": "20260929",
+    "moves": 13,
+    "status": "independently_confirmed",
+    "oracle_expanded": 7359
+  },
+  {
+    "id": "20251124",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 701
+  },
+  {
+    "id": "20260113",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 417
+  },
+  {
+    "id": "20260127",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1290
+  },
+  {
+    "id": "20260203",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2258
+  },
+  {
+    "id": "20260224",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2676
+  },
+  {
+    "id": "20260408",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1129
+  },
+  {
+    "id": "20260727",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1691
+  },
+  {
+    "id": "20260824",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1986
+  },
+  {
+    "id": "20260923",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1501
+  },
+  {
+    "id": "20261001",
+    "moves": 14,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261012",
+    "moves": 14,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1182
+  },
+  {
+    "id": "20251013",
+    "moves": 15,
+    "status": "independently_confirmed",
+    "oracle_expanded": 233
+  },
+  {
+    "id": "20251110",
+    "moves": 15,
+    "status": "independently_confirmed",
+    "oracle_expanded": 107
+  },
+  {
+    "id": "20260330",
+    "moves": 15,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5422
+  },
+  {
+    "id": "20261021",
+    "moves": 15,
+    "status": "independently_confirmed",
+    "oracle_expanded": 6728
+  },
+  {
+    "id": "20251224",
+    "moves": 16,
+    "status": "independently_confirmed",
+    "oracle_expanded": 14680
+  },
+  {
+    "id": "20260602",
+    "moves": 16,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2744
+  },
+  {
+    "id": "20260807",
+    "moves": 16,
+    "status": "independently_confirmed",
+    "oracle_expanded": 19497
+  },
+  {
+    "id": "20260922",
+    "moves": 16,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251125",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 3458
+  },
+  {
+    "id": "20251126",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 10074
+  },
+  {
+    "id": "20260120",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2818
+  },
+  {
+    "id": "20260318",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 18259
+  },
+  {
+    "id": "20260407",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5876
+  },
+  {
+    "id": "20260430",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 7396
+  },
+  {
+    "id": "20260831",
+    "moves": 17,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260914",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 6972
+  },
+  {
+    "id": "20261013",
+    "moves": 17,
+    "status": "independently_confirmed",
+    "oracle_expanded": 8400
+  },
+  {
+    "id": "20251020",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 353
+  },
+  {
+    "id": "20251220",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 8985
+  },
+  {
+    "id": "20260105",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 762
+  },
+  {
+    "id": "20260225",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 18236
+  },
+  {
+    "id": "20260305",
+    "moves": 18,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260604",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2902
+  },
+  {
+    "id": "20260622",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5484
+  },
+  {
+    "id": "20260629",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 9040
+  },
+  {
+    "id": "20260811",
+    "moves": 18,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261019",
+    "moves": 18,
+    "status": "independently_confirmed",
+    "oracle_expanded": 7733
+  },
+  {
+    "id": "20251210",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 10564
+  },
+  {
+    "id": "20260106",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 11498
+  },
+  {
+    "id": "20260214",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 10508
+  },
+  {
+    "id": "20260525",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2358
+  },
+  {
+    "id": "20260702",
+    "moves": 19,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260716",
+    "moves": 19,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260723",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 17209
+  },
+  {
+    "id": "20260901",
+    "moves": 19,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260909",
+    "moves": 19,
+    "status": "independently_confirmed",
+    "oracle_expanded": 11088
+  },
+  {
+    "id": "20251008",
+    "moves": 20,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5270
+  },
+  {
+    "id": "20251231",
+    "moves": 20,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2071
+  },
+  {
+    "id": "20260204",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260309",
+    "moves": 20,
+    "status": "independently_confirmed",
+    "oracle_expanded": 4587
+  },
+  {
+    "id": "20260428",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260609",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260630",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260725",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260729",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260822",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260826",
+    "moves": 20,
+    "status": "independently_confirmed",
+    "oracle_expanded": 3209
+  },
+  {
+    "id": "20260902",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260925",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260928",
+    "moves": 20,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260129",
+    "moves": 21,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260202",
+    "moves": 21,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260304",
+    "moves": 21,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260311",
+    "moves": 21,
+    "status": "independently_confirmed",
+    "oracle_expanded": 9091
+  },
+  {
+    "id": "20260420",
+    "moves": 21,
+    "status": "independently_confirmed",
+    "oracle_expanded": 10120
+  },
+  {
+    "id": "20260817",
+    "moves": 21,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2001
+  },
+  {
+    "id": "20260915",
+    "moves": 21,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261008",
+    "moves": 21,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251007",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5110
+  },
+  {
+    "id": "20251114",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251229",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 392
+  },
+  {
+    "id": "20260108",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1161
+  },
+  {
+    "id": "20260114",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 13316
+  },
+  {
+    "id": "20260122",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260303",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260313",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260331",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 810
+  },
+  {
+    "id": "20260511",
+    "moves": 22,
+    "status": "independently_confirmed",
+    "oracle_expanded": 12617
+  },
+  {
+    "id": "20260518",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260520",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260621",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260707",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260808",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260814",
+    "moves": 22,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251009",
+    "moves": 23,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1178
+  },
+  {
+    "id": "20260406",
+    "moves": 23,
+    "status": "independently_confirmed",
+    "oracle_expanded": 15489
+  },
+  {
+    "id": "20260409",
+    "moves": 23,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260507",
+    "moves": 23,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251031",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251216",
+    "moves": 24,
+    "status": "independently_confirmed",
+    "oracle_expanded": 3243
+  },
+  {
+    "id": "20260401",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260412",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260414",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260421",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260504",
+    "moves": 24,
+    "status": "independently_confirmed",
+    "oracle_expanded": 692
+  },
+  {
+    "id": "20260512",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260519",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260719",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260821",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260827",
+    "moves": 24,
+    "status": "independently_confirmed",
+    "oracle_expanded": 10462
+  },
+  {
+    "id": "20260927",
+    "moves": 24,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20250930",
+    "moves": 25,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2582
+  },
+  {
+    "id": "20260217",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260328",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260429",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260529",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260611",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260714",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260728",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260818",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261015",
+    "moves": 25,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261022",
+    "moves": 25,
+    "status": "independently_confirmed",
+    "oracle_expanded": 13583
+  },
+  {
+    "id": "20251112",
+    "moves": 26,
+    "status": "independently_confirmed",
+    "oracle_expanded": 16085
+  },
+  {
+    "id": "20251118",
+    "moves": 26,
+    "status": "independently_confirmed",
+    "oracle_expanded": 9705
+  },
+  {
+    "id": "20260121",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260206",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260210",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260317",
+    "moves": 26,
+    "status": "independently_confirmed",
+    "oracle_expanded": 13548
+  },
+  {
+    "id": "20260325",
+    "moves": 26,
+    "status": "independently_confirmed",
+    "oracle_expanded": 15972
+  },
+  {
+    "id": "20260425",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260506",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260805",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260819",
+    "moves": 26,
+    "status": "independently_confirmed",
+    "oracle_expanded": 19028
+  },
+  {
+    "id": "20260828",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261002",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261007",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261014",
+    "moves": 26,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251022",
+    "moves": 27,
+    "status": "independently_confirmed",
+    "oracle_expanded": 967
+  },
+  {
+    "id": "20260101",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260109",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260205",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260310",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260315",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260320",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260404",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260423",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260505",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260521",
+    "moves": 27,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251111",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260115",
+    "moves": 28,
+    "status": "independently_confirmed",
+    "oracle_expanded": 17331
+  },
+  {
+    "id": "20260218",
+    "moves": 28,
+    "status": "independently_confirmed",
+    "oracle_expanded": 3865
+  },
+  {
+    "id": "20260226",
+    "moves": 28,
+    "status": "independently_confirmed",
+    "oracle_expanded": 15877
+  },
+  {
+    "id": "20260228",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260326",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260405",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260526",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260601",
+    "moves": 28,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2949
+  },
+  {
+    "id": "20260603",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260616",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260625",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260710",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260804",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260916",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260930",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261006",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20261017",
+    "moves": 28,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251203",
+    "moves": 29,
+    "status": "independently_confirmed",
+    "oracle_expanded": 16824
+  },
+  {
+    "id": "20251204",
+    "moves": 29,
+    "status": "independently_confirmed",
+    "oracle_expanded": 6595
+  },
+  {
+    "id": "20251209",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260130",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260422",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260426",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260617",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260820",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260910",
+    "moves": 29,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251021",
+    "moves": 30,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5264
+  },
+  {
+    "id": "20251211",
+    "moves": 30,
+    "status": "independently_confirmed",
+    "oracle_expanded": 5349
+  },
+  {
+    "id": "20260110",
+    "moves": 30,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260324",
+    "moves": 30,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260415",
+    "moves": 30,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260509",
+    "moves": 30,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260615",
+    "moves": 30,
+    "status": "independently_confirmed",
+    "oracle_expanded": 7065
+  },
+  {
+    "id": "20260721",
+    "moves": 30,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251205",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251217",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251218",
+    "moves": 31,
+    "status": "independently_confirmed",
+    "oracle_expanded": 4409
+  },
+  {
+    "id": "20260312",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260319",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260327",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260424",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260623",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260626",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260708",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260813",
+    "moves": 31,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251015",
+    "moves": 32,
+    "status": "independently_confirmed",
+    "oracle_expanded": 2408
+  },
+  {
+    "id": "20251030",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251122",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260411",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260701",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260704",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260812",
+    "moves": 32,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251104",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251115",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251223",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251225",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251230",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260116",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260128",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260211",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260917",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260924",
+    "moves": 33,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251016",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251121",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251123",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260102",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260402",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260416",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260619",
+    "moves": 34,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251010",
+    "moves": 35,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260131",
+    "moves": 35,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251001",
+    "moves": 36,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260323",
+    "moves": 36,
+    "status": "independently_confirmed",
+    "oracle_expanded": 1679
+  },
+  {
+    "id": "20260606",
+    "moves": 36,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260610",
+    "moves": 36,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260703",
+    "moves": 36,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260706",
+    "moves": 36,
+    "status": "independently_confirmed",
+    "oracle_expanded": 15746
+  },
+  {
+    "id": "20261011",
+    "moves": 36,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251025",
+    "moves": 37,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251120",
+    "moves": 37,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251226",
+    "moves": 37,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20250926",
+    "moves": 39,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251012",
+    "moves": 39,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251109",
+    "moves": 39,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251003",
+    "moves": 40,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260207",
+    "moves": 40,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251127",
+    "moves": 41,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251219",
+    "moves": 41,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251011",
+    "moves": 42,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251018",
+    "moves": 42,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260111",
+    "moves": 42,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251002",
+    "moves": 44,
+    "status": "independently_confirmed",
+    "oracle_expanded": 6953
+  },
+  {
+    "id": "20251119",
+    "moves": 44,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251106",
+    "moves": 45,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251215",
+    "moves": 47,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20250925",
+    "moves": 48,
+    "status": "independently_confirmed",
+    "oracle_expanded": 14368
+  },
+  {
+    "id": "20251017",
+    "moves": 48,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251014",
+    "moves": 49,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251102",
+    "moves": 49,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251113",
+    "moves": 49,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260107",
+    "moves": 49,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20260427",
+    "moves": 49,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251028",
+    "moves": 50,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251128",
+    "moves": 52,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251206",
+    "moves": 52,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251004",
+    "moves": 53,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  },
+  {
+    "id": "20251202",
+    "moves": 54,
+    "status": "inconclusive_node_cap",
+    "oracle_expanded": 20000
+  }
+]

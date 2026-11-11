@@ -1,0 +1,103 @@
+{
+  "scope": "Independent legacy unit-step BFS; 12 shortest certified corpus cases selected by move count then ID",
+  "case_node_cap": 50000,
+  "checks": [
+    {
+      "id": "20250101",
+      "name": "Tutorial",
+      "independent_minimum_moves": 6,
+      "optimizer_moves": 6,
+      "expanded": 23,
+      "matches": true
+    },
+    {
+      "id": "20260302",
+      "name": "Boom Gate",
+      "independent_minimum_moves": 6,
+      "optimizer_moves": 6,
+      "expanded": 98,
+      "matches": true
+    },
+    {
+      "id": "20261020",
+      "name": "Open Field",
+      "independent_minimum_moves": 6,
+      "optimizer_moves": 6,
+      "expanded": 175,
+      "matches": true
+    },
+    {
+      "id": "20251208",
+      "name": "Watch Your Step",
+      "independent_minimum_moves": 7,
+      "optimizer_moves": 7,
+      "expanded": 62,
+      "matches": true
+    },
+    {
+      "id": "20260722",
+      "name": "Symmetry",
+      "independent_minimum_moves": 7,
+      "optimizer_moves": 7,
+      "expanded": 102,
+      "matches": true
+    },
+    {
+      "id": "20260908",
+      "name": "Exiled",
+      "independent_minimum_moves": 7,
+      "optimizer_moves": 7,
+      "expanded": 134,
+      "matches": true
+    },
+    {
+      "id": "20251117",
+      "name": "Trapped",
+      "independent_minimum_moves": 8,
+      "optimizer_moves": 8,
+      "expanded": 134,
+      "matches": true
+    },
+    {
+      "id": "20260209",
+      "name": "Piece of Cake",
+      "independent_minimum_moves": 8,
+      "optimizer_moves": 8,
+      "expanded": 52,
+      "matches": true
+    },
+    {
+      "id": "20260720",
+      "name": "Coffee Table",
+      "independent_minimum_moves": 8,
+      "optimizer_moves": 8,
+      "expanded": 56,
+      "matches": true
+    },
+    {
+      "id": "20251201",
+      "name": "No Diagonals",
+      "independent_minimum_moves": 9,
+      "optimizer_moves": 9,
+      "expanded": 115,
+      "matches": true
+    },
+    {
+      "id": "20251222",
+      "name": "Leapfrog",
+      "independent_minimum_moves": 9,
+      "optimizer_moves": 9,
+      "expanded": 42,
+      "matches": true
+    },
+    {
+      "id": "20260810",
+      "name": "Autumn Leaves",
+      "independent_minimum_moves": 9,
+      "optimizer_moves": 9,
+      "expanded": 185,
+      "matches": true
+    }
+  ],
+  "all_match": true
+}

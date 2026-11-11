@@ -33,6 +33,7 @@ type Props = {
   currentDate: string;
   isTodayPage: boolean;
   loadSharedHistory: boolean;
+  optimized?: boolean;
 };
 
 export function HistoryCarousel({
@@ -40,6 +41,7 @@ export function HistoryCarousel({
   currentDate,
   isTodayPage,
   loadSharedHistory,
+  optimized = false,
 }: Props) {
   const [history, setHistory] = useState(initialHistory);
 
@@ -77,6 +79,7 @@ export function HistoryCarousel({
       <div className="history-resources">
         <Link href="/how-to-solve-tic-tac-go">Learn solving strategies</Link>
         <Link href="/custom-tic-tac-go-solver">Solve your own board</Link>
+        <Link href="/optimized-solutions">Optimized solutions</Link>
       </div>
       {history.length > 0 && (
         <div className="history-scroll">
@@ -85,7 +88,7 @@ export function HistoryCarousel({
             return (
               <Link
                 key={entry.puzzle_date}
-                href={`/solutions/${entry.puzzle_date}`}
+                href={`/solutions/${entry.puzzle_date}${optimized ? "/optimized" : ""}`}
                 prefetch={false}
                 className={[
                   "history-tile",

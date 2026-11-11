@@ -1,0 +1,684 @@
+[
+  {
+    "fixture": 0,
+    "board": [
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "X",
+        "",
+        "U"
+      ]
+    ],
+    "seed": "ULULLDDRULUR",
+    "minimum_moves": 2,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 1,
+    "board": [
+      [
+        "",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "",
+        ""
+      ],
+      [
+        "U",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "URRURULLRDDLL",
+    "minimum_moves": 9,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 2,
+    "board": [
+      [
+        "U",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "B"
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "O"
+      ]
+    ],
+    "seed": "DDRULURDDD",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 3,
+    "board": [
+      [
+        "",
+        "B",
+        "",
+        "U"
+      ],
+      [
+        "",
+        "O",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "LDLDLURRRDLLUL",
+    "minimum_moves": 1,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 4,
+    "board": [
+      [
+        "O",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "B",
+        "U",
+        ""
+      ],
+      [
+        "",
+        "X",
+        ""
+      ]
+    ],
+    "seed": "RDLUURU",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 5,
+    "board": [
+      [
+        "",
+        "",
+        "U"
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "DDULLDRD",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 6,
+    "board": [
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "U",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "B"
+      ]
+    ],
+    "seed": "DUURRDRDLLRUULLD",
+    "minimum_moves": 7,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 7,
+    "board": [
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "X"
+      ],
+      [
+        "O",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "U"
+      ]
+    ],
+    "seed": "ULUURDDUULL",
+    "minimum_moves": 2,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 8,
+    "board": [
+      [
+        "O",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "O",
+        "U"
+      ],
+      [
+        "B",
+        "",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "ULLDRUR",
+    "minimum_moves": 5,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 9,
+    "board": [
+      [
+        "",
+        "O",
+        "O",
+        ""
+      ],
+      [
+        "U",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "RRRU",
+    "minimum_moves": 1,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 10,
+    "board": [
+      [
+        "",
+        "",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "O",
+        "B",
+        ""
+      ],
+      [
+        "",
+        "",
+        "X",
+        "O"
+      ],
+      [
+        "",
+        "",
+        "X",
+        "U"
+      ]
+    ],
+    "seed": "LLUUDDRRU",
+    "minimum_moves": 1,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 11,
+    "board": [
+      [
+        "",
+        "O",
+        "U"
+      ],
+      [
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        ""
+      ]
+    ],
+    "seed": "LDLDRDRUULU",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 12,
+    "board": [
+      [
+        "B",
+        "X",
+        ""
+      ],
+      [
+        "O",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "X",
+        ""
+      ],
+      [
+        "U",
+        "",
+        ""
+      ]
+    ],
+    "seed": "URDRUU",
+    "minimum_moves": 4,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 13,
+    "board": [
+      [
+        "O",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        ""
+      ],
+      [
+        "",
+        "U",
+        "",
+        "B"
+      ]
+    ],
+    "seed": "ULURURRDLLDL",
+    "minimum_moves": 4,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 14,
+    "board": [
+      [
+        "",
+        "",
+        "O",
+        "U"
+      ],
+      [
+        "",
+        "",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "LDDRULLLUR",
+    "minimum_moves": 7,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 15,
+    "board": [
+      [
+        "X",
+        "U",
+        "",
+        ""
+      ],
+      [
+        "",
+        "X",
+        "",
+        "O"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "O"
+      ]
+    ],
+    "seed": "DDUURRD",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 16,
+    "board": [
+      [
+        "U",
+        "X",
+        "",
+        "B"
+      ],
+      [
+        "",
+        "",
+        "O",
+        "O"
+      ],
+      [
+        "",
+        "X",
+        "",
+        ""
+      ]
+    ],
+    "seed": "RLDDRRLU",
+    "minimum_moves": 2,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 17,
+    "board": [
+      [
+        "",
+        "",
+        "O"
+      ],
+      [
+        "U",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "DRRULDLURU",
+    "minimum_moves": 3,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 18,
+    "board": [
+      [
+        "",
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "O",
+        "",
+        ""
+      ],
+      [
+        "U",
+        "",
+        "",
+        "X"
+      ]
+    ],
+    "seed": "UURDRRULDL",
+    "minimum_moves": 4,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 19,
+    "board": [
+      [
+        "X",
+        "",
+        "O"
+      ],
+      [
+        "U",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        ""
+      ],
+      [
+        "O",
+        "X",
+        ""
+      ]
+    ],
+    "seed": "RRDLUL",
+    "minimum_moves": 4,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 20,
+    "board": [
+      [
+        "",
+        "O",
+        "U",
+        ""
+      ],
+      [
+        "",
+        "B",
+        "",
+        ""
+      ],
+      [
+        "O",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "seed": "DDDLLUUDRRUU",
+    "minimum_moves": 8,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 21,
+    "board": [
+      [
+        "",
+        "B",
+        "",
+        "O"
+      ],
+      [
+        "O",
+        "U",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "B",
+        "O"
+      ]
+    ],
+    "seed": "DLURRR",
+    "minimum_moves": 2,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 22,
+    "board": [
+      [
+        "",
+        "X",
+        "O"
+      ],
+      [
+        "O",
+        "",
+        ""
+      ],
+      [
+        "",
+        "U",
+        "O"
+      ]
+    ],
+    "seed": "LURR",
+    "minimum_moves": 2,
+    "checkpoints": 159
+  },
+  {
+    "fixture": 23,
+    "board": [
+      [
+        "O",
+        "",
+        ""
+      ],
+      [
+        "",
+        "O",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "B",
+        "U"
+      ]
+    ],
+    "seed": "UUULDRDLUL",
+    "minimum_moves": 5,
+    "checkpoints": 159
+  }
+]

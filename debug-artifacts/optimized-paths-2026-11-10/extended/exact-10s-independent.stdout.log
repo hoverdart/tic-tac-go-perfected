@@ -1,0 +1,15 @@
+{
+  "scope": "independent_set_based_oracle_not_timing_benchmark",
+  "cohort_configuration_sha256": "2557084ec6f6b88b40fc89215f7e6aa3222180f6bc4e8c68a6f04270ebdf2c35",
+  "expected_claims": 324,
+  "completed_checks": 324,
+  "counts": {
+    "confirmed": 203,
+    "inconclusive_node_cap": 64,
+    "inconclusive_timeout": 57
+  },
+  "seconds_per_case": 1.0,
+  "max_nodes": 20000,
+  "oracle_source_sha256": "ae025468b244270ef3585ebc2e88b70502f6ffe12b40a213b30957aba1f8db37",
+  "no_contradictions": true
+}

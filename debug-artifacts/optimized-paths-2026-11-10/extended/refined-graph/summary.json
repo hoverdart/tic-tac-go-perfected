@@ -1,0 +1,18 @@
+{
+  "scope": "archive_seeded_optimization",
+  "engine_sha256": "5e12fd2eb16f0e3c2ff9582c4ace02e2138fe2fecf24b1496e9e9e6703179555",
+  "configuration_sha256": "92109d1f58cad7a6502cef6950b9cd1decdd83054f87c4a5810393ee350730a7",
+  "expected_boards": 397,
+  "verified": 397,
+  "errors": 0,
+  "missing_seeds": 0,
+  "complete": true,
+  "all_verified": true,
+  "mean_seed_moves": 32.05793450881612,
+  "mean_moves": 32.05793450881612,
+  "total_moves": 12727,
+  "moves_saved": 0,
+  "boards_improved": 0,
+  "globally_proven": 0,
+  "max_elapsed_ms": 9.065165999345481
+}

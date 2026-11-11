@@ -1,0 +1,13 @@
+{
+  "scope": "development-selected guards, not a full-corpus cohort",
+  "selection": "three smallest unresolved positive gaps in exact-10s, plus the unresolved additional-O case",
+  "ids": [
+    "20260219",
+    "20260222",
+    "20261023",
+    "20251221"
+  ],
+  "seconds": 60,
+  "max_nodes": 200000,
+  "reason": "72/73 unresolved full-corpus cases reached the 100000 expansion cap; measure a bounded increase"
+}
