@@ -54,6 +54,8 @@ jobs:
           npm test
           npm run lint
       - name: Build against an isolated local API
+        env:
+          OPTIMIZED_V1_FEED_URL: ''
         run: |
           python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000 > /tmp/tictacgo-api.log 2>&1 &
           curl --fail --retry 20 --retry-connrefused --retry-delay 1 http://127.0.0.1:8000/health

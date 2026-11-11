@@ -1,11 +1,14 @@
-# Optimized-path solver
+# optimized-v1
 
 ## Objective and boundary
 
 Minimize total direction keystrokes: walking and pushing each cost one. A
 solution with more pushes may be preferable. This is a standalone, offline
 optimizer seeded with independently verified solutions. It does not replace
-V4, change daily/custom routing, read the production database, or publish paths.
+V4, change daily/custom routing, or read the production database. Its public name
+is **optimized-v1**; `solver.optimized_v1` is the named entry point. The internal
+`solver.optimized_paths` package retains its path so historical source fingerprints
+and receipts remain reproducible. Publication is a separate local process.
 
 V4 remains the coverage solver. V1–V4 and older verified solutions provide
 alternative trajectories. The optimizer retains the shortest valid input and
@@ -257,6 +260,86 @@ retains per-board path and lower-bound provenance for future training export.
 Whole-board identity splits are still required before learning. No model was
 trained or enabled during these tests, and production V4 remains untouched.
 
+## Website publication and local operation
+
+`scripts/update_optimized_v1.py` exports independently replay-verified paths
+to `apps/web/data/optimized-v1.json` and, with `--publish`, to the isolated
+**optimized-v1-data** Git branch. It never imports database storage, calls the
+hosted solver, or modifies daily V4 records. Publication writes only the data
+branch and uses ordinary fast-forward pushes. It cannot push to main.
+
+The November 11 local backfill covers **414/414 released catalog boards**, with
+**31.99275 average moves** and **340 completed-search shortest-path certificates**.
+It combines the preceding 397-board bank with 17 newer local V4 seeds, radius-two
+repairs, and exact searches (10 nominal seconds / 100,000 nodes per phase).
+This is cumulative bank quality, not a single fresh-search budget. Google also
+bundles unreleased boards; these are excluded by UTC puzzle date at export and
+again on the website. New-board search receipts accompany the data branch;
+earlier proof provenance remains attached to each bank entry.
+
+Each path has a server-rendered page at `/solutions/YYYY-MM-DD/optimized`, titled
+**Optimized solution**, with a self canonical URL, metadata, hint-first replay,
+and text move sequence. A matching board on a daily page links directly to it.
+The `/optimized-solutions` archive links all released paths without JavaScript,
+and the sitemap includes every optimized page. Only certified paths say
+**Shortest path verified**; other paths remain explicitly best known. These
+routes inherit the garden, leaves, reduced-motion support, and navigation transitions.
+
+The website fetches the public data branch with five-minute caching and page
+revalidation. New data needs no deployment. Bundled paths provide an outage
+fallback; a missing newer path during an outage throws rather than caching a
+false 404. A healthy remote snapshot is authoritative about removed dates,
+including changed official layouts not solved again yet. Same-board path
+regressions and contradictions with bundled certificates are rejected. The
+sitemap/archive throw on feed outages to retain good cached content rather
+than advertise a partial archive. Set `OPTIMIZED_V1_FEED_URL=""` to use only
+the bundled snapshot, as in isolated CI.
+
+The worker checks Google's public catalog, skips unchanged solved dates, retries
+missing dates, and runs V4 plus optimized-v1 **locally** for new boards. It replays
+answers, checkpoints each successful board, and publishes atomically. Each board
+runs in a separate process with a hard outer timeout; engine budgets remain
+cooperative as documented above. A process lock prevents overlapping updates.
+A changed official board discards the old path before a fresh solve. Failures
+are recorded in `last-run.json` and never produce links or pages. There are no
+database reads or writes in this worker.
+
+```sh
+PYTHONPATH=. .venv/bin/python scripts/update_optimized_v1.py \
+  --state-dir "$HOME/Library/Application Support/tic-tac-go/optimized-v1" \
+  --bootstrap-manifest debug-artifacts/optimized-paths-2026-11-10/extended/inputs-refined.json \
+  --certificates debug-artifacts/optimized-paths-2026-11-10/extended/analysis/certified-paths.jsonl \
+  --output apps/web/data/optimized-v1.json
+
+# Publish only to the isolated data branch:
+PYTHONPATH=. .venv/bin/python scripts/update_optimized_v1.py \
+  --state-dir "$HOME/Library/Application Support/tic-tac-go/optimized-v1" --publish
+
+# After committing and pushing tested code, install the local updater:
+.venv/bin/python scripts/install_optimized_v1_worker.py \
+  --state-dir "$HOME/Library/Application Support/tic-tac-go/optimized-v1"
+```
+
+The macOS LaunchAgent **com.tictacgo.optimized-v1** runs on load and hourly while
+the user is logged in and the computer is awake. It catches up on missed dates
+when it next runs; it does not wake a sleeping computer. Its source is pinned to
+the installed committed revision in an isolated sparse checkout, with its own
+standard-library-only Python environment. Git authentication uses the existing
+local credential helper; no production environment file is copied. Logs and
+checkpoint state live in the chosen state directory.
+
+```sh
+launchctl print "gui/$(id -u)/com.tictacgo.optimized-v1"
+launchctl bootout "gui/$(id -u)/com.tictacgo.optimized-v1"
+```
+
+The unloaded job remains installed for the next login; remove its plist from
+`~/Library/LaunchAgents/com.tictacgo.optimized-v1.plist` to disable it permanently.
+Publication tests cover monotonic updates, contradictory certificates, duplicate
+dates, geometry mismatches, illegal paths, and early wins. Web tests independently
+replay the full bundled corpus and exercise outages, fresh dates, future dates,
+indexability, and board matching.
+
 ## Next milestones
 
 The first implementation reproduces the graph baseline, improves beyond the
@@ -277,9 +360,9 @@ unit-step BFS. Completed measurements are recorded above.
   their suffix states, by optimal substructure. Keep those labels distinct
   from unproven feasible suffix lengths. They still do not make a learned
   predictor admissible on unseen states.
-- Production integration comes later: V4 publishes first; a separate worker
-  improves verified seeds and conditionally replaces only a strictly longer
-  solution for the identical board. Preserve source/provenance and receipts.
+- Keep optimized-v1 as a separate publication stream during further search/memory
+  work. V4 remains the daily coverage solver; optimized paths do not replace its
+  database rows.
 
 ## Running the prototype
 

@@ -17,6 +17,12 @@ The September 8, 2026 production audit found **348 daily boards marked solved ou
 
 ## Production push solver V4
 
+**optimized-v1** publishes a separate verified best-path bank and indexable
+`/solutions/YYYY-MM-DD/optimized` pages. Its local updater performs all search
+and backfill work, then publishes a static feed on `optimized-v1-data`; it uses
+neither the database nor hosted solver compute. Browse `/optimized-solutions`
+for the archive. See [the algorithm and local updater guide](docs/optimized-path-solver.md).
+
 Production selects `DAILY_PUSH_SOLVER_VERSION=v4`. Daily jobs also accept `v3`
 for rollback; the source fallback remains `v3` when the variable is absent.
 Custom/direct routing is unchanged. The push budget remains

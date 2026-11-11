@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GameView } from "./game-view";
+import { getOptimizedSolutions, matchesOptimizedBoard } from "./optimized-solution-data";
 import {
   formatLongDate,
   getFullHistory,
@@ -8,7 +9,7 @@ import {
 } from "./solution-data";
 
 export const dynamic = "force-static";
-export const revalidate = false;
+export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const { solution } = await getTodaySolution();
@@ -22,10 +23,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [{ solution, isDemo }, history] = await Promise.all([
+  const [{ solution, isDemo }, history, optimizedSolutions] = await Promise.all([
     getTodaySolution(),
     getFullHistory(),
+    getOptimizedSolutions(),
   ]);
+  const optimized = optimizedSolutions.find((row) => row.puzzle_date === solution.puzzle_date) ?? null;
 
   return (
     <main className="page">
@@ -35,6 +38,7 @@ export default async function Home() {
           history={history}
           isDemo={isDemo}
           isTodayPage
+          optimized={!isDemo && matchesOptimizedBoard(solution, optimized) && optimized ? { moveCount: optimized.moves.length, optimalityProven: optimized.optimality_proven } : undefined}
         />
 
         <footer className="site-footer">

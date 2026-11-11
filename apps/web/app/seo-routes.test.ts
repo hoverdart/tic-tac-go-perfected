@@ -2,6 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import robots from "./robots";
 import sitemap, { dynamic, revalidate } from "./sitemap";
 
+vi.mock("./optimized-solution-data", () => ({
+  getOptimizedSolutions: vi.fn().mockResolvedValue([{
+    puzzle_date: "2026-07-15", updated_at: "2026-11-11T08:00:00Z",
+  }]),
+}));
+
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
@@ -67,6 +73,8 @@ describe("SEO metadata routes", () => {
       "https://tictacgo.shauryav.com/",
       "https://tictacgo.shauryav.com/solutions/2026-07-15",
       "https://tictacgo.shauryav.com/solutions/2026-07-14",
+      "https://tictacgo.shauryav.com/optimized-solutions",
+      "https://tictacgo.shauryav.com/solutions/2026-07-15/optimized",
       "https://tictacgo.shauryav.com/how-to-solve-tic-tac-go",
       "https://tictacgo.shauryav.com/custom-tic-tac-go-solver",
     ]);
@@ -83,7 +91,7 @@ describe("SEO metadata routes", () => {
       { puzzle_date: "2026-07-14", status: "unsolved", puzzle_title: "Still trying" },
     ]))));
     const entries = await sitemap();
-    expect(entries.filter((entry) => entry.url.includes("/solutions/"))).toHaveLength(1);
+    expect(entries.filter((entry) => entry.url.includes("/solutions/") && !entry.url.endsWith("/optimized"))).toHaveLength(1);
     expect(entries.find((entry) => entry.url.endsWith("how-to-solve-tic-tac-go"))?.lastModified).toBeUndefined();
   });
 
