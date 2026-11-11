@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ArrowRight, Eraser, LoaderCircle, RotateCcw, Square } from "lucide-react";
 import { SolvePlayer } from "./solve-player";
 import { buildReplayFrames, type Cell } from "./replay-model";
 
@@ -17,7 +18,18 @@ type CustomResult = {
   remaining: number | null;
 };
 
-const CYCLE: Cell[] = ["", "X", "O", "U", "B"];
+const PIECES: { value: Cell; label: string }[] = [
+  { value: "U", label: "Player" }, { value: "O", label: "O" },
+  { value: "X", label: "X" }, { value: "B", label: "Wall" },
+  { value: "", label: "Erase" },
+];
+const EDIT_HELP = "Choose a piece, then tap a square to place it.";
+
+function PieceMark({ cell }: { cell: Cell }) {
+  if (cell === "") return <Eraser size={18} aria-hidden="true" />;
+  if (cell === "B") return <Square size={18} fill="currentColor" aria-hidden="true" />;
+  return <span className={`custom-piece replay-piece-${cell.toLowerCase()}`} aria-hidden="true"><span className="piece-mark" /></span>;
+}
 
 function blankBoard(rows: number, columns: number): Cell[][] {
   const board = Array.from({ length: rows }, () => Array<Cell>(columns).fill(""));
@@ -32,13 +44,14 @@ export function CustomBoardMaker() {
   const [columns, setColumns] = useState(6);
   const [board, setBoard] = useState<Cell[][]>(() => blankBoard(6, 6));
   const [result, setResult] = useState<CustomResult | null>(null);
-  const [message, setMessage] = useState("Click a tile to cycle: empty, X, O, player, wall.");
+  const [selectedPiece, setSelectedPiece] = useState<Cell>("X");
+  const [message, setMessage] = useState(EDIT_HELP);
   const [loading, setLoading] = useState(false);
   const frames = useMemo(() => result ? buildReplayFrames(result.start_board, result.moves) : [], [result]);
 
   function resize(nextRows: number, nextColumns: number) {
-    const safeRows = Math.max(3, Math.min(8, Number.isFinite(nextRows) ? nextRows : rows));
-    const safeColumns = Math.max(3, Math.min(8, Number.isFinite(nextColumns) ? nextColumns : columns));
+    const safeRows = Math.max(3, Math.min(8, Number.isFinite(nextRows) ? Math.trunc(nextRows) : rows));
+    const safeColumns = Math.max(3, Math.min(8, Number.isFinite(nextColumns) ? Math.trunc(nextColumns) : columns));
     const next = Array.from({ length: safeRows }, (_, row) =>
       Array.from({ length: safeColumns }, (_, column) => board[row]?.[column] ?? ""),
     );
@@ -47,17 +60,16 @@ export function CustomBoardMaker() {
     setColumns(safeColumns);
     setBoard(next);
     setResult(null);
+    setMessage(EDIT_HELP);
   }
 
-  function cycleCell(row: number, column: number) {
+  function placePiece(row: number, column: number) {
     setBoard((current) => current.map((line, rowIndex) => line.map((cell, columnIndex) => {
-      if (rowIndex !== row || columnIndex !== column) return cell;
-      const next = CYCLE[(CYCLE.indexOf(cell) + 1) % CYCLE.length]!;
-      return next;
-    })).map((line, rowIndex) => line.map((cell, columnIndex) =>
-      cell === "U" && (rowIndex !== row || columnIndex !== column) && CYCLE[(CYCLE.indexOf(current[row]?.[column] ?? "") + 1) % CYCLE.length] === "U" ? "" : cell,
-    )));
+      if (rowIndex === row && columnIndex === column) return selectedPiece;
+      return selectedPiece === "U" && cell === "U" ? "" : cell;
+    })));
     setResult(null);
+    setMessage(EDIT_HELP);
   }
 
   async function solve() {
@@ -95,26 +107,34 @@ export function CustomBoardMaker() {
 
   return (
     <section className="custom-solver" aria-labelledby="custom-board-title">
-      <div className="custom-size-controls">
-        <label>Rows <input type="number" min="3" max="8" value={rows} onChange={(event) => resize(Number(event.target.value), columns)} /></label>
-        <label>Columns <input type="number" min="3" max="8" value={columns} onChange={(event) => resize(rows, Number(event.target.value))} /></label>
-        <button type="button" className="hint-button" onClick={() => { setBoard(blankBoard(rows, columns)); setResult(null); }}>Reset board</button>
-      </div>
-      <div className="custom-board" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }} aria-label="Editable Tic Tac Go board">
-        {board.flatMap((line, row) => line.map((cell, column) => (
-          <button key={`${row}-${column}`} type="button" className={`custom-cell custom-cell-${cell || "empty"}`} onClick={() => cycleCell(row, column)} aria-label={`Row ${row + 1}, column ${column + 1}: ${cell || "empty"}`}>
-            {cell === "U" ? "◉" : cell === "O" ? "○" : cell === "X" ? "×" : cell === "B" ? "■" : ""}
-          </button>
-        )))}
-      </div>
+      <h2 id="custom-board-title">Build your board</h2>
+      <fieldset className="custom-editor" disabled={loading}>
+        <legend className="sr-only">Board size and pieces</legend>
+        <div className="custom-size-controls">
+          <label>Rows <select value={rows} onChange={(event) => resize(Number(event.target.value), columns)}>{[3, 4, 5, 6, 7, 8].map((size) => <option key={size}>{size}</option>)}</select></label>
+          <label>Columns <select value={columns} onChange={(event) => resize(rows, Number(event.target.value))}>{[3, 4, 5, 6, 7, 8].map((size) => <option key={size}>{size}</option>)}</select></label>
+          <button type="button" className="custom-reset" onClick={() => { setBoard(blankBoard(rows, columns)); setResult(null); setMessage(EDIT_HELP); }}><RotateCcw size={15} aria-hidden="true" /> Reset board</button>
+        </div>
+        <div className="custom-palette" role="group" aria-label="Choose a piece">
+          {PIECES.map(({ value, label }) => <button key={label} type="button" className="custom-tool" aria-pressed={selectedPiece === value} onClick={() => setSelectedPiece(value)}><PieceMark cell={value} /><span>{label}</span></button>)}
+        </div>
+        <p className="custom-instructions" id="custom-instructions">Choose a piece. Tap a square. Make it yours.</p>
+        <div className="custom-board" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }} aria-label="Editable Tic Tac Go board">
+          {board.flatMap((line, row) => line.map((cell, column) => (
+            <button key={`${row}-${column}`} type="button" className={`custom-cell custom-cell-${cell || "empty"}`} onClick={() => placePiece(row, column)} aria-label={`Row ${row + 1}, column ${column + 1}: ${cell ? PIECES.find((piece) => piece.value === cell)?.label : "empty"}`} aria-describedby="custom-instructions">
+              {cell !== "" && <PieceMark cell={cell} />}
+            </button>
+          )))}
+        </div>
+      </fieldset>
       <button type="button" className="custom-solve-button" onClick={solve} disabled={loading}>
-        {loading ? "Solving…" : "Solve this board"}
+        {loading ? <><LoaderCircle className="custom-loading" size={18} aria-hidden="true" /> Finding a route…</> : <>Solve this board <ArrowRight size={18} aria-hidden="true" /></>}
       </button>
       <p className="custom-status" role="status">{message}</p>
       {result && (
         <div className="custom-result">
           <p><strong>{result.solved ? "Verified solution" : "No route found"}</strong> · {result.states_checked.toLocaleString()} states · {(result.elapsed_ms / 1000).toFixed(2)} s</p>
-          {result.solved && <SolvePlayer frames={frames} emptyMessage="Board pending" />}
+          {result.solved && <SolvePlayer key={result.moves} frames={frames} emptyMessage="Board pending" />}
         </div>
       )}
     </section>

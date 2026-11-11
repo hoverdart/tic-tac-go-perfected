@@ -4,6 +4,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getSiteUrl } from "./site-url";
+import { GardenShell } from "./garden-shell";
 
 export const metadata: Metadata = {
   metadataBase: getSiteUrl(),
@@ -18,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col"><GardenShell>{children}</GardenShell></body>
     </html>
   );
 }

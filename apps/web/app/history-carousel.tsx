@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { GardenLink as Link } from "./garden-shell";
 import { useEffect, useState } from "react";
 import type { HistoryEntry } from "./game-view";
 
