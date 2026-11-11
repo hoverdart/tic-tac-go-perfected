@@ -179,14 +179,93 @@ fingerprints. The current verifier intentionally requires v2; use a separate
 worktree at `d639cdc` to replay v1 evidence with its matching verifier. New
 cohorts under `extended/` use v2 and a frozen source snapshot in `run-plan.json`.
 
+## Longer budgets and independent proof checks
+
+The v2 runs use engine fingerprint
+`5e12fd2eb16f0e3c2ff9582c4ace02e2138fe2fecf24b1496e9e9e6703179555`.
+All five complete cohorts below retain **397/397** verified paths with no errors
+or missing seeds and a 100,000-expansion cap. They run sequentially against the
+same original bank; elapsed budgets are cooperative. Process peak RSS comes
+from macOS `/usr/bin/time -l`, not an isolated hosted measurement.
+
+| Cohort | Nominal seconds | Mean moves | Paths shortened vs inputs | Globally shortest | Process peak RSS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Observed graph | 1 | 34.97733 | 6 | 0 | 49.98 MiB |
+| Radius-one repair | 1 | 33.61713 | 75 | 0 | 51.91 MiB |
+| Exact A* | 1 | 33.83627 | 73 | 281 | 126.48 MiB |
+| Exact A* | 10 | **32.93955** | **97** | **324** | 777.72 MiB |
+| Radius-two repair, 32,768 layouts | 10 | 33.09068 | 93 | 0 | 65.58 MiB |
+
+The ten-second exact run shortens 35 paths relative to its matching one-second
+control, saving another 356 moves; none grow longer. Widening repair shortens
+45 paths relative to radius one, saving 209 moves; none grow longer. The earlier
+v1 one-second result differs slightly under its timer, so it remains a separate
+cohort instead of replacing the new control. No failed runs are omitted.
+
+Of the 73 unresolved exact-ten-second cases, 72 hit the node cap and one hits
+the time limit. More wall time alone therefore has limited value. A published
+development selection tests the three smallest positive unresolved gaps and
+the unresolved additional-O case at 60 seconds / 200,000 expansions:
+
+| Guard | Best path | Lower bound | Outcome |
+| --- | ---: | ---: | --- |
+| Unraveled | 37 | 37 | Globally shortest |
+| House of Cards | 39 | 39 | Globally shortest |
+| Lost At Sea | 37 | 37 | Globally shortest |
+| Imposter | 44 | 31 | Node cap; remains unproved |
+
+All four verify. Three new proofs bring the completed-search total **across
+runs** to 327. This guard subset is not a 397-board result. Its largest elapsed
+time is 7.27s and process RSS is 268.06 MiB. The ten-second full cohort reaches
+10.48s including interruption/finalization; it is not a hard 10s service limit.
+
+### Independent checker
+
+`scripts/check_optimized_paths_independently.py` implements its own set-based
+push transitions and wall-only single-O matching bound. It shares neither the
+optimizer's bitmask transitions nor its pattern database. Its tests include
+deliberately nonoptimal paths and independent BFS-generated puzzles, so a valid
+long path cannot pass merely by replaying successfully.
+
+At one second / 20,000 nodes per claim, this checker independently confirms
+**203 of the full cohort's 324 proofs**. The other 121 checks are inconclusive
+(64 node caps, 57 timeouts). All three selected new guard proofs are inconclusive
+under this smaller oracle budget. The combined independent confirmations remain
+203 unique cases, including the earlier unit-step confirmations. There are
+**no contradictions**; inconclusive results are never counted as confirmations.
+All **116 related Python tests** pass after adding the second oracle's fixtures.
+
+### Consolidated bank and optimal substructure
+
+`inputs-refined.json` explicitly combines the original eleven archives with nine
+completed optimizer cohorts. Every distinct input is replayed again. The best
+verified path per board now averages **32.05793 moves** (12,727 total), an
+**8.54% reduction** from the original bank's 13,915 moves. This is cumulative
+archive aggregation across trials and budgets, **not one fresh solve budget**.
+Observed-graph search finds no further shortening in this consolidated bank.
+
+`scripts/analyze_optimized_path_experiments.py` validates all v2 receipts and
+checks every stronger lower bound against the consolidated best paths. All
+327 completed proofs agree across runs. No additional proof arises solely from
+matching an unfinished bound to another run's path. The consolidated certified
+paths provide **9,021 exact suffix states** by optimal substructure. Checking
+86,919 archived suffix positions, including 14,675 matching certified states,
+finds no shorter suffix or conflicting distance label.
+
+The analysis and `certified-paths.jsonl` are in `extended/analysis/`; the latter
+retains per-board path and lower-bound provenance for future training export.
+Whole-board identity splits are still required before learning. No model was
+trained or enabled during these tests, and production V4 remains untouched.
+
 ## Next milestones
 
 The first implementation reproduces the graph baseline, improves beyond the
 best inputs, and cross-checks its exact mode/lower bounds against independent
 unit-step BFS. Completed measurements are recorded above.
 
-- Compare 10-, 60-, and 300-second cohorts with the one-second baseline; do not
-  tune board-specific routing from the evaluation results.
+- Evaluate longer runs with explicit memory/state bounds: the current node
+  cap, rather than wall time, limits most remaining cases. The full ten-second
+  and development-selected sixty-second controls above are complete.
 - Measure additional optimality proofs and the unresolved lower-bound gaps,
   alongside mean moves and memory.
 - Add persistent checkpoints, selective larger repairs, and additional-O
@@ -234,6 +313,14 @@ PYTHONPATH=. .venv/bin/python scripts/stress_optimized_paths.py \
   --output-dir /tmp/optimized-paths-stress --generated 600 --max-xs 3 \
   --cohort /tmp/optimized-paths-exact \
   --manifest debug-artifacts/optimized-paths-2026-11-10/inputs.json
+
+PYTHONPATH=. .venv/bin/python scripts/check_optimized_paths_independently.py \
+  --cohort /tmp/optimized-paths-exact \
+  --manifest debug-artifacts/optimized-paths-2026-11-10/inputs.json \
+  --output-dir /tmp/optimized-paths-independent --seconds 1 --max-nodes 20000
+
+PYTHONPATH=. .venv/bin/python scripts/analyze_optimized_path_experiments.py \
+  --output-dir /tmp/optimized-paths-analysis
 ```
 
 Output directories must be empty. Benchmark output includes an immutable input

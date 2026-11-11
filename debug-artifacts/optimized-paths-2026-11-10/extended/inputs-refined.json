@@ -1,0 +1,26 @@
+{
+  "schema": "optimized-path-inputs-v1",
+  "catalog": "debug-artifacts/v4-2026-10-25/catalog.jsonl",
+  "sources": [
+    "debug-artifacts/optimized-paths-2026-11-10/exact-1s/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/exact-10s/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/exact-1s/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/exact-60s-guards/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/graph/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/repair-1s/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/extended/repair-radius2-10s/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/graph/results.jsonl",
+    "debug-artifacts/optimized-paths-2026-11-10/repair-1s/results.jsonl",
+    "debug-artifacts/v4-2026-10-25/v3-baseline.jsonl",
+    "debug-artifacts/v4-2026-10-25/verified-path-corpus.jsonl",
+    "debug-artifacts/v4-production-2026-11-09/balanced-linux/corpus.jsonl",
+    "debug-artifacts/v4-production-2026-11-09/cloudrun-4470409/corpus.jsonl",
+    "debug-artifacts/v4-production-2026-11-09/native-linux/corpus.jsonl",
+    "debug-artifacts/v4-production-2026-11-09/release-linux/corpus.jsonl",
+    "debug-artifacts/v4-production-2026-11-09/six-lane-linux/corpus.jsonl",
+    "debug-artifacts/v4-quality-2026-11-09/corpus-basic-quality.jsonl",
+    "debug-artifacts/v4-quality-2026-11-09/corpus-quality-10.jsonl",
+    "debug-artifacts/v4-quality-2026-11-09/corpus-quality-30.jsonl",
+    "debug-artifacts/v4-quality-2026-11-09/v3-quality-corpus.jsonl"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "optimized-path-benchmark-v2",
+  "scope": "archive_seeded_optimization",
+  "fresh_solver_benchmark": false,
+  "options": {
+    "mode": "exact",
+    "seconds": 60.0,
+    "max_nodes": 200000,
+    "radius": 1,
+    "max_layouts": 8192
+  },
+  "selected_ids": [
+    "20251221",
+    "20260219",
+    "20260222",
+    "20261023"
+  ],
+  "engine_sources": {
+    "apps/api/puzzle_catalog.py": "3ddf963c30946aabc2a96a486dbf17189f4d591d2789a4ab8140bf3b3caad6f7",
+    "solver/board_utils.py": "52cb77ef542e8bc1a267e454c6dc1ee58a3cb4ea7f7963594b9ff25bd77c3658",
+    "solver/optimized_paths/__init__.py": "ba4264cdd6a6d0e4652f4aba9f3de9f0c601a9785fd3bb86e8f3aa483e1c8c91",
+    "solver/optimized_paths/__main__.py": "c8c717ffd912a702f5b96ea1feb5eb2cbe26b646bf16373bcd477851d39e7506",
+    "solver/optimized_paths/bank.py": "eb059a81f5d95829966fde8d3d9c76f82b3517526f8b44d421946465958a2c90",
+    "solver/optimized_paths/benchmark.py": "2f1d82440c91fa22a7aafd261db80eeddcff2253be709bfcbdd3ad0e00dd4280",
+    "solver/optimized_paths/lower_bound.py": "2cb352b7dad2d861cf86f67b9ff4cb94124e5ccd30c183bbd48fd48c7b2954e5",
+    "solver/optimized_paths/model.py": "e01b5c8c00c9d8ea208878cf0dc5198fee631a0d3870767deb8abed635197ff4",
+    "solver/optimized_paths/search.py": "fe1e9327ca7b4fe6dd847e8df65e6d78f5bcc8c00e037bfd0ae6f77e30831557",
+    "solver/optimized_paths/verify_benchmark.py": "c9509a6cbafcca68db72a0abf2a7e9399ba39b74c146813f4b76c33e0115922d",
+    "solver/push_solver/models.py": "50249adf9145dc53f0f1ca114241722689b9d7e657d30a25afbe74ce395ae0dc",
+    "solver/push_solver/path_optimizer.py": "bf136bbb4b2987aeba9944ebbf782704492a62e772340ea0adae27e037d2c372",
+    "solver/push_solver/v4.py": "347aeb88a061b90a5abc12468e00982c02032a53cd3a75ccc396d246b7139c22",
+    "solver/push_solver/verify.py": "4e83d461014a57a50067ff5bf2251d663bc730322099f1f57d31533634f201f7"
+  },
+  "engine_sha256": "5e12fd2eb16f0e3c2ff9582c4ace02e2138fe2fecf24b1496e9e9e6703179555",
+  "inputs": {
+    "schema": "optimized-path-inputs-v1",
+    "manifest_sha256": "8b9aa5b71f9ebb97f730e9945fe2d713a02e0dd0a4b98aa9e02e216f74b1ca19",
+    "catalog": {
+      "path": "debug-artifacts/v4-2026-10-25/catalog.jsonl",
+      "sha256": "35c862d75eb66d24993a5df3d62fcafd9a98aa2564765fcc893a4a8bc5db8f2e"
+    },
+    "sources": [
+      {
+        "path": "debug-artifacts/v4-2026-10-25/v3-baseline.jsonl",
+        "sha256": "ffc791c1f82f0e5f516a6803ab0d7b999338d3a4d23ad03cee76376291ad6920"
+      },
+      {
+        "path": "debug-artifacts/v4-2026-10-25/verified-path-corpus.jsonl",
+        "sha256": "a067963fb88e5b6b19053c8331f8dda0b5b7a7a28768ea319202a4167d3dd1b2"
+      },
+      {
+        "path": "debug-artifacts/v4-production-2026-11-09/balanced-linux/corpus.jsonl",
+        "sha256": "aef67a2254f9a8fcef01d20b85dfa4dab7850fe9cec6afafcf568ae28f24a090"
+      },
+      {
+        "path": "debug-artifacts/v4-production-2026-11-09/cloudrun-4470409/corpus.jsonl",
+        "sha256": "68354dbf26c71eea5b2865d7ac258283a845503aa30cfcadfb9bb1b9072e676b"
+      },
+      {
+        "path": "debug-artifacts/v4-production-2026-11-09/native-linux/corpus.jsonl",
+        "sha256": "6cc005c6736f82d890116ac0e20e576f9acb319cc1261111c2613d0bbf2eb5bf"
+      },
+      {
+        "path": "debug-artifacts/v4-production-2026-11-09/release-linux/corpus.jsonl",
+        "sha256": "b8b318f53611d3dd94e3cca11c5606bec0f83e08b107bddb3f2551bcbc4938c8"
+      },
+      {
+        "path": "debug-artifacts/v4-production-2026-11-09/six-lane-linux/corpus.jsonl",
+        "sha256": "c7d26415fc89924b02b53d6bbe12d01c5e6dcd3362d1c44af6f624c749b1b551"
+      },
+      {
+        "path": "debug-artifacts/v4-quality-2026-11-09/corpus-basic-quality.jsonl",
+        "sha256": "983259e089334446eb417750d7ac7d6a6ad1e7f49374a25b2176709472a04021"
+      },
+      {
+        "path": "debug-artifacts/v4-quality-2026-11-09/corpus-quality-10.jsonl",
+        "sha256": "5b65ff5ea976ef84ff0fef9d8b4d120fdb907b2ee7b2e88cf5477ab2398e912a"
+      },
+      {
+        "path": "debug-artifacts/v4-quality-2026-11-09/corpus-quality-30.jsonl",
+        "sha256": "f38ca0a0a373eae60a25552db5a8b43cf281d65abdaacb6381a5a3b31db1eb70"
+      },
+      {
+        "path": "debug-artifacts/v4-quality-2026-11-09/v3-quality-corpus.jsonl",
+        "sha256": "9e8d7a4cfcb1c9cf9868f7692ed78fa8e69337652056208a177cb86858ce83a6"
+      }
+    ]
+  },
+  "intake": {
+    "rows_read": 4367,
+    "candidate_rows": 4346,
+    "rows_without_path": 21,
+    "unique_paths_replayed": 1357,
+    "unique_valid_paths": 1357,
+    "boards_with_seeds": 397,
+    "boards_without_seeds": 0
+  },
+  "rejected_rows": [],
+  "intake_ms": 449.7537499992177,
+  "runtime": {
+    "python": "3.12.13",
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "reused_v4": {
+      "python": "3.12.13",
+      "platform": "Darwin",
+      "peak_rss_bytes": 50315264,
+      "cgroup": {},
+      "implementation": "python",
+      "native_build": null
+    }
+  },
+  "configuration_sha256": "08a915fd46e3b9decc441f69d39d3331b55ed9fdd00fccdec52ad4d222be8ec0"
+}
