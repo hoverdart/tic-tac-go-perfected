@@ -1,0 +1,17 @@
+{
+  "scope": "archive_seeded_optimization",
+  "engine_sha256": "0f5b0af3233e495265f1abd423f92992d98c726a6284df5dbd761f7778dd79a3",
+  "expected_boards": 397,
+  "verified": 397,
+  "errors": 0,
+  "missing_seeds": 0,
+  "complete": true,
+  "all_verified": true,
+  "mean_seed_moves": 35.050377833753146,
+  "mean_moves": 33.68765743073048,
+  "total_moves": 13374,
+  "moves_saved": 541,
+  "boards_improved": 74,
+  "globally_proven": 282,
+  "max_elapsed_ms": 1051.9145840080455
+}
