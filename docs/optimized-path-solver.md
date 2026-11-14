@@ -458,3 +458,21 @@ repairs. Published best-known paths are retained instead of overwritten by
 longer fresh results. The website now prefers the shorter matching-board
 verified optimized path on the normal daily page, rebuilding replay frames and
 showing honest best-known/proven labels without rewriting backend history.
+
+## Hosted publisher (November 14)
+
+The `Publish optimized daily solutions` GitHub Actions workflow now owns routine
+publication. It runs hourly at minute 17 UTC and supports manual dispatch. It
+checks out the solver and existing `optimized-v1-data` branch separately, installs
+explicit runtime dependencies, and runs the fresh-board smoke test before solving.
+The existing verified feed is the durable checkpoint; missing released dates are
+retried and earlier receipts are preserved. Runs are serialized with concurrency
+cancellation disabled, and pushes remain ordinary fast-forward data-branch pushes.
+
+The workflow needs only its short-lived repository `GITHUB_TOKEN` with contents
+write permission. It does not receive Neon, Cloud Run, Vercel, or personal Git
+credentials. Diagnostics and new receipts are retained as run artifacts for 14
+days. Each job has a 20-minute timeout. Scheduled GitHub runs can be delayed; this
+is not a guaranteed release-time SLA. Existing paths stay available if a run fails.
+The Mac LaunchAgent is disabled after the first verified successful hosted run;
+its local state and installation are retained for manual recovery, not deleted.
