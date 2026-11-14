@@ -1,10 +1,10 @@
+import { getPreferredTodaySolution } from "./preferred-solution";
 import type { Metadata } from "next";
 import { GameView } from "./game-view";
 import { getOptimizedSolutions, matchesOptimizedBoard } from "./optimized-solution-data";
 import {
   formatLongDate,
   getFullHistory,
-  getTodaySolution,
   solutionMetaDescription,
 } from "./solution-data";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-static";
 export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { solution } = await getTodaySolution();
+  const { solution } = await getPreferredTodaySolution();
   return {
     title: `Tic Tac Go Solution Today – ${formatLongDate(solution.puzzle_date)}`,
     description: solutionMetaDescription(solution, true),
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   const [{ solution, isDemo }, history, optimizedSolutions] = await Promise.all([
-    getTodaySolution(),
+    getPreferredTodaySolution(),
     getFullHistory(),
     getOptimizedSolutions(),
   ]);

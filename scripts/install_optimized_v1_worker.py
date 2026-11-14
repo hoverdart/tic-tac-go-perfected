@@ -66,14 +66,25 @@ def main():
     # Keep the worker's interpreter separate from future workspace venv edits.
     run(sys.executable, "-m", "venv", str(state / "runtime"))
     python = state / "runtime" / "bin" / "python"
-    # This publishing/search path needs only the Python standard library.
+    # V4 imports NumPy lazily while scoring real boards. Import-only smoke
+    # checks do not establish that the next unseen daily puzzle can be solved.
+    run(
+        str(python),
+        "-m",
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "-r",
+        str(worker / "requirements-optimized-worker.txt"),
+    )
     environment = {**os.environ, "PYTHONPATH": str(worker)}
     run(
         str(python),
-        "-c",
-        "from scripts.update_optimized_v1 import load_entries; from solver.optimized_v1 import optimize",
+        "-m",
+        "scripts.smoke_optimized_v1_worker",
         cwd=worker,
         env=environment,
+        timeout=90,
     )
     feed = state / "optimized-v1.json"
     if not feed.exists():

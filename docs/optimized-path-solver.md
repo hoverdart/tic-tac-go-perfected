@@ -324,7 +324,10 @@ The macOS LaunchAgent **com.tictacgo.optimized-v1** runs on load and hourly whil
 the user is logged in and the computer is awake. It catches up on missed dates
 when it next runs; it does not wake a sleeping computer. Its source is pinned to
 the installed committed revision in an isolated sparse checkout, with its own
-standard-library-only Python environment. Git authentication uses the existing
+Python environment and explicit NumPy 2 dependency. Installation runs an offline
+8x8 fresh-board solve, optimization, and independent replay check before enabling
+the LaunchAgent. An import-only check is insufficient because V4 imports NumPy
+lazily on its vectorized scoring path. Git authentication uses the existing
 local credential helper; no production environment file is copied. Logs and
 checkpoint state live in the chosen state directory.
 
@@ -429,3 +432,29 @@ No command contacts Google, the API, or the production database.
   and [ANA*](https://goldberg.berkeley.edu/ana/): future anytime-search candidates.
   The first exact implementation is ordinary incumbent-bounded A*, not either
   of these algorithms.
+
+## November 14 daily-quality incident and repair
+
+The default Search Party page served a valid 265-keypress V4 coverage path.
+Coverage search is bounded and does not guarantee minimum keystrokes. The
+separate optimized publisher had also failed every new board since November 12:
+its isolated runtime had no NumPy, which V4 imports lazily during scoring. An
+import-only installer check incorrectly passed. The hourly job was running and
+retrying; its fresh-board solves were crashing, not producing new feed entries.
+
+The installer now installs explicit worker dependencies and exercises an actual
+8x8 solve, optimization, and independent replay before enabling publication.
+Worker errors preserve the child traceback in last-run.json. Fresh local solves
+now run seven incumbent-fed vicinity repairs at radii 2,3,4,4,5,6,7, then exact
+search, with defaults of 20 seconds / 1,000,000 expansions per phase and a
+separate hard child timeout. All output remains independently verified and
+monotonic. Restricted repair exhaustion still never certifies optimality.
+
+A separately researched, replay-verified 95-keypress Search Party path was
+published with no global-shortest claim, saving 170 moves (64.15%). Its fixture
+is regression-tested. The fresh local pipeline is time-limited and need not
+rediscover that same path: one fresh 203-move seed reached 103 moves in widened
+repairs. Published best-known paths are retained instead of overwritten by
+longer fresh results. The website now prefers the shorter matching-board
+verified optimized path on the normal daily page, rebuilding replay frames and
+showing honest best-known/proven labels without rewriting backend history.

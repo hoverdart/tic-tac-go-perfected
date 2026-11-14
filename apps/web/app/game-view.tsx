@@ -175,7 +175,7 @@ export function GameView({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <header className="game-header">
         <h1 className={isTodayPage ? undefined : "historical-heading"}>{heading}</h1>
-        <p>{isOptimizedPage ? "optimized-v1" : isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
+        <p>{currentSolution.solver_name === "optimized-v1" ? "optimized-v1" : isTodayPage ? "Daily Solver" : "Verified Replay"}</p>
         <div className="date-pill">
           <time dateTime={currentSolution.puzzle_date}>{formatDate(currentSolution.puzzle_date)}</time>
           <span>{statusText(currentSolution.status, isDemo, currentSolution.puzzle_title)}</span>
@@ -216,7 +216,7 @@ export function GameView({
         solution={currentSolution}
         isDemo={isDemo}
         isTodayPage={isTodayPage}
-        isOptimizedPage={isOptimizedPage}
+        isOptimizedPage={currentSolution.solver_name === "optimized-v1"}
         optimalityProven={optimized?.optimalityProven}
       />
       {!isTodayPage && <SolutionHintsSection solution={currentSolution} />}

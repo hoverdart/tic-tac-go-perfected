@@ -1,10 +1,10 @@
+import { getPreferredSolutionByDate } from "../../preferred-solution";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { GameView } from "../../game-view";
 import { getOptimizedSolutions, matchesOptimizedBoard } from "../../optimized-solution-data";
 import {
   formatLongDate,
-  getSolutionByDate,
   getNearbyHistory,
   isIsoDate,
   solutionMetaDescription,
@@ -26,7 +26,7 @@ type Props = {
 
 async function loadSolution(date: string) {
   if (!isIsoDate(date)) notFound();
-  const solution = await getSolutionByDate(date);
+  const solution = await getPreferredSolutionByDate(date);
   if (solution === null) notFound();
   return solution;
 }

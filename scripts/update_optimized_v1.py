@@ -26,6 +26,7 @@ from solver.push_solver.verify import verify_solution
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = "optimized-v1-feed-v1"
 BRANCH = "optimized-v1-data"
+REPAIR_RADII = (2, 3, 4, 4, 5, 6, 7)
 
 
 def now():
@@ -211,30 +212,39 @@ def solve_entry(entry, seconds, max_nodes):
     if seed.moves is None:
         raise ValueError("Local V4 did not find a verified seed")
     seeds = [first_win(entry.board(), seed.moves)]
-    repair = optimize(
-        entry.board(),
-        seeds,
-        mode="repair",
-        radius=2,
-        max_layouts=32768,
-        seconds=seconds,
-        max_nodes=max_nodes,
-    )
+    # A single vicinity pass only optimizes around the original trajectory.
+    # Feed each improvement back in and widen the neighborhood, while keeping
+    # exact search separate: restricted exhaustion is never a shortest proof.
+    repairs = []
+    incumbent = seeds[0]
+    for radius in REPAIR_RADII:
+        repair = optimize(
+            entry.board(),
+            [incumbent],
+            mode="repair",
+            radius=radius,
+            max_layouts=150_000,
+            seconds=seconds,
+            max_nodes=max_nodes,
+        )
+        candidate = first_win(entry.board(), repair.moves)
+        incumbent = min((incumbent, candidate), key=lambda s: (len(s), s))
+        repairs.append(repair.to_dict())
     exact = optimize(
         entry.board(),
-        [*seeds, repair.moves],
+        [*seeds, incumbent],
         mode="exact",
         seconds=seconds,
         max_nodes=max_nodes,
     )
-    moves = min([*seeds, repair.moves, exact.moves], key=lambda s: (len(s), s))
+    moves = min([*seeds, incumbent, exact.moves], key=lambda s: (len(s), s))
     if exact.lower_bound > len(moves):
         raise ValueError("Search bound contradicts best verified path")
     receipt = {
         "solver_name": SOLVER_NAME,
         "board_sha256": entry.board_sha256,
         "seed": asdict(seed),
-        "repair": repair.to_dict(),
+        "repairs": repairs,
         "exact": exact.to_dict(),
     }
     record = make_record(
@@ -243,7 +253,8 @@ def solve_entry(entry, seconds, max_nodes):
         proof=exact.lower_bound == len(moves),
         lower_bound=exact.lower_bound,
         provenance={
-            "kind": "local-v4-repair-exact",
+            "kind": "local-v4-iterated-repair-exact",
+            "repair_radii": list(REPAIR_RADII),
             "seconds_per_phase": seconds,
             "max_nodes_per_phase": max_nodes,
         },
@@ -323,8 +334,8 @@ def main():
     parser.add_argument(
         "--through", type=date.fromisoformat, default=datetime.now(UTC).date()
     )
-    parser.add_argument("--seconds", type=float, default=10)
-    parser.add_argument("--max-nodes", type=int, default=100_000)
+    parser.add_argument("--seconds", type=float, default=20)
+    parser.add_argument("--max-nodes", type=int, default=1_000_000)
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--child", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
@@ -413,8 +424,10 @@ def main():
                         str(args.max_nodes),
                     ],
                     check=True,
+                    capture_output=True,
+                    text=True,
                     cwd=ROOT,
-                    timeout=90 + 2 * args.seconds,
+                    timeout=90 + (len(REPAIR_RADII) + 1) * args.seconds,
                     env={**os.environ, "PYTHONPATH": str(ROOT)},
                 )
                 payload = json.loads(task.with_suffix(".result.json").read_text())
@@ -426,8 +439,11 @@ def main():
                 save_feed(output, records)
                 print(f"Verified {key}: {len(records[key]['moves'])} moves", flush=True)
             except (subprocess.SubprocessError, ValueError) as exc:
-                failures.append({"date": key, "error": str(exc)})
-                print(f"Unpublished {key}: {exc}", flush=True)
+                detail = str(exc)
+                if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
+                    detail += "\n" + exc.stderr[-4000:]
+                failures.append({"date": key, "error": detail})
+                print(f"Unpublished {key}: {detail}", flush=True)
         atomic_json(
             state / "last-run.json",
             {"finished_at": now(), "boards": len(records), "failures": failures},
