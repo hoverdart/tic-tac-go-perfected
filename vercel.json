@@ -1,8 +1,1 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": {
-      "optimized-v1-data": false
-    }
-  }
-}
+{"$schema":"https://openapi.vercel.sh/vercel.json","git":{"deploymentEnabled":{"optimized-v1-data":false}}}
