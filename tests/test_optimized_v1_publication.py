@@ -6,6 +6,8 @@ import unittest
 from copy import deepcopy
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from apps.api.puzzle_catalog import CatalogEntry
 from scripts.update_optimized_v1 import (
@@ -13,6 +15,7 @@ from scripts.update_optimized_v1 import (
     first_win,
     make_record,
     read_feed,
+    publish,
     save_feed,
     validate_record,
 )
@@ -22,6 +25,26 @@ class PublicationTests(unittest.TestCase):
     def setUp(self):
         self.entry = CatalogEntry(date(2026, 11, 11), "Fixture", 4, 3, "P-----OO----")
         self.short = make_record(self.entry, "RD", proof=True, lower_bound=2)
+
+    def test_publisher_disables_only_data_branch_previews(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            receipts = root / "new-receipts"
+            receipts.mkdir()
+            publication = root / "publication"
+            publication.mkdir()
+            with patch("scripts.update_optimized_v1.git", return_value=SimpleNamespace(returncode=0)) as git:
+                publish(publication, {"2026-11-11": self.short}, receipts)
+                self.assertEqual(
+                    json.loads((publication / "vercel.json").read_text()),
+                    {"$schema": "https://openapi.vercel.sh/vercel.json",
+                     "git": {"deploymentEnabled": {"optimized-v1-data": False}}},
+                )
+                git.assert_any_call(publication, "add", "--", "optimized-v1.json", "README.md", "vercel.json")
+                self.assertEqual(read_feed(publication / "optimized-v1.json"), {"2026-11-11": self.short})
+                # Re-publication maintains the same narrow rule, not a global off switch.
+                publish(publication, {"2026-11-11": self.short}, receipts)
+                self.assertEqual(json.loads((publication / "vercel.json").read_text())["git"]["deploymentEnabled"], {"optimized-v1-data": False})
 
     def test_round_trip(self):
         with tempfile.TemporaryDirectory() as directory:
