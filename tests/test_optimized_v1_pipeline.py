@@ -57,6 +57,35 @@ class PipelineTests(unittest.TestCase):
             publish.assert_not_called()
             run.assert_not_called()
 
+    def test_local_catalog_errors_replace_stale_diagnostics_and_preserve_feed(self):
+        row = {
+            "date": self.entry.puzzle_date.isoformat(), "name": self.entry.title,
+            "width": self.entry.width, "height": self.entry.height,
+            "puzzle": self.entry.level, "board_sha256": "wrong hash",
+        }
+        for content in [None, "not json", "{}", json.dumps(row)]:
+            with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
+                state = Path(directory)
+                source = state / "catalog.jsonl"
+                if content is not None:
+                    source.write_text(content)
+                feed = state / "optimized-v1.json"
+                worker.save_feed(feed, {"2026-11-11": worker.make_record(self.entry, "RD")})
+                before = feed.read_bytes()
+                diagnostic = state / "last-run.json"
+                diagnostic.write_text('{"finished_at":"stale","failures":[]}')
+                with (
+                    patch("sys.argv", ["update_optimized_v1.py", "--state-dir", directory,
+                                       "--through", "2026-11-18", "--catalog", str(source)]),
+                    self.assertRaisesRegex(CatalogError, "Could not load local board catalog"),
+                ):
+                    worker.main()
+                report = json.loads(diagnostic.read_text())
+                self.assertEqual(report["boards"], 1)
+                self.assertNotEqual(report["finished_at"], "stale")
+                self.assertEqual(report["failures"][0]["stage"], "catalog")
+                self.assertEqual(feed.read_bytes(), before)
+
     def test_repairs_reseed_incumbent_and_keep_exact_bound_separate(self):
         results = [Result("RD"), *[Result("DDRU") for _ in REPAIR_RADII[1:]], Result("DDRU", 1)]
         with patch("solver.push_solver.v4.solve_v4", return_value=Seed("DDRU")), patch(

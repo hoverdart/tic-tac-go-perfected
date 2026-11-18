@@ -187,15 +187,18 @@ def bootstrap(manifest, certificates):
 def load_entries(path=None):
     if path is None:
         return fetch_catalog().entries
-    entries = {}
-    for line in path.read_text().splitlines():
-        row = json.loads(line)
-        d = date.fromisoformat(row["date"])
-        entry = CatalogEntry(d, row["name"], row["width"], row["height"], row["puzzle"])
-        if d in entries or row["board_sha256"] != entry.board_sha256:
-            raise ValueError("Catalog identity mismatch")
-        entries[d] = entry
-    return entries
+    try:
+        entries = {}
+        for line in path.read_text().splitlines():
+            row = json.loads(line)
+            d = date.fromisoformat(row["date"])
+            entry = CatalogEntry(d, row["name"], row["width"], row["height"], row["puzzle"])
+            if d in entries or row["board_sha256"] != entry.board_sha256:
+                raise ValueError("Catalog identity mismatch")
+            entries[d] = entry
+        return entries
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise CatalogError(f"Could not load local board catalog: {exc}") from exc
 
 
 def solve_entry(entry, seconds, max_nodes):
