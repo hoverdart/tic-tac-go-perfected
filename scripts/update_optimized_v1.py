@@ -17,7 +17,7 @@ from datetime import UTC, date, datetime
 from hashlib import sha256
 from pathlib import Path
 
-from apps.api.puzzle_catalog import CatalogEntry, fetch_catalog
+from apps.api.puzzle_catalog import CatalogEntry, CatalogError, fetch_catalog
 from solver.legacy_solver import apply_single_move, solved
 from solver.optimized_paths.bank import load_bank
 from solver.optimized_v1 import SOLVER_NAME, optimize
@@ -187,15 +187,18 @@ def bootstrap(manifest, certificates):
 def load_entries(path=None):
     if path is None:
         return fetch_catalog().entries
-    entries = {}
-    for line in path.read_text().splitlines():
-        row = json.loads(line)
-        d = date.fromisoformat(row["date"])
-        entry = CatalogEntry(d, row["name"], row["width"], row["height"], row["puzzle"])
-        if d in entries or row["board_sha256"] != entry.board_sha256:
-            raise ValueError("Catalog identity mismatch")
-        entries[d] = entry
-    return entries
+    try:
+        entries = {}
+        for line in path.read_text().splitlines():
+            row = json.loads(line)
+            d = date.fromisoformat(row["date"])
+            entry = CatalogEntry(d, row["name"], row["width"], row["height"], row["puzzle"])
+            if d in entries or row["board_sha256"] != entry.board_sha256:
+                raise ValueError("Catalog identity mismatch")
+            entries[d] = entry
+        return entries
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise CatalogError(f"Could not load local board catalog: {exc}") from exc
 
 
 def solve_entry(entry, seconds, max_nodes):
@@ -385,7 +388,20 @@ def main():
         records = {
             key: row for key, row in records.items() if key <= args.through.isoformat()
         }
-        entries = load_entries(args.catalog)
+        try:
+            entries = load_entries(args.catalog)
+        except CatalogError as exc:
+            # Catalog failures happen before solving/checkpointing any boards.
+            # Retain evidence for the workflow's always-on artifact upload.
+            atomic_json(
+                state / "last-run.json",
+                {
+                    "finished_at": now(),
+                    "boards": len(records),
+                    "failures": [{"stage": "catalog", "error": str(exc)}],
+                },
+            )
+            raise
         # A changed official board invalidates its old path, even if solving fails.
         for key, row in list(records.items()):
             entry = entries.get(date.fromisoformat(key))

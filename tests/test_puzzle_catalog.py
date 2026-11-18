@@ -10,6 +10,60 @@ SAMPLE = '["20261021",{name:"Test",I:new Z(2026,10,21),width:3,height:3,level:"P
 
 
 class PuzzleCatalogTest(unittest.TestCase):
+    def test_current_google_entries_use_renamed_date_property(self):
+        fixture = FIXTURE.with_name("catalog-renamed-2026-11-18.js")
+        snapshot = catalog.parse_catalog(fixture.read_text())
+        self.assertEqual(set(snapshot.entries), {date(2026, 11, 17), date(2026, 11, 18)})
+        entry = snapshot.entries[date(2026, 11, 18)]
+        self.assertEqual(entry.title, "Personal Bubble")
+        self.assertEqual((entry.width, entry.height), (8, 8))
+        self.assertEqual(entry.board()[1], ["B", "U", "X", "", "", "", "", "B"])
+        self.assertEqual(entry.level.count("O"), 2)
+        self.assertEqual(dict(snapshot.entries), dict(catalog.parse_catalog(
+            fixture.read_text().replace("J:new", "I:new")
+        ).entries))
+
+    def test_minifier_renames_preserve_every_entry_and_board(self):
+        source = FIXTURE.read_text()
+        original = catalog.parse_catalog(source)
+        for property_name, constructor in [("J", "Z"), ("$date_1", "_Ctor$2")]:
+            with self.subTest(property_name=property_name, constructor=constructor):
+                renamed = catalog.parse_catalog(source.replace(
+                    "I:new Z(", f"{property_name}:new {constructor}("
+                ))
+                self.assertEqual(dict(renamed.entries), dict(original.entries))
+                for key, entry in original.entries.items():
+                    self.assertEqual(renamed.entries[key].board(), entry.board())
+                    self.assertEqual(renamed.entries[key].board_sha256, entry.board_sha256)
+
+    def test_renamed_property_retains_strict_catalog_validation(self):
+        renamed = SAMPLE.replace("I:new Z", "J:new $Date_2")
+        invalid = [
+            renamed.replace("2026,10,21", "2026,10,20"),
+            renamed.replace("2026,10,21", "2026,2,30"),
+            renamed.replace("width:3", "width:2"),
+            renamed.replace("height:3", "height:9"),
+            renamed.replace("POO------", "POO-----"),
+            renamed.replace("POO------", "POO----Z-"),
+            renamed.replace("POO------", "PPO------"),
+            renamed.replace("POO------", "PO-------"),
+            renamed.replace('name:"Test"', 'name:""'),
+            SAMPLE + renamed,
+            renamed + SAMPLE.replace('"20261021"', '"20261022"').replace("I:new Z", "J:other"),
+        ]
+        for property_name in ["name", "width", "height", "level", "1J", "obj.date", '"J"']:
+            invalid.append(renamed.replace("J:new", f"{property_name}:new"))
+        invalid.append(renamed.replace("$Date_2(", "1Date("))
+        invalid.append(renamed.replace("J:new $Date_2(2026,10,21)", "J:lookup(2026,10,21)"))
+        invalid.append(renamed.replace("J:new", "J:new Z(2026,10,21),K:new"))
+        for source in invalid:
+            with self.subTest(source=source), self.assertRaises(catalog.CatalogError):
+                catalog.parse_catalog(source)
+
+    def test_incomplete_catalog_reports_extraction_counts(self):
+        with self.assertRaisesRegex(catalog.CatalogError, "entry starts=2, parsed entries=1"):
+            catalog.parse_catalog(SAMPLE + '["20261022",{changed:true}]')
+
     def test_real_entries_preserve_walls_dates_and_multiple_os(self):
         snapshot = catalog.parse_catalog(FIXTURE.read_text())
         self.assertEqual(len(snapshot.entries), 9)
