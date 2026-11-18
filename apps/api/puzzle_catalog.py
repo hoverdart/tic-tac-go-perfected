@@ -25,9 +25,13 @@ from urllib.request import Request, urlopen
 OFFICIAL_GAME_URL = "https://dailygames.discover.google.com/games/tic-tac-go"
 _SCRIPT_RE = re.compile(r'<script[^>]+src=["\']([^"\']*GoogleGamesPlatformUi[^"\']*)', re.I)
 _ENTRY_START_RE = re.compile(r'\["(\d{8})",\s*\{')
+# The date property and its constructor are renamed by Google's JS minifier.
+# Accept identifiers only; the literal date must still match the map key below.
+_JS_IDENTIFIER = r'[A-Za-z_$][A-Za-z0-9_$]*'
 _ENTRY_RE = re.compile(
     r'\["(?P<id>\d{8})",\s*\{name:"(?P<name>(?:\\.|[^"\\])*)",\s*'
-    r'I:new [\w$]+\((?P<year>\d+),\s*(?P<month>\d+),\s*(?P<day>\d+)\),\s*'
+    rf'(?P<date_property>{_JS_IDENTIFIER}):new {_JS_IDENTIFIER}'
+    r'\((?P<year>\d+),\s*(?P<month>\d+),\s*(?P<day>\d+)\),\s*'
     r'width:(?P<width>\d+),\s*height:(?P<height>\d+),\s*'
     r'level:"(?P<level>[^"\\]*)"\}\]'
 )
@@ -73,10 +77,15 @@ def parse_catalog(source: str, *, source_url: str = "") -> CatalogSnapshot:
     starts = _ENTRY_START_RE.findall(source)
     matches = list(_ENTRY_RE.finditer(source))
     if not starts or len(matches) != len(starts):
-        raise CatalogError("Unsupported or incomplete official board catalog.")
+        raise CatalogError(
+            "Unsupported or incomplete official board catalog "
+            f"(entry starts={len(starts)}, parsed entries={len(matches)})."
+        )
     for match in matches:
         raw = match.groupdict()
         try:
+            if raw["date_property"] in {"name", "width", "height", "level"}:
+                raise ValueError("duplicate catalog property")
             puzzle_date = date(int(raw["year"]), int(raw["month"]), int(raw["day"]))
             if puzzle_date.strftime("%Y%m%d") != raw["id"] or puzzle_date in entries:
                 raise ValueError("duplicate or mismatched date")
