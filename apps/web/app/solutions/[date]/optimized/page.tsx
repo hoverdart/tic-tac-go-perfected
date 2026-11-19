@@ -6,11 +6,10 @@ import { getOptimizedSolution, getOptimizedSolutions, optimizedSolutionRecord } 
 
 export const dynamic = "force-static";
 export const dynamicParams = true;
-export const revalidate = 300;
+export const revalidate = false;
 
-export function generateStaticParams() {
-  // The feed grows independently of deployments; generate and cache on demand.
-  return [];
+export async function generateStaticParams() {
+  return (await getOptimizedSolutions(true)).map((row) => ({ date: row.puzzle_date }));
 }
 
 type Props = { params: Promise<{ date: string }> };

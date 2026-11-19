@@ -3,6 +3,7 @@ import fallbackFeed from "../data/optimized-v1.json";
 import { buildReplayFrames, type Cell } from "./replay-model";
 import type { SolutionRecord } from "./game-view";
 import { isIsoDate, todayIsoDate } from "./solution-data";
+import { getBackendBaseUrl } from "./backend-url";
 
 export type OptimizedSolution = {
   puzzle_date: string;
@@ -79,16 +80,50 @@ export function mergeOptimizedSolutions(base: OptimizedSolution[], incoming: Opt
     .sort((a, b) => b.puzzle_date.localeCompare(a.puzzle_date));
 }
 
+let bundledSolutions: OptimizedSolution[] | undefined;
+let verifiedFeed: {
+  body: string;
+  date: string;
+  fromDatabase: boolean;
+  solutions: OptimizedSolution[];
+} | undefined;
+
 const loadFeed = cache(async () => {
-  const base = parseOptimizedFeed(fallbackFeed);
-  const url = process.env.OPTIMIZED_V1_FEED_URL ?? OPTIMIZED_FEED_URL;
-  if (!url) return { solutions: mergeOptimizedSolutions([], base), error: null };
+  const fallback = () => bundledSolutions ??= parseOptimizedFeed(fallbackFeed);
+  const override = process.env.OPTIMIZED_V1_FEED_URL;
+  const backend = getBackendBaseUrl();
+  if (override === "") return { solutions: mergeOptimizedSolutions([], fallback()), error: null };
+
+  const options = {
+    cache: "force-cache" as const,
+    next: { revalidate: false as const },
+    signal: AbortSignal.timeout(10000),
+  };
   try {
-    const response = await fetch(url, { cache: "force-cache", next: { revalidate: 300, tags: ["optimized-v1"] }, signal: AbortSignal.timeout(10000) });
+    // Use the verified database snapshot. A 404 allows the web deployment to
+    // build while the new backend and initial import are rolling out.
+    const stored = override === undefined && backend
+      ? await fetch(`${backend}/optimized-solutions`, options)
+      : null;
+    const fromDatabase = stored !== null && stored.status !== 404;
+    const response = fromDatabase ? stored : await fetch(override ?? OPTIMIZED_FEED_URL, options);
     if (!response.ok) throw new Error(`Optimized feed returned ${response.status}.`);
-    return { solutions: mergeOptimizedSolutions(base, parseOptimizedFeed(await response.json())), error: null };
+    const body = await response.text();
+    const date = todayIsoDate();
+
+    if (verifiedFeed?.body !== body || verifiedFeed.date !== date || verifiedFeed.fromDatabase !== fromDatabase) {
+      const feed = JSON.parse(body);
+      if (feed?.schema !== "optimized-v1-feed-v1" || !Array.isArray(feed.solutions)) {
+        throw new Error("Invalid optimized feed.");
+      }
+      const solutions = fromDatabase
+        ? (feed.solutions as OptimizedSolution[]).filter((row) => row.puzzle_date <= date)
+        : mergeOptimizedSolutions(fallback(), parseOptimizedFeed(feed));
+      verifiedFeed = { body, date, fromDatabase, solutions };
+    }
+    return { solutions: verifiedFeed.solutions, error: null };
   } catch (error) {
-    return { solutions: mergeOptimizedSolutions([], base), error };
+    return { solutions: mergeOptimizedSolutions([], fallback()), error };
   }
 });
 

@@ -2,6 +2,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 import os
+import json
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
@@ -36,7 +38,34 @@ class CatalogStorageIntegrationTest(unittest.TestCase):
 
     def setUp(self):
         with storage._connect() as conn:
-            conn.execute("TRUNCATE daily_solutions, daily_solve_runs")
+            conn.execute("TRUNCATE daily_solutions, daily_solve_runs, optimized_solutions, optimized_publication")
+
+    def test_optimized_snapshot_persists_and_retries_only_pending_dates(self):
+        from apps.api.optimized_publication import OptimizedFeed
+
+        path = Path(__file__).resolve().parents[1] / "apps/web/data/optimized-v1.json"
+        feed = json.loads(path.read_text())
+        feed["solutions"] = feed["solutions"][:2]
+        models = OptimizedFeed.model_validate(feed).solutions
+        first, second = [row.model_dump(mode="json") for row in models]
+        dates = sorted(row.puzzle_date for row in models)
+        self.assertIsNone(storage.list_optimized_solutions())
+        self.assertEqual(storage.publish_optimized_snapshot("a", None, [first, second]), dates)
+        self.assertEqual(storage.publish_optimized_snapshot("a", None, [first, second]), dates)
+        self.assertEqual(len(storage.list_optimized_solutions()), 2)
+        self.assertNotIn("provenance", storage.list_optimized_solutions()[0])
+        storage.acknowledge_optimized_publication("a")
+        self.assertEqual(storage.get_optimized_publication()["pending_dates"], [])
+
+        self.assertEqual(storage.publish_optimized_snapshot("b", "a", [second]), dates[:1])
+        with storage._connect() as conn:
+            self.assertEqual(conn.execute("SELECT count(*) AS total FROM optimized_solutions").fetchone()["total"], 2)
+        self.assertEqual(len(storage.list_optimized_solutions()), 1)
+        storage.acknowledge_optimized_publication("a")
+        self.assertEqual(storage.get_optimized_publication()["pending_dates"], dates[:1])
+        with self.assertRaises(storage.StorageError):
+            storage.publish_optimized_snapshot("c", "a", [first, second])
+        self.assertEqual(storage.publish_optimized_snapshot("c", "b", [first, second]), dates[:1])
 
     def record(self, status="solved"):
         return {"puzzle_date": date(2026, 10, 21), "source_url": "https://www.gstatic.com/test-bundle",

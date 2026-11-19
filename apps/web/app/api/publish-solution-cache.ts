@@ -4,6 +4,7 @@ import {
   SOLUTION_TODAY_CACHE_TAG,
   solutionDateCacheTag,
 } from "../solution-cache";
+import { todayIsoDate } from "../solution-data";
 
 function isIsoDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -39,4 +40,30 @@ export function publishSolutionCache(puzzleDate: string): void {
 export function publishSolutionCaches(puzzleDates: string[]): void {
   const uniqueDates = [...new Set(puzzleDates)];
   for (const puzzleDate of uniqueDates) publishSolutionCache(puzzleDate);
+}
+
+export function publishOptimizedSolutionCaches(dates: string[]): void {
+  if (dates.length === 0) return;
+  revalidatePath("/optimized-solutions");
+  revalidatePath("/sitemap.xml");
+  if (dates.includes(todayIsoDate())) revalidatePath("/");
+  for (const date of new Set(dates)) {
+    revalidatePath(`/solutions/${date}`);
+    revalidatePath(`/solutions/${date}/optimized`);
+  }
+}
+
+export async function publishDailySolutionCache(date: string, request: Request, secret: string) {
+  publishSolutionCache(date);
+  const requestOrigin = new URL(request.url).origin;
+  const origins = (process.env.SOLUTION_PUBLICATION_ORIGINS ?? "").split(",").filter(Boolean);
+  await Promise.all(origins.filter((origin) => origin !== requestOrigin).map(async (origin) => {
+    const response = await fetch(`${origin}/api/maintenance/publish-solution-cache`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${secret}`, "content-type": "application/json" },
+      body: JSON.stringify({ dates: [date] }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) throw new Error(`Cache publication returned ${response.status} for ${origin}`);
+  }));
 }

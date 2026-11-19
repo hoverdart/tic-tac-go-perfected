@@ -5,7 +5,7 @@
 // request to the FastAPI backend.
 import { NextResponse } from "next/server";
 import { getBackendBaseUrl } from "../../../backend-url";
-import { publishSolutionCache, puzzleDateFromPayload } from "../../publish-solution-cache";
+import { publishDailySolutionCache, puzzleDateFromPayload } from "../../publish-solution-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
 
   const payload = await readBackendBody(response);
   const puzzleDate = response.ok ? puzzleDateFromPayload(payload) : null;
-  if (puzzleDate) publishSolutionCache(puzzleDate);
+  if (puzzleDate) await publishDailySolutionCache(puzzleDate, request, cronSecret);
 
   return NextResponse.json(
     {

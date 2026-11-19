@@ -23,6 +23,6 @@ export async function getPreferredTodaySolution() {
 }
 
 export async function getPreferredSolutionByDate(date: string) {
-  const solution = await getSolutionByDate(date);
+  const solution = await getSolutionByDate(date, true);
   return solution === null ? null : preferred(solution);
 }

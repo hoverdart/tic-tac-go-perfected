@@ -30,13 +30,16 @@ from pydantic import BaseModel, Field
 from apps.api.board_capture import capture_google_board_screenshot, remote_browser_diagnostics
 from apps.api.puzzle_catalog import CatalogError, entry_for_date
 from apps.api.daily_solve import run_daily_solve, utc_puzzle_date
+from apps.api.optimized_publication import FEED_SCHEMA, OptimizedRevision, sync_optimized_publication
 from apps.api.solution_storage import (
     StorageError,
+    acknowledge_optimized_publication,
     close_pool,
     cache_custom_solution,
     get_cached_custom_solution,
     get_solution,
     list_recent_solutions,
+    list_optimized_solutions,
     list_daily_solve_runs,
     reserve_custom_solve,
     run_migrations,
@@ -533,6 +536,31 @@ def daily_solve_job() -> JobResponse:
 # ---------------------------------------------------------------------------
 # Solution read endpoints (public)
 # ---------------------------------------------------------------------------
+
+
+@app.get("/optimized-solutions")
+def optimized_solutions(response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    rows = list_optimized_solutions()
+    if rows is None:
+        raise HTTPException(status_code=404, detail="Optimized archive has not been imported.")
+    return {"schema": FEED_SCHEMA, "solver_name": "optimized-v1", "solutions": rows}
+
+
+@app.post("/jobs/optimized-publication", dependencies=[Depends(require_cron_secret)])
+def import_optimized_publication(request: OptimizedRevision):
+    try:
+        dates = sync_optimized_publication(request.revision)
+    except (OSError, ValueError, StorageError):
+        logger.exception("optimized_publication.import_failed")
+        raise HTTPException(status_code=503, detail="Could not import optimized publication.")
+    return {"dates": dates}
+
+
+@app.post("/jobs/optimized-publication/ack", dependencies=[Depends(require_cron_secret)])
+def acknowledge_optimized_import(request: OptimizedRevision):
+    acknowledge_optimized_publication(request.revision)
+    return {"ok": True}
 
 
 @app.get("/solutions/today", response_model=SolutionRecord)

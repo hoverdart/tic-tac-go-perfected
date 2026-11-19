@@ -264,9 +264,8 @@ trained or enabled during these tests, and production V4 remains untouched.
 
 `scripts/update_optimized_v1.py` exports independently replay-verified paths
 to `apps/web/data/optimized-v1.json` and, with `--publish`, to the isolated
-**optimized-v1-data** Git branch. It never imports database storage, calls the
-hosted solver, or modifies daily V4 records. Publication writes only the data
-branch and uses ordinary fast-forward pushes. It cannot push to main.
+**optimized-v1-data** Git branch using ordinary fast-forward pushes. The hosted
+publisher asks the API to verify and persist the branch snapshot in Neon.
 
 The November 11 local backfill covers **414/414 released catalog boards**, with
 **31.99275 average moves** and **340 completed-search shortest-path certificates**.
@@ -285,15 +284,15 @@ and the sitemap includes every optimized page. Only certified paths say
 **Shortest path verified**; other paths remain explicitly best known. These
 routes inherit the garden, leaves, reduced-motion support, and navigation transitions.
 
-The website fetches the public data branch with five-minute caching and page
-revalidation. New data needs no deployment. Bundled paths provide an outage
-fallback; a missing newer path during an outage throws rather than caching a
-false 404. A healthy remote snapshot is authoritative about removed dates,
-including changed official layouts not solved again yet. Same-board path
-regressions and contradictions with bundled certificates are rejected. The
-sitemap/archive throw on feed outages to retain good cached content rather
-than advertise a partial archive. Set `OPTIMIZED_V1_FEED_URL=""` to use only
-the bundled snapshot, as in isolated CI.
+Neon stores optimized results separately from standard daily solutions. Import
+replays the immutable data-branch revision before updating the public snapshot
+and recording the affected dates in one transaction. A withdrawn result remains
+in storage and disappears from the public archive until a replacement is verified.
+
+Vercel pre-renders existing dated pages at build time and generates later dates
+on demand. Publication refreshes the affected date URLs, the relevant indexes
+and the sitemap. The data branch supports initial rollout and recovery. Set
+`OPTIMIZED_V1_FEED_URL=""` to use the bundled snapshot in isolated CI.
 
 The worker checks Google's public catalog, skips unchanged solved dates, retries
 missing dates, and runs V4 plus optimized-v1 **locally** for new boards. It replays
@@ -469,9 +468,12 @@ The existing verified feed is the durable checkpoint; missing released dates are
 retried and earlier receipts are preserved. Runs are serialized with concurrency
 cancellation disabled, and pushes remain ordinary fast-forward data-branch pushes.
 
-The workflow needs only its short-lived repository `GITHUB_TOKEN` with contents
-write permission. It does not receive Neon, Cloud Run, Vercel, or personal Git
-credentials. Diagnostics and new receipts are retained as run artifacts for 14
+The workflow uses its short-lived repository `GITHUB_TOKEN` and the scoped
+`OPTIMIZED_PUBLICATION_SECRET`, which is configured in GitHub and in Vercel
+production. The API retains pending refreshes until both public domains
+acknowledge the revision. `SOLUTION_PUBLICATION_ORIGINS` in Vercel configures the
+same domains for standard daily publication. Diagnostics and new receipts are
+retained as run artifacts for 14
 days. Each job has a 20-minute timeout. Scheduled GitHub runs can be delayed; this
 is not a guaranteed release-time SLA. Existing paths stay available if a run fails.
 The Mac LaunchAgent is disabled after the first verified successful hosted run;

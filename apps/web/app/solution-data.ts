@@ -113,7 +113,7 @@ export async function getTodaySolution(): Promise<{
   }
 }
 
-export async function getSolutionByDate(date: string): Promise<SolutionRecord | null> {
+export async function getSolutionByDate(date: string, archive = false): Promise<SolutionRecord | null> {
   if (!isIsoDate(date)) return null;
   const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) {
@@ -124,7 +124,7 @@ export async function getSolutionByDate(date: string): Promise<SolutionRecord | 
   // Throw on outages so ISR retains a previous good page and retries later.
   const response = await fetch(`${apiBaseUrl}/solutions/${date}`, {
     cache: "force-cache",
-    next: { tags: [solutionDateCacheTag(date)], revalidate: 3600 },
+    next: { tags: [solutionDateCacheTag(date)], revalidate: archive ? false : 3600 },
   });
   if (response.status === 404) return null;
   if (!response.ok) {
@@ -136,7 +136,7 @@ export async function getSolutionByDate(date: string): Promise<SolutionRecord | 
   return solution;
 }
 
-async function getHistory(limit: number, required = false): Promise<HistoryEntry[]> {
+async function getHistory(limit: number, required = false, archive = false): Promise<HistoryEntry[]> {
   const apiBaseUrl = getBackendBaseUrl();
   if (!apiBaseUrl) {
     if (required) throw new Error("Solution service is not configured.");
@@ -146,7 +146,9 @@ async function getHistory(limit: number, required = false): Promise<HistoryEntry
   try {
     const response = await fetch(`${apiBaseUrl}/solutions/recent?limit=${limit}`, {
       cache: "force-cache",
-      next: { tags: [SOLUTION_HISTORY_CACHE_TAG], revalidate: 3600 },
+      // Archived pages are refreshed by date. Keep the shared history tag
+      // on the live views so a new day does not invalidate the whole archive.
+      next: archive ? { revalidate: false } : { tags: [SOLUTION_HISTORY_CACHE_TAG], revalidate: 3600 },
     });
     if (!response.ok) throw new Error(`Solution history returned ${response.status}.`);
     return await response.json();
@@ -162,7 +164,7 @@ export function getFullHistory(): Promise<HistoryEntry[]> {
 
 export function getSitemapHistory(): Promise<HistoryEntry[]> {
   // Never publish an almost-empty sitemap during a temporary backend outage.
-  return getHistory(10_000, true);
+  return getHistory(10_000, true, true);
 }
 
 export function nearbyHistory(history: HistoryEntry[], date: string): HistoryEntry[] {
@@ -178,5 +180,5 @@ export function nearbyHistory(history: HistoryEntry[], date: string): HistoryEnt
 
 export async function getNearbyHistory(date: string): Promise<HistoryEntry[]> {
   // Navigation is optional: an archive outage must not hide an available solve.
-  return nearbyHistory(await getFullHistory(), date);
+  return nearbyHistory(await getHistory(10_000, false, true), date);
 }

@@ -1,9 +1,7 @@
 """
 Postgres persistence layer for daily puzzle solutions.
 
-All reads and writes go through a single `daily_solutions` table. The public
-API is `upsert_solution`, `get_solution`, and `list_recent_solutions`; the
-rest is internal plumbing.
+Standard and optimized solutions have separate publication lifecycles.
 
 The connection pool is created lazily so solver-only tools can import this
 module without configuring Postgres. Schema migrations are intentionally
@@ -209,6 +207,24 @@ def run_migrations() -> None:
         )
         conn.execute(
             """
+            CREATE TABLE IF NOT EXISTS optimized_solutions (
+                puzzle_date date PRIMARY KEY,
+                solution jsonb NOT NULL,
+                published boolean NOT NULL DEFAULT true
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS optimized_publication (
+                singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
+                revision text NOT NULL,
+                pending_dates date[] NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS daily_solve_runs (
                 run_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 puzzle_date date NOT NULL,
@@ -255,6 +271,85 @@ def run_migrations() -> None:
 def init_db() -> None:
     """Compatibility alias for older scripts; prefer run_migrations()."""
     run_migrations()
+
+
+def get_optimized_publication() -> dict[str, Any] | None:
+    with _connect() as conn:
+        return conn.execute(
+            "SELECT revision, pending_dates FROM optimized_publication WHERE singleton"
+        ).fetchone()
+
+
+def publish_optimized_snapshot(
+    revision: str, previous_revision: str | None, solutions: list[dict[str, Any]],
+) -> list[date]:
+    """Atomically store a verified snapshot and queue changed public pages."""
+    with _connect() as conn:
+        conn.execute("SELECT pg_advisory_xact_lock(%s)", (84736292,))
+        current = conn.execute(
+            "SELECT revision, pending_dates FROM optimized_publication WHERE singleton"
+        ).fetchone()
+        if current and current["revision"] == revision:
+            return current["pending_dates"]
+        if (current["revision"] if current else None) != previous_revision:
+            raise StorageError("Optimized publication changed during import. Retry the current revision.")
+        changes = conn.execute(
+            """
+            INSERT INTO optimized_solutions (puzzle_date, solution)
+            SELECT (record->>'puzzle_date')::date, record
+            FROM jsonb_array_elements(%s) AS entry(record)
+            ON CONFLICT (puzzle_date) DO UPDATE
+                SET solution = EXCLUDED.solution, published = true
+                WHERE optimized_solutions.solution IS DISTINCT FROM EXCLUDED.solution
+                   OR NOT optimized_solutions.published
+            RETURNING puzzle_date
+            """,
+            (_json(solutions),),
+        ).fetchall()
+        withdrawn = conn.execute(
+            """
+            UPDATE optimized_solutions SET published = false
+            WHERE published AND NOT (puzzle_date = ANY(%s::date[]))
+            RETURNING puzzle_date
+            """,
+            ([date.fromisoformat(row["puzzle_date"]) for row in solutions],),
+        ).fetchall()
+        pending = set(current["pending_dates"]) if current else set()
+        pending.update(row["puzzle_date"] for row in changes + withdrawn)
+        dates = sorted(pending)
+        conn.execute(
+            """
+            INSERT INTO optimized_publication (revision, pending_dates) VALUES (%s, %s)
+            ON CONFLICT (singleton) DO UPDATE
+                SET revision = EXCLUDED.revision, pending_dates = EXCLUDED.pending_dates
+            """,
+            (revision, dates),
+        )
+        return dates
+
+
+def acknowledge_optimized_publication(revision: str) -> None:
+    with _connect() as conn:
+        conn.execute("SELECT pg_advisory_xact_lock(%s)", (84736292,))
+        conn.execute(
+            "UPDATE optimized_publication SET pending_dates = '{}' WHERE revision = %s",
+            (revision,),
+        )
+
+
+def list_optimized_solutions() -> list[dict[str, Any]] | None:
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT COALESCE((
+                SELECT jsonb_agg(solution - 'provenance' ORDER BY puzzle_date DESC)
+                FROM optimized_solutions
+                WHERE published AND puzzle_date <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date
+            ), '[]'::jsonb) AS solutions
+            FROM optimized_publication WHERE singleton
+            """
+        ).fetchone()
+    return row["solutions"] if row else None
 
 
 def begin_daily_solve_run(puzzle_date: date, solver_version: str) -> int:

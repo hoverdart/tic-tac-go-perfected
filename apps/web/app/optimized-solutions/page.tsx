@@ -5,7 +5,7 @@ import { getOptimizedSolutions } from "../optimized-solution-data";
 import { formatLongDate } from "../solution-data";
 
 export const dynamic = "force-static";
-export const revalidate = 300;
+export const revalidate = false;
 
 export const metadata: Metadata = {
   title: "Tic Tac Go Optimized Solutions",

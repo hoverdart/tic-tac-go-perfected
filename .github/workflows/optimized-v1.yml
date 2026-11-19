@@ -6,7 +6,7 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
 
-# This job publishes only the dedicated data branch; no cloud/DB secrets needed.
+# The optimizer writes the data branch. The publishing endpoint imports it.
 permissions:
   contents: write
 
@@ -53,6 +53,13 @@ jobs:
           PYTHONPATH: .
           GIT_TERMINAL_PROMPT: '0'
         run: python scripts/update_optimized_v1.py --state-dir "$GITHUB_WORKSPACE/state" --publish
+      - name: Persist and refresh the optimized archive
+        if: always() && !cancelled()
+        working-directory: source
+        env:
+          OPTIMIZED_PUBLICATION_SECRET: ${{ secrets.OPTIMIZED_PUBLICATION_SECRET }}
+          SOLUTION_PUBLICATION_ORIGINS: https://tictacgo.shauryav.com,https://tictacgo.abdullahwaris.com
+        run: python scripts/sync_optimized_publication.py
       - name: Preserve run diagnostics
         if: always()
         uses: actions/upload-artifact@v4

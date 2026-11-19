@@ -64,11 +64,11 @@ describe("SEO metadata routes", () => {
       "https://api.example.com/solutions/recent?limit=10000",
       {
         cache: "force-cache",
-        next: { tags: ["solutions:history"], revalidate: 3600 },
+        next: { revalidate: false },
       },
     );
-    expect(dynamic).toBe("force-dynamic");
-    expect(revalidate).toBe(86400);
+    expect(dynamic).toBe("force-static");
+    expect(revalidate).toBe(false);
     expect(entries.map((entry) => entry.url)).toEqual([
       "https://tictacgo.shauryav.com/",
       "https://tictacgo.shauryav.com/solutions/2026-07-15",

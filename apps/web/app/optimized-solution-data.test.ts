@@ -60,9 +60,56 @@ describe("optimized-v1 publication", () => {
   it("accepts independently published new dates without a web deployment", async () => {
     const feed = fixture();
     feed.solutions[0].puzzle_date = "2025-01-02";
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => feed }));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(feed))));
     expect(await getOptimizedSolution("2025-01-02")).toMatchObject({ puzzle_date: "2025-01-02" });
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining("optimized-v1-data"), expect.objectContaining({ next: { revalidate: 300, tags: ["optimized-v1"] } }));
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining("optimized-v1-data"), expect.objectContaining({ next: { revalidate: false } }));
     expect(await getOptimizedSolution("2025-01-03")).toBeNull();
+  });
+
+  it("uses the authoritative Postgres snapshot without falling back to removed dates", async () => {
+    vi.stubEnv("API_BASE_URL", "https://api.example.com");
+    const fetchFeed = vi.fn(async () => new Response(JSON.stringify({
+      ...fixture(), solutions: [],
+    })));
+    vi.stubGlobal("fetch", fetchFeed);
+    await expect(getOptimizedSolution("2025-01-01")).resolves.toBeNull();
+    expect(fetchFeed).toHaveBeenCalledTimes(1);
+    expect(fetchFeed).toHaveBeenCalledWith("https://api.example.com/optimized-solutions", expect.objectContaining({
+      next: { revalidate: false },
+    }));
+  });
+
+  it("reuses verified feed contents across requests and checks each new version", async () => {
+    const feed = fixture();
+    const fetchFeed = vi.fn(async () => new Response(JSON.stringify(feed)));
+    vi.stubGlobal("fetch", fetchFeed);
+
+    const first = await getOptimizedSolutions(true);
+    expect(await getOptimizedSolutions(true)).toBe(first);
+    expect(fetchFeed).toHaveBeenCalledTimes(2);
+
+    feed.solutions[0].moves = "";
+    feed.solutions[0].lower_bound = 0;
+    await expect(getOptimizedSolutions(true)).rejects.toThrow("replay verification");
+    feed.solutions = [];
+    await expect(getOptimizedSolutions(true)).resolves.toEqual([]);
+  });
+
+  it("releases a future date at UTC midnight even when the feed is unchanged", async () => {
+    const feed = fixture();
+    feed.solutions[0].puzzle_date = "2026-07-16";
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(feed))));
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-07-15T23:59:59Z"));
+      await expect(getOptimizedSolution("2026-07-16")).resolves.toBeNull();
+      await expect(getOptimizedSolutions(true)).resolves.toEqual([]);
+      vi.setSystemTime(new Date("2026-07-16T00:00:00Z"));
+      await expect(getOptimizedSolution("2026-07-16")).resolves.toMatchObject({
+        puzzle_date: "2026-07-16",
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

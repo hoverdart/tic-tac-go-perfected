@@ -3,11 +3,9 @@ import { getSitemapHistory, isIsoDate, todayIsoDate } from "./solution-data";
 import { getSiteUrl } from "./site-url";
 import { getOptimizedSolutions } from "./optimized-solution-data";
 
-// Sitemap generation must recover if the backend is unavailable during a
-// deployment. The history fetch remains tagged/cached; this route simply
-// renders a fresh XML response after the authenticated publisher invalidates it.
-export const dynamic = "force-dynamic";
-export const revalidate = 86400;
+// The publishers refresh the sitemap when a solution is published.
+export const dynamic = "force-static";
+export const revalidate = false;
 
 function lastModified(date: string): Date {
   return new Date(`${date}T00:00:00Z`);

@@ -6,18 +6,19 @@ import { getOptimizedSolutions, matchesOptimizedBoard } from "../../optimized-so
 import {
   formatLongDate,
   getNearbyHistory,
+  getSitemapHistory,
   isIsoDate,
   solutionMetaDescription,
 } from "../../solution-data";
 
 export const dynamic = "force-static";
 export const dynamicParams = true;
-export const revalidate = 300;
+export const revalidate = false;
 
-export function generateStaticParams() {
-  // Generate on first request. Hourly revalidation provides a recovery path
-  // even when an authenticated cache-publication request was missed.
-  return [];
+export async function generateStaticParams() {
+  return (await getSitemapHistory())
+    .filter((row) => isIsoDate(row.puzzle_date) && row.status !== "pending")
+    .map((row) => ({ date: row.puzzle_date }));
 }
 
 type Props = {
