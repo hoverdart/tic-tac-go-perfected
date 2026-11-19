@@ -1,6 +1,13 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getOptimizedSolution, getOptimizedSolutions, matchesOptimizedBoard, mergeOptimizedSolutions, optimizedSolutionRecord, parseOptimizedFeed } from "./optimized-solution-data";
 import fallbackFeed from "../data/optimized-v1.json";
+
+beforeEach(() => {
+  vi.stubEnv("API_BASE_URL", "");
+  vi.stubEnv("BACKEND_URL", "");
+  vi.stubEnv("VERCEL_URL", "");
+  vi.stubEnv("OPTIMIZED_V1_FEED_URL", undefined);
+});
 
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
